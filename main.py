@@ -489,9 +489,20 @@ def tts_line(text, voice_spec, gtts_lang, out_wav):
         f = max(0.72, min(1.3, (0.80 if male else 1.0) * (1 + hz / 160)))
         af = f"asetrate=44100*{f:.3f},aresample=44100,atempo={min(2.0, max(0.5, 1 / f)):.3f}"
     if ghost:
-        # deeper, slower, with a cold echo
-        af = af + "," + ("asetrate=44100*0.86,aresample=44100,atempo=1.08,"
-              "aecho=0.8:0.75:90|180:0.35|0.22,lowpass=f=5200,volume=1.2")
+        # Scary ghost voice, three layers mixed together:
+        #  1. a very deep, slow, trembling copy of the voice
+        #  2. a thin, high, airy "whisper" copy that follows a moment later
+        #  3. a low growl (the deep voice, much lower again, quiet)
+        # then a long cold echo, like a voice from an empty hall.
+        g = (f"[0:a]{af},asplit=3[a][b][c];"
+             "[a]asetrate=44100*0.78,aresample=44100,atempo=1.15,vibrato=f=4.5:d=0.35[deep];"
+             "[b]asetrate=44100*1.08,aresample=44100,atempo=0.83,highpass=f=1800,volume=0.45,adelay=70[air];"
+             "[c]asetrate=44100*0.62,aresample=44100,atempo=1.445,lowpass=f=700,volume=0.55,adelay=20[growl];"
+             "[deep][air][growl]amix=inputs=3:normalize=0,"
+             "aecho=0.8:0.88:140|310|520:0.5|0.32|0.2,lowpass=f=6500,"
+             "dynaudnorm=f=150:g=7,volume=1.1[out]")
+        run(["ffmpeg", "-y", "-i", mp3, "-filter_complex", g, "-map", "[out]", "-ac", "1", "-ar", str(SR), out_wav])
+        return duration(out_wav)
     run(["ffmpeg", "-y", "-i", mp3, "-af", af, "-ac", "1", "-ar", str(SR), out_wav])
     return duration(out_wav)
 
@@ -730,6 +741,14 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav):
     for start, a in pieces:
         _place(voice, a, start)
     bed = drone(n, rnd, mood)
+    for (start, a), (_, _, is_nar, _), ln in zip(pieces, subs, [l for l in lines if str(l.get("text", "")).strip()]):
+        if voices.for_speaker(ln.get("speaker", ""))[3]:            # a ghost is speaking
+            m = int(SR * 1.2)
+            swell = _filt(_noise(m, rnd), "bandpass", [300, 3000]) * np.linspace(0, 1, m) ** 2 * 0.35
+            _place(bed, swell, max(0.0, start - 1.1))
+            k = len(a) + int(SR * 0.8)
+            wh = synth("whisper", k, rnd) * 1.4
+            _place(bed, wh, start)
     for tag in (sounds or [])[:3]:
         if tag in SOUND_TAGS:
             bed += synth(tag, n, rnd) * (0.55 if tag != "scare_hit" else 0.8)
@@ -848,7 +867,8 @@ def horror_look():
     yy, xx = np.mgrid[0:H, 0:W]
     r = np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2)
     _LOOK["vignette"] = np.clip(1.15 - 0.55 * r ** 1.6, 0.25, 1)[..., None].astype("float32")
-    _LOOK["grain"] = [(rnd.standard_normal((H, W, 1)) * 9).astype("float32") for _ in range(6)]
+    _LOOK["grain"] = [cv2.GaussianBlur((rnd.standard_normal((H, W)) * 4.5).astype("float32"), (0, 0), 0.8)[..., None]
+                      for _ in range(6)]   # soft grain: looks like film, keeps the file small
     fog = cv2.resize(rnd.uniform(0, 1, (12, 24)).astype("float32"), (W * 2, H), interpolation=cv2.INTER_CUBIC)
     fog = cv2.GaussianBlur(fog, (0, 0), 25)
     _LOOK["fog"] = np.clip((fog - fog.min()) / (fog.max() - fog.min() + 1e-6), 0, 1)
@@ -897,7 +917,7 @@ def scene_clip_animated(img, audio, out, idx, mood):
         ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}",
          "-r", str(FPS), "-i", "-", "-i", audio, "-t", f"{dur:.2f}",
          "-vf", f"fade=t=in:st=0:d=0.5,fade=t=out:st={dur - 0.5:.2f}:d=0.5,format=yuv420p",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k",
          "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-ac", "2", out],
         stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
@@ -937,10 +957,10 @@ def scene_clip_simple(img, audio, out, idx, mood):
     frames = int(dur * FPS) + 1
     z = "min(1+0.0005*on,1.07)" if idx % 2 == 0 else "max(1.07-0.0005*on,1)"
     vf = (f"scale={W * 2}:{H * 2},zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}"
-          f":s={W}x{H}:fps={FPS},eq=saturation=0.8:brightness=-0.03,vignette=PI/4,noise=alls=10:allf=t,"
+          f":s={W}x{H}:fps={FPS},eq=saturation=0.8:brightness=-0.03,vignette=PI/4,noise=alls=5:allf=t,"
           f"fade=t=in:st=0:d=0.5,fade=t=out:st={dur - 0.5:.2f}:d=0.5,format=yuv420p")
     run(["ffmpeg", "-y", "-loop", "1", "-i", img, "-i", audio, "-vf", vf, "-t", f"{dur:.2f}", "-r", str(FPS),
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k",
          "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-ac", "2", out])
     return dur
 
@@ -1026,7 +1046,7 @@ def build_video(scene_parts, lang, out):
     write_ass(segs, os.path.join(WORK, "subs.ass"), LANGS[lang]["font_family"])
     vf = f"ass=subs.ass:fontsdir={os.path.dirname(FONT)}:shaping=complex"
     r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-vf", vf, "-c:v", "libx264", "-preset", "medium",
-                        "-crf", "21", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
+                        "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
                         os.path.abspath(out)], capture_output=True, text=True, cwd=WORK)
     if r.returncode != 0:
         raise RuntimeError("final render failed:\n" + r.stderr[-2000:])
@@ -1034,27 +1054,61 @@ def build_video(scene_parts, lang, out):
 
 
 # ----------------------------------------------------------------- 7. posting
+def _fb_json(r):
+    try:
+        return r.json()
+    except Exception:
+        raise RuntimeError(f"Facebook replied HTTP {r.status_code}: {r.text[:200]!r}")
+
+
 def post_to_facebook(video, thumb, title, description):
+    """Uploads in pieces (resumable), so big videos don't fail half-way."""
     page, token = need_env("FB_PAGE_ID"), need_env("FB_PAGE_TOKEN")
-    url = f"https://graph-video.facebook.com/{page}/videos"
+    url = f"https://graph-video.facebook.com/v21.0/{page}/videos"
+    size = os.path.getsize(video)
+    log(f"  video size: {size / 1e6:.0f} MB")
     for attempt in range(3):
         try:
-            with open(video, "rb") as v, open(thumb, "rb") as th:
-                r = requests.post(url, data={"access_token": token, "title": title,
-                                             "description": description, "published": "true"},
-                                  files={"source": ("story.mp4", v, "video/mp4"),
-                                         "thumb": ("thumb.jpg", th, "image/jpeg")}, timeout=900)
-            js = r.json()
-            if r.ok and js.get("id"):
-                return js["id"]
-            err = js.get("error", {})
-            if err.get("code") in (190, 200, 10, 100):
-                raise PermissionError(f"Facebook refused: {err.get('message')} -> check FB_PAGE_ID / FB_PAGE_TOKEN")
-            raise RuntimeError(err.get("message", r.text[:300]))
+            js = _fb_json(requests.post(url, data={"access_token": token, "upload_phase": "start",
+                                                   "file_size": str(size)}, timeout=120))
+            if "error" in js:
+                err = js["error"]
+                if err.get("code") in (190, 200, 10, 100):
+                    raise PermissionError(f"Facebook refused: {err.get('message')} -> check FB_PAGE_ID / FB_PAGE_TOKEN")
+                raise RuntimeError(err.get("message"))
+            sid, start, end = js["upload_session_id"], int(js["start_offset"]), int(js["end_offset"])
+            with open(video, "rb") as f:
+                while start < end:
+                    f.seek(start)
+                    chunk = f.read(end - start)
+                    for t in range(4):
+                        try:
+                            jr = _fb_json(requests.post(url, data={"access_token": token, "upload_phase": "transfer",
+                                                                   "upload_session_id": sid, "start_offset": str(start)},
+                                                        files={"video_file_chunk": ("chunk", chunk, "application/octet-stream")},
+                                                        timeout=600))
+                            if "error" in jr:
+                                raise RuntimeError(jr["error"].get("message"))
+                            break
+                        except Exception as e:
+                            if t == 3:
+                                raise
+                            log(f"    piece retry: {str(e)[:120]}")
+                            time.sleep(10)
+                    start, end = int(jr["start_offset"]), int(jr["end_offset"])
+                    log(f"    uploaded {start / 1e6:.0f}/{size / 1e6:.0f} MB")
+            with open(thumb, "rb") as th:
+                jf = _fb_json(requests.post(url, data={"access_token": token, "upload_phase": "finish",
+                                                       "upload_session_id": sid, "title": title,
+                                                       "description": description, "published": "true"},
+                                            files={"thumb": ("thumb.jpg", th, "image/jpeg")}, timeout=300))
+            if jf.get("success") or jf.get("id"):
+                return js.get("video_id") or jf.get("id") or sid
+            raise RuntimeError(str(jf)[:300])
         except PermissionError:
             raise
         except Exception as e:
-            log(f"  Facebook upload attempt {attempt + 1} failed: {str(e)[:200]}")
+            log(f"  Facebook upload attempt {attempt + 1} failed: {str(e)[:250]}")
             time.sleep(30)
     raise RuntimeError("Facebook upload failed 3 times")
 
