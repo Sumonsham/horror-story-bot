@@ -3,8 +3,8 @@ name: Daily Horror Story
 on:
   schedule:
     # Times are in UTC. GitHub usually starts 5-20 minutes late, so these land around:
-    - cron: "25 14 * * *"   # ~8:00 PM India time
-    - cron: "55 16 * * *"   # ~10:30 PM India time
+    - cron: "25 7 * * *"    # ~1:00 PM India time
+    - cron: "25 15 * * *"   # ~9:00 PM India time
   workflow_dispatch:        # "Run workflow" button for tests
     inputs:
       language:
