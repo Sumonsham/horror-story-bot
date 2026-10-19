@@ -91,6 +91,7 @@ THEMES = [
 SOUND_TAGS = ["wind", "rain", "thunder", "crickets", "owl", "heartbeat", "footsteps", "creak",
               "whisper", "clock", "howl", "drip", "knock", "scare_hit"]
 MOODS = ["calm", "creepy", "tense", "scare", "sad"]
+EMOTIONS = ["normal", "whisper", "scared", "shout", "angry", "sad", "crying", "eerie", "calm"]
 
 ART_STYLE = ("cinematic photorealistic film still, horror movie atmosphere, dark moody low-key lighting, "
              "cold blue and green tones with warm lamp light, light fog, realistic Indian people and places, "
@@ -208,6 +209,13 @@ Story rules:
 - Each scene has 1 to 5 lines. The narrator describes; characters speak only their own words
   (no "he said" inside dialogue). Narrator lines 15-45 words, dialogue lines 3-20 words.
 - Every picture must show exactly what that scene's lines describe.
+- SOUND DESIGN like a radio horror drama: for every line think what the listener should HEAR.
+  When a line mentions a door, footsteps, knocking, wind, rain, a scream, bells, a phone, breaking glass,
+  put that exact sound in that line's "sfx" with the right timing. 0-2 sfx per line, only real story events.
+- Think like a film director: every line gets its own camera "shot" showing exactly what that line says
+  (close-up of a frightened face, a hand on the door handle, the lamp flickering, a shadow in the corridor...).
+- Give every line an emotion so the voice acts it (whisper when hiding, scared when afraid, shout when screaming).
+- Mark "jump_scare": true on 1-3 lines in the whole story where the big scare lands (a sudden sound/reveal).
 
 Return ONLY JSON with exactly these keys:
 {{
@@ -225,8 +233,13 @@ Return ONLY JSON with exactly these keys:
     "action": "ENGLISH: exactly what happens in this scene: who does what, poses, expressions, key objects",
     "place": "ENGLISH: where in the setting + lighting",
     "mood": "one of {MOODS}",
-    "sounds": ["0-3 from {SOUND_TAGS}"],
-    "lines": [{{"speaker": "narrator or a character name", "text": "{L['name']} text"}}]
+    "ambience": ["1-2 ENGLISH continuous background sounds that fit THIS place and moment, e.g. 'heavy rain on tin roof', 'night crickets in fields', 'wind howling through broken windows', 'old wall clock ticking', 'river flowing at night', 'distant temple bells'"],
+    "lines": [{{"speaker": "narrator or a character name", "text": "{L['name']} text",
+                "emotion": "one of {EMOTIONS}",
+                "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
+                          "when": "before (sound first, then the line), during, or after (line first, then the sound)"}}],
+                "jump_scare": false,
+                "shot": "ENGLISH: what the camera shows WHILE this line is heard, like a film shot: who/what is in frame, close-up or wide, expression, action, light. Every line gets a different shot that matches the words exactly"}}]
  }}],
  "ending_line": "one short {L['name']} line from the narrator that leaves a chill"
 }}
@@ -331,7 +344,11 @@ class Cast:
         return p
 
 
-def cf_request(model, prompt, ref_path=None, w=1280, h=720, seed=None):
+CF_QUOTA_OUT = False
+PIC_W, PIC_H = 1024, 576        # 16:9; scaled up to 1280x720 for the video
+
+
+def cf_request(model, prompt, ref_path=None, w=PIC_W, h=PIC_H, seed=None):
     acct, token = need_env("CF_ACCOUNT_ID"), need_env("CF_API_TOKEN")
     url = f"https://api.cloudflare.com/client/v4/accounts/{acct}/ai/run/{model}"
     hdr = {"Authorization": f"Bearer {token}"}
@@ -382,21 +399,49 @@ def make_cast_sheet(cast, path, seed):
 
 
 def make_image(cast, action, place, names, path, seed):
+    global CF_QUOTA_OUT
     if MOCK:
         return mock_image(path, seed)
+    if CF_QUOTA_OUT:
+        return False
     tries = []
     if cast.ref:
         tries.append((CF_MODEL, cast.scene_prompt(action, place, names, True), cast.ref))
     tries.append((CF_MODEL, cast.scene_prompt(action, place, names, False), None))
     tries.append((CF_BACKUP, cast.scene_prompt(action, place, names, False)[:1500], None))
+    soft = False
     for attempt, (model, prompt, ref) in enumerate(tries):
         try:
+            if soft:
+                prompt = soften(prompt)
             save_picture(cf_request(model, prompt, ref, seed=seed), path)
             return True
         except Exception as e:
-            log(f"  picture attempt {attempt + 1} ({model.split('/')[-1]}) failed: {str(e)[:300]}")
+            if "flagged" in str(e).lower() or "3030" in str(e):
+                soft = True                       # safety filter: next try uses gentler words
+            if any(k in str(e).lower() for k in ("allocation", "4006", "quota", "neurons")):
+                CF_QUOTA_OUT = True               # free daily limit used up: reuse earlier pictures
+                log("  Cloudflare daily free limit reached - reusing earlier pictures with new camera moves")
+                return False
+            log(f"  picture attempt {attempt + 1} ({model.split('/')[-1]}) failed: {str(e)[:200]}")
             time.sleep(6 * (attempt + 1))
     return False
+
+
+SOFT_WORDS = {
+    "corpse": "still figure", "dead body": "figure lying still", "dead": "lifeless-looking", "blood": "red paint",
+    "bloody": "stained", "kill": "chase", "killed": "gone", "murder": "mystery", "knife": "old key",
+    "skull": "old stone", "demon": "shadowy figure", "possessed": "strange-eyed", "hanging": "standing",
+    "terrified": "worried", "screaming": "calling out", "horror movie": "mystery movie", "ghost": "pale figure",
+    "witch": "old woman", "grave": "old stone", "coffin": "old wooden box", "attack": "approach",
+}
+
+
+def soften(prompt):
+    out = prompt
+    for k, v in SOFT_WORDS.items():
+        out = re.sub(rf"\b{k}\b", v, out, flags=re.I)
+    return out.replace("eerie but not gory", "mysterious, suspenseful, family friendly")
 
 
 # ----------------------------------------------------------------- 3. voices
@@ -454,13 +499,31 @@ class Voices:
         return v, r, p, False
 
 
-async def _edge(text, voice, rate, pitch, out):
+async def _edge(text, voice, rate, pitch, out, volume="+0%"):
     import edge_tts
-    await edge_tts.Communicate(text, voice, rate=rate, pitch=pitch).save(out)
+    await edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, volume=volume).save(out)
 
 
-def tts_line(text, voice_spec, gtts_lang, out_wav):
-    """Speak one line -> mono 44.1k wav. Returns seconds."""
+# how each emotion changes the voice: (speed %, pitch Hz, volume %, extra sound filter)
+EMOTION_VOICE = {
+    "normal": (0, 0, 0, ""),
+    "calm": (-6, -2, -5, ""),
+    "whisper": (-10, -6, -35, "highpass=f=180"),
+    "scared": (12, 12, 5, ""),
+    "shout": (8, 22, 25, "acompressor=threshold=0.2:ratio=4,volume=1.3"),
+    "angry": (5, -6, 20, "acompressor=threshold=0.25:ratio=3"),
+    "sad": (-14, -10, -10, ""),
+    "crying": (-10, 6, -5, ""),
+    "eerie": (-14, -8, -5, ""),
+}
+
+
+def _add(a, b, unit):
+    return f"{int(str(a).rstrip(unit).replace('+', '') or 0) + b:+d}{unit}"
+
+
+def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
+    """Speak one line -> mono 44.1k wav, acted with the given emotion. Returns seconds."""
     if MOCK:
         secs = max(1.2, len(text) / 15)
         freq = 180 + (abs(hash(voice_spec[0] + voice_spec[2])) % 200)
@@ -468,11 +531,14 @@ def tts_line(text, voice_spec, gtts_lang, out_wav):
              "-af", "volume=0.25", "-ar", str(SR), "-ac", "1", out_wav])
         return secs
     voice, rate, pitch, ghost = voice_spec
+    er, ep, ev, efx = EMOTION_VOICE.get(str(emotion).lower(), EMOTION_VOICE["normal"])
+    rate, pitch = _add(rate, er, "%"), _add(pitch, ep, "Hz")
+    volume = f"{ev:+d}%"
     mp3 = out_wav + ".mp3"
     ok = False
     for attempt in range(3):
         try:
-            asyncio.run(_edge(text, voice, rate, pitch, mp3))
+            asyncio.run(_edge(text, voice, rate, pitch, mp3, volume))
             ok = os.path.getsize(mp3) > 800
             if ok:
                 break
@@ -488,6 +554,8 @@ def tts_line(text, voice_spec, gtts_lang, out_wav):
         male = voice in LANGS["hi"]["male"] + LANGS["bn"]["male"]
         f = max(0.72, min(1.3, (0.80 if male else 1.0) * (1 + hz / 160)))
         af = f"asetrate=44100*{f:.3f},aresample=44100,atempo={min(2.0, max(0.5, 1 / f)):.3f}"
+    if efx:
+        af += "," + efx
     if ghost:
         # Scary ghost voice, three layers mixed together:
         #  1. a very deep, slow, trembling copy of the voice
@@ -499,7 +567,7 @@ def tts_line(text, voice_spec, gtts_lang, out_wav):
              "[b]asetrate=44100*1.08,aresample=44100,atempo=0.83,highpass=f=1800,volume=0.45,adelay=70[air];"
              "[c]asetrate=44100*0.62,aresample=44100,atempo=1.445,lowpass=f=700,volume=0.55,adelay=20[growl];"
              "[deep][air][growl]amix=inputs=3:normalize=0,"
-             "aecho=0.8:0.88:140|310|520:0.5|0.32|0.2,lowpass=f=6500,"
+             "aecho=0.8:0.8:120|260:0.3|0.15,lowpass=f=7000,"
              "dynaudnorm=f=150:g=7,volume=1.1[out]")
         run(["ffmpeg", "-y", "-i", mp3, "-filter_complex", g, "-map", "[out]", "-ac", "1", "-ar", str(SR), out_wav])
         return duration(out_wav)
@@ -680,6 +748,125 @@ def synth(tag, n, rnd):
     return out
 
 
+SFX_KEYWORDS = [  # words in a sound name -> built-in sound used when no real recording is available
+    (("door", "creak", "hinge", "gate", "floorboard", "chair"), "creak"),
+    (("knock", "bang on", "tap"), "knock"),
+    (("step", "walk", "footstep", "running"), "footsteps"),
+    (("thunder", "lightning", "storm"), "thunder"),
+    (("rain", "drizzle", "monsoon"), "rain"),
+    (("wind", "breeze", "gust"), "wind"),
+    (("heart",), "heartbeat"),
+    (("clock", "tick"), "clock"),
+    (("owl",), "owl"),
+    (("howl", "dog", "wolf", "jackal"), "howl"),
+    (("drip", "drop", "tap water"), "drip"),
+    (("whisper", "murmur", "breath", "giggle", "laugh"), "whisper"),
+    (("cricket", "insect", "night", "field"), "crickets"),
+    (("scream", "slam", "crash", "shatter", "glass", "hit", "bang", "jump", "sudden", "boom"), "scare_hit"),
+]
+_SFX_CACHE = {}
+
+
+def _keyword_tag(name):
+    low = str(name).lower()
+    for words, tag in SFX_KEYWORDS:
+        if any(w in low for w in words):
+            return tag
+    return None
+
+
+def _decode(path, max_sec):
+    np = _np()
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-t", f"{max_sec:.2f}", "-f", "f32le", "-ac", "1",
+                          "-ar", str(SR), "-"], capture_output=True).stdout
+    a = np.frombuffer(raw, dtype=np.float32).astype("float64")
+    peak = np.abs(a).max() if len(a) else 0
+    return a / peak * 0.8 if peak > 0 else a
+
+
+def freesound(query, loop):
+    """Real recorded sound from freesound.org (only Creative-Commons-0 = free for any use)."""
+    key = env("FREESOUND_API_KEY")
+    if not key or MOCK:
+        return None
+    ck = (query.lower(), loop)
+    if ck in _SFX_CACHE:
+        return _SFX_CACHE[ck]
+    path = None
+    try:
+        dur = "[20 TO 600]" if loop else "[0.3 TO 10]"
+        words = re.sub(r"[^a-z ]", " ", query.lower()).split()
+        stop = {"a", "an", "the", "on", "of", "in", "at", "slowly", "suddenly", "old", "far", "away", "three", "two"}
+        core = [w for w in words if w not in stop]
+        pairs = [" ".join(core[i:i + 2]) for i in range(len(core) - 1)]
+        tries = [" ".join(words), " ".join(core)] + pairs + core[:2]
+        res = []
+        for q in dict.fromkeys(t for t in tries if t):
+            r = requests.get("https://freesound.org/apiv2/search/", timeout=30, params={
+                "query": q, "token": key, "fields": "id,name,duration,previews,avg_rating,num_downloads",
+                "filter": f'license:"Creative Commons 0" duration:{dur}', "sort": "score", "page_size": 8})
+            res = r.json().get("results", []) if r.ok else []
+            if res:
+                # among the most relevant, prefer well-liked, much-used recordings (better quality)
+                res = sorted(res[:5], key=lambda x: (x.get("avg_rating") or 0) * 10 + min(x.get("num_downloads") or 0, 5000) / 500,
+                             reverse=True)
+                break
+        if res:
+            pick = res[0]
+            url = pick["previews"].get("preview-hq-mp3") or pick["previews"].get("preview-lq-mp3")
+            path = os.path.join(WORK, f"fs_{pick['id']}.mp3")
+            if not os.path.exists(path):
+                with open(path, "wb") as f:
+                    f.write(requests.get(url, timeout=60).content)
+            log(f"    sound: '{query}' -> freesound #{pick['id']} {pick['name'][:40]}")
+    except Exception as e:
+        log(f"    freesound error for '{query}': {str(e)[:100]}")
+        path = None
+    _SFX_CACHE[ck] = path
+    return path
+
+
+def get_oneshot(name, rnd, max_sec=4.0):
+    """A single sound effect (door creak, scream...). Real recording if possible, else built-in."""
+    np = _np()
+    p = freesound(name, loop=False)
+    if p:
+        a = _decode(p, max_sec)
+        if len(a) > SR * 0.2:
+            fade = min(len(a) // 4, int(SR * 0.3))
+            a[-fade:] *= np.linspace(1, 0, fade)
+            return a
+    tag = _keyword_tag(name)
+    if not tag:
+        return None
+    a = synth(tag, int(SR * max_sec), rnd)
+    nz = np.nonzero(np.abs(a) > 0.02)[0]
+    if len(nz) == 0:
+        return None
+    a = a[max(0, nz[0] - int(SR * 0.05)):]
+    end = nz[-1] - nz[0] + int(SR * 0.4)
+    return a[:max(int(SR * 0.3), end)] / (np.abs(a).max() + 1e-9) * 0.8
+
+
+def get_ambience(name, n, rnd):
+    """A background sound for the whole scene (rain, crickets...), looped to n samples."""
+    np = _np()
+    p = freesound(name, loop=True)
+    if p:
+        a = _decode(p, 120)
+        if len(a) > SR * 3:
+            reps = int(np.ceil(n / len(a))) + 1
+            a = np.tile(a, reps)[:n]
+            fade = min(n // 6, int(SR * 1.5))
+            a[:fade] *= np.linspace(0, 1, fade)
+            a[-fade:] *= np.linspace(1, 0, fade)
+            return a * 0.6
+    tag = _keyword_tag(name)
+    if tag and tag != "scare_hit":
+        return synth(tag, n, rnd)
+    return None
+
+
 def drone(n, rnd, mood):
     """Background horror music bed made from slow detuned tones."""
     np = _np()
@@ -715,52 +902,92 @@ def write_wav(path, a):
         w.writeframes((a * 32767).astype(np.int16).tobytes())
 
 
-def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav):
-    """Speak every line with the right voice, place them one after another, put sounds
-    and music underneath. Returns (seconds, [(start, dur, speaker_is_narrator, text)])."""
+def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=None):
+    """Like a radio drama: every line is spoken with its own voice + emotion, and each sound
+    effect is placed exactly where the story says it happens (before / during / after the line).
+    Ambience (rain, crickets...) and music run underneath and get quieter while people talk.
+    Returns (seconds, [(start, dur, speaker_is_narrator, text)])."""
     np = _np()
     rnd = np.random.default_rng(1000 + idx)
-    gap, lead, tail = 0.35, 0.5, 0.9
-    pieces, subs, t = [], [], lead
+    gap, lead, tail = 0.35, 0.5, 1.0
+    pieces, subs, cues, silences, t = [], [], [], [], lead
     for j, ln in enumerate(lines):
         text = str(ln.get("text", "")).strip()
         if not text:
             continue
+        sfx = [x for x in (ln.get("sfx") or []) if isinstance(x, dict) and x.get("sound")]
+        before = [x for x in sfx if str(x.get("when", "")).startswith("before")]
+        during = [x for x in sfx if str(x.get("when", "")).startswith("during")]
+        after = [x for x in sfx if str(x.get("when", "")).startswith("after")]
+        # sounds that happen first, e.g. "the door creaked..." -> creak, then the words
+        for x in before[:2]:
+            snd = get_oneshot(x["sound"], rnd)
+            if snd is not None:
+                cues.append((t, snd, 0.85))
+                t += min(len(snd) / SR, 2.2) * 0.75 + 0.15
+        if ln.get("jump_scare"):
+            # classic jump scare: everything goes almost silent, then a sudden hit
+            silences.append((max(0.0, t - 0.9), t))
+            cues.append((t, synth("scare_hit", int(SR * 2.5), rnd), 1.0))
+            t += 0.45
         spec = voices.for_speaker(ln.get("speaker", "narrator"))
         p = os.path.join(WORK, f"v_{idx:02d}_{j:02d}.wav")
-        tts_line(text, spec, LANGS[lang]["gtts"], p)
+        tts_line(text, spec, LANGS[lang]["gtts"], p, ln.get("emotion", "normal"))
         a = read_wav(p)
+        pk = np.abs(a).max()
+        if pk > 0:                                    # every voice equally clear; whispers softer
+            emo = str(ln.get("emotion", "normal")).lower()
+            a = a / pk * {"whisper": 0.6, "shout": 0.97, "angry": 0.93}.get(emo, 0.88)
+        if spec[3]:                                   # ghost speaking: cold swell + whispers
+            m = int(SR * 1.2)
+            swell = _filt(_noise(m, rnd), "bandpass", [300, 3000]) * np.linspace(0, 1, m) ** 2 * 0.35
+            cues.append((max(0.0, t - 1.1), swell, 1.0))
+            cues.append((t, synth("whisper", len(a) + int(SR * 0.8), rnd) * 1.4, 0.8))
         pieces.append((t, a))
         sp = ascii_text(ln.get("speaker", "")).lower()
         is_nar = (not sp) or sp.startswith("narrat") or voices.cast.find(sp) is None
         subs.append((t, len(a) / SR, is_nar, text))
+        for x in during[:2]:
+            snd = get_oneshot(x["sound"], rnd, max_sec=min(6.0, len(a) / SR + 1))
+            if snd is not None:
+                cues.append((t + 0.25, snd, 0.55))
         t += len(a) / SR + gap
+        for x in after[:2]:
+            snd = get_oneshot(x["sound"], rnd)
+            if snd is not None:
+                cues.append((t - gap + 0.1, snd, 0.85))
+                t += min(len(snd) / SR, 2.0) * 0.7
     total = t - gap + tail
     n = int(total * SR)
+
     voice = np.zeros(n)
     for start, a in pieces:
         _place(voice, a, start)
+
+    # background: music + place ambience (from the story) + any old-style tags
     bed = drone(n, rnd, mood)
-    for (start, a), (_, _, is_nar, _), ln in zip(pieces, subs, [l for l in lines if str(l.get("text", "")).strip()]):
-        if voices.for_speaker(ln.get("speaker", ""))[3]:            # a ghost is speaking
-            m = int(SR * 1.2)
-            swell = _filt(_noise(m, rnd), "bandpass", [300, 3000]) * np.linspace(0, 1, m) ** 2 * 0.35
-            _place(bed, swell, max(0.0, start - 1.1))
-            k = len(a) + int(SR * 0.8)
-            wh = synth("whisper", k, rnd) * 1.4
-            _place(bed, wh, start)
+    for name in (ambience or [])[:2]:
+        amb = get_ambience(str(name), n, rnd)
+        if amb is not None:
+            bed += amb * 0.5
     for tag in (sounds or [])[:3]:
-        if tag in SOUND_TAGS:
-            bed += synth(tag, n, rnd) * (0.55 if tag != "scare_hit" else 0.8)
-    if mood == "scare" and "scare_hit" not in (sounds or []):
-        bed += synth("scare_hit", n, rnd) * 0.6
-    # duck the background while people speak
+        if tag in SOUND_TAGS and tag != "scare_hit":
+            bed += synth(tag, n, rnd) * 0.5
+
+    fx = np.zeros(n)
+    for start, snd, vol in cues:
+        _place(fx, snd * vol, start)
+
+    # quieter background while someone talks; near silence before a jump scare
     talk = np.zeros(n)
     for start, a in pieces:
         talk[int(start * SR):int(start * SR) + len(a)] = 1
-    talk = _filt(talk, "lowpass", 3, 1)
-    bed *= 1 - 0.55 * np.clip(talk, 0, 1)
-    mix = voice * 0.95 + bed
+    talk = np.clip(_filt(talk, "lowpass", 3, 1), 0, 1)
+    quiet = np.ones(n)
+    for s0, s1 in silences:
+        quiet[int(s0 * SR):int(s1 * SR)] = 0.08
+    quiet = _filt(quiet, "lowpass", 6, 1)
+    mix = voice * 0.95 + bed * (1 - 0.6 * talk) * quiet + fx * (1 - 0.3 * talk)
     peak = np.abs(mix).max()
     if peak > 0.98:
         mix *= 0.98 / peak
@@ -895,53 +1122,113 @@ def grade(frame_f32, f, sec, mood, rnd_flicker):
     return frame
 
 
-def scene_clip_animated(img, audio, out, idx, mood):
+_LAYER_CACHE = {}
+
+
+def _layers_for(img):
+    """Background + cut-out foreground for one picture (cached, pictures repeat)."""
     np = _np()
     import cv2
-    layers = split_layers(img)
-    dur = duration(audio)
-    n = int(dur * FPS) + 1
-    direction = 1 if idx % 2 == 0 else -1
-    rnd = np.random.default_rng(idx + 50)
-    flicker = (rnd.uniform(0, 1, 400) > 0.93).astype("float32") * rnd.uniform(0.4, 1, 400)
+    if img in _LAYER_CACHE:
+        return _LAYER_CACHE[img]
+    layers = None
+    try:
+        layers = split_layers(img)
+    except Exception as e:
+        log(f"  cut-out failed: {str(e)[:100]}")
+    d = {}
     if layers is not None:
         bg, fg = layers
-        fg_a = fg[..., 3].astype("float32") / 255.0
-        fg_bgr = cv2.cvtColor(fg[..., :3], cv2.COLOR_RGB2BGR).astype("float32")
-        ys, xs = np.nonzero(fg_a > 0.5)
-        cx, cy = float(xs.mean()), float(ys.max())
+        d["fg_a"] = fg[..., 3].astype("float32") / 255.0
+        d["fg"] = cv2.cvtColor(fg[..., :3], cv2.COLOR_RGB2BGR).astype("float32")
+        ys, xs = np.nonzero(d["fg_a"] > 0.5)
+        d["cx"], d["cy"] = float(xs.mean()), float(ys.max())
+        d["head"] = float(ys.min() + 0.28 * (ys.max() - ys.min()))
     else:
         bg = np.array(Image.open(img).convert("RGB").resize((W, H)))
-    bg_bgr = cv2.cvtColor(bg, cv2.COLOR_RGB2BGR)
+        d["cx"], d["cy"], d["head"] = W / 2, H / 2, H * 0.42
+    d["bg"] = cv2.cvtColor(bg, cv2.COLOR_RGB2BGR)
+    _LAYER_CACHE[img] = d
+    return d
+
+
+def plan_shots(segments, total):
+    """segments: [(image, start_sec)] -> [(image, start, end, close_up)].
+    Long shots are split into a wide part and a close-up part so the screen keeps changing."""
+    segs = []
+    for k, (img, st) in enumerate(segments):
+        en = segments[k + 1][1] if k + 1 < len(segments) else total
+        if segs and segs[-1][0] == img:                       # same picture twice in a row -> one shot
+            segs[-1] = (img, segs[-1][1], en, False)
+        else:
+            segs.append((img, st, en, False))
+    out = []
+    for i, (img, st, en, _) in enumerate(segs):
+        d = en - st
+        parts = 1 if d < 8 else (2 if d < 15 else 3)
+        for p in range(parts):
+            out.append((img, st + d * p / parts, st + d * (p + 1) / parts, p % 2 == 1))
+    return out
+
+
+def scene_clip_animated(segments, audio, out, idx, mood):
+    np = _np()
+    import cv2
+    dur = duration(audio)
+    n = int(dur * FPS) + 1
+    shots = plan_shots(segments, dur)
+    rnd = np.random.default_rng(idx + 50)
+    flicker = (rnd.uniform(0, 1, 400) > 0.93).astype("float32") * rnd.uniform(0.4, 1, 400)
     ff = subprocess.Popen(
         ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}",
          "-r", str(FPS), "-i", "-", "-i", audio, "-t", f"{dur:.2f}",
-         "-vf", f"fade=t=in:st=0:d=0.5,fade=t=out:st={dur - 0.5:.2f}:d=0.5,format=yuv420p",
+         "-vf", f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, dur - 0.4):.2f}:d=0.4,format=yuv420p",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k",
          "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-ac", "2", out],
         stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    XF = 8                                                  # cross-fade frames between shots
+    prev_last, cur_k, frame_in_shot = None, -1, 0
     try:
         for f in range(n):
-            t = f / max(n - 1, 1)
-            ease = 0.5 - 0.5 * math.cos(math.pi * t)
             sec = f / FPS
+            k = next((i for i, s in enumerate(shots) if s[1] <= sec < s[2]), len(shots) - 1)
+            img, st, en, close = shots[k]
+            if k != cur_k:
+                cur_k, frame_in_shot = k, 0
+            L = _layers_for(img)
+            t = min(1.0, max(0.0, (sec - st) / max(en - st, 0.1)))
+            ease = 0.5 - 0.5 * math.cos(math.pi * t)
+            direction = 1 if (idx + k) % 2 == 0 else -1
             shake = 0.0
             if mood == "scare" and sec < 0.6:
                 shake = 7 * math.sin(sec * 90) * (1 - sec / 0.6)
-            bz = 1.04 + 0.05 * ease                        # slow creeping push-in
-            Mb = cv2.getRotationMatrix2D((W / 2, H / 2), 0, bz)
-            Mb[0, 2] += direction * (ease - 0.5) * 24 + shake
-            Mb[1, 2] += shake * 0.6
-            frame = cv2.warpAffine(bg_bgr, Mb, (W, H), borderMode=cv2.BORDER_REFLECT).astype("float32")
-            if layers is not None:
-                fz = 1.04 + 0.07 * ease + 0.004 * math.sin(sec * 1.6)
-                Mf = cv2.getRotationMatrix2D((cx, cy), 0.3 * math.sin(sec * 0.9), fz)
-                Mf[0, 2] += direction * (ease - 0.5) * 46 + shake + (W / 2 - cx) * (bz - 1)
-                Mf[1, 2] += shake * 0.6 - 2.0 * math.sin(sec * 1.1)
-                fgw = cv2.warpAffine(fg_bgr, Mf, (W, H))
-                aw = cv2.warpAffine(fg_a, Mf, (W, H))[..., None]
+            if close:                                       # slow push towards the face
+                fx, fy = L["cx"], L["head"]
+                bz = 1.32 + 0.08 * ease
+            else:                                           # wide shot, gentle drift
+                fx, fy = W / 2, H / 2
+                bz = 1.04 + 0.06 * ease
+            Mb = cv2.getRotationMatrix2D((fx, fy), 0, bz)
+            Mb[0, 2] += (W / 2 - fx) * (bz - 1) / bz * (1 if close else 0) + direction * (ease - 0.5) * 22 + shake
+            Mb[1, 2] += (H / 2 - fy) * (bz - 1) / bz * (1 if close else 0) + shake * 0.6
+            frame = cv2.warpAffine(L["bg"], Mb, (W, H), borderMode=cv2.BORDER_REFLECT).astype("float32")
+            if "fg" in L:
+                fz = bz * (1.0 + 0.03 * ease) + 0.004 * math.sin(sec * 1.6)
+                Mf = cv2.getRotationMatrix2D((fx, fy), 0.3 * math.sin(sec * 0.9), fz)
+                Mf[0, 2] = Mb[0, 2] + direction * (ease - 0.5) * 26 - (fz - bz) * fx
+                Mf[1, 2] = Mb[1, 2] - 2.0 * math.sin(sec * 1.1) - (fz - bz) * fy
+                fgw = cv2.warpAffine(L["fg"], Mf, (W, H))
+                aw = cv2.warpAffine(L["fg_a"], Mf, (W, H))[..., None]
                 frame = frame * (1 - aw) + fgw * aw
             frame = grade(frame, f, sec, mood, flicker)
+            if prev_last is not None and k > 0 and frame_in_shot < XF:
+                a_ = (frame_in_shot + 1) / (XF + 1)
+                frame = prev_last * (1 - a_) + frame * a_
+            frame_in_shot += 1
+            if f + 1 < n:
+                nk = next((i for i, s in enumerate(shots) if s[1] <= (f + 1) / FPS < s[2]), len(shots) - 1)
+                if nk != k:
+                    prev_last = frame.copy()
             ff.stdin.write(np.clip(frame, 0, 255).astype("uint8").tobytes())
         ff.stdin.close()
     except Exception:
@@ -952,27 +1239,39 @@ def scene_clip_animated(img, audio, out, idx, mood):
     return dur
 
 
-def scene_clip_simple(img, audio, out, idx, mood):
+def scene_clip_simple(segments, audio, out, idx, mood):
+    """Backup: each picture as its own slow zoom, joined, with the scene sound."""
     dur = duration(audio)
-    frames = int(dur * FPS) + 1
-    z = "min(1+0.0005*on,1.07)" if idx % 2 == 0 else "max(1.07-0.0005*on,1)"
-    vf = (f"scale={W * 2}:{H * 2},zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}"
-          f":s={W}x{H}:fps={FPS},eq=saturation=0.8:brightness=-0.03,vignette=PI/4,noise=alls=5:allf=t,"
-          f"fade=t=in:st=0:d=0.5,fade=t=out:st={dur - 0.5:.2f}:d=0.5,format=yuv420p")
-    run(["ffmpeg", "-y", "-loop", "1", "-i", img, "-i", audio, "-vf", vf, "-t", f"{dur:.2f}", "-r", str(FPS),
+    shots = plan_shots(segments, dur)
+    parts = []
+    for k, (img, st, en, close) in enumerate(shots):
+        d = max(0.2, en - st)
+        frames = int(d * FPS) + 1
+        z = f"min(1.25+0.0006*on,1.35)" if close else ("min(1+0.0005*on,1.07)" if k % 2 == 0 else "max(1.07-0.0005*on,1)")
+        p = os.path.join(WORK, f"seg_{idx:02d}_{k:02d}.mp4")
+        run(["ffmpeg", "-y", "-loop", "1", "-i", img, "-t", f"{d:.3f}", "-vf",
+             f"scale={W * 2}:{H * 2},zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={W}x{H}:fps={FPS},"
+             f"eq=saturation=0.8:brightness=-0.03,vignette=PI/4,noise=alls=5:allf=t,format=yuv420p",
+             "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", p])
+        parts.append(p)
+    lst = os.path.join(WORK, f"seg_{idx:02d}.txt")
+    with open(lst, "w") as f:
+        f.writelines(f"file '{os.path.basename(x)}'\n" for x in parts)
+    run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-i", audio, "-t", f"{dur:.2f}",
+         "-vf", f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, dur - 0.4):.2f}:d=0.4,format=yuv420p",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k",
          "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-ac", "2", out])
     return dur
 
 
-def scene_clip(img, audio, out, idx, mood):
+def scene_clip(segments, audio, out, idx, mood):
     if env("SIMPLE_MOTION") == "1" or (MOCK and env("TEST_ANIM") != "1"):
-        return scene_clip_simple(img, audio, out, idx, mood)
+        return scene_clip_simple(segments, audio, out, idx, mood)
     try:
-        return scene_clip_animated(img, audio, out, idx, mood)
+        return scene_clip_animated(segments, audio, out, idx, mood)
     except Exception as e:
         log(f"  animation skipped ({str(e)[:150]}) - simple motion")
-        return scene_clip_simple(img, audio, out, idx, mood)
+        return scene_clip_simple(segments, audio, out, idx, mood)
 
 
 def ass_time(t):
@@ -1033,9 +1332,17 @@ def build_video(scene_parts, lang, out):
     for i, sp in enumerate(scene_parts):
         log(f"Voices + sound + clip {i + 1}/{len(scene_parts)}")
         a = os.path.join(WORK, f"audio_{i:02d}.wav")
-        d, subs = make_scene_audio(sp["lines"], voices, lang, i, sp.get("sounds"), sp.get("mood", "creepy"), a)
+        d, subs = make_scene_audio(sp["lines"], voices, lang, i, sp.get("sounds"), sp.get("mood", "creepy"), a,
+                                   sp.get("ambience"))
         c = os.path.join(WORK, f"clip_{i:02d}.mp4")
-        d = scene_clip(sp["image"], a, c, i, sp.get("mood", "creepy"))
+        shots = sp.get("shots") or []
+        segments = []
+        for k, (st, du, nar, tx) in enumerate(subs):        # picture changes when the next line starts
+            img = shots[k] if k < len(shots) and shots[k] else sp["image"]
+            segments.append((img, 0.0 if k == 0 else max(0.0, st - 0.2)))
+        if not segments:
+            segments = [(sp["image"], 0.0)]
+        d = scene_clip(segments, a, c, i, sp.get("mood", "creepy"))
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
         t += d
@@ -1223,21 +1530,38 @@ def main():
     if not make_cast_sheet(cast, os.path.join(WORK, "cast.jpg"), seed):
         log("  no cast picture - using text descriptions only")
 
-    imgs, last_ok = [], None
-    for i, s in enumerate(scenes):
-        p = os.path.join(WORK, f"scene_{i:02d}.jpg")
-        log(f"Picture {i + 1}/{len(scenes)}")
-        if make_image(cast, s.get("action", ""), s.get("place", ""), s.get("characters"), p, seed):
-            last_ok = p
-        elif last_ok:
-            shutil.copy(last_ok, p)
-        else:
-            p = None
-        imgs.append(p)
+    # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
+    budget = int(env("MAX_IMAGES") or 40)
+    scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
+    total_lines = sum(len(x) for x in scene_lines) or 1
+    imgs, shots_per_scene, last_ok, count = [], [], None, 0
+    for i, (s, lines) in enumerate(zip(scenes, scene_lines)):
+        want = max(1, min(len(lines), round(len(lines) * budget / total_lines))) if lines else 1
+        groups = [lines[round(g * len(lines) / want):round((g + 1) * len(lines) / want)] for g in range(want)] or [[]]
+        scene_shots = []
+        for g, grp in enumerate(groups):
+            count += 1
+            p = os.path.join(WORK, f"shot_{i:02d}_{g:02d}.jpg")
+            first = grp[0] if grp else {}
+            action = first.get("shot") or s.get("action", "")
+            names = s.get("characters")
+            log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)})")
+            if make_image(cast, action, s.get("place", ""), names, p, seed):
+                last_ok = p
+            elif scene_shots:
+                p = scene_shots[-1]                      # reuse; the camera move makes it look different
+            elif last_ok:
+                p = last_ok
+            else:
+                p = None
+            scene_shots += [p] * max(1, len(grp))
+        shots_per_scene.append(scene_shots)
+        imgs.append(next((x for x in scene_shots if x), None))
     first_ok = next((p for p in imgs if p), None)
     if not first_ok:
         raise RuntimeError("No pictures could be made (check CF_ACCOUNT_ID / CF_API_TOKEN).")
     imgs = [p or first_ok for p in imgs]
+    shots_per_scene = [[x or imgs[i] for x in sh] for i, sh in enumerate(shots_per_scene)]
 
     thumb_base = os.path.join(WORK, "thumb_base.jpg")
     ti = story.get("thumbnail_image") or {}
@@ -1254,14 +1578,14 @@ def main():
     page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or L["page_default"]
     parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "text": L["intro"].format(title=clean_title)}],
               "sounds": ["wind"], "mood": "creepy", "voices": voices}]
-    for img, s in zip(imgs, scenes):
-        parts.append({"image": img, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
-                      "mood": s.get("mood", "creepy"), "voices": voices})
+    for img, s, sh in zip(imgs, scenes, shots_per_scene):
+        parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
+                      "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices})
     end_lines = []
     if story.get("ending_line"):
         end_lines.append({"speaker": "narrator", "text": story["ending_line"]})
     end_lines.append({"speaker": "narrator", "text": L["outro"].format(page=page)})
-    parts.append({"image": imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
+    parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
     video = os.path.join(WORK, "final.mp4")
     build_video(parts, lang, video)
@@ -1311,14 +1635,17 @@ def mock_story(lang):
             "thumbnail_image": {"characters": ["Chhaya"], "action": "ghost at window"},
             "scenes": [
                 {"characters": ["Rana", "Mitali"], "action": "arrive", "place": "gate", "mood": "creepy",
-                 "sounds": ["wind", "owl"], "lines": [
-                    {"speaker": "narrator", "text": "অনেক বছর পর রানা আর মিতালি তাদের পুরনো বাড়িতে ফিরল। চারদিক নিস্তব্ধ।"},
-                    {"speaker": "Mitali", "text": "এত অন্ধকার কেন? আলো জ্বালাও না!"},
-                    {"speaker": "Rana", "text": "দাঁড়াও, প্রদীপটা খুঁজছি।"}]},
+                 "ambience": ["night crickets", "wind through trees"], "lines": [
+                    {"speaker": "narrator", "text": "অনেক বছর পর রানা আর মিতালি তাদের পুরনো বাড়িতে ফিরল। চারদিক নিস্তব্ধ।", "emotion": "eerie",
+                     "sfx": [{"sound": "old iron gate creaks open", "when": "after"}]},
+                    {"speaker": "Mitali", "text": "এত অন্ধকার কেন? আলো জ্বালাও না!", "emotion": "scared", "sfx": []},
+                    {"speaker": "Rana", "text": "দাঁড়াও, প্রদীপটা খুঁজছি।", "emotion": "whisper",
+                     "sfx": [{"sound": "slow footsteps on wooden floor", "when": "during"}]}]},
                 {"characters": ["Chhaya"], "action": "ghost", "place": "hall", "mood": "scare",
-                 "sounds": ["heartbeat", "whisper"], "lines": [
-                    {"speaker": "narrator", "text": "হঠাৎ প্রদীপটা নিজে থেকেই জ্বলে উঠল।"},
-                    {"speaker": "Chhaya", "text": "এতদিন পরে এলে?"}]},
+                 "ambience": ["wind howling"], "lines": [
+                    {"speaker": "narrator", "text": "হঠাৎ দরজায় তিনবার টোকা পড়ল।", "emotion": "normal",
+                     "sfx": [{"sound": "three knocks on door", "when": "after"}]},
+                    {"speaker": "Chhaya", "text": "এতদিন পরে এলে?", "emotion": "eerie", "jump_scare": True, "sfx": []}]},
             ], "ending_line": "আর সেই প্রদীপ আজও জ্বলে।"}
     return {
         "title": "हवेली का आख़िरी दीया 🕯️", "thumbnail_text": "दीया खुद जलता है!",
