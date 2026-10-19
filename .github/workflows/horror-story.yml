@@ -2,12 +2,10 @@ name: Daily Horror Story
 
 on:
   schedule:
-    # Times are in UTC. GitHub usually starts 5-20 minutes late, so these land around:
-    - cron: "25 7 * * *"    # ~1:00 PM India time
-    - cron: "25 15 * * *"   # ~9:00 PM India time
-    # backups: GitHub sometimes skips a run. These only post if the run above did not.
-    - cron: "10 8 * * *"    # backup for 1 PM
-    - cron: "10 16 * * *"   # backup for 9 PM
+    # The main start comes from cron-job.org at 12:55 PM and 8:55 PM India time (on time, every day).
+    # These GitHub times are only a backup - they post nothing if the video is already out.
+    - cron: "10 8 * * *"    # backup ~1:40 PM India time
+    - cron: "10 16 * * *"   # backup ~9:40 PM India time
   workflow_dispatch:        # "Run workflow" button for tests
     inputs:
       language:
