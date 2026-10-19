@@ -56,6 +56,8 @@ jobs:
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
           GEMINI_TTS_KEY: ${{ secrets.GEMINI_TTS_KEY }}
+          GEMINI_TTS_KEY_2: ${{ secrets.GEMINI_TTS_KEY_2 }}
+          GEMINI_TTS_KEY_3: ${{ secrets.GEMINI_TTS_KEY_3 }}
           LANGUAGE: ${{ github.event.inputs.language }}
           MODE: ${{ github.event.inputs.mode }}
         run: python main.py
