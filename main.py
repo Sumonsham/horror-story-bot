@@ -227,7 +227,7 @@ Return ONLY JSON with exactly these keys:
  "characters": [{{"name": "name in English letters", "gender": "male or female",
                   "age": "child, young, adult or old", "kind": "human or ghost",
                   "look": "ENGLISH, very specific never-changing look: age, face, hair, skin, clothes with exact colors, one special detail. 20-35 words"}}],
- "thumbnail_image": {{"characters": ["names"], "action": "ENGLISH: the scariest moment, faces showing fear, eerie light"}},
+ "thumbnail_image": {{"characters": ["1-2 names"], "action": "ENGLISH: ONE shocking moment for a viral thumbnail: extreme close-up of a terrified face with wide eyes, and the scary figure/thing visible behind or beside them"}},
  "scenes": [{{
     "characters": ["names VISIBLE in the picture"],
     "action": "ENGLISH: exactly what happens in this scene: who does what, poses, expressions, key objects",
@@ -499,6 +499,83 @@ class Voices:
         return v, r, p, False
 
 
+# ---------- Gemini voices: real-sounding, acted from written directions
+GEMINI_TTS_OFF = False
+GEMINI_VOICES = {   # prebuilt Gemini voices picked for each kind of character
+    ("male", "child"): "Puck", ("male", "young"): "Fenrir", ("male", "adult"): "Orus", ("male", "old"): "Algenib",
+    ("female", "child"): "Leda", ("female", "young"): "Zephyr", ("female", "adult"): "Kore", ("female", "old"): "Gacrux",
+}
+AGE_WORDS = {"child": "a small child of about eight", "young": "a young person in their early twenties",
+             "adult": "an adult of about forty", "old": "a very old person in their late seventies, with a tired, slightly shaky, aged voice"}
+EMOTION_WORDS = {
+    "normal": "naturally", "calm": "calmly and softly", "whisper": "in a frightened whisper, very quietly",
+    "scared": "terrified, breathing fast, voice trembling", "shout": "screaming in panic, very loud",
+    "angry": "angrily, sharply", "sad": "sadly, slowly, with a heavy heart", "crying": "while crying and sobbing",
+    "eerie": "slowly, in a low, mysterious voice", "happy": "happily", "excited": "excitedly", "laughing": "laughing",
+}
+NARRATOR_GEMINI = ("Charon", "the narrator of a famous late-night radio horror drama: a deep, rich, resonant, "
+                   "dramatic male baritone voice, slow and gripping, with suspenseful pauses, every word clear")
+GHOST_GEMINI = ("Enceladus", "a ghost: a hollow, breathy, cold, slow, otherworldly whispering voice")
+
+
+def gemini_persona(voices, speaker):
+    s = ascii_text(speaker).lower()
+    c = voices.cast.find(s) if s and not s.startswith("narrat") else None
+    if not c:
+        return NARRATOR_GEMINI
+    if c["kind"].startswith("ghost"):
+        return GHOST_GEMINI
+    g = "female" if c["gender"].startswith("f") else "male"
+    ag = age_group(c["age"])
+    return GEMINI_VOICES[(g, ag)], f"{AGE_WORDS[ag]} ({'woman' if g == 'female' else 'man'} named {c['name']}), a real person, natural and believable"
+
+
+def gemini_line(text, persona, emotion, lang, out_wav):
+    """One line spoken by Gemini's voice model, acted as described. Returns True if it worked."""
+    global GEMINI_TTS_OFF
+    if MOCK or GEMINI_TTS_OFF or env("USE_GEMINI_VOICE") == "0":
+        return False
+    key = env("GEMINI_TTS_KEY")          # only a key given specially for voices (so no surprise bills)
+    if not key:
+        return False
+    voice, who = persona
+    how = EMOTION_WORDS.get(str(emotion).lower(), "naturally")
+    prompt = (f"You are a voice actor in a {LANGS[lang]['name']} audio drama. Speak as {who}, {how}. "
+              f"Use natural {LANGS[lang]['name']} pronunciation. Say only this line, nothing else:\n{text}")
+    body = {"contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"responseModalities": ["AUDIO"],
+                                 "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice}}}}}
+    models = [env("GEMINI_TTS_MODEL")] if env("GEMINI_TTS_MODEL") else []
+    models += ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"]
+    for model in models:
+        for attempt in range(2):
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
+                                  headers={"x-goog-api-key": key}, json=body, timeout=120)
+                if r.status_code == 404:
+                    break                                     # model name not available -> next one
+                if r.status_code == 429:
+                    log("  Gemini voice: daily/minute limit reached - using Microsoft voices from now on")
+                    GEMINI_TTS_OFF = True
+                    return False
+                if not r.ok:
+                    raise RuntimeError(f"HTTP {r.status_code}: {r.text[:150]}")
+                part = r.json()["candidates"][0]["content"]["parts"][0]["inlineData"]
+                pcm = base64.b64decode(part["data"])
+                raw = out_wav + ".pcm"
+                with open(raw, "wb") as f:
+                    f.write(pcm)
+                run(["ffmpeg", "-y", "-f", "s16le", "-ar", "24000", "-ac", "1", "-i", raw,
+                     "-af", "silenceremove=start_periods=1:start_threshold=-50dB,areverse,"
+                            "silenceremove=start_periods=1:start_threshold=-50dB,areverse,aresample=44100",
+                     "-ac", "1", "-ar", str(SR), out_wav])
+                return duration(out_wav) > 0.3
+            except Exception as e:
+                log(f"  Gemini voice attempt failed ({model}): {str(e)[:120]}")
+                time.sleep(3)
+    return False
+
+
 async def _edge(text, voice, rate, pitch, out, volume="+0%"):
     import edge_tts
     await edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, volume=volume).save(out)
@@ -540,19 +617,34 @@ def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
     text = re.sub(r"[^\w\s\u0900-\u097F\u0980-\u09FF.,!?;:'\"\-()\u0964\u0965]", " ", text)
     text = re.sub(r"\s+", " ", text).strip() or "..."
     ok = False
-    # the free Microsoft voice sometimes says "No audio was received" when busy:
-    # wait a bit longer each time, and at the end try once with plain settings
-    tries = [(rate, pitch, volume)] * 4 + [("+0%", "+0Hz", "+0%")]
-    for attempt, (r_, p_, v_) in enumerate(tries):
+    # Microsoft's free voice sometimes returns "No audio was received" for some pitch/speed
+    # settings (seen with hi-IN-Madhur). So: ask with full settings once; if that fails, ask with
+    # plain settings and change pitch/speed ourselves afterwards (sounds the same, never fails).
+    def _num(x):
+        try:
+            return int(str(x).rstrip("%Hz").replace("+", "") or 0)
+        except ValueError:
+            return 0
+    post_pitch, post_tempo = 1.0, 1.0
+    tries = [(rate, pitch, volume, False), (rate, "+0Hz", volume, True), ("+0%", "+0Hz", "+0%", True),
+             ("+0%", "+0Hz", "+0%", True)]
+    for attempt, (r_, p_, v_, manual) in enumerate(tries):
         try:
             asyncio.run(_edge(text, voice, r_, p_, mp3, v_))
             ok = os.path.exists(mp3) and os.path.getsize(mp3) > 800
             if ok:
+                if manual:
+                    post_pitch = max(0.9, min(1.15, 1 + _num(pitch) / 200))
+                    if r_ == "+0%":
+                        post_tempo = max(0.7, min(1.4, 1 + _num(rate) / 100))
                 break
         except Exception as e:
-            log(f"  voice attempt {attempt + 1} failed ({voice}): {str(e)[:100]}")
-            time.sleep(min(30, 3 * 2 ** attempt))
+            log(f"  voice attempt {attempt + 1} failed ({voice}): {str(e)[:80]}")
+            time.sleep(2 + 3 * attempt)
     af = "aresample=44100"
+    if ok and (post_pitch != 1.0 or post_tempo != 1.0):
+        af = (f"rubberband=pitch={post_pitch:.3f}:tempo={post_tempo:.3f}:formant=preserved,"
+              f"aresample=44100")
     if not ok:
         # backup (Google) has only one voice -> change its pitch so characters still differ
         from gtts import gTTS
@@ -574,7 +666,7 @@ def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
              "[b]asetrate=44100*1.08,aresample=44100,atempo=0.83,highpass=f=1800,volume=0.45,adelay=70[air];"
              "[c]asetrate=44100*0.62,aresample=44100,atempo=1.445,lowpass=f=700,volume=0.55,adelay=20[growl];"
              "[deep][air][growl]amix=inputs=3:normalize=0,"
-             "aecho=0.8:0.8:120|260:0.3|0.15,lowpass=f=7000,"
+             "aecho=0.8:0.8:120:0.2,lowpass=f=7000,"
              "dynaudnorm=f=150:g=7,volume=1.1[out]")
         run(["ffmpeg", "-y", "-i", mp3, "-filter_complex", g, "-map", "[out]", "-ac", "1", "-ar", str(SR), out_wav])
         return duration(out_wav)
@@ -806,7 +898,12 @@ def freesound(query, loop):
         stop = {"a", "an", "the", "on", "of", "in", "at", "slowly", "suddenly", "old", "far", "away", "three", "two"}
         core = [w for w in words if w not in stop]
         pairs = [" ".join(core[i:i + 2]) for i in range(len(core) - 1)]
-        tries = [" ".join(words), " ".join(core)] + pairs + core[:2]
+        generic = {"creak": "door creak", "knock": "knocking door", "footsteps": "footsteps wood floor",
+                   "thunder": "thunder", "rain": "rain", "wind": "wind howling", "heartbeat": "heartbeat",
+                   "clock": "clock ticking", "owl": "owl hoot", "howl": "dog howling night", "drip": "water drip",
+                   "whisper": "whisper", "crickets": "crickets night", "scare_hit": "horror impact"}
+        g = generic.get(_keyword_tag(query) or "", "")
+        tries = [" ".join(words), " ".join(core)] + pairs + core[:2] + ([g] if g else [])
         res = []
         for q in dict.fromkeys(t for t in tries if t):
             r = requests.get("https://freesound.org/apiv2/search/", timeout=30, params={
@@ -939,7 +1036,9 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             t += 0.45
         spec = voices.for_speaker(ln.get("speaker", "narrator"))
         p = os.path.join(WORK, f"v_{idx:02d}_{j:02d}.wav")
-        tts_line(text, spec, LANGS[lang]["gtts"], p, ln.get("emotion", "normal"))
+        if not gemini_line(text, gemini_persona(voices, ln.get("speaker", "narrator")), ln.get("emotion", "normal"),
+                           lang, p):
+            tts_line(text, spec, LANGS[lang]["gtts"], p, ln.get("emotion", "normal"))
         a = read_wav(p)
         pk = np.abs(a).max()
         if pk > 0:                                    # every voice equally clear; whispers softer
@@ -1024,36 +1123,68 @@ def font(size):
 
 # ----------------------------------------------------------------- 5. thumbnail
 def make_thumbnail(base_img, text, out, label):
+    """Viral YouTube-style thumbnail: punchy, high-contrast picture with the scary face on the
+    right, huge 2-line text on the left (white + red banner), glow, red frame and a label tag."""
+    from PIL import ImageEnhance
     img = Image.open(base_img).convert("RGB").resize((W, H))
-    img = Image.blend(img, Image.new("RGB", (W, H), (0, 0, 0)), 0.15)
+    img = ImageEnhance.Contrast(img).enhance(1.3)
+    img = ImageEnhance.Color(img).enhance(1.25)
+    img = ImageEnhance.Sharpness(img).enhance(1.8)
+    img = ImageEnhance.Brightness(img).enhance(1.08)
+    # dark fade on the left half so the text pops
     shade = Image.new("L", (W, H), 0)
     d = ImageDraw.Draw(shade)
-    for y in range(H // 2, H):
-        d.line([(0, y), (W, y)], fill=int(220 * (y - H / 2) / (H / 2)))
+    for x in range(int(W * 0.62)):
+        d.line([(x, 0), (x, H)], fill=int(215 * (1 - x / (W * 0.62)) ** 1.3))
+    for y in range(int(H * 0.7), H):                                   # and a bit at the bottom
+        d.line([(0, y), (W, y)], fill=max(0, min(255, int(160 * (y - H * 0.7) / (H * 0.3)))))
     img = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), img, shade)
-    draw = ImageDraw.Draw(img)
+
     words = text.strip().split()
-    half = len(words) // 2 + len(words) % 2
-    lines = [text.strip()] if len(words) <= 2 else [" ".join(words[:half]), " ".join(words[half:])]
-    size = 150
-    while size > 50:
+    if len(words) >= 2:
+        half = len(words) // 2 + len(words) % 2
+        lines = [" ".join(words[:half]), " ".join(words[half:])]
+    else:
+        lines = [text.strip()]
+    box_w = int(W * 0.62)
+    probe = ImageDraw.Draw(img)
+    size = 170
+    while size > 56:
         f = font(size)
-        if all(draw.textlength(l, font=f) <= W - 90 for l in lines) and size * 1.3 * len(lines) <= H * 0.55:
+        if all(probe.textlength(l, font=f) <= box_w - 70 for l in lines) and size * 1.35 * len(lines) <= H * 0.7:
             break
         size -= 6
     f = font(size)
-    lh = int(size * 1.3)
-    y = H - 40 - lh * len(lines)
-    colors = [(235, 20, 30), (255, 255, 255)]
+    lh = int(size * 1.38)
+    y0 = int((H - lh * len(lines)) / 2) + 10
+    x0 = 46
+
+    # red glow behind the text
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
     for i, l in enumerate(lines):
-        x = (W - draw.textlength(l, font=f)) / 2
-        draw.text((x, y + i * lh), l, font=f, fill=colors[i % 2],
-                  stroke_width=max(6, size // 13), stroke_fill=(0, 0, 0))
-    lf = font(38)
+        gd.text((x0, y0 + i * lh), l, font=f, fill=(255, 0, 0, 255), stroke_width=size // 6, stroke_fill=(255, 0, 0, 255))
+    glow = glow.filter(ImageFilter.GaussianBlur(18))
+    img = Image.alpha_composite(img.convert("RGBA"), glow).convert("RGB")
+
+    draw = ImageDraw.Draw(img)
+    for i, l in enumerate(lines):
+        y = y0 + i * lh
+        if i == len(lines) - 1 and len(lines) > 1:                    # last line on a red banner
+            tw = draw.textlength(l, font=f)
+            draw.rounded_rectangle([x0 - 18, y - size * 0.02, x0 + tw + 18, y + size * 1.22], radius=18,
+                                   fill=(210, 0, 0))
+            draw.text((x0, y), l, font=f, fill=(255, 255, 255), stroke_width=max(4, size // 22), stroke_fill=(70, 0, 0))
+        else:
+            draw.text((x0, y), l, font=f, fill=(255, 238, 0), stroke_width=max(6, size // 12), stroke_fill=(0, 0, 0))
+
+    # label tag + red frame
+    lf = font(40)
     tw = draw.textlength(label, font=lf)
-    draw.rounded_rectangle([28, 26, 28 + tw + 40, 26 + 70], radius=12, fill=(150, 0, 10))
-    draw.text((48, 30), label, font=lf, fill=(255, 255, 255))
-    img.save(out, quality=92)
+    draw.rounded_rectangle([30, 26, 30 + tw + 44, 26 + 72], radius=14, fill=(0, 0, 0), outline=(255, 30, 30), width=4)
+    draw.text((52, 30), label, font=lf, fill=(255, 255, 255))
+    draw.rectangle([0, 0, W - 1, H - 1], outline=(220, 0, 0), width=12)
+    img.save(out, quality=94)
 
 
 # ----------------------------------------------------------------- 6. video
@@ -1575,7 +1706,9 @@ def main():
     if isinstance(ti, str):
         ti = {"action": ti}
     if not make_image(cast, (ti.get("action") or scenes[-1].get("action", "")) +
-                      ", terrified faces close to the camera, very dramatic", "", ti.get("characters"),
+                      ". Viral YouTube thumbnail photo: extreme close-up, big terrified face with wide eyes on the RIGHT side "
+                      "of the frame, dark empty space on the LEFT side, dramatic red and teal rim light, high contrast, "
+                      "very sharp, cinematic", "", ti.get("characters"),
                       thumb_base, seed):
         shutil.copy(first_ok, thumb_base)
     thumb = os.path.join(WORK, "thumbnail.jpg")
