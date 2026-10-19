@@ -535,16 +535,23 @@ def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
     rate, pitch = _add(rate, er, "%"), _add(pitch, ep, "Hz")
     volume = f"{ev:+d}%"
     mp3 = out_wav + ".mp3"
+    # clean text: symbols/emoji can make the voice service return nothing
+    text = re.sub(r"[\u2026]", "...", text)
+    text = re.sub(r"[^\w\s\u0900-\u097F\u0980-\u09FF.,!?;:'\"\-()\u0964\u0965]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip() or "..."
     ok = False
-    for attempt in range(3):
+    # the free Microsoft voice sometimes says "No audio was received" when busy:
+    # wait a bit longer each time, and at the end try once with plain settings
+    tries = [(rate, pitch, volume)] * 4 + [("+0%", "+0Hz", "+0%")]
+    for attempt, (r_, p_, v_) in enumerate(tries):
         try:
-            asyncio.run(_edge(text, voice, rate, pitch, mp3, volume))
-            ok = os.path.getsize(mp3) > 800
+            asyncio.run(_edge(text, voice, r_, p_, mp3, v_))
+            ok = os.path.exists(mp3) and os.path.getsize(mp3) > 800
             if ok:
                 break
         except Exception as e:
-            log(f"  voice attempt {attempt + 1} failed ({voice}): {str(e)[:120]}")
-            time.sleep(4)
+            log(f"  voice attempt {attempt + 1} failed ({voice}): {str(e)[:100]}")
+            time.sleep(min(30, 3 * 2 ** attempt))
     af = "aresample=44100"
     if not ok:
         # backup (Google) has only one voice -> change its pitch so characters still differ
