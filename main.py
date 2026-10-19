@@ -362,8 +362,43 @@ CF_QUOTA_OUT = False
 PIC_W, PIC_H = 1024, 576        # 16:9; scaled up to 1280x720 for the video
 
 
+def cf_accounts():
+    """All Cloudflare accounts given: CF_ACCOUNT_ID/CF_API_TOKEN, then ..._2, ..._3 (each has its own free limit)."""
+    out = []
+    for suf in ("", "_2", "_3", "_4"):
+        a, t = env("CF_ACCOUNT_ID" + suf), env("CF_API_TOKEN" + suf)
+        if a and t:
+            out.append((a, t))
+    if not out:
+        need_env("CF_ACCOUNT_ID")
+    return out
+
+
+CF_ACTIVE = 0
+
+
 def cf_request(model, prompt, ref_path=None, w=PIC_W, h=PIC_H, seed=None):
-    acct, token = need_env("CF_ACCOUNT_ID"), need_env("CF_API_TOKEN")
+    """Ask Cloudflare for a picture. When one account's free daily limit is used up,
+    move on to the next account automatically."""
+    global CF_ACTIVE, CF_QUOTA_OUT
+    accounts = cf_accounts()
+    while CF_ACTIVE < len(accounts):
+        try:
+            return _cf_request_one(accounts[CF_ACTIVE], model, prompt, ref_path, w, h, seed)
+        except RuntimeError as e:
+            if any(k in str(e).lower() for k in ("4006", "daily free allocation", "neurons")):
+                CF_ACTIVE += 1
+                if CF_ACTIVE < len(accounts):
+                    log(f"  Cloudflare account {CF_ACTIVE} free limit used up - switching to account {CF_ACTIVE + 1}")
+                    continue
+                CF_QUOTA_OUT = True
+            raise
+    CF_QUOTA_OUT = True
+    raise RuntimeError("all Cloudflare accounts used up their daily free allocation (4006)")
+
+
+def _cf_request_one(account, model, prompt, ref_path, w, h, seed):
+    acct, token = account
     url = f"https://api.cloudflare.com/client/v4/accounts/{acct}/ai/run/{model}"
     hdr = {"Authorization": f"Bearer {token}"}
     if model == CF_MODEL:
@@ -407,7 +442,9 @@ def make_cast_sheet(cast, path, seed):
             cast.ref = path
             return True
         except Exception as e:
-            log(f"  cast sheet attempt {attempt + 1} failed: {str(e)[:300]}")
+            log(f"  cast sheet attempt {attempt + 1} failed: {str(e)[:200]}")
+            if CF_QUOTA_OUT:
+                return False
             time.sleep(6 * (attempt + 1))
     return False
 
@@ -1807,6 +1844,11 @@ def main():
         imgs.append(next((x for x in scene_shots if x), None))
     first_ok = next((p for p in imgs if p), None)
     if not first_ok:
+        if CF_QUOTA_OUT:
+            log("STOPPED: today's free Cloudflare picture limit is used up on every account. "
+                "Nothing was posted. It resets every day at 5:30 AM India time; the next run will work. "
+                "(Tip: add a 2nd free Cloudflare account as CF_ACCOUNT_ID_2 / CF_API_TOKEN_2.)")
+            sys.exit(0)
         raise RuntimeError("No pictures could be made (check CF_ACCOUNT_ID / CF_API_TOKEN).")
     imgs = [p or first_ok for p in imgs]
     shots_per_scene = [[x or imgs[i] for x in sh] for i, sh in enumerate(shots_per_scene)]
