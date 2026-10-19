@@ -1,0 +1,82 @@
+name: Daily Horror Story
+
+on:
+  schedule:
+    # Times are in UTC. GitHub usually starts 5-20 minutes late, so these land around:
+    - cron: "25 14 * * *"   # ~8:00 PM India time
+    - cron: "55 16 * * *"   # ~10:30 PM India time
+  workflow_dispatch:        # "Run workflow" button for tests
+    inputs:
+      language:
+        description: "Force language (hi or bn). Leave empty to alternate."
+        required: false
+        default: ""
+      mode:
+        description: "Type voice_demo to only make a voice sample (nothing is posted)."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horror-story
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install video tools and Hindi + Bengali fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-core libraqm0 libfribidi0 > /dev/null
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python packages
+        run: pip install -q requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
+
+      - name: Make the horror video and post it
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          PAGE_NAME_HI: ${{ secrets.PAGE_NAME_HI }}
+          PAGE_NAME_BN: ${{ secrets.PAGE_NAME_BN }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          LANGUAGE: ${{ github.event.inputs.language }}
+          MODE: ${{ github.event.inputs.mode }}
+        run: python main.py
+
+      - name: Remember this story
+        if: success() && github.event.inputs.mode != 'voice_demo'
+        run: |
+          git config user.name "story-bot"
+          git config user.email "story-bot@users.noreply.github.com"
+          git add history.json
+          git commit -m "story posted $(date -u +%F_%H%M)" || exit 0
+          git pull --rebase -q || true
+          git push -q
+
+      - name: Keep a copy of the video (3 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horror-video
+          path: |
+            work/final.mp4
+            work/thumbnail.jpg
+            work/story.json
+            work/voice_demo_*.mp3
+          retention-days: 3
+          if-no-files-found: ignore
