@@ -76,6 +76,21 @@ LANGS = {
 }
 
 THEMES = [
+    # haunted places
+    "a closed cinema hall that still shows a film at midnight", "a hill-station hotel room number 13",
+    "an IT office on the 14th floor during the night shift", "an old lighthouse on the Odisha coast",
+    "a tea-garden bungalow in Darjeeling fog", "a jute mill closed for 30 years", "a burnt village theatre stage",
+    "a hospital morgue during a power cut", "a girls' hostel and the room no one takes",
+    # objects and curses
+    "a cursed silver anklet bought at a village fair", "an old harmonium that plays by itself",
+    "a photo album with one face that keeps moving", "a wedding saree from a dead bride's trunk",
+    "a pocket watch that stops at the time of a death", "a well-water mirror that shows the future",
+    # people and spirits
+    "a tantrik's revenge on a greedy landlord", "a ghost that comes back every Amavasya",
+    "twin sisters, one of them died years ago", "a postman delivering letters from the dead",
+    "a taxi driver's strangest passenger in heavy rain", "a child's imaginary friend who is not imaginary",
+    "the possessed doll of a zamindar's daughter", "a cremation-ground caretaker's last night",
+    "a wedding procession of ghosts on a lonely road", "a fisherman and the woman who walks on water",
     "a chudail with backward feet on the village road at night", "a brahmadaitya living in an old bel tree",
     "a shakchunni who wants to become a married woman", "nishi daak - a voice at midnight calling your name",
     "a mechho bhoot who steals fish from the fishermen", "a pishach in the cremation ground (shamshan)",
@@ -175,6 +190,14 @@ def pick_language(history):
     return "bn" if last == "hi" else "hi"
 
 
+FORMATS = [
+    "classic third-person radio-drama narration",
+    "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+    "a listener's letter read out by the narrator, then the events play out",
+    "two friends telling ghost stories at night, and one story becomes real",
+]
+
+
 def pick_theme(history):
     used = [h.get("theme") for h in history[-12:]]
     options = [t for t in THEMES if t not in used] or THEMES
@@ -218,6 +241,7 @@ def make_story(lang, theme, history):
     key = need_env("GEMINI_API_KEY")
     L = LANGS[lang]
     old_titles = [h["title"] for h in history[-60:] if h.get("lang") == lang]
+    fmt = random.choice(FORMATS)
     prompt = f"""
 You are India's best {L['name']} horror storyteller, writing for a horror story video page.
 Write ONE brand-new horror story in {L['name']} ({L['script']} script; simple, natural,
@@ -227,7 +251,8 @@ but the plot, people and events must be your OWN. Do not copy films or real inci
 Must be different from these earlier stories: {json.dumps(old_titles, ensure_ascii=False)}
 
 Story rules:
-- 10 to 12 scenes, about 3-4 minutes when spoken. It must be GENUINELY SCARY and impossible to stop listening:
+- LENGTH: 14 to 18 scenes, 5-6 minutes when spoken - at least 800 spoken words in total. Never rush the
+  ending; the story must feel complete. It must be GENUINELY SCARY and impossible to stop listening:
   * the FIRST line is a chilling hook (a strange fact, a warning, or a scream) - no slow introduction;
   * every scene ends with a small cliffhanger, the fear grows scene by scene;
   * use the five senses: cold air, a smell of burning flowers or wet earth, a sound behind you, a touch in the dark;
@@ -236,8 +261,9 @@ Story rules:
   Keep the narration moving at a natural pace - short punchy sentences in tense moments.
 - Spooky and suspenseful, NOT gory: no blood, no violence details, no harm to children, nothing sexual.
 - 2 to 4 characters plus a narrator. Real dialogue between characters (short, natural lines).
-- Each scene has 1 to 5 lines. The narrator describes; characters speak only their own words
-  (no "he said" inside dialogue). Narrator lines 15-45 words, dialogue lines 3-20 words.
+- Each scene has 4 to 7 lines. The narrator describes; characters speak only their own words
+  (no "he said" inside dialogue). Narrator lines 25-50 words, dialogue lines 4-20 words.
+- Telling style for this story: {fmt}
 - Every picture must show exactly what that scene's lines describe.
 - SOUND DESIGN like a radio horror drama: for every line think what the listener should HEAR.
   When a line mentions a door, footsteps, knocking, wind, rain, a scream, bells, a phone, breaking glass,
@@ -279,8 +305,10 @@ Return ONLY JSON with exactly these keys:
 }}
 """
     body = {"contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json"}}
+            "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json",
+                                 "maxOutputTokens": 60000}}
     last_err = None
+    best, min_words = None, int(env("MIN_WORDS") or 650)       # ~650+ spoken words = 5+ minutes
     models = gemini_models(key)
     for round_no in range(3):
         if round_no:
@@ -290,7 +318,7 @@ Return ONLY JSON with exactly these keys:
             try:
                 log(f"Writing story with {model} ...")
                 r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
-                                  headers={"x-goog-api-key": key}, json=body, timeout=110)
+                                  headers={"x-goog-api-key": key}, json=body, timeout=300)
                 if r.status_code in (404, 400):
                     raise LookupError(r.text[:300])
                 if r.status_code in (429, 500, 502, 503, 504):
@@ -302,6 +330,15 @@ Return ONLY JSON with exactly these keys:
                 story = json.loads(text)
                 assert story.get("title") and len(story.get("scenes", [])) >= 6
                 assert all(s.get("lines") for s in story["scenes"])
+                words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc["lines"])
+                log(f"  story: {len(story['scenes'])} scenes, {words} spoken words")
+                if not best or words > best[0]:
+                    best = (words, story)
+                if words < min_words:
+                    body["contents"][0]["parts"][0]["text"] = prompt + (
+                        f"\n\nIMPORTANT: your last story had only {words} spoken words - far too short. "
+                        f"Write at least {min_words + 150} spoken words: more scenes and more lines per scene.")
+                    raise ValueError("story too short - asking for a longer one")
                 return story
             except LookupError as e:
                 last_err = e
@@ -310,6 +347,9 @@ Return ONLY JSON with exactly these keys:
                 last_err = e
                 log("  trying next model:", str(e)[:200])
                 time.sleep(5)
+    if best:
+        log(f"  using the longest story written ({best[0]} words)")
+        return best[1]
     raise RuntimeError(f"Gemini failed: {last_err}")
 
 
@@ -1637,12 +1677,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 def build_video(scene_parts, lang, out):
     """scene_parts: list of dict(image, lines, sounds, mood). Returns mp4 path."""
-    clips, segs, t = [], [], 0.0
+    clips, segs, t, wavs = [], [], 0.0, []
     voices = scene_parts[0]["voices"]
     prepare_gemini_voices(scene_parts, voices, lang)       # all lines (intro + story + ending) or none
     for i, sp in enumerate(scene_parts):
         log(f"Voices + sound + clip {i + 1}/{len(scene_parts)}")
         a = os.path.join(WORK, f"audio_{i:02d}.wav")
+        wavs.append(a)
         d, subs = make_scene_audio(sp["lines"], voices, lang, i, sp.get("sounds"), sp.get("mood", "creepy"), a,
                                    sp.get("ambience"))
         c = os.path.join(WORK, f"clip_{i:02d}.mp4")
@@ -1661,10 +1702,16 @@ def build_video(scene_parts, lang, out):
     with open(lst, "w") as f:
         f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", os.path.join(WORK, "joined.mp4")])
+    alst = os.path.join(WORK, "audio.txt")
+    with open(alst, "w") as f:
+        f.writelines(f"file '{os.path.basename(a)}'\n" for a in wavs)
+    run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", alst, "-c", "pcm_s16le", os.path.join(WORK, "full.wav")])
     write_ass(segs, os.path.join(WORK, "subs.ass"), LANGS[lang]["font_family"])
-    vf = f"ass=subs.ass:fontsdir={os.path.dirname(FONT)}:shaping=complex"
-    r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-vf", vf, "-c:v", "libx264", "-preset", "medium",
-                        "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
+    vf = f"ass=subs.ass:fontsdir={os.path.dirname(FONT)}:shaping=complex,tpad=stop_mode=clone:stop_duration=3"
+    total = duration(os.path.join(WORK, "full.wav"))
+    r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-i", "full.wav", "-map", "0:v", "-map", "1:a",
+                        "-t", f"{total:.2f}", "-vf", vf, "-c:v", "libx264", "-preset", "medium",
+                        "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k", "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-movflags", "+faststart",
                         os.path.abspath(out)], capture_output=True, text=True, cwd=WORK)
     if r.returncode != 0:
         raise RuntimeError("final render failed:\n" + r.stderr[-2000:])
@@ -1839,14 +1886,14 @@ def main():
     for c in cast.chars.values():
         log(f"  {c['name']} ({c['gender']}, {c['age']}, {c['kind']}) -> voice {voices.map[c['name'].lower()][:3]}")
     seed = random.randint(1, 1_000_000)
-    scenes = story["scenes"][:13]
+    scenes = story["scenes"][:24]          # never cut the story short
 
     log("Cast reference picture")
     if not make_cast_sheet(cast, os.path.join(WORK, "cast.jpg"), seed):
         log("  no cast picture - using text descriptions only")
 
     # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
-    budget = int(env("MAX_IMAGES") or 40)
+    budget = int(env("MAX_IMAGES") or 48)
     scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
     total_lines = sum(len(x) for x in scene_lines) or 1
     imgs, shots_per_scene, last_ok, count = [], [], None, 0
