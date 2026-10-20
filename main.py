@@ -54,7 +54,7 @@ LANGS = {
         "name": "Hindi", "script": "Devanagari",
         "font_family": "Noto Sans Devanagari", "font_glob": "NotoSansDevanagari",
         "male": ["hi-IN-MadhurNeural"], "female": ["hi-IN-SwaraNeural"],
-        "narrator": ("hi-IN-MadhurNeural", "-6%", "-6Hz"), "gtts": "hi",
+        "narrator": ("hi-IN-MadhurNeural", "+2%", "-6Hz"), "gtts": "hi",
         "label": "भूतिया कहानी",
         "intro": "आज की डरावनी कहानी है... {title}।",
         "outro": "कहानी कैसी लगी, कमेंट में ज़रूर बताइए। और ऐसी ही डरावनी कहानियों के लिए {page} को फॉलो कीजिए।",
@@ -66,7 +66,7 @@ LANGS = {
         "font_family": "Noto Sans Bengali", "font_glob": "NotoSansBengali",
         "male": ["bn-IN-BashkarNeural", "bn-BD-PradeepNeural"],
         "female": ["bn-IN-TanishaaNeural", "bn-BD-NabanitaNeural"],
-        "narrator": ("bn-IN-BashkarNeural", "-6%", "-6Hz"), "gtts": "bn",
+        "narrator": ("bn-IN-BashkarNeural", "+2%", "-6Hz"), "gtts": "bn",
         "label": "ভৌতিক গল্প",
         "intro": "আজকের ভৌতিক গল্প... {title}।",
         "outro": "গল্পটা কেমন লাগল কমেন্টে জানাবেন। আর এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করুন।",
@@ -76,6 +76,15 @@ LANGS = {
 }
 
 THEMES = [
+    "a chudail with backward feet on the village road at night", "a brahmadaitya living in an old bel tree",
+    "a shakchunni who wants to become a married woman", "nishi daak - a voice at midnight calling your name",
+    "a mechho bhoot who steals fish from the fishermen", "a pishach in the cremation ground (shamshan)",
+    "a vetal hanging from a tree in the forest", "a headless ghost (skandhakata) near the railway line",
+    "a daayan who takes children's shadows", "a ghost bride in a red saree on the highway",
+    "a haunted zamindar bari in a Bengal village", "an old British-era dak bungalow in the hills",
+    "a Kolkata tram depot after the last tram", "a Rajasthan stepwell (baori) at night",
+    "a Kuldhara-like deserted village", "a Purulia forest guest house",
+    "a Sundarbans boat trip and the jungle spirit", "a ghost who asks for a lift at midnight",
     "an old haveli where a lamp lights itself every night", "an abandoned railway station and the last train",
     "a village well that whispers names", "a lonely highway dhaba after midnight",
     "a hostel room that is always cold", "a huge banyan tree at the edge of the village",
@@ -211,13 +220,20 @@ def make_story(lang, theme, history):
     old_titles = [h["title"] for h in history[-60:] if h.get("lang") == lang]
     prompt = f"""
 You are India's best {L['name']} horror storyteller, writing for a horror story video page.
-Write ONE brand-new, ORIGINAL horror story in {L['name']} ({L['script']} script; simple, natural,
+Write ONE brand-new horror story in {L['name']} ({L['script']} script; simple, natural,
 spoken {L['name']} that ordinary people use). Idea to build on: {theme}.
-Do NOT retell famous stories, films or real incidents, and do not use real people or real place names.
+You may use classic Indian folk ghosts (chudail, brahmadaitya, shakchunni, nishi, pishach, vetal, daayan...)
+but the plot, people and events must be your OWN. Do not copy films or real incidents; no real people.
 Must be different from these earlier stories: {json.dumps(old_titles, ensure_ascii=False)}
 
 Story rules:
-- 10 to 12 scenes, about 3-4 minutes when spoken. Slow-burn build-up, rising fear, a strong twist at the end.
+- 10 to 12 scenes, about 3-4 minutes when spoken. It must be GENUINELY SCARY and impossible to stop listening:
+  * the FIRST line is a chilling hook (a strange fact, a warning, or a scream) - no slow introduction;
+  * every scene ends with a small cliffhanger, the fear grows scene by scene;
+  * use the five senses: cold air, a smell of burning flowers or wet earth, a sound behind you, a touch in the dark;
+  * the ghost is shown little by little (a shadow, then a voice, then a face) - the full reveal comes late;
+  * 2-3 real jump scares, and a shocking twist ending that makes people comment.
+  Keep the narration moving at a natural pace - short punchy sentences in tense moments.
 - Spooky and suspenseful, NOT gory: no blood, no violence details, no harm to children, nothing sexual.
 - 2 to 4 characters plus a narrator. Real dialogue between characters (short, natural lines).
 - Each scene has 1 to 5 lines. The narrator describes; characters speak only their own words
@@ -225,7 +241,10 @@ Story rules:
 - Every picture must show exactly what that scene's lines describe.
 - SOUND DESIGN like a radio horror drama: for every line think what the listener should HEAR.
   When a line mentions a door, footsteps, knocking, wind, rain, a scream, bells, a phone, breaking glass,
-  put that exact sound in that line's "sfx" with the right timing. 0-2 sfx per line, only real story events.
+  put that exact sound in that line's "sfx" with the right timing. 0-3 sfx per line, only real story events.
+  Be very specific so a real recording can be found ('rusty iron gate creaks open', 'barefoot steps on wet floor',
+  'anklet bells (ghungroo) jingling slowly', 'woman laughing in the distance', 'heavy breathing close to ear').
+  Every time the ghost comes near, add a ghost sound (cold wind gust, whisper, ghungroo, low growl, slow breathing).
 - Think like a film director: every line gets its own camera "shot" showing exactly what that line says
   (close-up of a frightened face, a hand on the door handle, the lamp flickering, a shadow in the corridor...).
 - Give every line an emotion so the voice acts it (whisper when hiding, scared when afraid, shout when screaming).
@@ -241,7 +260,7 @@ Return ONLY JSON with exactly these keys:
  "characters": [{{"name": "name in English letters", "gender": "male or female",
                   "age": "child, young, adult or old", "kind": "human or ghost",
                   "look": "ENGLISH, very specific never-changing look: age, face, hair, skin, clothes with exact colors, one special detail. 20-35 words"}}],
- "thumbnail_image": {{"characters": ["1-2 names"], "action": "ENGLISH: ONE shocking moment for a viral thumbnail: extreme close-up of a terrified face with wide eyes, and the scary figure/thing visible behind or beside them"}},
+ "thumbnail_image": {{"characters": ["the ghost's name + 1 victim name"], "ghost": "ENGLISH: exactly how THIS story's ghost looks at its scariest (face, eyes, hair, clothes, skin, special detail like backward feet or red saree) - 25-40 words", "action": "ENGLISH: ONE shocking moment from the story for a viral thumbnail: the ghost's terrifying face big and close on the RIGHT, the frightened victim smaller beside it"}},
  "scenes": [{{
     "characters": ["names VISIBLE in the picture"],
     "action": "ENGLISH: exactly what happens in this scene: who does what, poses, expressions, key objects",
@@ -253,7 +272,8 @@ Return ONLY JSON with exactly these keys:
                 "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
                           "when": "before (sound first, then the line), during, or after (line first, then the sound)"}}],
                 "jump_scare": false,
-                "shot": "ENGLISH: what the camera shows WHILE this line is heard, like a film shot: who/what is in frame, close-up or wide, expression, action, light. Every line gets a different shot that matches the words exactly"}}]
+                "image": {{"prompt": "ENGLISH picture prompt for THIS line, 30-50 words, like a horror film still: WHO/WHAT is in frame and their exact action, pose and facial expression matching the words of this line, WHERE (which part of the setting), camera (extreme close-up / close-up / wide / over-the-shoulder / low angle), light source (lantern, moonlight, lightning), key objects. Only things that can be SEEN. Every line gets a different picture that matches its words exactly",
+                           "characters": ["names VISIBLE in this picture; [] if only a place or object is shown"]}}}}]
  }}],
  "ending_line": "one short {L['name']} line from the narrator that leaves a chill"
 }}
@@ -345,16 +365,25 @@ class Cast:
         return " ".join(f"{c['name']}: {c['look']}." for c in chosen)
 
     def scene_prompt(self, action, place, names, use_ref):
+        """Picture prompt. The exact moment of the story comes FIRST (the picture model follows the start
+        of the prompt most), then who is in it, then the place, then the art style."""
         low = ascii_text(action).lower()
+        empty = isinstance(names, list) and not names           # [] = a shot with nobody in it
         names = list(names or []) + [c["name"] for c in self.chars.values() if c["name"].lower() in low]
-        who = self.describe(self.pick(names))
-        p = (f"{ART_STYLE}. Setting: {self.setting}. {ascii_text(place)}. "
-             f"People in this picture (show ONLY these, each exactly as described): {who} "
-             f"What is happening: {ascii_text(action)}.")
-        if use_ref:
-            p = ("Image 0 is the cast reference photo. Show the same people with exactly the same faces, "
-                 "hair, body and clothes as in image 0, but in a brand-new full scene with a complete "
-                 "background (not a reference sheet). " + p)
+        chosen = []
+        for n in names:
+            c = self.find(n)
+            if c and c not in chosen:
+                chosen.append(c)
+        if not chosen and not empty:
+            chosen = list(self.chars.values())
+        who = (f"Characters in the picture (ONLY these, each exactly as described): {self.describe(chosen)} "
+               if chosen else "No people in this picture, only the place and the objects described. ")
+        p = (f"{ascii_text(action)}. {who}"
+             f"Location: {ascii_text(place)}. {self.setting}. Style: {ART_STYLE}.")
+        if use_ref and chosen:
+            p = ("Same characters as in image 0 (same faces, hair, body and clothes), now acting out this NEW "
+                 "scene with a full background - not standing in a row, not a reference sheet: " + p)
         return p
 
 
@@ -562,10 +591,10 @@ EMOTION_WORDS = {
     "normal": "naturally", "calm": "calmly and softly", "whisper": "in a frightened whisper, very quietly",
     "scared": "terrified, breathing fast, voice trembling", "shout": "screaming in panic, very loud",
     "angry": "angrily, sharply", "sad": "sadly, slowly, with a heavy heart", "crying": "while crying and sobbing",
-    "eerie": "slowly, in a low, mysterious voice", "happy": "happily", "excited": "excitedly", "laughing": "laughing",
+    "eerie": "in a low, mysterious voice", "happy": "happily", "excited": "excitedly", "laughing": "laughing",
 }
 NARRATOR_GEMINI = ("Charon", "the narrator of a famous late-night radio horror drama: a deep, rich, resonant, "
-                   "dramatic male baritone voice, slow and gripping, with suspenseful pauses, every word clear")
+                   "dramatic male baritone voice, at a normal steady storytelling pace (not slow), gripping, with short suspenseful pauses, every word clear")
 GHOST_GEMINI = ("Enceladus", "a ghost: a hollow, breathy, cold, slow, otherworldly whispering voice")
 
 
@@ -725,14 +754,14 @@ async def _edge(text, voice, rate, pitch, out, volume="+0%"):
 # how each emotion changes the voice: (speed %, pitch Hz, volume %, extra sound filter)
 EMOTION_VOICE = {
     "normal": (0, 0, 0, ""),
-    "calm": (-6, -2, -5, ""),
+    "calm": (-2, -2, -5, ""),
     "whisper": (-10, -6, -35, "highpass=f=180"),
     "scared": (12, 12, 5, ""),
     "shout": (8, 22, 25, "acompressor=threshold=0.2:ratio=4,volume=1.3"),
     "angry": (5, -6, 20, "acompressor=threshold=0.25:ratio=3"),
     "sad": (-14, -10, -10, ""),
     "crying": (-10, 6, -5, ""),
-    "eerie": (-14, -8, -5, ""),
+    "eerie": (-6, -8, -5, ""),
 }
 
 
@@ -1165,7 +1194,7 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         during = [x for x in sfx if str(x.get("when", "")).startswith("during")]
         after = [x for x in sfx if str(x.get("when", "")).startswith("after")]
         # sounds that happen first, e.g. "the door creaked..." -> creak, then the words
-        for x in before[:2]:
+        for x in before[:3]:
             snd = get_oneshot(x["sound"], rnd)
             if snd is not None:
                 cues.append((t, snd, 0.85))
@@ -1196,12 +1225,12 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         sp = ascii_text(ln.get("speaker", "")).lower()
         is_nar = (not sp) or sp.startswith("narrat") or voices.cast.find(sp) is None
         subs.append((t, len(a) / SR, is_nar, text))
-        for x in during[:2]:
+        for x in during[:3]:
             snd = get_oneshot(x["sound"], rnd, max_sec=min(6.0, len(a) / SR + 1))
             if snd is not None:
                 cues.append((t + 0.25, snd, 0.55))
         t += len(a) / SR + gap
-        for x in after[:2]:
+        for x in after[:3]:
             snd = get_oneshot(x["sound"], rnd)
             if snd is not None:
                 cues.append((t - gap + 0.1, snd, 0.85))
@@ -1215,7 +1244,7 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
 
     # background: music + place ambience (from the story) + any old-style tags
     bed = drone(n, rnd, mood)
-    for name in (ambience or [])[:2]:
+    for name in (ambience or [])[:3]:
         amb = get_ambience(str(name), n, rnd)
         if amb is not None:
             bed += amb * 0.5
@@ -1829,8 +1858,9 @@ def main():
             count += 1
             p = os.path.join(WORK, f"shot_{i:02d}_{g:02d}.jpg")
             first = grp[0] if grp else {}
-            action = first.get("shot") or s.get("action", "")
-            names = s.get("characters")
+            pic = first.get("image") if isinstance(first.get("image"), dict) else {}
+            action = pic.get("prompt") or first.get("shot") or s.get("action", "")
+            names = pic.get("characters") if isinstance(pic.get("characters"), list) else s.get("characters")
             log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)})")
             if make_image(cast, action, s.get("place", ""), names, p, seed):
                 last_ok = p
@@ -1858,11 +1888,15 @@ def main():
     ti = story.get("thumbnail_image") or {}
     if isinstance(ti, str):
         ti = {"action": ti}
+    ghost = ascii_text(ti.get("ghost", ""))
+    ghost_names = [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")]
+    t_names = list(ti.get("characters") or []) + [n for n in ghost_names[:1] if n not in (ti.get("characters") or [])]
     if not make_image(cast, (ti.get("action") or scenes[-1].get("action", "")) +
-                      ". Viral YouTube thumbnail photo: extreme close-up, big terrified face with wide eyes on the RIGHT side "
-                      "of the frame, dark empty space on the LEFT side, dramatic red and teal rim light, high contrast, "
-                      "very sharp, cinematic", "", ti.get("characters"),
-                      thumb_base, seed):
+                      (f". The ghost: {ghost}" if ghost else "") +
+                      ". Viral YouTube horror thumbnail photo: the ghost's terrifying face very big and close on the RIGHT "
+                      "half, glowing eyes staring at the viewer, the frightened person smaller in front, dark empty space "
+                      "on the LEFT half, dramatic red and teal rim light, fog, high contrast, very sharp, cinematic, no gore",
+                      "", t_names, thumb_base, seed):
         shutil.copy(first_ok, thumb_base)
     thumb = os.path.join(WORK, "thumbnail.jpg")
     make_thumbnail(thumb_base, story.get("thumbnail_text") or title, thumb, L["label"])
