@@ -6,6 +6,8 @@ on:
     # These GitHub times are only a backup - they post nothing if the video is already out.
     - cron: "10 8 * * *"    # backup ~1:40 PM India time
     - cron: "10 16 * * *"   # backup ~9:40 PM India time
+    - cron: "30 5 * * 0"    # Sunday 11:00 AM India time: weekly long compilation video
+    - cron: "25 18 * * *"   # 11:55 PM India time: Amavasya midnight special (only on new-moon nights)
   workflow_dispatch:        # "Run workflow" button for tests
     inputs:
       language:
@@ -13,7 +15,7 @@ on:
         required: false
         default: ""
       mode:
-        description: "Type voice_demo to only make a voice sample (nothing is posted)."
+        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special."
         required: false
         default: ""
 
@@ -59,13 +61,16 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_EXTRA: ${{ secrets.YT_EXTRA }}
           FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
           GEMINI_TTS_KEY: ${{ secrets.GEMINI_TTS_KEY }}
           GEMINI_TTS_KEY_2: ${{ secrets.GEMINI_TTS_KEY_2 }}
           GEMINI_TTS_KEY_3: ${{ secrets.GEMINI_TTS_KEY_3 }}
           LANGUAGE: ${{ github.event.inputs.language }}
           EVENT: ${{ github.event_name }}
-          MODE: ${{ github.event.inputs.mode }}
+          MODE: ${{ github.event.inputs.mode || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || '' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
 
       - name: Remember this story
@@ -78,6 +83,19 @@ jobs:
           git commit -m "story posted $(date -u +%F_%H%M)" || exit 0
           git pull --rebase -q || true
           git push -q
+
+      - name: Tell me on Telegram if the run failed
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -z "$TG_TOKEN" ] && exit 0
+          if [ -z "$TG_CHAT" ]; then
+            TG_CHAT=$(curl -s "https://api.telegram.org/bot$TG_TOKEN/getUpdates" | python3 -c "import sys,json; r=json.load(sys.stdin).get('result',[]); print(r[-1]['message']['chat']['id'] if r and 'message' in r[-1] else '')")
+          fi
+          [ -n "$TG_CHAT" ] && curl -s "https://api.telegram.org/bot$TG_TOKEN/sendMessage" -d chat_id="$TG_CHAT" --data-urlencode text="❌ Horror bot run failed. Open: $RUN_URL" > /dev/null || true
 
       - name: Keep a copy of the video (3 days)
         if: always()
