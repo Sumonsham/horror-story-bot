@@ -672,6 +672,15 @@ def soften(prompt):
 AGE_VOICE = {"child": (30, 8), "young": (10, 4), "adult": (0, 0), "old": (-16, -14)}
 
 
+def ghost_kind(gender, age):
+    """female / old_female / male / child - each kind of ghost gets its own frightening sound."""
+    if age == "child":
+        return "child"
+    if gender == "female":
+        return "old_female" if age == "old" else "female"
+    return "male"
+
+
 def age_group(a):
     a = str(a).lower()
     if any(k in a for k in ("child", "kid", "boy", "girl", "baby")):
@@ -704,10 +713,21 @@ class Voices:
             dup[k] = n + 1
             pitch, rate = AGE_VOICE[ag]
             pitch += [0, -8, 8, -14, 14][n % 5]
-            ghost = c["kind"].startswith("ghost")
+            ghost = ghost_kind(g, ag) if c["kind"].startswith("ghost") else False
             if ghost:
                 rate -= 10
             self.map[c["name"].lower()] = (voice, f"{rate:+d}%", f"{pitch:+d}Hz", ghost)
+        # Gemini voices: never the same voice for two characters
+        self.gemini_map, taken = {}, {NARRATOR_GEMINI[0]}
+        for c in cast.chars.values():
+            g = "female" if c["gender"].startswith("f") else "male"
+            ag = age_group(c["age"])
+            if c["kind"].startswith("ghost"):
+                pool = GHOST_POOL[ghost_kind(g, ag)]
+            else:
+                pool = GEMINI_POOL[(g, ag)] + [v for k, vs in GEMINI_POOL.items() if k[0] == g for v in vs]
+            self.gemini_map[c["name"].lower()] = next((v for v in pool if v not in taken), pool[0])
+            taken.add(self.gemini_map[c["name"].lower()])
         self.cast = cast
 
     def for_speaker(self, speaker):
@@ -724,9 +744,26 @@ class Voices:
 
 # ---------- Gemini voices: real-sounding, acted from written directions
 GEMINI_TTS_OFF = False
-GEMINI_VOICES = {   # prebuilt Gemini voices picked for each kind of character
-    ("male", "child"): "Puck", ("male", "young"): "Fenrir", ("male", "adult"): "Orus", ("male", "old"): "Algenib",
-    ("female", "child"): "Leda", ("female", "young"): "Zephyr", ("female", "adult"): "Kore", ("female", "old"): "Gacrux",
+GEMINI_POOL = {   # prebuilt Gemini voices for each kind of character (first free one is used)
+    ("male", "child"): ["Puck", "Achird"], ("male", "young"): ["Fenrir", "Zubenelgenubi", "Sadachbia"],
+    ("male", "adult"): ["Orus", "Iapetus", "Alnilam", "Schedar", "Umbriel"],
+    ("male", "old"): ["Algenib", "Rasalgethi", "Sadaltager"],
+    ("female", "child"): ["Leda", "Laomedeia"], ("female", "young"): ["Zephyr", "Aoede", "Despina"],
+    ("female", "adult"): ["Kore", "Callirrhoe", "Erinome", "Sulafat"],
+    ("female", "old"): ["Gacrux", "Pulcherrima", "Autonoe"],
+}
+GEMINI_VOICES = {k: v[0] for k, v in GEMINI_POOL.items()}
+GHOST_POOL = {"female": ["Vindemiatrix", "Achernar"], "old_female": ["Gacrux", "Pulcherrima"],
+              "male": ["Enceladus", "Algieba"], "child": ["Laomedeia", "Leda"]}
+GHOST_WORDS = {
+    "female": "a terrifying FEMALE ghost (a chudail / shakchunni): a cold, shrill, breathy woman's voice that wavers "
+              "and hisses, sometimes dropping into a slow cruel whisper or a low wicked laugh",
+    "old_female": "a terrifying OLD WOMAN ghost (a witch-like crone): a cracked, rasping, trembling old woman's voice, "
+                  "slow and spiteful, with a dry cackle",
+    "male": "a terrifying MALE ghost (a pishach / brahmadaitya): a deep, hollow, growling man's voice, slow and heavy, "
+            "as if from the bottom of a well",
+    "child": "an eerie dead CHILD ghost: a soft, sing-song, innocent child's voice that is deeply wrong and cold, "
+             "with a faint giggle",
 }
 AGE_WORDS = {"child": "a small child of about eight", "young": "a young person in their early twenties",
              "adult": "an adult of about forty", "old": "a very old person in their late seventies, with a tired, slightly shaky, aged voice"}
@@ -747,10 +784,13 @@ def gemini_persona(voices, speaker):
     if not c:
         return NARRATOR_GEMINI
     if c["kind"].startswith("ghost"):
-        return GHOST_GEMINI
+        g = "female" if c["gender"].startswith("f") else "male"
+        gk = ghost_kind(g, age_group(c["age"]))
+        return voices.gemini_map.get(c["name"].lower(), GHOST_POOL[gk][0]), GHOST_WORDS[gk]
     g = "female" if c["gender"].startswith("f") else "male"
     ag = age_group(c["age"])
-    return GEMINI_VOICES[(g, ag)], f"{AGE_WORDS[ag]} ({'woman' if g == 'female' else 'man'} named {c['name']}), a real person, natural and believable"
+    voice = voices.gemini_map.get(c["name"].lower(), GEMINI_VOICES[(g, ag)])
+    return voice, f"{AGE_WORDS[ag]} ({'woman' if g == 'female' else 'man'} named {c['name']}), a real person, natural and believable"
 
 
 def gemini_keys():
@@ -912,6 +952,34 @@ def _add(a, b, unit):
     return f"{int(str(a).rstrip(unit).replace('+', '') or 0) + b:+d}{unit}"
 
 
+GHOST_FX = {
+    # a woman's ghost stays a WOMAN: wavering voice + a shrill hiss above it + a backwards "breath" before each word
+    "female": ("[a]asetrate=44100*0.94,aresample=44100,atempo=1.064,vibrato=f=6:d=0.5[main];"
+               "[b]asetrate=44100*1.32,aresample=44100,atempo=0.758,highpass=f=2500,volume=0.42,adelay=60[high];"
+               "[c]areverse,aecho=0.8:0.6:280:0.5,areverse,volume=0.38[pre]"),
+    "old_female": ("[a]asetrate=44100*0.9,aresample=44100,atempo=1.111,tremolo=f=7:d=0.45[main];"
+                   "[b]asetrate=44100*1.25,aresample=44100,atempo=0.8,highpass=f=2200,volume=0.35,adelay=80[high];"
+                   "[c]areverse,aecho=0.8:0.6:300:0.5,areverse,volume=0.35[pre]"),
+    # a man's ghost: very deep, slow, trembling, with a growl underneath
+    "male": ("[a]asetrate=44100*0.76,aresample=44100,atempo=1.18,vibrato=f=4.5:d=0.35[main];"
+             "[b]asetrate=44100*1.08,aresample=44100,atempo=0.83,highpass=f=1800,volume=0.35,adelay=70[high];"
+             "[c]asetrate=44100*0.6,aresample=44100,atempo=1.5,lowpass=f=700,volume=0.65,adelay=20[pre]"),
+    # a child's ghost: innocent and wrong - slightly higher, sing-song wobble, a whisper and a backwards echo
+    "child": ("[a]asetrate=44100*1.05,aresample=44100,atempo=0.952,vibrato=f=5:d=0.3[main];"
+              "[b]asetrate=44100*1.2,aresample=44100,atempo=0.833,highpass=f=2000,volume=0.35,adelay=90[high];"
+              "[c]areverse,aecho=0.8:0.7:350:0.55,areverse,volume=0.4[pre]"),
+}
+
+
+def ghost_fx(src, out_wav, kind, af="anull"):
+    """Turns a voice into a frightening ghost voice that still sounds like the right gender and age."""
+    layers = GHOST_FX.get(kind, GHOST_FX["male"])
+    g = (f"[0:a]{af},asplit=3[a][b][c];{layers};"
+         "[main][high][pre]amix=inputs=3:normalize=0,aecho=0.8:0.8:130:0.22,lowpass=f=8000,"
+         "dynaudnorm=f=150:g=7,volume=1.1[out]")
+    run(["ffmpeg", "-y", "-i", src, "-filter_complex", g, "-map", "[out]", "-ac", "1", "-ar", str(SR), out_wav])
+
+
 def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
     """Speak one line -> mono 44.1k wav, acted with the given emotion. Returns seconds."""
     if MOCK:
@@ -969,19 +1037,7 @@ def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
     if efx:
         af += "," + efx
     if ghost:
-        # Scary ghost voice, three layers mixed together:
-        #  1. a very deep, slow, trembling copy of the voice
-        #  2. a thin, high, airy "whisper" copy that follows a moment later
-        #  3. a low growl (the deep voice, much lower again, quiet)
-        # then a long cold echo, like a voice from an empty hall.
-        g = (f"[0:a]{af},asplit=3[a][b][c];"
-             "[a]asetrate=44100*0.78,aresample=44100,atempo=1.15,vibrato=f=4.5:d=0.35[deep];"
-             "[b]asetrate=44100*1.08,aresample=44100,atempo=0.83,highpass=f=1800,volume=0.45,adelay=70[air];"
-             "[c]asetrate=44100*0.62,aresample=44100,atempo=1.445,lowpass=f=700,volume=0.55,adelay=20[growl];"
-             "[deep][air][growl]amix=inputs=3:normalize=0,"
-             "aecho=0.8:0.8:120:0.2,lowpass=f=7000,"
-             "dynaudnorm=f=150:g=7,volume=1.1[out]")
-        run(["ffmpeg", "-y", "-i", mp3, "-filter_complex", g, "-map", "[out]", "-ac", "1", "-ar", str(SR), out_wav])
+        ghost_fx(mp3, out_wav, ghost if isinstance(ghost, str) else "male", af)
         return duration(out_wav)
     run(["ffmpeg", "-y", "-i", mp3, "-af", af, "-ac", "1", "-ar", str(SR), out_wav])
     return duration(out_wav)
@@ -1352,11 +1408,17 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             t += 0.45
         spec = voices.for_speaker(ln.get("speaker", "narrator"))
         p = os.path.join(WORK, f"v_{idx:02d}_{j:02d}.wav")
+        from_gemini = True
         if (idx, j) in GEMINI_CACHE:
             shutil.copy(GEMINI_CACHE[(idx, j)], p)
         elif not gemini_line(text, gemini_persona(voices, ln.get("speaker", "narrator")), ln.get("emotion", "normal"),
                              lang, p):
+            from_gemini = False
             tts_line(text, spec, LANGS[lang]["gtts"], p, ln.get("emotion", "normal"))
+        if from_gemini and spec[3]:
+            raw_g = p.replace(".wav", "_g.wav")
+            shutil.move(p, raw_g)
+            ghost_fx(raw_g, p, spec[3] if isinstance(spec[3], str) else "male")
         a = read_wav(p)
         pk = np.abs(a).max()
         if pk > 0:                                    # every voice equally clear; whispers softer
