@@ -76,6 +76,15 @@ LANGS = {
         "bhairab": "भैरव ठाकुर का केस #{n}", "bhairab_pl": "भैरव ठाकुर के केस - Bhairab Thakur Cases",
         "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
         "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
+        "how_to_join": "आप भी इस कहानी का हिस्सा बनिए! कमेंट में जवाब दीजिए, जिनका जवाब सही होगा उनका नाम अगले वीडियो में लिया जाएगा। और अपनी सच्ची डरावनी घटना कमेंट में हैशटैग मेरी कहानी लिखकर भेजिए, सबसे अच्छी घटना पर आपके नाम के साथ कहानी बनेगी।",
+        "shout_line": "पिछली कहानी में सही जवाब दिया था {names} ने। आप सबको बधाई!",
+        "viewer_credit": "आज की ये कहानी हमें भेजी थी {name} ने। धन्यवाद {name}! आप भी अपनी घटना भेजिए।",
+        "vote_thanks": "ये भाग आपके वोट से बना है, {names} ने यही चुना था। धन्यवाद!",
+        "join_comment": "👇 कैसे हिस्सा लें:\n✅ सवाल का जवाब यहाँ कमेंट में लिखिए - सही जवाब देने वालों का नाम अगले वीडियो में!\n🗳️ वोट हो तो 1 या 2 लिखिए\n📝 अपनी सच्ची डरावनी घटना #मेरी_कहानी लिखकर भेजिए - अगली कहानी आपकी हो सकती है\n🔔 फॉलो कीजिए ताकि अगला भाग मिस न हो",
+        "shout_comment": "🏆 पिछली कहानी के सही जवाब: {names} - बधाई!",
+        "credit_comment": "📝 आज की कहानी भेजी: {name} 🙏",
+        "vote_comment": "🗳️ इस भाग का अंत आपके वोट से तय हुआ - {names}, धन्यवाद!",
+        "congrats_reply": "🏆 आपका जवाब सही था! आज के वीडियो में आपका नाम लिया गया है 👉 {link}",
     },
     "bn": {
         "name": "Bengali", "script": "Bengali",
@@ -102,6 +111,15 @@ LANGS = {
         "bhairab": "ভৈরব ঠাকুরের কেস #{n}", "bhairab_pl": "ভৈরব ঠাকুরের কেস - Bhairab Thakur Cases",
         "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
         "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
+        "how_to_join": "আপনিও এই গল্পের অংশ হয়ে উঠুন! কমেন্টে উত্তর দিন, যাঁদের উত্তর ঠিক হবে পরের ভিডিওতে তাঁদের নাম বলা হবে। আর আপনার জীবনের সত্যি ভৌতিক ঘটনা কমেন্টে হ্যাশট্যাগ আমার গল্প লিখে পাঠান, সেরা ঘটনা নিয়ে আপনার নাম সহ গল্প হবে।",
+        "shout_line": "আগের গল্পে ঠিক উত্তর দিয়েছিলেন {names}। আপনাদের সবাইকে অভিনন্দন!",
+        "viewer_credit": "আজকের এই গল্পটা আমাদের পাঠিয়েছিলেন {name}। ধন্যবাদ {name}! আপনিও আপনার ঘটনা পাঠান।",
+        "vote_thanks": "এই পর্ব তৈরি হয়েছে আপনাদের ভোটে, {names} এটাই বেছে নিয়েছিলেন। ধন্যবাদ!",
+        "join_comment": "👇 কীভাবে অংশ নেবেন:\n✅ প্রশ্নের উত্তর এখানে কমেন্টে লিখুন - ঠিক উত্তরদাতাদের নাম পরের ভিডিওতে!\n🗳️ ভোট থাকলে ১ বা ২ লিখুন\n📝 আপনার সত্যি ভৌতিক ঘটনা #আমার_গল্প লিখে পাঠান - পরের গল্পটা আপনার হতে পারে\n🔔 ফলো করে রাখুন, পরের পর্ব যেন মিস না হয়",
+        "shout_comment": "🏆 আগের গল্পের ঠিক উত্তর: {names} - অভিনন্দন!",
+        "credit_comment": "📝 আজকের গল্প পাঠিয়েছেন: {name} 🙏",
+        "vote_comment": "🗳️ এই পর্বের শেষ ঠিক হয়েছে আপনাদের ভোটে - {names}, ধন্যবাদ!",
+        "congrats_reply": "🏆 আপনার উত্তর ঠিক ছিল! আজকের ভিডিওতে আপনার নাম বলা হয়েছে 👉 {link}",
     },
 }
 
@@ -403,6 +421,7 @@ Return ONLY JSON with exactly these keys:
  }}],
  "ending_line": "one short {L['name']} line from the narrator that leaves a chill",
  "comment_question": "one short {L['name']} question to viewers that makes them comment (e.g. 'आप होते तो क्या करते?'), with 1 emoji",
+ "mystery_answer": "only for a which-suspect mystery: the right number (1, 2 or 3) as asked in the story; otherwise 0",
  "teaser_scene": "number: the scene (1 = first) where the most gripping 50 seconds START - used for the Reel/Short teaser"
 }}
 Every scene object also has "chapter": "2-4 word {L['name']} chapter name for YouTube chapters".
@@ -2132,18 +2151,31 @@ def main():
             log("  stats skipped:", str(e)[:150])
     prev = load_next_part()
     festival, special, extra_rules, viewer = None, "", "", None
+    shout_names, shout_ids = [], []
+    lastp = extras.last_post(history)                # who answered the last video's question right?
+    if lastp and not MOCK and lastp.get("part") != 1 and (lastp.get("mystery_answer") or lastp.get("hidden")):
+        try:
+            digit = lastp.get("mystery_answer") or lastp.get("hidden")
+            shout_names, shout_ids = extras.winners(extras.post_comments(lastp.get("facebook"), lastp.get("youtube")),
+                                                    digit=digit)
+            log(f"Right answers to the last video: {len(shout_names)}")
+        except Exception as e:
+            log("  right-answer check skipped:", str(e)[:120])
     if env("MODE") == "amavasya":                    # extra midnight story on the new-moon night
         prev = None
     if prev:                                         # finish the series that was started last time
         part, lang, theme, fmt = 2, prev["lang"], prev["theme"], prev.get("fmt")
         ch = prev.get("choice") or {}
         if ch.get("plan1") and ch.get("plan2"):      # count the viewers' votes (1 / 2) in the comments
-            v1, v2 = extras.count_votes(extras.comment_texts(prev.get("fb"), prev.get("yt")))
+            vc = extras.vote_count(extras.post_comments(prev.get("fb"), prev.get("yt")))
+            v1, v2 = len(vc["1"]), len(vc["2"])
             log(f"Viewers' vote: option 1 = {v1}, option 2 = {v2}")
             if v1 + v2 > 0:
                 win = 1 if v1 >= v2 else 2
+                voter_names = [c["name"] for c in vc[str(win)] if c["name"]]
                 prev["vote"] = {"v1": v1, "v2": v2, "option1": ch.get("option1"), "option2": ch.get("option2"),
-                                "plan": ch[f"plan{win}"], "winner_text": ch.get(f"option{win}")}
+                                "plan": ch[f"plan{win}"], "winner_text": ch.get(f"option{win}"),
+                                "names": list(dict.fromkeys(voter_names))}
             else:
                 prev["part2_plan"] = ch.get("plan1") or prev.get("part2_plan")
     else:
@@ -2333,6 +2365,15 @@ def main():
         end_lines.append({"speaker": "narrator", "text": vote_text})
     if hidden:
         end_lines.append({"speaker": "narrator", "text": L["find_ghost_line"]})
+    lang_names = lambda ns: extras.name_list(ns, lang)
+    if viewer and viewer.get("name"):
+        end_lines.append({"speaker": "narrator", "text": L["viewer_credit"].format(name=viewer["name"])})
+    vote_names = (prev or {}).get("vote", {}).get("names") if part == 2 else None
+    if vote_names:
+        end_lines.append({"speaker": "narrator", "text": L["vote_thanks"].format(names=lang_names(vote_names))})
+    if shout_names:
+        end_lines.append({"speaker": "narrator", "text": L["shout_line"].format(names=lang_names(shout_names))})
+    end_lines.append({"speaker": "narrator", "text": L["how_to_join"]})
     end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if part == 1 else L["outro"]).format(page=page)})
     parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
@@ -2371,13 +2412,24 @@ def main():
         if not results.get("facebook") and not results.get("youtube"):
             raise SystemExit("Posting failed everywhere - see messages above.")
 
-    if vote_text:
-        story["comment_question"] = vote_text           # the first comment asks people to vote
+    first = [vote_text or str(story.get("comment_question", "")).strip()]
+    if hidden:
+        first.append(L["find_ghost"])
+    if viewer and viewer.get("name"):
+        first.append(L["credit_comment"].format(name=viewer["name"]))
+    if vote_names:
+        first.append(L["vote_comment"].format(names=extras.name_list(vote_names, lang, 10)))
+    if shout_names:
+        first.append(L["shout_comment"].format(names=extras.name_list(shout_names, lang, 10)))
+    first.append(L["join_comment"])
+    story["comment_question"] = "\n\n".join(x for x in first if x)
     results.update(grow(video, story, title, lang, L, tags, results, history, page))
 
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang,
                     "theme": theme, "format": fmt, "part": part, "title": title, "festival": festival,
-                    "special": special, "viewer_story_id": viewer["id"] if viewer else None, **results})
+                    "special": special, "viewer_story_id": viewer["id"] if viewer else None,
+                    "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
+                    if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
     if not MOCK:
         save_history(history)
         if part == 1:
@@ -2396,6 +2448,9 @@ def main():
                 extras.fb_comment(viewer["id"][3:], L["reply_viewer"] + f" https://www.facebook.com/{results['facebook']}")
         except Exception as e:
             log("  reply to viewer skipped:", str(e)[:120])
+    if shout_ids and results.get("facebook") and not DRY_RUN:
+        n = extras.reply_to(shout_ids, L["congrats_reply"].format(link=f"https://www.facebook.com/{results['facebook']}"))
+        log(f"  congratulated {n} viewers under their comments")
     page_name = env(f"PAGE_NAME_{lang.upper()}") or "Suman Motion"
     extras.telegram(extras.report_text(page_name, title, results, history))
 
