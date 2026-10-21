@@ -2,10 +2,10 @@ name: Daily Horror Story
 
 on:
   schedule:
-    # The main start comes from cron-job.org at 12:55 PM and 8:55 PM India time (on time, every day).
+    # The main start comes from cron-job.org at 11:55 AM and 7:55 PM India time (videos out ~1 PM and ~9 PM).
     # These GitHub times are only a backup - they post nothing if the video is already out.
-    - cron: "10 8 * * *"    # backup ~1:40 PM India time
-    - cron: "10 16 * * *"   # backup ~9:40 PM India time
+    - cron: "10 7 * * *"    # backup ~12:40 PM India time
+    - cron: "10 15 * * *"   # backup ~8:40 PM India time
     - cron: "30 5 * * 0"    # Sunday 11:00 AM India time: weekly long compilation video
     - cron: "25 18 * * *"   # 11:55 PM India time: Amavasya midnight special (only on new-moon nights)
   workflow_dispatch:        # "Run workflow" button for tests
