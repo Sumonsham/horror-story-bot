@@ -37,6 +37,7 @@ import time
 import wave
 
 import requests
+import numpy as np
 import extras
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -66,6 +67,15 @@ LANGS = {
         "ch_intro": "शुरुआत", "ch_end": "अंत", "chapters": "⏱️ अध्याय",
         "cta": "पूरी कहानी हमारे पेज पर 👉", "playlist": "भूतिया कहानियाँ - Hindi Horror Stories",
         "full_link": "पूरी कहानी देखें:",
+        "hp": "हेडफ़ोन लगाकर सुनिए",
+        "find_ghost": "🔍 वीडियो की तस्वीरों में भूत कितनी बार छिपा था? ध्यान दिया? कमेंट में लिखिए!",
+        "find_ghost_line": "और हाँ... इस वीडियो की तस्वीरों में वो भूत कुछ बार छिपा हुआ था। आपने कितनी बार देखा? कमेंट में ज़रूर बताइए।",
+        "vote_line": "{q} अगर आप चाहते हैं {o1}, तो कमेंट में 1 लिखिए। और अगर {o2}, तो 2 लिखिए। आपके वोट से तय होगा कि अगले भाग में क्या होगा!",
+        "ann1": "नई भूतिया कहानी", "ann_msg": "👻 {when} आ रही है नई भूतिया कहानी... हेडफ़ोन तैयार रखिए! 🎧🔔",
+        "comp_title": "{m} मिनट की भूतिया कहानियाँ 👻 | हफ्ते की {n} कहानियाँ एक साथ", "comp_thumb": "{m} मिनट का डर",
+        "bhairab": "भैरव ठाकुर का केस #{n}", "bhairab_pl": "भैरव ठाकुर के केस - Bhairab Thakur Cases",
+        "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
+        "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
     },
     "bn": {
         "name": "Bengali", "script": "Bengali",
@@ -83,6 +93,15 @@ LANGS = {
         "ch_intro": "শুরু", "ch_end": "শেষ", "chapters": "⏱️ অধ্যায়",
         "cta": "পুরো গল্প আমাদের পেজে 👉", "playlist": "ভৌতিক গল্প - Bengali Horror Stories",
         "full_link": "পুরো গল্প দেখুন:",
+        "hp": "হেডফোন পরে শুনুন",
+        "find_ghost": "🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!",
+        "find_ghost_line": "আর হ্যাঁ... এই ভিডিওর ছবিগুলোর মধ্যে সেই ভূত কয়েকবার লুকিয়ে ছিল। আপনি কতবার দেখেছেন? কমেন্টে অবশ্যই জানাবেন।",
+        "vote_line": "{q} যদি চান {o1}, কমেন্টে লিখুন ১। আর যদি চান {o2}, লিখুন ২। আপনাদের ভোটেই ঠিক হবে পরের পর্বে কী হবে!",
+        "ann1": "নতুন ভৌতিক গল্প", "ann_msg": "👻 {when} আসছে নতুন ভৌতিক গল্প... হেডফোন রেডি রাখুন! 🎧🔔",
+        "comp_title": "{m} মিনিটের ভূতের গল্প 👻 | সপ্তাহের সেরা {n}টি গল্প একসাথে", "comp_thumb": "{m} মিনিটের ভয়",
+        "bhairab": "ভৈরব ঠাকুরের কেস #{n}", "bhairab_pl": "ভৈরব ঠাকুরের কেস - Bhairab Thakur Cases",
+        "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
+        "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
     },
 }
 
@@ -136,6 +155,9 @@ ART_STYLE = ("cinematic photorealistic film still, horror movie atmosphere, dark
 
 def log(*a):
     print(f"[{dt.datetime.now().strftime('%H:%M:%S')}]", *a, flush=True)
+    msg = " ".join(str(x) for x in a)
+    if any(k in msg for k in ("skipped", "FAILED", "STOPPED", "failed")):
+        extras.note_issue(msg.strip())
 
 
 def run(cmd):
@@ -177,6 +199,8 @@ def load_history():
 def recently_posted(history, hours):
     """True if a video was posted in the last few hours (so a backup run must not post a second one)."""
     for h in history[-3:]:
+        if h.get("kind") == "compilation":
+            continue
         try:
             t = dt.datetime.fromisoformat(str(h.get("date", "")))
             if t.tzinfo is None:
@@ -202,6 +226,9 @@ def pick_language(history):
 
 
 FORMATS = [
+    "a whodunit ghost mystery: midway the narrator stops and asks the listeners which of three suspects is "
+    "really the ghost (telling them to comment 1, 2 or 3 and to listen till the end), and the final scene "
+    "reveals the answer with a twist",
     "classic third-person radio-drama narration",
     "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
     "a listener's letter read out by the narrator, then the events play out",
@@ -223,6 +250,23 @@ def load_next_part():
     except Exception:
         pass
     return None
+
+
+BHAIRAB = [
+    {"name": "Bhairab Thakur", "gender": "male", "age": "old", "kind": "human",
+     "look": "a tall thin old Bengali tantrik of about seventy, long grey matted hair tied on top of his head, thick "
+             "grey beard, sharp kind eyes lined with kohl, red tilak on forehead, deep red dhoti and a black shawl, "
+             "rudraksha beads, carries an old brass lantern and a bamboo staff"},
+    {"name": "Paltu", "gender": "male", "age": "young", "kind": "human",
+     "look": "a chubby nervous young Bengali man of about twenty-two, round face, messy short black hair, big round "
+             "glasses, yellow checked shirt and blue jeans, cloth sling bag, always holding a small torch"},
+]
+BHAIRAB_RULE = ("RECURRING CHARACTERS: this is a case of our own ghost-hunter duo - BHAIRAB THAKUR (old tantrik, calm, "
+                "wise, a little dry humour, never afraid, solves the mystery with knowledge and courage, never with "
+                "black magic or harm) and his assistant PALTU (young, scared of everything, very funny, but brave "
+                "when it matters). People call Bhairab Thakur for help with a haunting; they investigate, face the "
+                "ghost, and Bhairab frees the troubled spirit (give the ghost a sad reason for haunting). Include both "
+                "with exactly these looks: {looks}. Start with Paltu's funny line and end with a hint of the next case.")
 
 
 def pick_theme(history):
@@ -262,7 +306,7 @@ def gemini_models(key):
     return out
 
 
-def make_story(lang, theme, history, fmt=None, part=0, prev=None):
+def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules=""):
     """part=0: one complete story; part=1: first half of a 2-part series (ends on a cliffhanger);
     part=2: the final part, continuing `prev` (saved from part 1)."""
     if MOCK:
@@ -275,7 +319,12 @@ def make_story(lang, theme, history, fmt=None, part=0, prev=None):
         series_rule = ("\nSERIES: this is PART 1 of a 2-part story. Build the fear and STOP at the most frightening "
                        "cliffhanger, unresolved (the twist comes in part 2). Also add two extra JSON keys: "
                        "\"summary\" (ENGLISH, 4-6 sentences: what happened in part 1) and \"part2_plan\" "
-                       "(ENGLISH, 4-6 sentences: how part 2 continues and the shocking ending).\n")
+                       "(ENGLISH, 4-6 sentences: how part 2 continues and the shocking ending). "
+                       "And a key \"choice\": the big decision the main character faces at the cliffhanger, which "
+                       "the VIEWERS will vote on: {{\"question\": short question in the story language, "
+                       "\"option1\": 2-5 word choice in the story language, \"option2\": 2-5 word choice in the "
+                       "story language, \"plan1\": ENGLISH how part 2 goes if option 1 wins, \"plan2\": ENGLISH "
+                       "how part 2 goes if option 2 wins}}.\n")
     elif part == 2 and prev:
         series_rule = (f"\nSERIES: this is PART 2 (the FINAL part) of a 2-part story. Part 1 title: {prev.get('title')}. "
                        f"What happened in part 1: {prev.get('summary')} Planned continuation: {prev.get('part2_plan')} "
@@ -283,6 +332,12 @@ def make_story(lang, theme, history, fmt=None, part=0, prev=None):
                        f"{json.dumps(prev.get('characters'), ensure_ascii=False)} and this setting: {prev.get('setting')}. "
                        "Begin with a short gripping recap by the narrator (2-3 lines), then continue, and end with a "
                        "shocking twist that answers the mystery.\n")
+        vote = prev.get("vote")
+        if vote:
+            series_rule += (f"VIEWERS VOTED: {vote['v1']} chose '{vote['option1']}', {vote['v2']} chose "
+                            f"'{vote['option2']}'. Part 2 MUST follow the winning choice: {vote['plan']} "
+                            "The narrator's FIRST line thanks the viewers and says most of them chose "
+                            f"'{vote['winner_text']}' - and that is exactly what happened next...\n")
     else:
         series_rule = ""
     prompt = f"""
@@ -307,7 +362,7 @@ Story rules:
 - Each scene has 4 to 7 lines. The narrator describes; characters speak only their own words
   (no "he said" inside dialogue). Narrator lines 25-50 words, dialogue lines 4-20 words.
 - Telling style for this story: {fmt}
-{series_rule}
+{series_rule}{extra_rules}
 - Every picture must show exactly what that scene's lines describe.
 - SOUND DESIGN like a radio horror drama: for every line think what the listener should HEAR.
   When a line mentions a door, footsteps, knocking, wind, rain, a scream, bells, a phone, breaking glass,
@@ -338,6 +393,7 @@ Return ONLY JSON with exactly these keys:
     "mood": "one of {MOODS}",
     "ambience": ["1-2 ENGLISH continuous background sounds that fit THIS place and moment, e.g. 'heavy rain on tin roof', 'night crickets in fields', 'wind howling through broken windows', 'old wall clock ticking', 'river flowing at night', 'distant temple bells'"],
     "lines": [{{"speaker": "narrator or a character name", "text": "{L['name']} text",
+                "en": "the same line translated to natural English (for subtitles)",
                 "emotion": "one of {EMOTIONS}",
                 "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
                           "when": "before (sound first, then the line), during, or after (line first, then the sound)"}}],
@@ -1263,7 +1319,10 @@ def write_wav(path, a):
         w.writeframes((a * 32767).astype(np.int16).tobytes())
 
 
-def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=None):
+SCENE_FX = {}          # scene index -> {"jump": [seconds], "flash": [seconds]} for the camera effects
+
+
+def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=None, place=""):
     """Like a radio drama: every line is spoken with its own voice + emotion, and each sound
     effect is placed exactly where the story says it happens (before / during / after the line).
     Ambience (rain, crickets...) and music run underneath and get quieter while people talk.
@@ -1284,12 +1343,12 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         for x in before[:3]:
             snd = get_oneshot(x["sound"], rnd)
             if snd is not None:
-                cues.append((t, snd, 0.85))
+                cues.append((t, snd, 0.85, x["sound"]))
                 t += min(len(snd) / SR, 2.2) * 0.75 + 0.15
         if ln.get("jump_scare"):
             # classic jump scare: everything goes almost silent, then a sudden hit
             silences.append((max(0.0, t - 0.9), t))
-            cues.append((t, synth("scare_hit", int(SR * 2.5), rnd), 1.0))
+            cues.append((t, synth("scare_hit", int(SR * 2.5), rnd), 1.0, "scare_hit"))
             t += 0.45
         spec = voices.for_speaker(ln.get("speaker", "narrator"))
         p = os.path.join(WORK, f"v_{idx:02d}_{j:02d}.wav")
@@ -1306,28 +1365,36 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         if spec[3]:                                   # ghost speaking: cold swell + whispers
             m = int(SR * 1.2)
             swell = _filt(_noise(m, rnd), "bandpass", [300, 3000]) * np.linspace(0, 1, m) ** 2 * 0.35
-            cues.append((max(0.0, t - 1.1), swell, 1.0))
-            cues.append((t, synth("whisper", len(a) + int(SR * 0.8), rnd) * 1.4, 0.8))
-        pieces.append((t, a))
+            cues.append((max(0.0, t - 1.1), swell, 1.0, "ghost_swell"))
+            cues.append((t, synth("whisper", len(a) + int(SR * 0.8), rnd) * 1.4, 0.8, "ghost_whisper"))
+        pieces.append((t, a, bool(spec[3])))
         sp = ascii_text(ln.get("speaker", "")).lower()
         is_nar = (not sp) or sp.startswith("narrat") or voices.cast.find(sp) is None
         subs.append((t, len(a) / SR, is_nar, text))
         for x in during[:3]:
             snd = get_oneshot(x["sound"], rnd, max_sec=min(6.0, len(a) / SR + 1))
             if snd is not None:
-                cues.append((t + 0.25, snd, 0.55))
+                cues.append((t + 0.25, snd, 0.55, x["sound"]))
         t += len(a) / SR + gap
         for x in after[:3]:
             snd = get_oneshot(x["sound"], rnd)
             if snd is not None:
-                cues.append((t - gap + 0.1, snd, 0.85))
+                cues.append((t - gap + 0.1, snd, 0.85, x["sound"]))
                 t += min(len(snd) / SR, 2.0) * 0.7
     total = t - gap + tail
     n = int(total * SR)
 
-    voice = np.zeros(n)
-    for start, a in pieces:
-        _place(voice, a, start)
+    # voices: people in the middle; a ghost's voice drifts around the listener's head
+    vL, vR = np.zeros(n), np.zeros(n)
+    for start, a, is_ghost in pieces:
+        if is_ghost and SPATIAL:
+            side = 1 if rnd.uniform() < 0.5 else -1
+            l, r = extras.spatialize(a, side * 70, -side * 40, SR)
+            l, r = extras.reverb_stereo(l, r, "hall", SR, seed=idx + 7)
+        else:
+            l, r = a, a
+        _place(vL, l, start)
+        _place(vR, r, start)
 
     # background: music + place ambience (from the story) + any old-style tags
     bed = drone(n, rnd, mood)
@@ -1339,24 +1406,40 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         if tag in SOUND_TAGS and tag != "scare_hit":
             bed += synth(tag, n, rnd) * 0.5
 
-    fx = np.zeros(n)
-    for start, snd, vol in cues:
-        _place(fx, snd * vol, start)
+    # sound effects come from a direction (3D for headphones), with the echo of the place
+    fxL, fxR = np.zeros(n), np.zeros(n)
+    fxinfo = {"jump": [], "flash": []}
+    for start, snd, vol, name in cues:
+        low = str(name).lower()
+        if low == "scare_hit":
+            fxinfo["jump"].append(start)
+        if any(k in low for k in ("thunder", "lightning", "storm")):
+            fxinfo["flash"].append(start + 0.05)
+        a0, a1, _ = extras.spatial_path(name, rnd) if SPATIAL else (0, 0, 0)
+        l, r = extras.spatialize(snd * vol, a0, a1, SR)
+        _place(fxL, l, start)
+        _place(fxR, r, start)
+    SCENE_FX[idx] = fxinfo
+    if SPATIAL:
+        fxL, fxR = extras.reverb_stereo(fxL, fxR, extras.room_kind(f"{place} {' '.join(ambience or [])}"), SR, seed=idx)
+    bedL, bedR = extras.widen(bed, SR) if SPATIAL else (bed, bed)
 
     # quieter background while someone talks; near silence before a jump scare
     talk = np.zeros(n)
-    for start, a in pieces:
+    for start, a, _g in pieces:
         talk[int(start * SR):int(start * SR) + len(a)] = 1
     talk = np.clip(_filt(talk, "lowpass", 3, 1), 0, 1)
     quiet = np.ones(n)
     for s0, s1 in silences:
         quiet[int(s0 * SR):int(s1 * SR)] = 0.08
     quiet = _filt(quiet, "lowpass", 6, 1)
-    mix = voice * 0.95 + bed * (1 - 0.6 * talk) * quiet + fx * (1 - 0.3 * talk)
-    peak = np.abs(mix).max()
+    duck = (1 - 0.6 * talk) * quiet
+    mixL = vL * 0.95 + bedL * duck + fxL * (1 - 0.3 * talk)
+    mixR = vR * 0.95 + bedR * duck + fxR * (1 - 0.3 * talk)
+    peak = max(np.abs(mixL).max(), np.abs(mixR).max())
     if peak > 0.98:
-        mix *= 0.98 / peak
-    write_wav(out_wav, mix)
+        mixL, mixR = mixL * 0.98 / peak, mixR * 0.98 / peak
+    extras.write_stereo_wav(out_wav, mixL, mixR, SR)
     return total, subs
 
 
@@ -1568,6 +1651,29 @@ def plan_shots(segments, total):
     return out
 
 
+SPATIAL = os.getenv("SPATIAL_AUDIO", "1") != "0"
+GHOST_FACE = None      # BGR picture of this story's ghost, flashed for a split second on jump scares
+VHS = False            # "found footage" look for first-person stories
+
+
+def _vhs(img_u8, f, sec):
+    import cv2
+    np = _np()
+    out = img_u8.copy()
+    out[::2] = (out[::2] * 0.82).astype("uint8")                     # scan lines
+    out[..., 2] = np.roll(out[..., 2], 3, axis=1)                    # colour bleeding
+    band = int((sec * 140) % (H + 60)) - 30                          # rolling tracking noise
+    if 0 <= band < H - 12:
+        noise = np.random.default_rng(f).integers(0, 255, (12, W, 3), dtype="uint8")
+        out[band:band + 12] = (out[band:band + 12] * 0.4 + noise * 0.6).astype("uint8")
+    cv2.putText(out, "REC", (48, 64), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (255, 255, 255), 2, cv2.LINE_AA)
+    if int(sec * 2) % 2 == 0:
+        cv2.circle(out, (28, 53), 10, (0, 0, 230), -1)
+    stamp = f"PLAY  00:{int(sec) // 60:02d}:{int(sec) % 60:02d}"
+    cv2.putText(out, stamp, (W - 330, H - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2, cv2.LINE_AA)
+    return out
+
+
 def scene_clip_animated(segments, audio, out, idx, mood):
     np = _np()
     import cv2
@@ -1585,6 +1691,7 @@ def scene_clip_animated(segments, audio, out, idx, mood):
         stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     XF = 8                                                  # cross-fade frames between shots
     prev_last, cur_k, frame_in_shot = None, -1, 0
+    fxi = SCENE_FX.get(idx, {})
     try:
         for f in range(n):
             sec = f / FPS
@@ -1599,6 +1706,11 @@ def scene_clip_animated(segments, audio, out, idx, mood):
             shake = 0.0
             if mood == "scare" and sec < 0.6:
                 shake = 7 * math.sin(sec * 90) * (1 - sec / 0.6)
+            if mood in ("tense", "scare"):                  # hand-held camera
+                shake += 2.2 * math.sin(sec * 6.1) + 1.4 * math.sin(sec * 11.3 + 1)
+            for jt in fxi.get("jump", []):                  # camera jolts on a jump scare
+                if 0 <= sec - jt < 0.7:
+                    shake += 10 * math.sin((sec - jt) * 70) * (1 - (sec - jt) / 0.7)
             if close:                                       # slow push towards the face
                 fx, fy = L["cx"], L["head"]
                 bz = 1.32 + 0.08 * ease
@@ -1618,6 +1730,15 @@ def scene_clip_animated(segments, audio, out, idx, mood):
                 aw = cv2.warpAffine(L["fg_a"], Mf, (W, H))[..., None]
                 frame = frame * (1 - aw) + fgw * aw
             frame = grade(frame, f, sec, mood, flicker)
+            for jt in fxi.get("jump", []):                  # the ghost's face flashes for a split second
+                d_ = sec - jt
+                if GHOST_FACE is not None and -0.04 <= d_ < 0.34:
+                    a_ = 0.9 if d_ < 0.2 else 0.9 * (0.34 - d_) / 0.14
+                    frame = frame * (1 - a_) + GHOST_FACE * a_
+            for lt in fxi.get("flash", []):                 # lightning
+                d_ = sec - lt
+                if 0 <= d_ < 0.1 or 0.22 <= d_ < 0.3:
+                    frame = frame * 0.35 + np.array([255, 245, 235], "float32") * 0.65
             if prev_last is not None and k > 0 and frame_in_shot < XF:
                 a_ = (frame_in_shot + 1) / (XF + 1)
                 frame = prev_last * (1 - a_) + frame * a_
@@ -1626,7 +1747,10 @@ def scene_clip_animated(segments, audio, out, idx, mood):
                 nk = next((i for i, s in enumerate(shots) if s[1] <= (f + 1) / FPS < s[2]), len(shots) - 1)
                 if nk != k:
                     prev_last = frame.copy()
-            ff.stdin.write(np.clip(frame, 0, 255).astype("uint8").tobytes())
+            u8 = np.clip(frame, 0, 255).astype("uint8")
+            if VHS:
+                u8 = _vhs(u8, f, sec)
+            ff.stdin.write(u8.tobytes())
         ff.stdin.close()
     except Exception:
         ff.kill()
@@ -1738,7 +1862,7 @@ def build_video(scene_parts, lang, out):
         a = os.path.join(WORK, f"audio_{i:02d}.wav")
         wavs.append(a)
         d, subs = make_scene_audio(sp["lines"], voices, lang, i, sp.get("sounds"), sp.get("mood", "creepy"), a,
-                                   sp.get("ambience"))
+                                   sp.get("ambience"), sp.get("place", ""))
         c = os.path.join(WORK, f"clip_{i:02d}.mp4")
         shots = sp.get("shots") or []
         segments = []
@@ -1765,8 +1889,10 @@ def build_video(scene_parts, lang, out):
     TIMELINE = (part_times, segs)
     try:                                   # small "Like - Share - Follow" pill, top right, at the start and the end
         extras.make_badge(FONT, LANGS[lang]["badge"], os.path.join(WORK, "badge.png"), BADGE_COLORS)
-        pic = ["-i", "badge.png", "-filter_complex",
-               f"[0:v]{vf}[b];[b][2:v]overlay=W-w-24:22:enable='{extras.badge_filter(total)}'[v]", "-map", "[v]"]
+        extras.headphone_hint(FONT, LANGS[lang]["hp"], os.path.join(WORK, "hp.png"))
+        pic = ["-i", "badge.png", "-i", "hp.png", "-filter_complex",
+               f"[0:v]{vf}[b];[b][2:v]overlay=W-w-24:22:enable='{extras.badge_filter(total)}'[c];"
+               f"[c][3:v]overlay=(W-w)/2:H-h-110:enable='between(t,0.5,7)'[v]", "-map", "[v]"]
     except Exception as e:
         log("  badge skipped:", str(e)[:120])
         pic = ["-vf", vf, "-map", "0:v"]
@@ -1928,8 +2054,13 @@ def main():
     shutil.rmtree(WORK, ignore_errors=True)
     os.makedirs(WORK)
     history = load_history()
+    if env("MODE") == "compilation":
+        return make_compilation(history)
     # automatic runs (GitHub's clock or the cron-job.org clock) must not post twice for one time slot
-    if (env("EVENT") == "schedule" or env("MODE") == "auto") and recently_posted(history, hours=4):
+    if env("MODE") == "amavasya" and not extras.is_amavasya_night():
+        log("Not an Amavasya night - nothing to do.")
+        return
+    if env("MODE") != "amavasya" and (env("EVENT") == "schedule" or env("MODE") == "auto") and recently_posted(history, hours=4):
         log("A video for this time slot was already posted - this backup run has nothing to do.")
         return
     if not MOCK:
@@ -1938,22 +2069,91 @@ def main():
         except Exception as e:
             log("  stats skipped:", str(e)[:150])
     prev = load_next_part()
+    festival, special, extra_rules, viewer = None, "", "", None
+    if env("MODE") == "amavasya":                    # extra midnight story on the new-moon night
+        prev = None
     if prev:                                         # finish the series that was started last time
         part, lang, theme, fmt = 2, prev["lang"], prev["theme"], prev.get("fmt")
+        ch = prev.get("choice") or {}
+        if ch.get("plan1") and ch.get("plan2"):      # count the viewers' votes (1 / 2) in the comments
+            v1, v2 = extras.count_votes(extras.comment_texts(prev.get("fb"), prev.get("yt")))
+            log(f"Viewers' vote: option 1 = {v1}, option 2 = {v2}")
+            if v1 + v2 > 0:
+                win = 1 if v1 >= v2 else 2
+                prev["vote"] = {"v1": v1, "v2": v2, "option1": ch.get("option1"), "option2": ch.get("option2"),
+                                "plan": ch[f"plan{win}"], "winner_text": ch.get(f"option{win}")}
+            else:
+                prev["part2_plan"] = ch.get("plan1") or prev.get("part2_plan")
     else:
         lang, theme = pick_language(history), pick_theme(history)
         fmt = extras.weighted_choice(FORMATS, extras.weights(history, "format", FORMATS))
         part = 1 if random.random() < float(env("SERIES_CHANCE") or 0.3) else 0
+        fest = extras.festival_today("horror")
+        if fest and not any(h.get("festival") == fest[0] and
+                            (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(h["date"])).total_seconds() < 20 * 3600
+                            for h in history[-3:] if h.get("date")):
+            festival, theme, part = fest[0], fest[1], 0
+            log(f"Festival special: {festival}")
+        if env("MODE") == "amavasya":
+            special, part = "amavasya", 0
+            theme = random.choice(["the darkest Amavasya night in a village where no lamp may be lit",
+                                   "an Amavasya midnight ritual at the cremation ground that goes wrong",
+                                   "the Amavasya night when the dead come back to their old house",
+                                   "a lonely road on Amavasya night and the woman with a lantern"])
+            extra_rules += ("\nSPECIAL: this is our AMAVASYA MIDNIGHT SPECIAL - tonight is the new-moon night. The story "
+                            "happens on an Amavasya night and must be the scariest of the month.\n")
+        elif not festival and not part:
+            used = {h.get("viewer_story_id") for h in history}
+            last_v = max((h.get("date", "") for h in history if h.get("viewer_story_id")), default="")
+            days_v = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(last_v)).days if last_v else 99
+            if days_v >= 6:                          # about once a week: a story sent by a viewer
+                try:
+                    vs = extras.viewer_stories(history, used)
+                except Exception as e:
+                    vs = []
+                    log("  viewer stories skipped:", str(e)[:120])
+                if vs:
+                    viewer = vs[0]
+                    special = "viewer"
+                    theme = "a viewer's own true experience"
+                    extra_rules += (f"\nVIEWER'S STORY: build the story on this real experience sent by our viewer "
+                                    f"{viewer['name'] or 'a viewer'}: <<<{viewer['text'][:1500]}>>> Keep its core events "
+                                    "but dramatize it. Do NOT include any real address, phone number, full name or "
+                                    "exact real place - change those. The narrator's FIRST line thanks "
+                                    f"{viewer['name'] or 'our viewer'} for sending this experience.\n")
+                    log(f"Viewer's story from {viewer['name']}")
+            if not special and random.random() < float(env("BHAIRAB_CHANCE") or 0.2):
+                special = "bhairab"
+                extra_rules += "\n" + BHAIRAB_RULE.format(looks=json.dumps(BHAIRAB)) + "\n"
+                log("Bhairab Thakur case")
+        wx = extras.weather_now(lang) if not MOCK else None
+        if wx:
+            extra_rules += f"\nTODAY'S REAL WEATHER: {wx}. Set the story in this weather and let the listener feel it.\n"
+            log("Weather:", wx)
+    global VHS
     L = LANGS[lang]
     FONT = find_font(lang)
+    VHS = "first person" in str(fmt)               # found-footage camera look for "I lived it" stories
     log(f"Language: {L['name']} | Idea: {theme} | Style: {fmt}" + (f" | SERIES part {part}" if part else ""))
 
-    story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev)
+    story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules)
+    if special == "bhairab":                         # always the same faces for our ghost hunters
+        names = {c["name"].lower(): c for c in BHAIRAB}
+        story["characters"] = [names.get(str(c.get("name", "")).lower(), c) for c in story.get("characters", [])]
+        for b in BHAIRAB:
+            if b["name"].lower() not in [str(c.get("name", "")).lower() for c in story["characters"]]:
+                story["characters"].append(b)
     if part == 2:                                    # same people and place as part 1
         story["characters"], story["setting"] = prev["characters"], prev["setting"]
     title = story["title"].strip()[:85]
     if part:
         title = f"{title} | {L['part'].format(n=part)}"
+    if special == "bhairab":
+        case_no = 1 + sum(1 for h in history if h.get("special") == "bhairab")
+        title = f"{L['bhairab'].format(n=case_no)}: {title}"[:95]
+        story["_playlist"] = L["bhairab_pl"]
+    elif special == "amavasya":
+        title = f"{L['amavasya']}: {title}"[:95]
     log("Title:", title)
     with open(os.path.join(WORK, "story.json"), "w", encoding="utf-8") as f:
         json.dump(story, f, ensure_ascii=False, indent=1)
@@ -2000,6 +2200,8 @@ def main():
     first_ok = next((p for p in imgs if p), None)
     if not first_ok:
         if CF_QUOTA_OUT:
+            extras.telegram("⚠️ Suman Motion: today's free picture limit is used up - this video was skipped. "
+                            "It resets at 5:30 AM India time.")
             log("STOPPED: today's free Cloudflare picture limit is used up on every account. "
                 "Nothing was posted. It resets every day at 5:30 AM India time; the next run will work. "
                 "(Tip: add a 2nd free Cloudflare account as CF_ACCOUNT_ID_2 / CF_API_TOKEN_2.)")
@@ -2007,6 +2209,31 @@ def main():
         raise RuntimeError("No pictures could be made (check CF_ACCOUNT_ID / CF_API_TOKEN).")
     imgs = [p or first_ok for p in imgs]
     shots_per_scene = [[x or imgs[i] for x in sh] for i, sh in enumerate(shots_per_scene)]
+
+    global GHOST_FACE
+    hidden = 0
+    gchar = next((c for c in cast.chars.values() if c["kind"].startswith("ghost")), None)
+    gface = os.path.join(WORK, "ghost_face.jpg")
+    if gchar and make_image(cast, f"extreme close-up of {gchar['name']}'s terrifying face staring straight into the "
+                            "camera, wide glowing eyes, emerging from pure black darkness, plain pitch-black background",
+                            "", [gchar["name"]], gface, seed + 1):
+        import cv2
+        gf = cv2.imread(gface)
+        gf = cv2.resize(gf, (W, H)).astype("float32") * np.array([0.75, 0.75, 1.2], "float32")
+        GHOST_FACE = np.clip(gf, 0, 255)
+        # "find the ghost": hide the face faintly in 3-4 pictures that are shown only once
+        rnd_h = np.random.default_rng(seed)
+        flat = [p for sh in shots_per_scene[2:] for p in dict.fromkeys(sh)]
+        once = [p for p in flat if sum(sh.count(p) for sh in shots_per_scene) == 1]
+        for p in list(rnd_h.permutation(once))[:int(rnd_h.integers(3, 5))] if once else []:
+            hp = p.replace(".jpg", "_h.jpg")
+            try:
+                extras.hide_ghost(p, gface, hp, rnd_h)
+                shots_per_scene = [[hp if x == p else x for x in sh] for sh in shots_per_scene]
+                hidden += 1
+            except Exception as e:
+                log("  hide ghost:", str(e)[:100])
+        log(f"Ghost face ready; hidden in {hidden} pictures")
 
     thumb_base = os.path.join(WORK, "thumb_base.jpg")
     ti = story.get("thumbnail_image") or {}
@@ -2031,10 +2258,19 @@ def main():
               "sounds": ["wind"], "mood": "creepy", "voices": voices}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
-                      "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices})
+                      "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
+                      "place": f"{s.get('place', '')} {story.get('setting', '')}"})
     end_lines = []
+    choice = story.get("choice") if part == 1 and isinstance(story.get("choice"), dict) else None
+    vote_text = ""
+    if choice and choice.get("question") and choice.get("option1") and choice.get("option2"):
+        vote_text = L["vote_line"].format(q=choice["question"], o1=choice["option1"], o2=choice["option2"])
     if story.get("ending_line"):
         end_lines.append({"speaker": "narrator", "text": story["ending_line"]})
+    if vote_text:
+        end_lines.append({"speaker": "narrator", "text": vote_text})
+    if hidden:
+        end_lines.append({"speaker": "narrator", "text": L["find_ghost_line"]})
     end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if part == 1 else L["outro"]).format(page=page)})
     parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
@@ -2043,7 +2279,9 @@ def main():
     log(f"Video ready: {duration(video):.0f} seconds")
 
     tags = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
-    description = f"{title}\n\n{story.get('description', '').strip()}\n\n{L['ai_note']}\n\n{' '.join(tags)}"
+    description = (f"{title}\n\n{story.get('description', '').strip()}\n\n" + (f"🗳️ {vote_text}\n\n" if vote_text else "")
+                   + (f"{L['find_ghost']}\n\n" if hidden else "") + f"{L['your_story']}\n\n"
+                   + f"{L['ai_note']}\n\n{' '.join(tags)}")
     part_times, segs = TIMELINE
     chap = extras.chapters_text(part_times, [L["ch_intro"]] + [sc.get("chapter") or f"{k + 1}" for k, sc in
                                                                  enumerate(scenes)] + [L["ch_end"]], L["chapters"])
@@ -2071,10 +2309,13 @@ def main():
         if not results.get("facebook") and not results.get("youtube"):
             raise SystemExit("Posting failed everywhere - see messages above.")
 
+    if vote_text:
+        story["comment_question"] = vote_text           # the first comment asks people to vote
     results.update(grow(video, story, title, lang, L, tags, results, history, page))
 
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang,
-                    "theme": theme, "format": fmt, "part": part, "title": title, **results})
+                    "theme": theme, "format": fmt, "part": part, "title": title, "festival": festival,
+                    "special": special, "viewer_story_id": viewer["id"] if viewer else None, **results})
     if not MOCK:
         save_history(history)
         if part == 1:
@@ -2082,10 +2323,95 @@ def main():
                 json.dump({"created": dt.datetime.now(dt.timezone.utc).isoformat(), "lang": lang, "theme": theme,
                            "fmt": fmt, "title": story["title"], "summary": story.get("summary", ""),
                            "part2_plan": story.get("part2_plan", ""), "characters": story.get("characters"),
-                           "setting": story.get("setting", "")}, f, ensure_ascii=False, indent=1)
+                           "setting": story.get("setting", ""), "choice": choice,
+                           "fb": results.get("facebook"), "yt": results.get("youtube")}, f, ensure_ascii=False, indent=1)
             log("Series: part 2 will be made in the next horror run")
         elif part == 2 and os.path.exists(NEXT_PART):
             os.remove(NEXT_PART)
+    if viewer and not DRY_RUN:                       # tell the viewer their story is out
+        try:
+            if viewer["id"].startswith("fb_") and results.get("facebook"):
+                extras.fb_comment(viewer["id"][3:], L["reply_viewer"] + f" https://www.facebook.com/{results['facebook']}")
+        except Exception as e:
+            log("  reply to viewer skipped:", str(e)[:120])
+    page_name = env(f"PAGE_NAME_{lang.upper()}") or "Suman Motion"
+    extras.telegram(extras.report_text(page_name, title, results, history))
+
+
+def make_compilation(history):
+    """Sunday special: this week's stories (one language) joined into one long video with chapters."""
+    global FONT
+    now = dt.datetime.now(dt.timezone.utc)
+    week = []
+    for h in history[-40:]:
+        try:
+            t = dt.datetime.fromisoformat(str(h.get("date")))
+        except Exception:
+            continue
+        if (now - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).days <= 7 and h.get("facebook") \
+                and h.get("kind") != "compilation":
+            week.append(h)
+    langs = [h.get("lang") for h in week]
+    lang = env("LANGUAGE") if env("LANGUAGE") in LANGS else (max(set(langs), key=langs.count) if langs else "bn")
+    items = [h for h in week if h.get("lang") == lang][-12:]
+    if len(items) < 3:
+        log(f"Weekly compilation: only {len(items)} stories this week - skipped")
+        return
+    L = LANGS[lang]
+    FONT = find_font(lang)
+    clips, chapters, frames, t = [], [], [], 0.0
+    for k, h in enumerate(items):
+        try:
+            src, _ = extras.fb_video_source(h["facebook"])
+            if not src:
+                raise RuntimeError("no video link")
+            raw = extras.download(src, os.path.join(WORK, f"raw_{k}.mp4"))
+            c = extras.normalize_clip(raw, os.path.join(WORK, f"c_{k:02d}.mp4"))
+            os.remove(raw)
+            d = duration(c)
+            fr = os.path.join(WORK, f"fr_{k}.jpg")
+            run(["ffmpeg", "-y", "-ss", f"{min(40, d / 3):.1f}", "-i", c, "-frames:v", "1", fr])
+            frames.append(fr)
+            chapters.append((t, h.get("title", f"{k + 1}")))
+            clips.append(c)
+            t += d
+            log(f"  added: {h.get('title', '')[:50]} ({d / 60:.1f} min)")
+        except Exception as e:
+            log(f"  skipped one story: {str(e)[:150]}")
+    if len(clips) < 3:
+        log("Weekly compilation: not enough videos could be downloaded - skipped")
+        return
+    lst = os.path.join(WORK, "comp.txt")
+    with open(lst, "w") as f:
+        f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
+    video = os.path.join(WORK, "final.mp4")
+    run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", "-movflags", "+faststart", video])
+    minutes = int(round(t / 60))
+    title = L["comp_title"].format(m=minutes, n=len(clips))[:95]
+    base = extras.collage(frames, os.path.join(WORK, "thumb_base.jpg"))
+    thumb = os.path.join(WORK, "thumbnail.jpg")
+    make_thumbnail(base, L["comp_thumb"].format(m=minutes), thumb, L["label"])
+    chap = L["chapters"] + "\n" + "\n".join(f"{extras.fmt_time(s)} {n[:60]}" for s, n in chapters)
+    tags = ["#HorrorStories", "#BhootKiKahani", "#BhooterGolpo", "#HorrorCompilation"]
+    description = f"{title}\n\n{chap}\n\n{L['ai_note']}\n\n{' '.join(tags)}"
+    log(f"Compilation ready: {minutes} minutes, {len(clips)} stories")
+    results = {}
+    if not DRY_RUN:
+        try:
+            results["facebook"] = post_to_facebook(video, thumb, title, description)
+            log("Posted compilation to Facebook:", results["facebook"])
+        except Exception as e:
+            log("FACEBOOK FAILED:", e)
+        if youtube_ready() and extras.yt_extra_ok():
+            try:
+                results["youtube"] = post_to_youtube(video, thumb, title, description, tags, lang)
+                log("Posted compilation to YouTube:", results["youtube"])
+                extras.yt_add_to_playlist(results["youtube"], L["playlist"], lang)
+            except Exception as e:
+                log("YouTube compilation skipped:", str(e)[:200])
+        history.append({"date": now.isoformat(timespec="minutes"), "lang": lang, "kind": "compilation",
+                        "title": title, **results})
+        save_history(history)
 
 
 def grow(video, story, title, lang, L, tags, results, history, page):
@@ -2111,19 +2437,48 @@ def grow(video, story, title, lang, L, tags, results, history, page):
             log("Posted Facebook Reel:", out["fb_reel"])
         except Exception as e:
             log("  Facebook Reel skipped:", str(e)[:200])
+    if teaser and env("INSTAGRAM") != "0":
+        try:
+            out["ig_reel"] = extras.ig_post_reel(teaser, short_desc)
+            log("Posted Instagram Reel:", out["ig_reel"])
+        except Exception as e:
+            log("  Instagram Reel skipped:", str(e)[:200])
     if results.get("youtube"):
         try:
-            extras.yt_add_to_playlist(results["youtube"], L["playlist"], lang)
+            extras.yt_add_to_playlist(results["youtube"], story.get("_playlist") or L["playlist"], lang)
             log("  added to YouTube playlist")
         except Exception as e:
             log("  playlist skipped:", str(e)[:200])
-        if teaser and env("YT_SHORTS") != "0" and extras.shorts_today(history) < int(env("YT_SHORTS_PER_DAY") or 2):
+        if (teaser and extras.yt_extra_ok() and env("YT_SHORTS") != "0"
+                and extras.shorts_today(history) < int(env("YT_SHORTS_PER_DAY") or 2)):
             try:
                 desc = f"{title}\n{L['full_link']} https://youtu.be/{results['youtube']}\n{' '.join(tags[:6])}"
                 out["yt_short"] = post_to_youtube(teaser, None, f"{title[:80]} #Shorts", desc, tags, lang)
                 log("Posted YouTube Short:", out["yt_short"])
             except Exception as e:
                 log("  YouTube Short skipped:", str(e)[:200])
+    if results.get("youtube") and extras.yt_extra_ok():
+        try:                                          # English subtitles: more people can follow, better search
+            tr = {str(ln.get("text", "")).strip(): str(ln.get("en", "")).strip()
+                  for sc in story.get("scenes", []) for ln in sc.get("lines", []) if ln.get("en")}
+            srt = extras.write_srt(segs, tr, os.path.join(WORK, "subs_en.srt"))
+            if srt:
+                extras.yt_upload_captions(results["youtube"], srt)
+                log("  English subtitles added on YouTube")
+        except Exception as e:
+            log("  subtitles skipped:", str(e)[:160])
+    if results.get("facebook") and env("ANNOUNCE") != "0" and env("MODE") != "amavasya":
+        try:                                          # "coming soon" post 2 hours before the next video
+            nxt = extras.next_slot([13, 21], [13, 21])
+            if nxt:
+                slot, when, day = nxt
+                words = f"{extras.DAY_WORDS[lang][day]} {extras.TIME_WORDS[lang][slot.hour]}"
+                card = extras.announcement_card(os.path.join(WORK, "thumb_base.jpg"), FONT, L["ann1"], words,
+                                                os.path.join(WORK, "announce.jpg"))
+                extras.fb_schedule_photo(card, L["ann_msg"].format(when=words), when)
+                log(f"  'coming soon' post scheduled for {when.strftime('%d %b %H:%M')} India time")
+        except Exception as e:
+            log("  announcement skipped:", str(e)[:160])
     if question and results.get("facebook"):
         try:
             extras.fb_comment(results["facebook"], question)
