@@ -398,6 +398,7 @@ Story rules:
   (close-up of a frightened face, a hand on the door handle, the lamp flickering, a shadow in the corridor...).
 - Give every line an emotion so the voice acts it (whisper when hiding, scared when afraid, shout when screaming).
 - Mark "jump_scare": true on 1-3 lines in the whole story where the big scare lands (a sudden sound/reveal).
+{extras.STORY_CRAFT}{extras.WRITING_RULES.get(lang, "")}{extras.VOICE_ACTING}
 
 Return ONLY JSON with exactly these keys:
 {{
@@ -419,6 +420,8 @@ Return ONLY JSON with exactly these keys:
     "lines": [{{"speaker": "narrator or a character name", "text": "{L['name']} text",
                 "en": "the same line translated to natural English (for subtitles)",
                 "emotion": "one of {EMOTIONS}",
+                "delivery": "ENGLISH acting direction for the voice (pitch, speed, loudness, feeling)",
+                "voice_text": "same words as text, with 0-2 sound tags like <gasp> or <sigh> where they fit",
                 "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
                           "when": "before (sound first, then the line), during, or after (line first, then the sound)"}}],
                 "jump_scare": false,
@@ -753,6 +756,10 @@ class Voices:
                 pool = GEMINI_POOL[(g, ag)] + [v for k, vs in GEMINI_POOL.items() if k[0] == g for v in vs]
             self.gemini_map[c["name"].lower()] = next((v for v in pool if v not in taken), pool[0])
             taken.add(self.gemini_map[c["name"].lower()])
+        # free voice model (Indic Parler-TTS): each character its own speaker / pitch
+        self.parler_map = extras.parler_cast(
+            [(c["name"], c["gender"], age_group(c["age"]), c["kind"].startswith("ghost")) for c in cast.chars.values()],
+            lang, "male")
         self.cast = cast
 
     def for_speaker(self, speaker):
@@ -840,108 +847,76 @@ def _gemini_429(r):
     return kind, wait
 
 
-def gemini_line(text, persona, emotion, lang, out_wav):
-    """One line spoken by Gemini's voice model, acted as described. Returns True if it worked.
-    If a key's limit is used up it moves on to the next key (GEMINI_TTS_KEY_2, _3 ...)."""
-    global GEMINI_TTS_OFF, GEMINI_KEY_NOW
-    if MOCK or GEMINI_TTS_OFF or env("USE_GEMINI_VOICE") == "0":
-        return False
-    keys = gemini_keys()                  # only keys given specially for voices (so no surprise bills)
-    if not keys:
+def gemini_line(text, persona, emotion, lang, out_wav, delivery=""):
+    """One line performed by Gemini's expressive voice (3.8 Flash TTS first): the character's own voice,
+    the emotion, the exact delivery, sound tags like <sigh>/<gasp>, and correct pronunciation."""
+    if MOCK or env("USE_GEMINI_VOICE") == "0" or extras.TTS_STATE["off"]:
         return False
     voice, who = persona
     how = EMOTION_WORDS.get(str(emotion).lower(), "naturally")
-    prompt = (f"You are a voice actor in a {LANGS[lang]['name']} audio drama. Speak as {who}, {how}. "
-              f"Use natural {LANGS[lang]['name']} pronunciation. Say only this line, nothing else:\n{text}")
-    body = {"contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"responseModalities": ["AUDIO"],
-                                 "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice}}}}}
-    models = [env("GEMINI_TTS_MODEL")] if env("GEMINI_TTS_MODEL") else []
-    models += ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"]
-    bad = 0
-    while GEMINI_KEY_NOW < len(keys):
-        key = keys[GEMINI_KEY_NOW]
-        next_key = False
-        for model in models:
-            minute_waits = 0
-            attempt = 0
-            while attempt < 2:
-                try:
-                    r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
-                                      headers={"x-goog-api-key": key}, json=body, timeout=120)
-                    if r.status_code == 404:
-                        break                                 # model name not available -> next one
-                    if r.status_code == 429:
-                        kind, wait = _gemini_429(r)
-                        if kind == "minute" and minute_waits < 4:
-                            minute_waits += 1
-                            log(f"  Gemini voice: per-minute limit - waiting {min(wait, 65):.0f}s")
-                            time.sleep(min(wait, 65) + 1)
-                            continue
-                        break                                 # this model's daily limit -> try other model
-                    if r.status_code in (401, 403):
-                        log(f"  Gemini voice key {GEMINI_KEY_NOW + 1} not accepted (HTTP {r.status_code})")
-                        next_key = True
-                        break
-                    if not r.ok:
-                        raise RuntimeError(f"HTTP {r.status_code}: {r.text[:150]}")
-                    part = r.json()["candidates"][0]["content"]["parts"][0]["inlineData"]
-                    pcm = base64.b64decode(part["data"])
-                    raw = out_wav + ".pcm"
-                    with open(raw, "wb") as f:
-                        f.write(pcm)
-                    # cut silence at the start/end, and shorten any long silent gap inside the line
-                    run(["ffmpeg", "-y", "-f", "s16le", "-ar", "24000", "-ac", "1", "-i", raw,
-                         "-af", "silenceremove=start_periods=1:start_threshold=-50dB:"
-                                "stop_periods=-1:stop_duration=1.2:stop_silence=0.6:stop_threshold=-50dB,"
-                                "areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse,"
-                                "aresample=44100",
-                         "-ac", "1", "-ar", str(SR), out_wav])
-                    d, n = duration(out_wav), len(text)
-                    # a line that was cut off half-way (too short) or that rambles on (too long) is not used
-                    if d < max(0.4, n / 40) or d > n / 3 + 4:
-                        bad += 1
-                        log(f"  Gemini voice gave a broken line ({d:.1f}s for {n} letters) - asking again")
-                        if bad >= 3:
-                            return False
-                        attempt += 1
-                        continue
-                    return True
-                except Exception as e:
-                    log(f"  Gemini voice attempt failed ({model}): {str(e)[:120]}")
-                    time.sleep(3)
-                    attempt += 1
-            if next_key:
-                break
-        # every model on this key is used up (or the key is bad) -> next key
-        GEMINI_KEY_NOW += 1
-        if GEMINI_KEY_NOW < len(keys):
-            log(f"  Gemini voice: key {GEMINI_KEY_NOW} used up - switching to key {GEMINI_KEY_NOW + 1}")
-    log("  Gemini voice: all keys used up for today")
-    GEMINI_TTS_OFF = True
-    return False
+    style = f"Character: {who}. Emotion: {how}. " + (f"Delivery: {delivery}. " if delivery else "") + extras.PRONOUNCE[lang]
+    return extras.tts_gemini(text, voice, style, LANGS[lang]["name"], out_wav, SR)
 
 
-def prepare_gemini_voices(scenes, voices, lang, max_minutes=25):
-    """Voice the WHOLE story with Gemini before the video is made. If Gemini cannot finish every line
-    (limit reached), none of it is used - the whole video then uses Microsoft voices, so a character's
-    voice never changes and the sound never breaks in the middle of the video."""
-    global GEMINI_READY, GEMINI_TTS_OFF
-    if MOCK or not gemini_keys() or env("USE_GEMINI_VOICE") == "0":
+def parler_persona(voices, speaker, lang):
+    s = ascii_text(speaker).lower()
+    c = voices.cast.find(s) if s and not s.startswith("narrat") else None
+    if not c:   # storyteller: deep, steady male voice
+        return (extras.PARLER_SPK.get(lang, extras.PARLER_SPK["bn"])["male"][0], "a deep, low-pitched", "moderate")
+    return voices.parler_map.get(c["name"].lower(), ("Arjun", "a moderate-pitched", "moderate"))
+
+
+def prepare_free_voices(todo, voices, lang, max_minutes=None):
+    """Whole story with the free voice model (runs on GitHub, no daily limit). All lines or none."""
+    global GEMINI_READY
+    if MOCK or not extras.parler_ok():
         return False
-    todo = [(i, j, ln) for i, s in enumerate(scenes) for j, ln in enumerate(s.get("lines") or [])
-            if str(ln.get("text", "")).strip()]
-    log(f"Gemini voices for all {len(todo)} lines (keys: {len(gemini_keys())})")
+    max_minutes = max_minutes or int(env("FREE_VOICE_MINUTES") or 50)
+    log(f"Free voice model for all {len(todo)} lines")
     t0 = time.time()
     for k, (i, j, ln) in enumerate(todo):
         if time.time() - t0 > max_minutes * 60:
-            log("  Gemini voices too slow today - using Microsoft voices for the whole video")
+            log("  free voice model too slow today - using Microsoft voices")
             break
         p = os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav")
-        if not gemini_line(str(ln["text"]).strip(),
+        if not extras.parler_line(str(ln["text"]), parler_persona(voices, ln.get("speaker", "narrator"), lang),
+                                  ln.get("emotion", "normal"), p, SR):
+            log(f"  free voice model stopped at line {k + 1}/{len(todo)}")
+            break
+        GEMINI_CACHE[(i, j)] = p
+        if k == 0:
+            log(f"  first line took {time.time() - t0:.0f}s")
+    else:
+        GEMINI_READY = True
+        log(f"  all lines voiced by the free model in {(time.time() - t0) / 60:.1f} min")
+        return True
+    GEMINI_CACHE.clear()
+    return False
+
+
+def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
+    """Voice the WHOLE story with Gemini before the video is made. If Gemini cannot finish every line
+    (limit reached), none of it is used - the whole video then uses Microsoft voices, so a character's
+    voice never changes and the sound never breaks in the middle of the video."""
+    global GEMINI_READY
+    if MOCK:
+        return False
+    todo = [(i, j, ln) for i, s in enumerate(scenes) for j, ln in enumerate(s.get("lines") or [])
+            if str(ln.get("text", "")).strip()]
+    if not extras.tts_keys() or env("USE_GEMINI_VOICE") == "0":
+        extras.TTS_STATE["off"] = True
+        return prepare_free_voices(todo, voices, lang)
+    log(f"Expressive voices for all {len(todo)} lines (keys: {len(extras.tts_keys())})")
+    t0 = time.time()
+    for k, (i, j, ln) in enumerate(todo):
+        if time.time() - t0 > max_minutes * 60:
+            log("  Gemini voices too slow today - trying the free voice model")
+            break
+        p = os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav")
+        if not gemini_line(extras.performed(ln),
                            gemini_persona(voices, ln.get("speaker", "narrator")),
-                           ln.get("emotion", "normal"), lang, p):
-            log(f"  Gemini voice stopped at line {k + 1}/{len(todo)} - using Microsoft voices for the whole video "
+                           ln.get("emotion", "normal"), lang, p, str(ln.get("delivery", ""))):
+            log(f"  Gemini voice stopped at line {k + 1}/{len(todo)} - trying the free voice model "
                 "(same voice all through)")
             break
         GEMINI_CACHE[(i, j)] = p
@@ -950,8 +925,8 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=25):
         log("  all lines voiced by Gemini")
         return True
     GEMINI_CACHE.clear()
-    GEMINI_TTS_OFF = True
-    return False
+    extras.TTS_STATE["off"] = True
+    return prepare_free_voices(todo, voices, lang)
 
 
 async def _edge(text, voice, rate, pitch, out, volume="+0%"):
@@ -1436,10 +1411,10 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         from_gemini = True
         if (idx, j) in GEMINI_CACHE:
             shutil.copy(GEMINI_CACHE[(idx, j)], p)
-        elif not gemini_line(text, gemini_persona(voices, ln.get("speaker", "narrator")), ln.get("emotion", "normal"),
-                             lang, p):
+        elif not gemini_line(extras.performed(ln), gemini_persona(voices, ln.get("speaker", "narrator")),
+                             ln.get("emotion", "normal"), lang, p, str(ln.get("delivery", ""))):
             from_gemini = False
-            tts_line(text, spec, LANGS[lang]["gtts"], p, ln.get("emotion", "normal"))
+            tts_line(extras.strip_tags(text), spec, LANGS[lang]["gtts"], p, ln.get("emotion", "normal"))
         if from_gemini and spec[3]:
             raw_g = p.replace(".wav", "_g.wav")
             shutil.move(p, raw_g)
