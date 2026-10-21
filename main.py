@@ -37,6 +37,7 @@ import time
 import wave
 
 import requests
+import extras
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 # ----------------------------------------------------------------- settings
@@ -60,6 +61,11 @@ LANGS = {
         "outro": "कहानी कैसी लगी, कमेंट में ज़रूर बताइए। और ऐसी ही डरावनी कहानियों के लिए {page} को फॉलो कीजिए।",
         "page_default": "हमारे पेज",
         "ai_note": "🎨 यह कहानी और तस्वीरें AI की मदद से बनाई गई हैं। सब काल्पनिक है।",
+        "badge": "लाइक • शेयर • फॉलो", "part": "भाग {n}",
+        "outro_part1": "कहानी का अगला भाग जल्द ही आएगा... उसे मिस मत कीजिए, अभी {page} को फॉलो कीजिए।",
+        "ch_intro": "शुरुआत", "ch_end": "अंत", "chapters": "⏱️ अध्याय",
+        "cta": "पूरी कहानी हमारे पेज पर 👉", "playlist": "भूतिया कहानियाँ - Hindi Horror Stories",
+        "full_link": "पूरी कहानी देखें:",
     },
     "bn": {
         "name": "Bengali", "script": "Bengali",
@@ -72,6 +78,11 @@ LANGS = {
         "outro": "গল্পটা কেমন লাগল কমেন্টে জানাবেন। আর এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করুন।",
         "page_default": "আমাদের পেজ",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
+        "badge": "লাইক • শেয়ার • ফলো", "part": "পর্ব {n}",
+        "outro_part1": "গল্পের বাকি অংশ আসছে পরের পর্বে... মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
+        "ch_intro": "শুরু", "ch_end": "শেষ", "chapters": "⏱️ অধ্যায়",
+        "cta": "পুরো গল্প আমাদের পেজে 👉", "playlist": "ভৌতিক গল্প - Bengali Horror Stories",
+        "full_link": "পুরো গল্প দেখুন:",
     },
 }
 
@@ -198,6 +209,22 @@ FORMATS = [
 ]
 
 
+NEXT_PART = os.path.join(HERE, "next_part.json")
+
+
+def load_next_part():
+    """Part 1 of a series saves what part 2 needs; the next horror run makes part 2."""
+    try:
+        with open(NEXT_PART, encoding="utf-8") as f:
+            nxt = json.load(f)
+        made = dt.datetime.fromisoformat(nxt["created"])
+        if (dt.datetime.now(dt.timezone.utc) - made).total_seconds() < 4 * 86400:
+            return nxt
+    except Exception:
+        pass
+    return None
+
+
 def pick_theme(history):
     used = [h.get("theme") for h in history[-12:]]
     options = [t for t in THEMES if t not in used] or THEMES
@@ -235,13 +262,29 @@ def gemini_models(key):
     return out
 
 
-def make_story(lang, theme, history):
+def make_story(lang, theme, history, fmt=None, part=0, prev=None):
+    """part=0: one complete story; part=1: first half of a 2-part series (ends on a cliffhanger);
+    part=2: the final part, continuing `prev` (saved from part 1)."""
     if MOCK:
         return mock_story(lang)
     key = need_env("GEMINI_API_KEY")
     L = LANGS[lang]
     old_titles = [h["title"] for h in history[-60:] if h.get("lang") == lang]
-    fmt = random.choice(FORMATS)
+    fmt = fmt or random.choice(FORMATS)
+    if part == 1:
+        series_rule = ("\nSERIES: this is PART 1 of a 2-part story. Build the fear and STOP at the most frightening "
+                       "cliffhanger, unresolved (the twist comes in part 2). Also add two extra JSON keys: "
+                       "\"summary\" (ENGLISH, 4-6 sentences: what happened in part 1) and \"part2_plan\" "
+                       "(ENGLISH, 4-6 sentences: how part 2 continues and the shocking ending).\n")
+    elif part == 2 and prev:
+        series_rule = (f"\nSERIES: this is PART 2 (the FINAL part) of a 2-part story. Part 1 title: {prev.get('title')}. "
+                       f"What happened in part 1: {prev.get('summary')} Planned continuation: {prev.get('part2_plan')} "
+                       f"Use EXACTLY these characters (same names, same looks): "
+                       f"{json.dumps(prev.get('characters'), ensure_ascii=False)} and this setting: {prev.get('setting')}. "
+                       "Begin with a short gripping recap by the narrator (2-3 lines), then continue, and end with a "
+                       "shocking twist that answers the mystery.\n")
+    else:
+        series_rule = ""
     prompt = f"""
 You are India's best {L['name']} horror storyteller, writing for a horror story video page.
 Write ONE brand-new horror story in {L['name']} ({L['script']} script; simple, natural,
@@ -264,6 +307,7 @@ Story rules:
 - Each scene has 4 to 7 lines. The narrator describes; characters speak only their own words
   (no "he said" inside dialogue). Narrator lines 25-50 words, dialogue lines 4-20 words.
 - Telling style for this story: {fmt}
+{series_rule}
 - Every picture must show exactly what that scene's lines describe.
 - SOUND DESIGN like a radio horror drama: for every line think what the listener should HEAR.
   When a line mentions a door, footsteps, knocking, wind, rain, a scream, bells, a phone, breaking glass,
@@ -301,8 +345,11 @@ Return ONLY JSON with exactly these keys:
                 "image": {{"prompt": "ENGLISH picture prompt for THIS line, 30-50 words, like a horror film still: WHO/WHAT is in frame and their exact action, pose and facial expression matching the words of this line, WHERE (which part of the setting), camera (extreme close-up / close-up / wide / over-the-shoulder / low angle), light source (lantern, moonlight, lightning), key objects. Only things that can be SEEN. Every line gets a different picture that matches its words exactly",
                            "characters": ["names VISIBLE in this picture; [] if only a place or object is shown"]}}}}]
  }}],
- "ending_line": "one short {L['name']} line from the narrator that leaves a chill"
+ "ending_line": "one short {L['name']} line from the narrator that leaves a chill",
+ "comment_question": "one short {L['name']} question to viewers that makes them comment (e.g. 'आप होते तो क्या करते?'), with 1 emoji",
+ "teaser_scene": "number: the scene (1 = first) where the most gripping 50 seconds START - used for the Reel/Short teaser"
 }}
+Every scene object also has "chapter": "2-4 word {L['name']} chapter name for YouTube chapters".
 """
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json",
@@ -1675,13 +1722,19 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         f.write(head + "\n".join(rows) + "\n")
 
 
+TIMELINE = ([], [])          # (start second of every part, every spoken line) of the last video
+BADGE_COLORS = ((200, 0, 20), (255, 255, 255))
+
+
 def build_video(scene_parts, lang, out):
     """scene_parts: list of dict(image, lines, sounds, mood). Returns mp4 path."""
-    clips, segs, t, wavs = [], [], 0.0, []
+    global TIMELINE
+    clips, segs, t, wavs, part_times = [], [], 0.0, [], []
     voices = scene_parts[0]["voices"]
     prepare_gemini_voices(scene_parts, voices, lang)       # all lines (intro + story + ending) or none
     for i, sp in enumerate(scene_parts):
         log(f"Voices + sound + clip {i + 1}/{len(scene_parts)}")
+        part_times.append(t)
         a = os.path.join(WORK, f"audio_{i:02d}.wav")
         wavs.append(a)
         d, subs = make_scene_audio(sp["lines"], voices, lang, i, sp.get("sounds"), sp.get("mood", "creepy"), a,
@@ -1709,8 +1762,16 @@ def build_video(scene_parts, lang, out):
     write_ass(segs, os.path.join(WORK, "subs.ass"), LANGS[lang]["font_family"])
     vf = f"ass=subs.ass:fontsdir={os.path.dirname(FONT)}:shaping=complex,tpad=stop_mode=clone:stop_duration=3"
     total = duration(os.path.join(WORK, "full.wav"))
-    r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-i", "full.wav", "-map", "0:v", "-map", "1:a",
-                        "-t", f"{total:.2f}", "-vf", vf, "-c:v", "libx264", "-preset", "medium",
+    TIMELINE = (part_times, segs)
+    try:                                   # small "Like - Share - Follow" pill, top right, at the start and the end
+        extras.make_badge(FONT, LANGS[lang]["badge"], os.path.join(WORK, "badge.png"), BADGE_COLORS)
+        pic = ["-i", "badge.png", "-filter_complex",
+               f"[0:v]{vf}[b];[b][2:v]overlay=W-w-24:22:enable='{extras.badge_filter(total)}'[v]", "-map", "[v]"]
+    except Exception as e:
+        log("  badge skipped:", str(e)[:120])
+        pic = ["-vf", vf, "-map", "0:v"]
+    r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-i", "full.wav"] + pic + ["-map", "1:a",
+                        "-t", f"{total:.2f}", "-c:v", "libx264", "-preset", "medium",
                         "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k", "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-movflags", "+faststart",
                         os.path.abspath(out)], capture_output=True, text=True, cwd=WORK)
     if r.returncode != 0:
@@ -1808,6 +1869,8 @@ def post_to_youtube(video, thumb, title, description, tags, lang):
     if not up.ok:
         raise RuntimeError("YouTube upload failed: " + up.text[:400])
     vid = up.json()["id"]
+    if not thumb:
+        return vid
     try:
         with open(thumb, "rb") as f:
             t = requests.post(f"https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={vid}",
@@ -1869,14 +1932,28 @@ def main():
     if (env("EVENT") == "schedule" or env("MODE") == "auto") and recently_posted(history, hours=4):
         log("A video for this time slot was already posted - this backup run has nothing to do.")
         return
-    lang = pick_language(history)
+    if not MOCK:
+        try:
+            extras.refresh_stats(history)            # learn which stories people liked
+        except Exception as e:
+            log("  stats skipped:", str(e)[:150])
+    prev = load_next_part()
+    if prev:                                         # finish the series that was started last time
+        part, lang, theme, fmt = 2, prev["lang"], prev["theme"], prev.get("fmt")
+    else:
+        lang, theme = pick_language(history), pick_theme(history)
+        fmt = extras.weighted_choice(FORMATS, extras.weights(history, "format", FORMATS))
+        part = 1 if random.random() < float(env("SERIES_CHANCE") or 0.3) else 0
     L = LANGS[lang]
     FONT = find_font(lang)
-    theme = pick_theme(history)
-    log(f"Language: {L['name']} | Idea: {theme}")
+    log(f"Language: {L['name']} | Idea: {theme} | Style: {fmt}" + (f" | SERIES part {part}" if part else ""))
 
-    story = make_story(lang, theme, history)
-    title = story["title"].strip()[:95]
+    story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev)
+    if part == 2:                                    # same people and place as part 1
+        story["characters"], story["setting"] = prev["characters"], prev["setting"]
+    title = story["title"].strip()[:85]
+    if part:
+        title = f"{title} | {L['part'].format(n=part)}"
     log("Title:", title)
     with open(os.path.join(WORK, "story.json"), "w", encoding="utf-8") as f:
         json.dump(story, f, ensure_ascii=False, indent=1)
@@ -1958,7 +2035,7 @@ def main():
     end_lines = []
     if story.get("ending_line"):
         end_lines.append({"speaker": "narrator", "text": story["ending_line"]})
-    end_lines.append({"speaker": "narrator", "text": L["outro"].format(page=page)})
+    end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if part == 1 else L["outro"]).format(page=page)})
     parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
     video = os.path.join(WORK, "final.mp4")
@@ -1967,6 +2044,10 @@ def main():
 
     tags = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
     description = f"{title}\n\n{story.get('description', '').strip()}\n\n{L['ai_note']}\n\n{' '.join(tags)}"
+    part_times, segs = TIMELINE
+    chap = extras.chapters_text(part_times, [L["ch_intro"]] + [sc.get("chapter") or f"{k + 1}" for k, sc in
+                                                                 enumerate(scenes)] + [L["ch_end"]], L["chapters"])
+    yt_description = description.replace(f"\n\n{L['ai_note']}", (f"\n\n{chap}" if chap else "") + f"\n\n{L['ai_note']}")
 
     results = {}
     if DRY_RUN:
@@ -1980,7 +2061,7 @@ def main():
             results["facebook_error"] = str(e)[:200]
         if youtube_ready():
             try:
-                results["youtube"] = post_to_youtube(video, thumb, title, description, tags, lang)
+                results["youtube"] = post_to_youtube(video, thumb, title, yt_description, tags, lang)
                 log("Posted to YouTube:", results["youtube"])
             except Exception as e:
                 log("YOUTUBE FAILED:", e)
@@ -1990,10 +2071,72 @@ def main():
         if not results.get("facebook") and not results.get("youtube"):
             raise SystemExit("Posting failed everywhere - see messages above.")
 
+    results.update(grow(video, story, title, lang, L, tags, results, history, page))
+
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang,
-                    "theme": theme, "title": title, **results})
+                    "theme": theme, "format": fmt, "part": part, "title": title, **results})
     if not MOCK:
         save_history(history)
+        if part == 1:
+            with open(NEXT_PART, "w", encoding="utf-8") as f:
+                json.dump({"created": dt.datetime.now(dt.timezone.utc).isoformat(), "lang": lang, "theme": theme,
+                           "fmt": fmt, "title": story["title"], "summary": story.get("summary", ""),
+                           "part2_plan": story.get("part2_plan", ""), "characters": story.get("characters"),
+                           "setting": story.get("setting", "")}, f, ensure_ascii=False, indent=1)
+            log("Series: part 2 will be made in the next horror run")
+        elif part == 2 and os.path.exists(NEXT_PART):
+            os.remove(NEXT_PART)
+
+
+def grow(video, story, title, lang, L, tags, results, history, page):
+    """Extra reach after the main post: Reel + Short teaser, first comment, playlist. Never stops the run."""
+    out = {}
+    part_times, segs = TIMELINE
+    teaser = os.path.join(WORK, "teaser.mp4")
+    try:
+        st, en = extras.pick_window(segs, part_times, story.get("teaser_scene") or 2)
+        extras.make_teaser(video, st, en, teaser, FONT, story.get("thumbnail_text") or title, L["cta"], WORK,
+                           colors=((255, 230, 0), (200, 0, 20)))
+        log(f"Teaser ready ({en - st:.0f} s, from {st:.0f} s)")
+    except Exception as e:
+        log("  teaser skipped:", str(e)[:200])
+        teaser = None
+    if DRY_RUN:
+        return out
+    question = str(story.get("comment_question", "")).strip()
+    short_desc = f"{title}\n{L['full_link']} {page}\n{' '.join(tags[:6])}"
+    if teaser and env("FB_REELS") != "0":
+        try:
+            out["fb_reel"] = extras.fb_post_reel(teaser, short_desc)
+            log("Posted Facebook Reel:", out["fb_reel"])
+        except Exception as e:
+            log("  Facebook Reel skipped:", str(e)[:200])
+    if results.get("youtube"):
+        try:
+            extras.yt_add_to_playlist(results["youtube"], L["playlist"], lang)
+            log("  added to YouTube playlist")
+        except Exception as e:
+            log("  playlist skipped:", str(e)[:200])
+        if teaser and env("YT_SHORTS") != "0" and extras.shorts_today(history) < int(env("YT_SHORTS_PER_DAY") or 2):
+            try:
+                desc = f"{title}\n{L['full_link']} https://youtu.be/{results['youtube']}\n{' '.join(tags[:6])}"
+                out["yt_short"] = post_to_youtube(teaser, None, f"{title[:80]} #Shorts", desc, tags, lang)
+                log("Posted YouTube Short:", out["yt_short"])
+            except Exception as e:
+                log("  YouTube Short skipped:", str(e)[:200])
+    if question and results.get("facebook"):
+        try:
+            extras.fb_comment(results["facebook"], question)
+            log("  first comment posted on Facebook")
+        except Exception as e:
+            log("  Facebook comment skipped (needs pages_manage_engagement):", str(e)[:160])
+    if question and results.get("youtube"):
+        try:
+            extras.yt_comment(results["youtube"], question)
+            log("  first comment posted on YouTube")
+        except Exception as e:
+            log("  YouTube comment skipped:", str(e)[:160])
+    return out
 
 
 # ----------------------------------------------------------------- offline test helpers
