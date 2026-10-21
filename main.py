@@ -214,6 +214,12 @@ def load_history():
         return []
 
 
+# cron-job.org starts each video about 1 hour before it should be online (India time):
+# (start hour, start minute, the hour the video should be out)
+TRIGGERS = [(11, 55, 13), (19, 55, 21)]
+SLOT = None
+
+
 def recently_posted(history, hours):
     """True if a video was posted in the last few hours (so a backup run must not post a second one)."""
     for h in history[-3:]:
@@ -2135,13 +2141,15 @@ def main():
     shutil.rmtree(WORK, ignore_errors=True)
     os.makedirs(WORK)
     history = load_history()
+    global SLOT
+    SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
     if env("MODE") == "compilation":
         return make_compilation(history)
     # automatic runs (GitHub's clock or the cron-job.org clock) must not post twice for one time slot
     if env("MODE") == "amavasya" and not extras.is_amavasya_night():
         log("Not an Amavasya night - nothing to do.")
         return
-    if env("MODE") != "amavasya" and (env("EVENT") == "schedule" or env("MODE") == "auto") and recently_posted(history, hours=4):
+    if env("MODE") != "amavasya" and (env("EVENT") == "schedule" or env("MODE") == "auto") and (extras.slot_done(history, SLOT) or recently_posted(history, hours=2)):
         log("A video for this time slot was already posted - this backup run has nothing to do.")
         return
     if not MOCK:
@@ -2425,7 +2433,7 @@ def main():
     story["comment_question"] = "\n\n".join(x for x in first if x)
     results.update(grow(video, story, title, lang, L, tags, results, history, page))
 
-    history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang,
+    history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "slot": SLOT,
                     "theme": theme, "format": fmt, "part": part, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
