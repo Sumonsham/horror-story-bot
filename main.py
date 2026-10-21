@@ -1688,6 +1688,15 @@ def _layers_for(img):
         bg, fg = layers
         d["fg_a"] = fg[..., 3].astype("float32") / 255.0
         d["fg"] = cv2.cvtColor(fg[..., :3], cv2.COLOR_RGB2BGR).astype("float32")
+        d["fg_rgb"] = fg[..., :3].astype("float32")
+        d["faces"] = []
+        if env("FACE_ANIM") != "0":
+            try:                                      # eyes + mouth for blinking, looking around and talking
+                import animate
+                d["faces"] = sorted(animate.find_faces(np.ascontiguousarray(fg[..., :3])),
+                                    key=lambda f_: -f_["mouth"][2])
+            except Exception as e:
+                log(f"  face animation skipped: {str(e)[:100]}")
         ys, xs = np.nonzero(d["fg_a"] > 0.5)
         d["cx"], d["cy"] = float(xs.mean()), float(ys.max())
         d["head"] = float(ys.min() + 0.28 * (ys.max() - ys.min()))
@@ -1741,10 +1750,28 @@ def _vhs(img_u8, f, sec):
     return out
 
 
-def scene_clip_animated(segments, audio, out, idx, mood):
+def scene_clip_animated(segments, audio, out, idx, mood, talk=None):
+    """talk: [(start, end, silent, emotion, text)] - when characters speak (mouth moves in sync with the words)."""
     np = _np()
     import cv2
     dur = duration(audio)
+    talk = talk or []
+    try:
+        import animate
+        voice_env = animate.voice_envelope(audio, FPS)
+    except Exception:
+        animate, voice_env = None, None
+    brnd = np.random.default_rng(idx + 900)
+    blinks, bt = [], brnd.uniform(0.8, 2.5)
+    while bt < dur:
+        blinks.append(bt)
+        bt += brnd.uniform(2.5, 5.0)
+    blinks += [tl[0] + 0.05 for tl in talk]
+    looks, lt = [], 0.0
+    while lt < dur:
+        looks.append((lt, brnd.uniform(-0.35, 0.35), brnd.uniform(-0.2, 0.2)))
+        lt += brnd.uniform(1.0, 2.6)
+    gaze_now = [0.0, 0.0]
     n = int(dur * FPS) + 1
     shots = plan_shots(segments, dur)
     rnd = np.random.default_rng(idx + 50)
@@ -1789,11 +1816,44 @@ def scene_clip_animated(segments, audio, out, idx, mood):
             Mb[1, 2] += (H / 2 - fy) * (bz - 1) / bz * (1 if close else 0) + shake * 0.6
             frame = cv2.warpAffine(L["bg"], Mb, (W, H), borderMode=cv2.BORDER_REFLECT).astype("float32")
             if "fg" in L:
+                mouth, emo, shape, speaking = 0.0, "", "a", False
+                for (ta, tb, nar, em, tx) in talk:
+                    if ta <= sec < tb:
+                        emo = str(em or "").lower()
+                        if not nar and voice_env is not None and f < len(voice_env):
+                            mouth, speaking = float(voice_env[f]), True
+                            if animate is not None:
+                                shape = animate.viseme_at(tx, sec - ta, tb - ta)
+                                if shape == "m":
+                                    mouth = 0.0
+                        break
+                blink = 0.0
+                for b0 in blinks:
+                    if 0 <= sec - b0 < 0.2:
+                        blink = math.sin(math.pi * (sec - b0) / 0.2)
+                lx, ly = 0.0, 0.0
+                for (t0_, gx_, gy_) in looks:
+                    if t0_ <= sec:
+                        lx, ly = gx_, gy_
+                if not speaking and L.get("faces"):
+                    lx += 0.45 if L["faces"][0]["mouth"][0] < W / 2 else -0.45
+                if emo in ("scared", "whisper", "shout") or mood in ("tense", "scare"):
+                    lx = 0.65 * math.sin(sec * 7) + 0.2 * math.sin(sec * 17)     # frightened darting eyes
+                elif emo in ("sad", "crying"):
+                    ly = 0.6
+                gaze_now[0] += (lx - gaze_now[0]) * 0.4
+                gaze_now[1] += (ly - gaze_now[1]) * 0.4
+                tremble = math.sin(sec * 55) * 1.5 if emo in ("scared", "shout") else 0.0
+                src = L["fg"]
+                if animate is not None and L.get("faces"):
+                    pic = animate.draw_face(L["fg_rgb"], L["faces"], blink, 0.0, "a", tuple(gaze_now))
+                    pic = animate.draw_face(pic, L["faces"][:1], 0.0, mouth, shape)
+                    src = cv2.cvtColor(np.clip(pic, 0, 255).astype("float32"), cv2.COLOR_RGB2BGR)
                 fz = bz * (1.0 + 0.03 * ease) + 0.004 * math.sin(sec * 1.6)
                 Mf = cv2.getRotationMatrix2D((fx, fy), 0.3 * math.sin(sec * 0.9), fz)
-                Mf[0, 2] = Mb[0, 2] + direction * (ease - 0.5) * 26 - (fz - bz) * fx
-                Mf[1, 2] = Mb[1, 2] - 2.0 * math.sin(sec * 1.1) - (fz - bz) * fy
-                fgw = cv2.warpAffine(L["fg"], Mf, (W, H))
+                Mf[0, 2] = Mb[0, 2] + direction * (ease - 0.5) * 26 - (fz - bz) * fx + tremble
+                Mf[1, 2] = Mb[1, 2] - 2.0 * math.sin(sec * 1.1) - (fz - bz) * fy - 2.0 * mouth
+                fgw = cv2.warpAffine(src, Mf, (W, H))
                 aw = cv2.warpAffine(L["fg_a"], Mf, (W, H))[..., None]
                 frame = frame * (1 - aw) + fgw * aw
             frame = grade(frame, f, sec, mood, flicker)
@@ -1852,11 +1912,11 @@ def scene_clip_simple(segments, audio, out, idx, mood):
     return dur
 
 
-def scene_clip(segments, audio, out, idx, mood):
+def scene_clip(segments, audio, out, idx, mood, talk=None):
     if env("SIMPLE_MOTION") == "1" or (MOCK and env("TEST_ANIM") != "1"):
         return scene_clip_simple(segments, audio, out, idx, mood)
     try:
-        return scene_clip_animated(segments, audio, out, idx, mood)
+        return scene_clip_animated(segments, audio, out, idx, mood, talk)
     except Exception as e:
         log(f"  animation skipped ({str(e)[:150]}) - simple motion")
         return scene_clip_simple(segments, audio, out, idx, mood)
@@ -1938,7 +1998,10 @@ def build_video(scene_parts, lang, out):
             segments.append((img, 0.0 if k == 0 else max(0.0, st - 0.2)))
         if not segments:
             segments = [(sp["image"], 0.0)]
-        d = scene_clip(segments, a, c, i, sp.get("mood", "creepy"))
+        spoken = [ln for ln in sp["lines"] if str(ln.get("text", "")).strip()]
+        talk = [(st, st + du, nar, (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx)
+                for k, (st, du, nar, tx) in enumerate(subs)]
+        d = scene_clip(segments, a, c, i, sp.get("mood", "creepy"), talk)
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
         t += d
