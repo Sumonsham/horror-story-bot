@@ -884,8 +884,8 @@ def prepare_free_voices(todo, voices, lang, max_minutes=None):
             log(f"  free voice model stopped at line {k + 1}/{len(todo)}")
             break
         GEMINI_CACHE[(i, j)] = p
-        if k == 0:
-            log(f"  first line took {time.time() - t0:.0f}s")
+        if k == 0 or (k + 1) % 5 == 0:
+            log(f"  free voice: {k + 1}/{len(todo)} lines done ({(time.time() - t0) / 60:.1f} min)")
     else:
         GEMINI_READY = True
         log(f"  all lines voiced by the free model in {(time.time() - t0) / 60:.1f} min")
@@ -920,6 +920,11 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                 "(same voice all through)")
             break
         GEMINI_CACHE[(i, j)] = p
+        if (k + 1) % 5 == 0:
+            log(f"  voices: {k + 1}/{len(todo)} lines done ({(time.time() - t0) / 60:.1f} min)")
+        if k >= 2 and (time.time() - t0) / (k + 1) * len(todo) > max_minutes * 60:
+            log("  Gemini free limit is too slow to finish the whole story today - trying the free voice model")
+            break
     else:
         GEMINI_READY = True
         log("  all lines voiced by Gemini")
