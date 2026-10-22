@@ -2,10 +2,11 @@ name: Daily Horror Story
 
 on:
   schedule:
-    # The main start comes from cron-job.org at 11:55 AM and 7:55 PM India time (videos out ~1 PM and ~9 PM).
-    # These GitHub times are only a backup - they post nothing if the video is already out.
-    - cron: "10 7 * * *"    # backup ~12:40 PM India time
-    - cron: "10 15 * * *"   # backup ~8:40 PM India time
+    # The main start comes from cron-job.org at 10:00 AM and 6:00 PM India time: the video is made ~3 hours
+    # early and goes live by itself at exactly 1:00 PM and 9:00 PM (scheduled post).
+    # These GitHub times are only a backup - they do nothing if that slot's video is already done.
+    - cron: "0 5 * * *"     # backup 10:30 AM India time
+    - cron: "0 13 * * *"    # backup 6:30 PM India time
     - cron: "30 5 * * 0"    # Sunday 11:00 AM India time: weekly long compilation video
     - cron: "25 18 * * *"   # 11:55 PM India time: Amavasya midnight special (only on new-moon nights)
   workflow_dispatch:        # "Run workflow" button for tests
@@ -29,7 +30,7 @@ concurrency:
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 320
     env:
       USE_FREE_MODEL: ${{ secrets.USE_FREE_MODEL }}   # "1" = also try the slow free on-GitHub voice model
     steps:
@@ -103,6 +104,7 @@ jobs:
           TTS_PAID: ${{ secrets.TTS_PAID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           LANGUAGE: ${{ github.event.inputs.language }}
+          CHANNEL_LANG: ${{ secrets.CHANNEL_LANG }}
           EVENT: ${{ github.event_name }}
           MODE: ${{ github.event.inputs.mode || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || '' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
