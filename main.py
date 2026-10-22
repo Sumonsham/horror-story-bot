@@ -396,6 +396,14 @@ Story rules:
   Every time the ghost comes near, add a ghost sound (cold wind gust, whisper, ghungroo, low growl, slow breathing).
 - Think like a film director: every line gets its own camera "shot" showing exactly what that line says
   (close-up of a frightened face, a hand on the door handle, the lamp flickering, a shadow in the corridor...).
+- PICTURES MUST BE AUTHENTIC AND LOGICAL, frame by frame, like a real horror film storyboard. For every line
+  imagine the exact frame: who is in it (count them), where each one is, the BODY POSITION of each (lying /
+  sitting / standing / crouching / hiding / running / frozen), what their HANDS are doing (holding the lantern,
+  covering the mouth, gripping the door), where they LOOK, and the FEELING on each face (terror, shock, dread).
+  Follow real life and the words exactly: someone hiding under the bed = lying flat under the bed, eyes wide;
+  a ghost behind someone = the ghost stands behind them in the dark, the person has not seen it yet. Never add
+  people who are not in the line, never show the same character twice, ages and sizes stay true, the ghost
+  looks the same every time. Night/day, weather and the place must match the story.
 - Give every line an emotion so the voice acts it (whisper when hiding, scared when afraid, shout when screaming).
 - Mark "jump_scare": true on 1-3 lines in the whole story where the big scare lands (a sudden sound/reveal).
 {extras.STORY_CRAFT}{extras.WRITING_RULES.get(lang, "")}{extras.VOICE_ACTING}
@@ -426,7 +434,8 @@ Return ONLY JSON with exactly these keys:
                           "when": "before (sound first, then the line), during, or after (line first, then the sound)"}}],
                 "jump_scare": false,
                 "image": {{"prompt": "ENGLISH picture prompt for THIS line, 30-50 words, like a horror film still: WHO/WHAT is in frame and their exact action, pose and facial expression matching the words of this line, WHERE (which part of the setting), camera (extreme close-up / close-up / wide / over-the-shoulder / low angle), light source (lantern, moonlight, lightning), key objects. Only things that can be SEEN. Every line gets a different picture that matches its words exactly",
-                           "characters": ["names VISIBLE in this picture; [] if only a place or object is shown"]}}}}]
+                           "people": [{{"name": "a character name exactly as in characters", "pose": "lying / sitting / standing / crouching / hiding / running / frozen / floating ...", "doing": "exactly what the body and HANDS do, e.g. 'gripping the lantern with both hands'", "where": "left / middle / right of the frame, and on or near what (in the doorway, under the bed, behind the tree)", "feeling": "facial expression and emotion, e.g. 'wide eyes, frozen in terror'"}}],
+                           "characters": ["names VISIBLE in this picture, in order from LEFT to RIGHT; [] if only a place or object is shown"]}}}}]
  }}],
  "ending_line": "one short {L['name']} line from the narrator that leaves a chill",
  "comment_question": "one short {L['name']} question to viewers that makes them comment (e.g. 'आप होते तो क्या करते?'), with 1 emoji",
@@ -553,8 +562,9 @@ class Cast:
         p = (f"{ascii_text(action)}. {who}"
              f"Location: {ascii_text(place)}. {self.setting}. Style: {ART_STYLE}.")
         if use_ref and chosen:
-            p = ("Same characters as in image 0 (same faces, hair, body and clothes), now acting out this NEW "
-                 "scene with a full background - not standing in a row, not a reference sheet: " + p)
+            p = ("Use image 0 ONLY for how the characters look (same faces, hair, body, clothes). Do NOT copy their "
+                 "poses or positions from image 0. Draw this NEW scene with a full background, each character in the "
+                 "exact pose and action written here: " + p)
         return p
 
 
@@ -2322,6 +2332,18 @@ def main():
             pic = first.get("image") if isinstance(first.get("image"), dict) else {}
             action = pic.get("prompt") or first.get("shot") or s.get("action", "")
             names = pic.get("characters") if isinstance(pic.get("characters"), list) else s.get("characters")
+            people = [x for x in (pic.get("people") or []) if isinstance(x, dict) and x.get("name")]
+            if people:                                   # exact poses first: the picture model follows them best
+                side_ = lambda x: (0 if "left" in str(x.get("where", "")).lower() else
+                                   2 if "right" in str(x.get("where", "")).lower() else 1)
+                people = sorted(people, key=side_)
+                n_ = len(people)
+                desc = "; ".join(
+                    f"{x['name']} is {x.get('pose', '')} {x.get('where', '')}, {x.get('doing', '')}, face: {x.get('feeling', '')}"
+                    for x in people[:4])
+                action = (f"EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture, no one else, nobody "
+                          f"appears twice. {desc}. {action}")
+                names = [x["name"] for x in people]
             log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)})")
             if make_image(cast, action, s.get("place", ""), names, p, seed):
                 last_ok = p
