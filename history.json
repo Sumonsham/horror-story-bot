@@ -159,7 +159,13 @@
   "facebook": "1133152505818886",
   "youtube": "kyuvrFqj4TI",
   "fb_reel": "1105751768977665",
-  "yt_short": "x8JxcHVxq2g"
+  "yt_short": "x8JxcHVxq2g",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 0,
+   "checked": "2026-10-22T14:57+00:00"
+  }
  },
  {
   "date": "2026-10-22T07:34+00:00",
@@ -178,5 +184,22 @@
   "youtube": "0g5R7Xurabo",
   "fb_reel": "4052666478200788",
   "yt_short": "8LMBoSoab3Q"
+ },
+ {
+  "date": "2026-10-22T15:57+00:00",
+  "lang": "bn",
+  "slot": "2026-10-22@21",
+  "theme": "a closed cinema hall that still shows a film at midnight",
+  "format": "classic third-person radio-drama narration",
+  "part": 2,
+  "title": "মায়াপুরী টকিজের শেষ খেলা 📽️ | পর্ব 2",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook_error": "Facebook refused: Any of the pages_read_engagement, pages_manage_metadata,\n        pages_read_user_content, pages_manage_ads, pages_show_list or\n        pages_messaging permission(s) must be granted b",
+  "youtube": "iwG77IDMKX0",
+  "yt_short": "CxVJoWkfJCc"
  }
 ]
