@@ -218,7 +218,7 @@ def load_history():
 
 # cron-job.org starts each video about 1 hour before it should be online (India time):
 # (start hour, start minute, the hour the video should be out)
-TRIGGERS = [(11, 55, 13), (19, 55, 21)]
+TRIGGERS = [(10, 0, 13), (18, 0, 21)]   # start 3 hours early, publish at 1 PM and 9 PM
 SLOT = None
 
 
@@ -448,7 +448,8 @@ Return ONLY JSON with exactly these keys:
  "characters": [{{"name": "name in English letters", "gender": "male or female",
                   "age": "child, young, adult or old", "kind": "human or ghost",
                   "look": "ENGLISH, very specific never-changing look: age, face, hair, skin, clothes with exact colors, one special detail. 20-35 words"}}],
- "thumbnail_image": {{"characters": ["the ghost's name + 1 victim name"], "ghost": "ENGLISH: exactly how THIS story's ghost looks at its scariest (face, eyes, hair, clothes, skin, special detail like backward feet or red saree) - 25-40 words", "action": "ENGLISH: ONE shocking moment from the story for a viral thumbnail: the ghost's terrifying face big and close on the RIGHT, the frightened victim smaller beside it"}},
+ "episode_name": "2-3 word {L['name']} episode name for the thumbnail, eerie and exact (e.g. 'নিশির ডাক', 'পোড়ো বাড়ির ছায়া')",
+ "thumbnail_image": {{"hero": "the main human character's name (big in the foreground)", "hero_action": "ENGLISH: pose, what the hands hold (lantern, torch) and the tense face at the scariest moment, e.g. 'holding a brass lantern, looking up toward the window with tense, focused fear'", "second": "the ghost's name", "ghost": "ENGLISH: exactly how THIS story's ghost looks at its scariest (face, eyes, hair, clothes, skin, special detail like backward feet or red saree) - 25-40 words", "second_action": "ENGLISH: where the ghost is and what it does, e.g. 'standing in the upstairs window behind him, staring down'", "place": "ENGLISH: the exact haunted place with rich authentic Bengal details", "moment": "ENGLISH: one sentence - the visual story of the thumbnail"}},
  "scenes": [{{
     "characters": ["names VISIBLE in the picture"],
     "action": "ENGLISH: exactly what happens in this scene: who does what, poses, expressions, key objects",
@@ -2075,6 +2076,14 @@ def _fb_json(r):
         raise RuntimeError(f"Facebook replied HTTP {r.status_code}: {r.text[:200]!r}")
 
 
+def fb_when():
+    at = extras.publish_time()
+    if at:
+        log(f"  Facebook: scheduled for {at.strftime('%H:%M')} India time")
+        return {"published": "false", "scheduled_publish_time": str(int(at.timestamp()))}
+    return {"published": "true"}
+
+
 def post_to_facebook(video, thumb, title, description):
     """Uploads in pieces (resumable), so big videos don't fail half-way."""
     page, token = need_env("FB_PAGE_ID"), need_env("FB_PAGE_TOKEN")
@@ -2114,7 +2123,7 @@ def post_to_facebook(video, thumb, title, description):
             with open(thumb, "rb") as th:
                 jf = _fb_json(requests.post(url, data={"access_token": token, "upload_phase": "finish",
                                                        "upload_session_id": sid, "title": title,
-                                                       "description": description, "published": "true"},
+                                                       "description": description, **fb_when()},
                                             files={"thumb": ("thumb.jpg", th, "image/jpeg")}, timeout=300))
             if jf.get("success") or jf.get("id"):
                 return js.get("video_id") or jf.get("id") or sid
@@ -2145,6 +2154,11 @@ def post_to_youtube(video, thumb, title, description, tags, lang):
         "status": {"privacyStatus": env("YT_PRIVACY") or "public", "selfDeclaredMadeForKids": False,
                    "containsSyntheticMedia": True},
     }
+    at = extras.publish_time()
+    if at and not env("YT_PRIVACY"):                  # private until the planned time, then public by itself
+        meta["status"]["privacyStatus"] = "private"
+        meta["status"]["publishAt"] = at.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        log(f"  YouTube: scheduled for {at.strftime('%H:%M')} India time")
     size = os.path.getsize(video)
     r = requests.post("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
                       headers={**hdr, "Content-Type": "application/json; charset=UTF-8",
@@ -2218,6 +2232,7 @@ def main():
     history = load_history()
     global SLOT
     SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
+    extras.plan_publish(SLOT)
     if env("MODE") == "compilation":
         return make_compilation(history)
     # automatic runs (GitHub's clock or the cron-job.org clock) must not post twice for one time slot
@@ -2441,18 +2456,28 @@ def main():
     ghost = ascii_text(ti.get("ghost", ""))
     ghost_names = [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")]
     t_names = list(ti.get("characters") or []) + [n for n in ghost_names[:1] if n not in (ti.get("characters") or [])]
-    t_action = ((ti.get("action") or scenes[-1].get("action", "")) + (f". The ghost: {ghost}" if ghost else "") +
-                ". Viral YouTube horror thumbnail photo: the ghost's terrifying face very big and close on the RIGHT "
-                "half, glowing eyes staring straight at the viewer, the frightened person smaller in front screaming, "
-                "dark empty space on the LEFT half, dramatic red and teal rim light, fog, extreme contrast, ultra "
-                "sharp, hyper-realistic, cinematic horror film poster quality, no gore")
-    if not extras.hq_image(cast.scene_prompt(t_action, "", t_names, False), thumb_base, seed):
-        if not make_image(cast, t_action, "", t_names, thumb_base, seed):
+    # poster-style thumbnail: the same formula every time, only the people, the ghost and the moment change
+    hero = ti.get("hero") or next((n for n in (ti.get("characters") or []) if n not in ghost_names), "")
+    gname = ti.get("second") or (ghost_names[0] if ghost_names else "")
+    def describe(n):
+        c = cast.find(n) if n else None
+        if c and c["kind"].startswith("ghost"):
+            return f"{ghost or c['look']} ghost"
+        return f"{c['name']} ({c['look']})" if c else n
+    t_prompt = extras.poster_prompt("horror", {**ti, "hero": hero, "second": gname}, describe, "", cast.setting)
+    if not extras.hq_image(t_prompt, thumb_base, seed):
+        if not make_image(cast, t_prompt, "", [n for n in (hero, gname) if n], thumb_base, seed):
             shutil.copy(first_ok, thumb_base)
     thumb = os.path.join(WORK, "thumbnail.jpg")
-    pop = os.path.join(WORK, "thumb_pop.jpg")
-    make_thumbnail(pop if extras.pop_subject(thumb_base, pop, (255, 30, 30)) else thumb_base,
-                   story.get("thumbnail_text") or title, thumb, L["label"])
+    series_bn = {"taranath": L["taranath"].split(" #")[0], "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "")
+                 .replace(" का केस", "")}.get(special)
+    big = series_bn or str(story.get("thumbnail_text") or title).strip()
+    sub = str(story.get("episode_name") or (story.get("thumbnail_text") if series_bn else "") or "").strip()
+    try:
+        extras.poster_thumbnail(thumb_base, big, sub, thumb, "horror", FONT)
+    except Exception as e:
+        log("  poster thumbnail failed, simple one:", str(e)[:120])
+        make_thumbnail(thumb_base, story.get("thumbnail_text") or title, thumb, L["label"])
 
     clean_title = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?-]", "", title).strip()
     page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or L["page_default"]
@@ -2704,6 +2729,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 log(f"  'coming soon' post scheduled for {when.strftime('%d %b %H:%M')} India time")
         except Exception as e:
             log("  announcement skipped:", str(e)[:160])
+    extras.wait_for_publish()
     if question and results.get("facebook"):
         try:
             extras.fb_comment(results["facebook"], question)
