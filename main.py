@@ -906,26 +906,18 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     if not extras.tts_keys() or env("USE_GEMINI_VOICE") == "0":
         extras.TTS_STATE["off"] = True
         return prepare_free_voices(todo, voices, lang)
-    log(f"Expressive voices for all {len(todo)} lines (keys: {len(extras.tts_keys())})")
-    t0 = time.time()
-    for k, (i, j, ln) in enumerate(todo):
-        if time.time() - t0 > max_minutes * 60:
-            log("  Gemini voices too slow today - trying the free voice model")
-            break
-        p = os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav")
-        if not gemini_line(extras.performed(ln),
-                           gemini_persona(voices, ln.get("speaker", "narrator")),
-                           ln.get("emotion", "normal"), lang, p, str(ln.get("delivery", ""))):
-            log(f"  Gemini voice stopped at line {k + 1}/{len(todo)} - trying the free voice model "
-                "(same voice all through)")
-            break
-        GEMINI_CACHE[(i, j)] = p
-        if (k + 1) % 5 == 0:
-            log(f"  voices: {k + 1}/{len(todo)} lines done ({(time.time() - t0) / 60:.1f} min)")
-        if k >= 2 and (time.time() - t0) / (k + 1) * len(todo) > max_minutes * 60:
-            log("  Gemini free limit is too slow to finish the whole story today - trying the free voice model")
-            break
-    else:
+    log(f"Expressive voices for all {len(todo)} lines")
+    items = []
+    for (i, j, ln) in todo:
+        voice, who = gemini_persona(voices, ln.get("speaker", "narrator"))
+        feel = EMOTION_WORDS.get(str(ln.get("emotion", "normal")).lower(), "naturally") + (
+            f", {ln.get('delivery')}" if ln.get("delivery") else "")
+        items.append({"text": extras.performed(ln), "plain": extras.strip_tags(str(ln["text"])), "voice": voice,
+                      "who": who, "feel": feel, "spk": voice, "out": os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav"),
+                      "lang": lang})
+    if extras.tts_gemini_batch(items, LANGS[lang]["name"], SR, max_minutes):
+        for (i, j, ln), it in zip(todo, items):
+            GEMINI_CACHE[(i, j)] = it["out"]
         GEMINI_READY = True
         log("  all lines voiced by Gemini")
         return True
