@@ -74,6 +74,7 @@ LANGS = {
         "ann1": "नई भूतिया कहानी", "ann_msg": "👻 {when} आ रही है नई भूतिया कहानी... हेडफ़ोन तैयार रखिए! 🎧🔔",
         "comp_title": "{m} मिनट की भूतिया कहानियाँ 👻 | हफ्ते की {n} कहानियाँ एक साथ", "comp_thumb": "{m} मिनट का डर",
         "bhairab": "भैरव ठाकुर का केस #{n}", "bhairab_pl": "भैरव ठाकुर के केस - Bhairab Thakur Cases",
+        "taranath": "तारानाथ तांत्रिक #{n}", "taranath_pl": "तारानाथ तांत्रिक की कहानियाँ - Taranath Tantrik",
         "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
         "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
         "how_to_join": "आप भी इस कहानी का हिस्सा बनिए! कमेंट में जवाब दीजिए, जिनका जवाब सही होगा उनका नाम अगले वीडियो में लिया जाएगा। और अपनी सच्ची डरावनी घटना कमेंट में हैशटैग मेरी कहानी लिखकर भेजिए, सबसे अच्छी घटना पर आपके नाम के साथ कहानी बनेगी।",
@@ -109,6 +110,7 @@ LANGS = {
         "ann1": "নতুন ভৌতিক গল্প", "ann_msg": "👻 {when} আসছে নতুন ভৌতিক গল্প... হেডফোন রেডি রাখুন! 🎧🔔",
         "comp_title": "{m} মিনিটের ভূতের গল্প 👻 | সপ্তাহের সেরা {n}টি গল্প একসাথে", "comp_thumb": "{m} মিনিটের ভয়",
         "bhairab": "ভৈরব ঠাকুরের কেস #{n}", "bhairab_pl": "ভৈরব ঠাকুরের কেস - Bhairab Thakur Cases",
+        "taranath": "তারানাথ তান্ত্রিক #{n}", "taranath_pl": "তারানাথ তান্ত্রিকের গল্প - Taranath Tantrik",
         "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
         "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
         "how_to_join": "আপনিও এই গল্পের অংশ হয়ে উঠুন! কমেন্টে উত্তর দিন, যাঁদের উত্তর ঠিক হবে পরের ভিডিওতে তাঁদের নাম বলা হবে। আর আপনার জীবনের সত্যি ভৌতিক ঘটনা কমেন্টে হ্যাশট্যাগ আমার গল্প লিখে পাঠান, সেরা ঘটনা নিয়ে আপনার নাম সহ গল্প হবে।",
@@ -242,10 +244,15 @@ def save_history(items):
 
 
 def pick_language(history):
+    """One language per page/channel (default Bengali) - a mixed-language channel splits its audience.
+    Set the secret CHANNEL_LANG to "hi" for Hindi; "both" brings back one Hindi, one Bengali."""
     forced = env("LANGUAGE").lower()
     if forced in LANGS:
         return forced
-    last = history[-1].get("lang") if history else "bn"
+    chan = (env("CHANNEL_LANG") or "bn").lower()
+    if chan in LANGS:
+        return chan
+    last = history[-1].get("lang", "hi") if history else "bn"
     return "bn" if last == "hi" else "hi"
 
 
@@ -291,6 +298,29 @@ BHAIRAB_RULE = ("RECURRING CHARACTERS: this is a case of our own ghost-hunter du
                 "when it matters). People call Bhairab Thakur for help with a haunting; they investigate, face the "
                 "ghost, and Bhairab frees the troubled spirit (give the ghost a sad reason for haunting). Include both "
                 "with exactly these looks: {looks}. Start with Paltu's funny line and end with a hint of the next case.")
+
+
+# Taranath Tantrik - the old tantrik of Bibhutibhushan Bandyopadhyay's 1940s stories (that original is public
+# domain in India). We only use the character and his world; every case is a NEW story of our own (never retell
+# later books or the web series).
+TARANATH = [
+    {"name": "Taranath", "gender": "male", "age": "old", "kind": "human",
+     "look": "a lean dark-skinned Bengali tantrik of about sixty-five, long half-grey hair falling to the shoulders, "
+             "short grey beard, deep piercing eyes, a red sindoor line on the forehead, bare chest with thick "
+             "rudraksha malas, saffron-red dhoti and a faded black shawl, sitting with a hookah in a dim old room"},
+    {"name": "Kishori", "gender": "male", "age": "young", "kind": "human",
+     "look": "a curious young Bengali man of about twenty-five in a white kurta and dhoti, neat side-parted black "
+             "hair, thin moustache, sitting cross-legged and listening with wide eyes, 1940s Kolkata"},
+]
+TARANATH_RULE = (
+    "TARANATH TANTRIK SERIES: on a rainy evening in his old house in a Kolkata lane, the old tantrik TARANATH tells "
+    "young KISHORI a terrifying experience from his wandering years (cremation grounds, lonely villages, forests of "
+    "Birbhum and Bengal's rivers, 1920s-1940s). Write it as Taranath telling his OWN experience in first person "
+    "(his voice is the main narrator inside the story; Kishori interrupts 2-3 times with a scared question). "
+    "Taranath is brave, earthy, honest about his fear, never a cheap magician; real dark forces, ancient spirits, "
+    "a dangerous ritual gone wrong, a terrible price. No real ritual instructions, no harm to children, no gore. "
+    "Use exactly these looks: {looks}. Open with Taranath's chilling first sentence; end with Kishori shivering and "
+    "Taranath hinting at another, even more dangerous experience 'next time'.")
 
 
 def pick_theme(history):
@@ -406,12 +436,12 @@ Story rules:
   looks the same every time. Night/day, weather and the place must match the story.
 - Give every line an emotion so the voice acts it (whisper when hiding, scared when afraid, shout when screaming).
 - Mark "jump_scare": true on 1-3 lines in the whole story where the big scare lands (a sudden sound/reveal).
-{extras.STORY_CRAFT}{extras.WRITING_RULES.get(lang, "")}{extras.VOICE_ACTING}
+{extras.STORY_CRAFT}{extras.HOOK_RULES}{extras.HORROR_DREAD}{extras.WRITING_RULES.get(lang, "")}{extras.VOICE_ACTING}
 
 Return ONLY JSON with exactly these keys:
 {{
  "title": "chilling {L['name']} title, max 60 characters, 1 emoji",
- "thumbnail_text": "2-4 scary punchy {L['name']} words for the thumbnail",
+ "thumbnail_text": "2-4 BIG {L['name']} words that create an unbearable curiosity gap or warning (e.g. 'রাত ১২টায় দরজা খুলো না!', 'ও এখনো ফেরেনি...', 'কে ডাকছে?') - never just the title",
  "description": "3-4 line suspenseful {L['name']} description that makes people want to watch, ending with a question",
  "hashtags": ["10-14 popular hashtags mixing {L['name']} and English, e.g. #HorrorStory #BhootKiKahani"],
  "setting": "ENGLISH: the ONE main place of the story (architecture, objects, era, weather, time of night, colors). Reused in every picture",
@@ -2269,7 +2299,12 @@ def main():
                                     "exact real place - change those. The narrator's FIRST line thanks "
                                     f"{viewer['name'] or 'our viewer'} for sending this experience.\n")
                     log(f"Viewer's story from {viewer['name']}")
-            if not special and random.random() < float(env("BHAIRAB_CHANCE") or 0.2):
+            if not special and random.random() < float(env("TARANATH_CHANCE") or 0.35):
+                special = "taranath"
+                fmt = "Taranath Tantrik telling his own true experience to Kishori, in first person"
+                extra_rules += "\n" + TARANATH_RULE.format(looks=json.dumps(TARANATH)) + "\n"
+                log("Taranath Tantrik story")
+            if not special and random.random() < float(env("BHAIRAB_CHANCE") or 0.15):
                 special = "bhairab"
                 extra_rules += "\n" + BHAIRAB_RULE.format(looks=json.dumps(BHAIRAB)) + "\n"
                 log("Bhairab Thakur case")
@@ -2284,10 +2319,11 @@ def main():
     log(f"Language: {L['name']} | Idea: {theme} | Style: {fmt}" + (f" | SERIES part {part}" if part else ""))
 
     story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules)
-    if special == "bhairab":                         # always the same faces for our ghost hunters
-        names = {c["name"].lower(): c for c in BHAIRAB}
+    if special in ("bhairab", "taranath"):           # always the same faces for our recurring heroes
+        fixed = BHAIRAB if special == "bhairab" else TARANATH
+        names = {c["name"].lower(): c for c in fixed}
         story["characters"] = [names.get(str(c.get("name", "")).lower(), c) for c in story.get("characters", [])]
-        for b in BHAIRAB:
+        for b in fixed:
             if b["name"].lower() not in [str(c.get("name", "")).lower() for c in story["characters"]]:
                 story["characters"].append(b)
     if part == 2:                                    # same people and place as part 1
@@ -2299,6 +2335,10 @@ def main():
         case_no = 1 + sum(1 for h in history if h.get("special") == "bhairab")
         title = f"{L['bhairab'].format(n=case_no)}: {title}"[:95]
         story["_playlist"] = L["bhairab_pl"]
+    elif special == "taranath":
+        case_no = 1 + sum(1 for h in history if h.get("special") == "taranath")
+        title = f"{L['taranath'].format(n=case_no)}: {title}"[:95]
+        story["_playlist"] = L["taranath_pl"]
     elif special == "amavasya":
         title = f"{L['amavasya']}: {title}"[:95]
     log("Title:", title)
@@ -2401,15 +2441,18 @@ def main():
     ghost = ascii_text(ti.get("ghost", ""))
     ghost_names = [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")]
     t_names = list(ti.get("characters") or []) + [n for n in ghost_names[:1] if n not in (ti.get("characters") or [])]
-    if not make_image(cast, (ti.get("action") or scenes[-1].get("action", "")) +
-                      (f". The ghost: {ghost}" if ghost else "") +
-                      ". Viral YouTube horror thumbnail photo: the ghost's terrifying face very big and close on the RIGHT "
-                      "half, glowing eyes staring at the viewer, the frightened person smaller in front, dark empty space "
-                      "on the LEFT half, dramatic red and teal rim light, fog, high contrast, very sharp, cinematic, no gore",
-                      "", t_names, thumb_base, seed):
-        shutil.copy(first_ok, thumb_base)
+    t_action = ((ti.get("action") or scenes[-1].get("action", "")) + (f". The ghost: {ghost}" if ghost else "") +
+                ". Viral YouTube horror thumbnail photo: the ghost's terrifying face very big and close on the RIGHT "
+                "half, glowing eyes staring straight at the viewer, the frightened person smaller in front screaming, "
+                "dark empty space on the LEFT half, dramatic red and teal rim light, fog, extreme contrast, ultra "
+                "sharp, hyper-realistic, cinematic horror film poster quality, no gore")
+    if not extras.hq_image(cast.scene_prompt(t_action, "", t_names, False), thumb_base, seed):
+        if not make_image(cast, t_action, "", t_names, thumb_base, seed):
+            shutil.copy(first_ok, thumb_base)
     thumb = os.path.join(WORK, "thumbnail.jpg")
-    make_thumbnail(thumb_base, story.get("thumbnail_text") or title, thumb, L["label"])
+    pop = os.path.join(WORK, "thumb_pop.jpg")
+    make_thumbnail(pop if extras.pop_subject(thumb_base, pop, (255, 30, 30)) else thumb_base,
+                   story.get("thumbnail_text") or title, thumb, L["label"])
 
     clean_title = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?-]", "", title).strip()
     page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or L["page_default"]
