@@ -1,0 +1,42 @@
+{
+ "created": "2026-10-22T07:34:31.399015+00:00",
+ "lang": "bn",
+ "theme": "a closed cinema hall that still shows a film at midnight",
+ "fmt": "classic third-person radio-drama narration",
+ "title": "মায়াপুরী টকিজের মধ্যরাতের শো 📽️",
+ "summary": "Urban explorer Souvik and his reluctant cousin Anirban sneak into the abandoned Mayapuri Talkies, a single-screen cinema closed thirty years ago after a fatal projection booth fire. At midnight, a freshly printed ticket spits out of the empty counter, and the hall's heavy doors slam shut on their own. The ancient projector powers on without electricity, casting an icy-blue beam showing an unfinished cursed film with a faceless woman. The hall fills with invisible patrons and the charred ghost of Haripada the projectionist descends, while a hypnotic Nishi call draws Anirban straight into a tearing vortex within the screen.",
+ "part2_plan": "In Part 2, Souvik breaks free from Haripada's grip and must venture either into the projection booth or through the tear in the celluloid reality. Inside the screen, he discovers the souls of thirty years of missing cinema-goers trapped inside an eternal reel looped by the theatre's demonic curse. Souvik discovers Haripada was actually trying to destroy the demonic reel thirty years ago, but the demonic reel burnt him alive and puppeted his corpse. Souvik must find the original master film spool and burn it with Haripada's lighter before sunrise, or remain trapped in the black-and-white reel forever.",
+ "characters": [
+  {
+   "name": "Souvik",
+   "gender": "male",
+   "age": "young",
+   "kind": "human",
+   "look": "Twenty-four-year-old fearless content creator with short messy black hair, sharp jawline, wearing a navy blue jacket, holding a DSLR camera with a mounted microphone."
+  },
+  {
+   "name": "Anirban",
+   "gender": "male",
+   "age": "young",
+   "kind": "human",
+   "look": "Twenty-five-year-old nervous young man with round spectacles, pale trembling face, wearing an olive-green hoodie, clutching a heavy metal LED flashlight tightly."
+  },
+  {
+   "name": "Haripada",
+   "gender": "male",
+   "age": "old",
+   "kind": "ghost",
+   "look": "Tall spectral projectionist, half-charred skeletal face, empty glowing white eye sockets, wearing a burnt torn grey shirt, surrounded by a faint bluish ethereal smoke."
+  }
+ ],
+ "setting": "Mayapuri Talkies, an abandoned 1960s Art Deco single-screen cinema hall in rural Bengal. Chipped plaster, rotting maroon velvet seats, dust motes floating in cold darkness, cracked projector booth window upstairs, damp musty smell mixed with burnt celluloid, heavy silence broken by eerie mechanical echoes at midnight.",
+ "choice": {
+  "question": "সৌভিক এখন প্রথমে কী করবে?",
+  "option1": "অনির্বাণকে টেনে ধরবে",
+  "option2": "প্রজেকশন রুমে ছুটবে",
+  "plan1": "Souvik dives forward and grabs Anirban's waist, only to be dragged along into the screen vortex into the surreal 1960s black-and-white cursed dimension where they must evade the faceless woman together.",
+  "plan2": "Souvik dodges Haripada and scrambles up to the projection booth to smash the projector and sever the power, plunging the theatre into darkness while fighting Haripada's burning ghost in close quarters."
+ },
+ "fb": "4359220444322492",
+ "yt": "0g5R7Xurabo"
+}
