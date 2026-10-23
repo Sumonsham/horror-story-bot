@@ -90,8 +90,8 @@ LANGS = {
     "bn": {
         "name": "Bengali", "script": "Bengali",
         "font_family": "Noto Sans Bengali", "font_glob": "NotoSansBengali",
-        "male": ["bn-IN-BashkarNeural", "bn-BD-PradeepNeural"],
-        "female": ["bn-IN-TanishaaNeural", "bn-BD-NabanitaNeural"],
+        "male": ["bn-IN-BashkarNeural", "bn-IN-BashkarNeural"],
+        "female": ["bn-IN-TanishaaNeural", "bn-IN-TanishaaNeural"],
         "narrator": ("bn-IN-BashkarNeural", "+2%", "-6Hz"), "gtts": "bn",
         "label": "ভৌতিক গল্প",
         "intro": "আজকের ভৌতিক গল্প... {title}।",
@@ -672,9 +672,15 @@ def make_cast_sheet(cast, path, seed):
     humans = [c for c in cast.chars.values()]
     prompt = (f"{ART_STYLE}. Cast reference photo: all these people standing side by side, full body, "
               f"facing the camera, neutral grey studio background, even soft light. {cast.describe(humans)}")
+    plain = [c for c in humans if not str(c.get("kind", "")).startswith("ghost")] or humans
     for attempt in range(3):
+        if attempt == 1:          # the safety filter said no: gentler words, a new seed
+            prompt = soften(prompt)
+        elif attempt == 2:        # still no: only the living people (ghosts are drawn later, scene by scene)
+            prompt = soften(f"{ART_STYLE}. Cast reference photo: all these people standing side by side, full body, "
+                            f"facing the camera, neutral grey studio background, even soft light. {cast.describe(plain)}")
         try:
-            data = cf_request(CF_MODEL, prompt, w=1024, h=576, seed=seed)
+            data = cf_request(CF_MODEL, prompt, w=1024, h=576, seed=seed + attempt * 101)
             with open(path + ".raw", "wb") as f:
                 f.write(data)
             im = Image.open(path + ".raw").convert("RGB")
@@ -706,7 +712,7 @@ def make_image(cast, action, place, names, path, seed):
         try:
             if soft:
                 prompt = soften(prompt)
-            save_picture(cf_request(model, prompt, ref, seed=seed), path)
+            save_picture(cf_request(model, prompt, ref, seed=seed + (attempt * 77 if soft else 0)), path)
             return True
         except Exception as e:
             if "flagged" in str(e).lower() or "3030" in str(e):
@@ -726,6 +732,12 @@ SOFT_WORDS = {
     "skull": "old stone", "demon": "shadowy figure", "possessed": "strange-eyed", "hanging": "standing",
     "terrified": "worried", "screaming": "calling out", "horror movie": "mystery movie", "ghost": "pale figure",
     "witch": "old woman", "grave": "old stone", "coffin": "old wooden box", "attack": "approach",
+    "rotting": "very old", "rotten": "very old", "decayed": "weathered", "decaying flesh": "pale skin",
+    "flesh": "skin", "wound": "mark", "wounds": "marks", "bleeding": "red-stained", "blood-soaked": "red-stained",
+    "gore": "shadow", "gory": "dark", "severed": "lost", "corpses": "still figures", "drowned": "pale, wet",
+    "hanged": "standing", "noose": "old rope", "fangs": "sharp teeth", "claws": "long nails",
+    "burnt": "smoky", "skeleton": "old shape", "bones": "old sticks", "torture": "trouble", "suicide": "sad end",
+    "cursed": "mysterious", "evil": "strange", "monster": "shadowy figure", "zombie": "pale figure",
 }
 
 
@@ -956,7 +968,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         items.append({"text": extras.performed(ln), "plain": extras.strip_tags(str(ln["text"])), "voice": voice,
                       "who": who, "feel": feel, "spk": voice, "out": os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav"),
                       "lang": lang})
-    if extras.tts_gemini_batch(items, LANGS[lang]["name"], SR, max_minutes):
+    if extras.tts_gemini_batch(items, LANGS[lang]["name"], SR, extras.voice_minutes(max_minutes)):
         for (i, j, ln), it in zip(todo, items):
             GEMINI_CACHE[(i, j)] = it["out"]
         GEMINI_READY = True
