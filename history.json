@@ -183,7 +183,13 @@
   "facebook": "4359220444322492",
   "youtube": "0g5R7Xurabo",
   "fb_reel": "4052666478200788",
-  "yt_short": "8LMBoSoab3Q"
+  "yt_short": "8LMBoSoab3Q",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 2,
+   "checked": "2026-10-23T06:10+00:00"
+  }
  },
  {
   "date": "2026-10-22T15:57+00:00",
@@ -201,5 +207,23 @@
   "facebook_error": "Facebook refused: Any of the pages_read_engagement, pages_manage_metadata,\n        pages_read_user_content, pages_manage_ads, pages_show_list or\n        pages_messaging permission(s) must be granted b",
   "youtube": "iwG77IDMKX0",
   "yt_short": "CxVJoWkfJCc"
+ },
+ {
+  "date": "2026-10-23T07:32+00:00",
+  "lang": "bn",
+  "slot": "2026-10-23@13",
+  "theme": "a Rajasthan stepwell (baori) at night",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 1,
+  "title": "রাজস্থানের সেই অভিশপ্ত বাওলি 🪔 | পর্ব 1",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1624696379117039",
+  "youtube": "SDA5v4TI7_M",
+  "fb_reel": "1330439982413799",
+  "yt_short": "N1cd91vOZuM"
  }
 ]
