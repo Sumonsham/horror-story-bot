@@ -922,14 +922,16 @@ def parler_persona(voices, speaker, lang):
 def prepare_free_voices(todo, voices, lang, max_minutes=None):
     """Whole story with the free voice model (runs on GitHub, no daily limit). All lines or none."""
     global GEMINI_READY
-    if MOCK or not extras.parler_ok():
+    if MOCK:
         return False
-    max_minutes = max_minutes or int(env("FREE_VOICE_MINUTES") or 50)
-    log(f"Free voice model for all {len(todo)} lines")
+    if not (extras.parler_ok() and extras.ensure_parler()):
+        return no_voice()
+    max_minutes = max_minutes or int(env("FREE_VOICE_MINUTES") or 200)
+    log(f"Free voice model for all {len(todo)} lines (slow - the post may be a little late)")
     t0 = time.time()
     for k, (i, j, ln) in enumerate(todo):
         if time.time() - t0 > max_minutes * 60:
-            log("  free voice model too slow today - using Microsoft voices")
+            log("  free voice model too slow today")
             break
         p = os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav")
         if not extras.parler_line(str(ln["text"]), parler_persona(voices, ln.get("speaker", "narrator"), lang),
@@ -944,7 +946,19 @@ def prepare_free_voices(todo, voices, lang, max_minutes=None):
         log(f"  all lines voiced by the free model in {(time.time() - t0) / 60:.1f} min")
         return True
     GEMINI_CACHE.clear()
-    return False
+    return no_voice()
+
+
+def no_voice():
+    """No good voice today: no robotic Microsoft voice (unless ALLOW_MICROSOFT=1) - skip this video."""
+    if env("ALLOW_MICROSOFT") == "1":
+        log("  using Microsoft voices for the whole video")
+        return False
+    log("STOPPED: no expressive voice available today (Gemini free limit used up and the free voice model "
+        "failed). Nothing was posted - the next run will try again. (Microsoft voices are switched off.)")
+    extras.telegram("⚠️ Suman Motion: today's voices could not be made (Gemini limit over, free voice model failed) "
+                    "- this video was skipped. The next run will try again.")
+    sys.exit(0)
 
 
 def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
