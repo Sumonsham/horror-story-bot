@@ -254,7 +254,13 @@
   "facebook": "1682138643472353",
   "youtube": "xACQ5RbUzdM",
   "fb_reel": "2956441721390882",
-  "yt_short": "46c9GzZD8ZI"
+  "yt_short": "46c9GzZD8ZI",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 1,
+   "checked": "2026-10-24T12:40+00:00"
+  }
  },
  {
   "date": "2026-10-24T04:03+00:00",
@@ -291,5 +297,23 @@
   "youtube": "aOBWGulHaoI",
   "fb_reel": "1981616269933547",
   "yt_short": "ncUwdSgt_tc"
+ },
+ {
+  "date": "2026-10-24T15:31+00:00",
+  "lang": "bn",
+  "slot": "2026-10-24@21",
+  "theme": "a new flat in an old building",
+  "format": "Taranath Tantrik telling his own true experience to Kishori, in first person",
+  "part": 0,
+  "continues": false,
+  "title": "তারানাথ তান্ত্রিক #1: পুরোনো দেওয়ালের গোপন বন্দিনী 🕯️",
+  "festival": null,
+  "special": "taranath",
+  "viewer_story_id": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "956514523807114",
+  "youtube": "_47PRv4Jxvs",
+  "fb_reel": "2034104107284200"
  }
 ]
