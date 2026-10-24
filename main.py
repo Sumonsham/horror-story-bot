@@ -360,7 +360,7 @@ def gemini_models(key):
     return out
 
 
-def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules=""):
+def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2):
     """part=0: one complete story; part=1: first half of a 2-part series (ends on a cliffhanger);
     part=2: the final part, continuing `prev` (saved from part 1)."""
     if MOCK:
@@ -369,27 +369,35 @@ def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules=""
     L = LANGS[lang]
     old_titles = [h["title"] for h in history[-60:] if h.get("lang") == lang]
     fmt = fmt or random.choice(FORMATS)
+    cliff_keys = ("Also add JSON keys: \"summary\" (ENGLISH, 5-8 sentences: EVERYTHING that has happened so far in "
+                  "the whole series, including earlier parts) and \"part2_plan\" (ENGLISH, 4-6 sentences: how the NEXT "
+                  "part continues). And a key \"choice\": the big decision the main character faces at the cliffhanger, "
+                  "which the VIEWERS will vote on: {\"question\": short question in the story language, \"option1\": "
+                  "2-5 word choice in the story language, \"option2\": 2-5 word choice in the story language, "
+                  "\"plan1\": ENGLISH how the next part goes if option 1 wins, \"plan2\": ENGLISH how it goes if "
+                  "option 2 wins}.\n")
     if part == 1:
-        series_rule = ("\nSERIES: this is PART 1 of a 2-part story. Build the fear and STOP at the most frightening "
-                       "cliffhanger, unresolved (the twist comes in part 2). Also add two extra JSON keys: "
-                       "\"summary\" (ENGLISH, 4-6 sentences: what happened in part 1) and \"part2_plan\" "
-                       "(ENGLISH, 4-6 sentences: how part 2 continues and the shocking ending). "
-                       "And a key \"choice\": the big decision the main character faces at the cliffhanger, which "
-                       "the VIEWERS will vote on: {{\"question\": short question in the story language, "
-                       "\"option1\": 2-5 word choice in the story language, \"option2\": 2-5 word choice in the "
-                       "story language, \"plan1\": ENGLISH how part 2 goes if option 1 wins, \"plan2\": ENGLISH "
-                       "how part 2 goes if option 2 wins}}.\n")
-    elif part == 2 and prev:
-        series_rule = (f"\nSERIES: this is PART 2 (the FINAL part) of a 2-part story. Part 1 title: {prev.get('title')}. "
-                       f"What happened in part 1: {prev.get('summary')} Planned continuation: {prev.get('part2_plan')} "
+        series_rule = ("\nSERIES: this is PART 1 of a multi-part horror series (a BIG story that is too long and too "
+                       "frightening for one video). Introduce the people and the cursed place, build the fear slowly and "
+                       "STOP at the most frightening cliffhanger, unresolved. Decide how many parts the WHOLE story needs: "
+                       "add a key \"total_parts\": 2 or 3 (3 only if the plot is truly big, with a new layer of horror "
+                       "in each part). " + cliff_keys)
+    elif part >= 2 and prev:
+        series_rule = (f"\nSERIES: this is PART {part} of {total} of a horror series. Title of part 1: {prev.get('title')}. "
+                       f"What happened so far: {prev.get('summary')} Planned continuation: {prev.get('part2_plan')} "
                        f"Use EXACTLY these characters (same names, same looks): "
                        f"{json.dumps(prev.get('characters'), ensure_ascii=False)} and this setting: {prev.get('setting')}. "
-                       "Begin with a short gripping recap by the narrator (2-3 lines), then continue, and end with a "
-                       "shocking twist that answers the mystery.\n")
+                       "Begin with a short gripping recap by the narrator (2-3 lines), then continue - the horror must be "
+                       "even WORSE than in the previous part. ")
+        if part < total:
+            series_rule += ("This is a MIDDLE part: reveal one terrible new secret, and STOP again at an even bigger "
+                            "cliffhanger, unresolved. " + cliff_keys)
+        else:
+            series_rule += "This is the FINAL part: end with a shocking twist that answers the whole mystery.\n"
         vote = prev.get("vote")
         if vote:
             series_rule += (f"VIEWERS VOTED: {vote['v1']} chose '{vote['option1']}', {vote['v2']} chose "
-                            f"'{vote['option2']}'. Part 2 MUST follow the winning choice: {vote['plan']} "
+                            f"'{vote['option2']}'. This part MUST follow the winning choice: {vote['plan']} "
                             "The narrator's FIRST line thanks the viewers and says most of them chose "
                             f"'{vote['winner_text']}' - and that is exactly what happened next...\n")
     else:
@@ -2300,7 +2308,7 @@ def main():
     festival, special, extra_rules, viewer = None, "", "", None
     shout_names, shout_ids = [], []
     lastp = extras.last_post(history)                # who answered the last video's question right?
-    if lastp and not MOCK and lastp.get("part") != 1 and (lastp.get("mystery_answer") or lastp.get("hidden")):
+    if lastp and not MOCK and not lastp.get("continues", lastp.get("part") == 1) and (lastp.get("mystery_answer") or lastp.get("hidden")):
         try:
             digit = lastp.get("mystery_answer") or lastp.get("hidden")
             shout_names, shout_ids = extras.winners(extras.post_comments(lastp.get("facebook"), lastp.get("youtube")),
@@ -2311,7 +2319,8 @@ def main():
     if env("MODE") == "amavasya":                    # extra midnight story on the new-moon night
         prev = None
     if prev:                                         # finish the series that was started last time
-        part, lang, theme, fmt = 2, prev["lang"], prev["theme"], prev.get("fmt")
+        part, lang, theme, fmt = int(prev.get("done", 1)) + 1, prev["lang"], prev["theme"], prev.get("fmt")
+        total = max(part, int(prev.get("total", 2)))
         ch = prev.get("choice") or {}
         if ch.get("plan1") and ch.get("plan2"):      # count the viewers' votes (1 / 2) in the comments
             vc = extras.vote_count(extras.post_comments(prev.get("fb"), prev.get("yt")))
@@ -2328,7 +2337,8 @@ def main():
     else:
         lang, theme = pick_language(history), pick_theme(history)
         fmt = extras.weighted_choice(FORMATS, extras.weights(history, "format", FORMATS))
-        part = 1 if random.random() < float(env("SERIES_CHANCE") or 0.3) else 0
+        part = 1 if random.random() < float(env("SERIES_CHANCE") or 0.45) else 0
+        total = 2
         fest = extras.festival_today("horror")
         if fest and not any(h.get("festival") == fest[0] and
                             (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(h["date"])).total_seconds() < 20 * 3600
@@ -2382,7 +2392,14 @@ def main():
     VHS = "first person" in str(fmt)               # found-footage camera look for "I lived it" stories
     log(f"Language: {L['name']} | Idea: {theme} | Style: {fmt}" + (f" | SERIES part {part}" if part else ""))
 
-    story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules)
+    story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
+                       total=total if part else 2)
+    if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
+        try:
+            total = min(3, max(2, int(str(story.get("total_parts") or 2)[:1])))
+        except ValueError:
+            total = 2
+    continues = bool(part) and part < total          # this part ends on a cliffhanger, the next run goes on
     if special in ("bhairab", "taranath"):           # always the same faces for our recurring heroes
         fixed = BHAIRAB if special == "bhairab" else TARANATH
         names = {c["name"].lower(): c for c in fixed}
@@ -2390,7 +2407,7 @@ def main():
         for b in fixed:
             if b["name"].lower() not in [str(c.get("name", "")).lower() for c in story["characters"]]:
                 story["characters"].append(b)
-    if part == 2:                                    # same people and place as part 1
+    if part >= 2:                                    # same people and place as part 1
         story["characters"], story["setting"] = prev["characters"], prev["setting"]
     title = story["title"].strip()[:85]
     if part:
@@ -2536,7 +2553,7 @@ def main():
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
     end_lines = []
-    choice = story.get("choice") if part == 1 and isinstance(story.get("choice"), dict) else None
+    choice = story.get("choice") if continues and isinstance(story.get("choice"), dict) else None
     vote_text = ""
     if choice and choice.get("question") and choice.get("option1") and choice.get("option2"):
         vote_text = L["vote_line"].format(q=choice["question"], o1=choice["option1"], o2=choice["option2"])
@@ -2549,13 +2566,13 @@ def main():
     lang_names = lambda ns: extras.name_list(ns, lang)
     if viewer and viewer.get("name"):
         end_lines.append({"speaker": "narrator", "text": L["viewer_credit"].format(name=viewer["name"])})
-    vote_names = (prev or {}).get("vote", {}).get("names") if part == 2 else None
+    vote_names = (prev or {}).get("vote", {}).get("names") if part >= 2 else None
     if vote_names:
         end_lines.append({"speaker": "narrator", "text": L["vote_thanks"].format(names=lang_names(vote_names))})
     if shout_names:
         end_lines.append({"speaker": "narrator", "text": L["shout_line"].format(names=lang_names(shout_names))})
     end_lines.append({"speaker": "narrator", "text": L["how_to_join"]})
-    end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if part == 1 else L["outro"]).format(page=page)})
+    end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if continues else L["outro"]).format(page=page)})
     parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
     video = os.path.join(WORK, "final.mp4")
@@ -2607,21 +2624,22 @@ def main():
     results.update(grow(video, story, title, lang, L, tags, results, history, page))
 
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "slot": SLOT,
-                    "theme": theme, "format": fmt, "part": part, "title": title, "festival": festival,
+                    "theme": theme, "format": fmt, "part": part, "continues": continues, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
     if not MOCK:
         save_history(history)
-        if part == 1:
+        if continues:
             with open(NEXT_PART, "w", encoding="utf-8") as f:
                 json.dump({"created": dt.datetime.now(dt.timezone.utc).isoformat(), "lang": lang, "theme": theme,
-                           "fmt": fmt, "title": story["title"], "summary": story.get("summary", ""),
+                           "fmt": fmt, "title": (prev or {}).get("title") or story["title"],
+                           "done": part, "total": total, "summary": story.get("summary", ""),
                            "part2_plan": story.get("part2_plan", ""), "characters": story.get("characters"),
                            "setting": story.get("setting", ""), "choice": choice,
                            "fb": results.get("facebook"), "yt": results.get("youtube")}, f, ensure_ascii=False, indent=1)
-            log("Series: part 2 will be made in the next horror run")
-        elif part == 2 and os.path.exists(NEXT_PART):
+            log(f"Series: part {part + 1} of {total} will be made in the next horror run")
+        elif part >= 2 and os.path.exists(NEXT_PART):
             os.remove(NEXT_PART)
     if viewer and not DRY_RUN:                       # tell the viewer their story is out
         try:
