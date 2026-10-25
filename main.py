@@ -99,7 +99,7 @@ LANGS = {
         "page_default": "আমাদের পেজ",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
         "badge": "লাইক • শেয়ার • ফলো", "part": "পর্ব {n}",
-        "outro_part1": "গল্পের বাকি অংশ আসছে পরের পর্বে... মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
+        "outro_part1": "গল্পের পরের পর্ব আসছে কাল... আর রবিবার আসবে পুরো গল্পটা একসাথে। মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
         "ch_intro": "শুরু", "ch_end": "শেষ", "chapters": "⏱️ অধ্যায়",
         "cta": "পুরো গল্প আমাদের পেজে 👉", "playlist": "ভৌতিক গল্প - Bengali Horror Stories",
         "full_link": "পুরো গল্প দেখুন:",
@@ -270,13 +270,17 @@ FORMATS = [
 NEXT_PART = os.path.join(HERE, "next_part.json")
 
 
-def load_next_part():
-    """Part 1 of a series saves what part 2 needs; the next horror run makes part 2."""
+def load_next_part(ready_only=True):
+    """Part 1 of a series saves what part 2 needs. The next part comes the NEXT DAY (part 1 today, part 2
+    tomorrow, part 3 the day after), so viewers wait for it. ready_only=False: also a part not due yet."""
     try:
         with open(NEXT_PART, encoding="utf-8") as f:
             nxt = json.load(f)
         made = dt.datetime.fromisoformat(nxt["created"])
-        if (dt.datetime.now(dt.timezone.utc) - made).total_seconds() < 4 * 86400:
+        if (dt.datetime.now(dt.timezone.utc) - made).total_seconds() < 5 * 86400:
+            if ready_only and env("SERIES_NEXT_DAY") != "0" and \
+                    made.astimezone(extras.IST).date() >= dt.datetime.now(extras.IST).date():
+                return None
             return nxt
     except Exception:
         pass
@@ -444,6 +448,10 @@ Story rules:
   looks the same every time. Night/day, weather and the place must match the story.
 - Give every line an emotion so the voice acts it (whisper when hiding, scared when afraid, shout when screaming).
 - Mark "jump_scare": true on 1-3 lines in the whole story where the big scare lands (a sudden sound/reveal).
+- THE GHOST'S LAUGH: the ghost must LAUGH - a harsh, piercing, blood-curdling laugh - at 2-4 key moments (when it
+  first shows itself, when the hero is trapped, at the final twist). On those lines put the ghost's name in
+  "ghost_laugh" (the line can be the ghost's own words or the narrator describing the laugh, e.g. 'অন্ধকার চিরে
+  ভেসে এল এক কর্কশ, তীব্র হাসি...'). The ghost's own lines may also contain হা-হা-হা / হি-হি-হি.
 {extras.STORY_CRAFT}{extras.HOOK_RULES}{extras.HORROR_DREAD}{extras.WRITING_RULES.get(lang, "")}{extras.VOICE_ACTING}
 
 Return ONLY JSON with exactly these keys:
@@ -472,6 +480,7 @@ Return ONLY JSON with exactly these keys:
                 "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
                           "when": "before (sound first, then the line), during, or after (line first, then the sound)"}}],
                 "jump_scare": false,
+                "ghost_laugh": "",
                 "image": {{"prompt": "ENGLISH picture prompt for THIS line, 30-50 words, like a horror film still: WHO/WHAT is in frame and their exact action, pose and facial expression matching the words of this line, WHERE (which part of the setting), camera (extreme close-up / close-up / wide / over-the-shoulder / low angle), light source (lantern, moonlight, lightning), key objects. Only things that can be SEEN. Every line gets a different picture that matches its words exactly",
                            "people": [{{"name": "a character name exactly as in characters", "pose": "lying / sitting / standing / crouching / hiding / running / frozen / floating ...", "doing": "exactly what the body and HANDS do, e.g. 'gripping the lantern with both hands'", "where": "left / middle / right of the frame, and on or near what (in the doorway, under the bed, behind the tree)", "feeling": "facial expression and emotion, e.g. 'wide eyes, frozen in terror'"}}],
                            "characters": ["names VISIBLE in this picture, in order from LEFT to RIGHT; [] if only a place or object is shown"]}}}}]
@@ -873,13 +882,13 @@ GHOST_POOL = {"female": ["Vindemiatrix", "Achernar"], "old_female": ["Gacrux", "
               "male": ["Enceladus", "Algieba"], "child": ["Laomedeia", "Leda"]}
 GHOST_WORDS = {
     "female": "a terrifying FEMALE ghost (a chudail / shakchunni): a cold, shrill, breathy woman's voice that wavers "
-              "and hisses, sometimes dropping into a slow cruel whisper or a low wicked laugh",
+              "and hisses, sometimes dropping into a slow cruel whisper, and bursting into a harsh, piercing, blood-curdling laugh",
     "old_female": "a terrifying OLD WOMAN ghost (a witch-like crone): a cracked, rasping, trembling old woman's voice, "
-                  "slow and spiteful, with a dry cackle",
+                  "slow and spiteful, with a shrill, cracked, terrifying cackle",
     "male": "a terrifying MALE ghost (a pishach / brahmadaitya): a deep, hollow, growling man's voice, slow and heavy, "
-            "as if from the bottom of a well",
+            "as if from the bottom of a well, with a booming, harsh, evil laugh",
     "child": "an eerie dead CHILD ghost: a soft, sing-song, innocent child's voice that is deeply wrong and cold, "
-             "with a faint giggle",
+             "with a cold, piercing giggle that turns into a shrill laugh",
 }
 AGE_WORDS = {"child": "a small child of about eight", "young": "a young person in their early twenties",
              "adult": "an adult of about forty", "old": "a very old person in their late seventies, with a tired, slightly shaky, aged voice"}
@@ -987,7 +996,7 @@ def no_voice():
         return False
     log("STOPPED: no expressive voice available today (Gemini free limit used up and the free voice model "
         "failed). Nothing was posted - the next run will try again. (Microsoft voices are switched off.)")
-    extras.telegram("⚠️ Suman Motion: today's voices could not be made (Gemini limit over, free voice model failed) "
+    extras.telegram("⚠️ Daily Horror Story: today's voices could not be made (Gemini limit over, free voice model failed) "
                     "- this video was skipped. The next run will try again.")
     sys.exit(0)
 
@@ -1416,6 +1425,106 @@ def get_oneshot(name, rnd, max_sec=4.0):
     return a[:max(int(SR * 0.3), end)] / (np.abs(a).max() + 1e-9) * 0.8
 
 
+LAUGH_WORDS = ("হা হা", "হা-হা", "হাহা", "হি হি", "হি-হি", "হিহি", "খিলখিল", "অট্টহাসি", "হাসি", "হাসল", "হেসে",
+               "laugh", "cackle")
+
+
+def ensure_ghost_laughs(story, want=3):
+    """Every story gets the ghost's terrible laugh 2-3 times, even if the story writer forgot to mark it:
+    lines where someone laughs, the ghost's first lines, the jump scares."""
+    ghosts = [str(c.get("name", "")) for c in story.get("characters", []) if str(c.get("kind", "")).startswith("ghost")]
+    if not ghosts:
+        return
+    lines = [ln for sc in story.get("scenes", []) for ln in sc.get("lines", []) or []]
+    have = [ln for ln in lines if ln.get("ghost_laugh")]
+    gl = {g.lower(): g for g in ghosts}
+    def mark(ln, who):
+        if len(have) < want and not ln.get("ghost_laugh"):
+            ln["ghost_laugh"] = who
+            have.append(ln)
+    strong = LAUGH_WORDS[:8] + ("cackle",)            # 'হা হা', 'অট্টহাসি'... anywhere; a plain 'হাসি' only from a ghost
+    for ln in lines:                                  # 1) lines that talk about a laugh
+        txt, sp = str(ln.get("text", "")), str(ln.get("speaker", "")).lower()
+        if any(w in txt for w in strong) or (sp in gl and any(w in txt for w in LAUGH_WORDS)):
+            mark(ln, gl.get(sp, ghosts[0]))
+    for ln in lines:                                  # 2) the ghost's own first line
+        sp = str(ln.get("speaker", "")).lower()
+        if sp in gl:
+            mark(ln, gl[sp])
+            break
+    for ln in lines:                                  # 3) the big scares
+        if ln.get("jump_scare"):
+            mark(ln, ghosts[0])
+    for ln in reversed(lines):                        # 4) still too few: the ghost's last words, then the finale
+        if len(have) >= 2:
+            break
+        sp = str(ln.get("speaker", "")).lower()
+        if sp in gl:
+            mark(ln, gl[sp])
+    if len(have) < 2 and len(lines) > 6:
+        mark(lines[int(len(lines) * 0.8)], ghosts[0])
+    # never two laughs right next to each other
+    last = -9
+    for k, ln in enumerate(lines):
+        if ln.get("ghost_laugh"):
+            if k - last < 3:
+                ln["ghost_laugh"] = ""
+            else:
+                last = k
+    log(f"  ghost laughs in this story: {sum(1 for ln in lines if ln.get('ghost_laugh'))}")
+
+
+GHOST_LAUGH_QUERIES = {
+    "female": ["evil woman laugh", "female evil laugh", "witch laugh", "creepy woman laugh"],
+    "old_female": ["witch cackle", "old woman cackle", "evil witch laugh", "evil woman laugh"],
+    "male": ["evil laugh male", "demonic laugh", "deep evil laugh", "monster laugh"],
+    "child": ["creepy child laugh", "evil child laugh", "child giggle creepy", "creepy girl laugh"],
+}
+
+
+def ghost_of(voices, name, speaker):
+    """Which kind of ghost laughs (female / old_female / male / child): the named ghost, else the speaker,
+    else the story's first ghost."""
+    for n in (name, speaker):
+        spec = voices.map.get(str(n or "").lower())
+        if spec and spec[3]:
+            return spec[3]
+    return next((v[3] for v in voices.map.values() if v[3]), "female")
+
+
+def ghost_laugh_sound(kind, rnd, max_sec=4.5):
+    """A harsh, piercing ghost laugh for this kind of ghost: a real recording, pitched for the ghost
+    (deeper for a man, shriller for a woman/child), with a cold double voice and echoes."""
+    np = _np()
+    kind = kind if kind in GHOST_LAUGH_QUERIES else "female"
+    for q in GHOST_LAUGH_QUERIES[kind]:
+        p = freesound(q, loop=False)
+        if not p:
+            continue
+        a = _decode(p, max_sec)
+        if len(a) < SR * 0.5:
+            continue
+        def shift(x, f):                              # f < 1 deeper/slower, f > 1 higher
+            idx = np.arange(0, len(x) - 1, f)
+            return np.interp(idx, np.arange(len(x)), x).astype(np.float32)
+        main_f, layer_f = {"male": (0.86, 0.72), "old_female": (0.97, 1.18),
+                           "child": (1.06, 1.25), "female": (1.03, 1.22)}[kind]
+        a = shift(a, main_f)
+        b = shift(a, layer_f / main_f)
+        n = max(len(a), len(b))
+        out = np.zeros(n + int(SR * 0.9), np.float32)
+        out[:len(a)] += a
+        out[:len(b)] += b * 0.35                      # a second, inhuman voice inside the laugh
+        for d, g in ((0.11, 0.45), (0.26, 0.3), (0.47, 0.18)):   # cold stone-room echoes
+            k = int(SR * d)
+            out[k:k + len(a)] += a * g
+        fade = min(len(out) // 4, int(SR * 0.4))
+        out[-fade:] *= np.linspace(1, 0, fade)
+        return out / (np.abs(out).max() + 1e-9) * 0.95
+    log(f"    no ghost laugh found ({kind})")
+    return None
+
+
 def get_ambience(name, n, rnd):
     """A background sound for the whole scene (rain, crickets...), looped to n samples."""
     np = _np()
@@ -1496,6 +1605,13 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             if snd is not None:
                 cues.append((t, snd, 0.85, x["sound"]))
                 t += min(len(snd) / SR, 2.2) * 0.75 + 0.15
+        if ln.get("ghost_laugh"):
+            # the ghost's harsh, piercing laugh (a real recording, made bigger and colder), then the words
+            lg = ghost_laugh_sound(ghost_of(voices, ln.get("ghost_laugh"), ln.get("speaker")), rnd)
+            if lg is not None:
+                cues.append((t, lg, 1.0, "ghost_laugh"))
+                t += min(len(lg) / SR, 4.0) * 0.8 + 0.1
+                log("    ghost laugh added")
         if ln.get("jump_scare"):
             # classic jump scare: everything goes almost silent, then a sudden hit
             silences.append((max(0.0, t - 0.9), t))
@@ -2307,6 +2423,7 @@ def main():
         except Exception as e:
             log("  stats skipped:", str(e)[:150])
     prev = load_next_part()
+    series_waiting = prev is None and load_next_part(ready_only=False) is not None   # next part comes tomorrow
     festival, special, extra_rules, viewer = None, "", "", None
     shout_names, shout_ids = [], []
     lastp = extras.last_post(history)                # who answered the last video's question right?
@@ -2339,7 +2456,7 @@ def main():
     else:
         lang, theme = pick_language(history), pick_theme(history)
         fmt = extras.weighted_choice(FORMATS, extras.weights(history, "format", FORMATS))
-        part = 1 if random.random() < float(env("SERIES_CHANCE") or 0.45) else 0
+        part = 1 if (not series_waiting and random.random() < float(env("SERIES_CHANCE") or 0.45)) else 0
         total = 2
         fest = extras.festival_today("horror")
         if fest and not any(h.get("festival") == fest[0] and
@@ -2396,12 +2513,15 @@ def main():
 
     story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
                        total=total if part else 2)
+    ensure_ghost_laughs(story)
     if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
         try:
             total = min(3, max(2, int(str(story.get("total_parts") or 2)[:1])))
         except ValueError:
             total = 2
     continues = bool(part) and part < total          # this part ends on a cliffhanger, the next run goes on
+    series_id = (((prev or {}).get("series_id") or (prev or {}).get("created")) if part >= 2 else
+                 (dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes") if part == 1 else None))
     if special in ("bhairab", "taranath"):           # always the same faces for our recurring heroes
         fixed = BHAIRAB if special == "bhairab" else TARANATH
         names = {c["name"].lower(): c for c in fixed}
@@ -2482,7 +2602,7 @@ def main():
     first_ok = next((p for p in imgs if p), None)
     if not first_ok:
         if CF_QUOTA_OUT:
-            extras.telegram("⚠️ Suman Motion: today's free picture limit is used up - this video was skipped. "
+            extras.telegram("⚠️ Daily Horror Story: today's free picture limit is used up - this video was skipped. "
                             "It resets at 5:30 AM India time.")
             log("STOPPED: today's free Cloudflare picture limit is used up on every account. "
                 "Nothing was posted. It resets every day at 5:30 AM India time; the next run will work.")
@@ -2626,7 +2746,7 @@ def main():
     results.update(grow(video, story, title, lang, L, tags, results, history, page))
 
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "slot": SLOT,
-                    "theme": theme, "format": fmt, "part": part, "continues": continues, "title": title, "festival": festival,
+                    "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
@@ -2636,7 +2756,7 @@ def main():
             with open(NEXT_PART, "w", encoding="utf-8") as f:
                 json.dump({"created": dt.datetime.now(dt.timezone.utc).isoformat(), "lang": lang, "theme": theme,
                            "fmt": fmt, "title": (prev or {}).get("title") or story["title"],
-                           "done": part, "total": total, "summary": story.get("summary", ""),
+                           "done": part, "total": total, "series_id": series_id, "summary": story.get("summary", ""),
                            "part2_plan": story.get("part2_plan", ""), "characters": story.get("characters"),
                            "setting": story.get("setting", ""), "choice": choice,
                            "fb": results.get("facebook"), "yt": results.get("youtube")}, f, ensure_ascii=False, indent=1)
@@ -2652,13 +2772,98 @@ def main():
     if shout_ids and results.get("facebook") and not DRY_RUN:
         n = extras.reply_to(shout_ids, L["congrats_reply"].format(link=f"https://www.facebook.com/{results['facebook']}"))
         log(f"  congratulated {n} viewers under their comments")
-    page_name = env(f"PAGE_NAME_{lang.upper()}") or "Suman Motion"
+    page_name = env(f"PAGE_NAME_{lang.upper()}") or "Daily Horror Story"
     extras.telegram(extras.report_text(page_name, title, results, history))
 
 
-def make_compilation(history):
-    """Sunday special: this week's stories (one language) joined into one long video with chapters."""
+def make_series_full(history):
+    """Sunday: every big story finished this week (all its parts) as ONE full video - 'সম্পূর্ণ গল্প'."""
     global FONT
+    now = dt.datetime.now(dt.timezone.utc)
+    groups = {}
+    for h in history[-60:]:
+        if not h.get("part") or not h.get("facebook") or h.get("kind"):
+            continue
+        try:
+            t = dt.datetime.fromisoformat(str(h.get("date")))
+        except Exception:
+            continue
+        if (now - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).days > 8:
+            continue
+        key = h.get("series_id") or f"{h.get('lang')}|{h.get('theme')}"
+        groups.setdefault(key, {})[int(h["part"])] = h
+    done = {h.get("series_key") for h in history if h.get("kind") == "series_full"}
+    for key, parts in groups.items():
+        last = parts[max(parts)]
+        finished = max(parts) >= 2 and not last.get("continues", False)
+        if key in done or not finished or sorted(parts) != list(range(1, max(parts) + 1)):
+            continue
+        lang = parts[1].get("lang", "bn")
+        L = LANGS[lang]
+        FONT = find_font(lang)
+        base_title = str(parts[1].get("title", "")).split(" | ")[0].strip()
+        full = "সম্পূর্ণ গল্প" if lang == "bn" else "पूरी कहानी"
+        log(f"Full story of the series: {base_title} ({len(parts)} parts)")
+        try:
+            clips, chapters, t = [], [], 0.0
+            for n in sorted(parts):
+                src, _ = extras.fb_video_source(parts[n]["facebook"])
+                if not src:
+                    raise RuntimeError(f"no video link for part {n}")
+                raw = extras.download(src, os.path.join(WORK, f"sraw_{n}.mp4"))
+                c = extras.normalize_clip(raw, os.path.join(WORK, f"s_{n:02d}.mp4"))
+                os.remove(raw)
+                chapters.append((t, L["part"].format(n=n)))
+                t += duration(c)
+                clips.append(c)
+            lst = os.path.join(WORK, "series.txt")
+            with open(lst, "w") as f:
+                f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
+            video = os.path.join(WORK, "series_full.mp4")
+            run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", "-movflags", "+faststart", video])
+            fr = os.path.join(WORK, "series_frame.jpg")
+            run(["ffmpeg", "-y", "-ss", f"{min(60, t / 4):.1f}", "-i", video, "-frames:v", "1", fr])
+            thumb = os.path.join(WORK, "series_thumb.jpg")
+            try:
+                extras.poster_thumbnail(fr, full, base_title[:40], thumb, "horror", FONT)
+            except Exception:
+                make_thumbnail(fr, full, thumb, L["label"])
+            title = f"{base_title} | {full} ({len(parts)} {'পর্ব একসাথে' if lang == 'bn' else 'भाग एक साथ'})"[:95]
+            chap = L["chapters"] + "\n" + "\n".join(f"{extras.fmt_time(s)} {n}" for s, n in chapters)
+            tags = ["#HorrorStory", "#BhooterGolpo", "#FullStory", "#BanglaHorror"]
+            description = f"{title}\n\n{chap}\n\n{L['ai_note']}\n\n{' '.join(tags)}"
+            results = {}
+            if not DRY_RUN:
+                try:
+                    results["facebook"] = post_to_facebook(video, thumb, title, description)
+                    log("Posted full story to Facebook:", results["facebook"])
+                except Exception as e:
+                    log("FACEBOOK FAILED:", e)
+                if youtube_ready() and extras.yt_extra_ok():
+                    try:
+                        results["youtube"] = post_to_youtube(video, thumb, title, description, tags, lang)
+                        log("Posted full story to YouTube:", results["youtube"])
+                        extras.yt_add_to_playlist(results["youtube"], L["playlist"], lang)
+                    except Exception as e:
+                        log("YouTube full story skipped:", str(e)[:200])
+                history.append({"date": now.isoformat(timespec="minutes"), "lang": lang, "kind": "series_full",
+                                "series_key": key, "title": title, **results})
+                save_history(history)
+            for c in clips + [video]:
+                if os.path.exists(c):
+                    os.remove(c)
+        except Exception as e:
+            log("  full story skipped:", str(e)[:200])
+
+
+def make_compilation(history):
+    """Sunday special: this week's stories (one language) joined into one long video with chapters.
+    First, every big story finished this week is posted as one full video."""
+    global FONT
+    try:
+        make_series_full(history)
+    except Exception as e:
+        log("  full stories skipped:", str(e)[:200])
     now = dt.datetime.now(dt.timezone.utc)
     week = []
     for h in history[-40:]:
@@ -2667,7 +2872,7 @@ def make_compilation(history):
         except Exception:
             continue
         if (now - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).days <= 7 and h.get("facebook") \
-                and h.get("kind") != "compilation":
+                and h.get("kind") not in ("compilation", "series_full"):
             week.append(h)
     langs = [h.get("lang") for h in week]
     lang = env("LANGUAGE") if env("LANGUAGE") in LANGS else (max(set(langs), key=langs.count) if langs else "bn")
