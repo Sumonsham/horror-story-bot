@@ -94,7 +94,7 @@
    "likes": 2,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-21T14:52+00:00"
+   "checked": "2026-10-25T07:21+00:00"
   }
  },
  {
@@ -107,8 +107,8 @@
   "stats": {
    "likes": 2,
    "comments": 0,
-   "views": 0,
-   "checked": "2026-10-21T14:52+00:00"
+   "views": 48,
+   "checked": "2026-10-25T07:21+00:00"
   }
  },
  {
@@ -121,8 +121,8 @@
   "stats": {
    "likes": 1,
    "comments": 0,
-   "views": 1,
-   "checked": "2026-10-22T06:26+00:00"
+   "views": 0,
+   "checked": "2026-10-25T07:21+00:00"
   }
  },
  {
@@ -140,7 +140,7 @@
    "likes": 5,
    "comments": 3,
    "views": 3,
-   "checked": "2026-10-22T06:26+00:00"
+   "checked": "2026-10-25T07:21+00:00"
   }
  },
  {
@@ -278,7 +278,13 @@
   "facebook": "4622899064649721",
   "youtube": "KcZrK3ezhAQ",
   "fb_reel": "3678539105632747",
-  "yt_short": "QKwWt1pcle0"
+  "yt_short": "QKwWt1pcle0",
+  "stats": {
+   "likes": 3,
+   "comments": 2,
+   "views": 0,
+   "checked": "2026-10-25T07:21+00:00"
+  }
  },
  {
   "date": "2026-10-24T10:31+00:00",
@@ -296,7 +302,13 @@
   "facebook": "4479348699003843",
   "youtube": "aOBWGulHaoI",
   "fb_reel": "1981616269933547",
-  "yt_short": "ncUwdSgt_tc"
+  "yt_short": "ncUwdSgt_tc",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 1,
+   "checked": "2026-10-25T07:21+00:00"
+  }
  },
  {
   "date": "2026-10-24T15:31+00:00",
@@ -323,5 +335,24 @@
   "title": "90 মিনিটের ভূতের গল্প 👻 | সপ্তাহের সেরা 11টি গল্প একসাথে",
   "facebook": "1655323042714373",
   "youtube": "hKxhtaFLdMQ"
+ },
+ {
+  "date": "2026-10-25T08:07+00:00",
+  "lang": "bn",
+  "slot": "2026-10-25@13",
+  "theme": "a Sundarbans boat trip and the jungle spirit",
+  "format": "two friends telling ghost stories at night, and one story becomes real",
+  "part": 0,
+  "continues": false,
+  "title": "সুন্দরবনের সেই অভিশপ্ত খাঁড়ি 🛶",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1018304207951064",
+  "youtube": "7SqVv_iQIdI",
+  "fb_reel": "1688042229603431",
+  "yt_short": "IviZ3ZKLjuc"
  }
 ]
