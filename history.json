@@ -210,8 +210,8 @@
   "stats": {
    "likes": 0,
    "comments": 1,
-   "views": 2,
-   "checked": "2026-10-23T12:41+00:00"
+   "views": 0,
+   "checked": "2026-10-26T13:47+00:00"
   }
  },
  {
@@ -420,7 +420,13 @@
   "facebook": "1649144233274987",
   "youtube": "e528H5F97Ig",
   "fb_reel": "1823099422364193",
-  "yt_short": "LCOOFAkRNds"
+  "yt_short": "LCOOFAkRNds",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 0,
+   "checked": "2026-10-26T13:47+00:00"
+  }
  },
  {
   "date": "2026-10-26T09:07+00:00",
@@ -441,5 +447,25 @@
   "youtube": "FVh2MA8HhiE",
   "fb_reel": "1118182363909919",
   "yt_short": "SmsZS5mINhE"
+ },
+ {
+  "date": "2026-10-26T16:36+00:00",
+  "lang": "bn",
+  "slot": "2026-10-26@21",
+  "theme": "a tantrik's revenge on a greedy landlord",
+  "format": "a listener's letter read out by the narrator, then the events play out",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "তান্ত্রিকের রক্তশাপ 🛕",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "2407806639761007",
+  "youtube": "fCZZTH2giUc",
+  "fb_reel": "1059413343816655",
+  "yt_short": "DcV7xACmr1Y"
  }
 ]
