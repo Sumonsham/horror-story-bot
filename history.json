@@ -164,7 +164,7 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-22T14:57+00:00"
+   "checked": "2026-10-26T06:26+00:00"
   }
  },
  {
@@ -188,7 +188,7 @@
    "likes": 1,
    "comments": 2,
    "views": 2,
-   "checked": "2026-10-23T06:10+00:00"
+   "checked": "2026-10-26T06:26+00:00"
   }
  },
  {
@@ -340,7 +340,13 @@
   "kind": "compilation",
   "title": "90 মিনিটের ভূতের গল্প 👻 | সপ্তাহের সেরা 11টি গল্প একসাথে",
   "facebook": "1655323042714373",
-  "youtube": "hKxhtaFLdMQ"
+  "youtube": "hKxhtaFLdMQ",
+  "stats": {
+   "likes": 1,
+   "comments": 0,
+   "views": 3,
+   "checked": "2026-10-26T06:26+00:00"
+  }
  },
  {
   "date": "2026-10-25T08:07+00:00",
@@ -359,7 +365,13 @@
   "facebook": "1018304207951064",
   "youtube": "7SqVv_iQIdI",
   "fb_reel": "1688042229603431",
-  "yt_short": "IviZ3ZKLjuc"
+  "yt_short": "IviZ3ZKLjuc",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 0,
+   "checked": "2026-10-26T06:26+00:00"
+  }
  },
  {
   "date": "2026-10-25T09:59+00:00",
@@ -368,7 +380,13 @@
   "series_key": "bn|a Rajasthan stepwell (baori) at night",
   "title": "রাজস্থানের সেই অভিশপ্ত বাওলি 🪔 | সম্পূর্ণ গল্প (2 পর্ব একসাথে)",
   "facebook": "1452424093508450",
-  "youtube": "TwwjZJJIOcs"
+  "youtube": "TwwjZJJIOcs",
+  "stats": {
+   "likes": 0,
+   "comments": 0,
+   "views": 1,
+   "checked": "2026-10-26T06:26+00:00"
+  }
  },
  {
   "date": "2026-10-25T10:07+00:00",
@@ -376,7 +394,13 @@
   "kind": "compilation",
   "title": "102 মিনিটের ভূতের গল্প 👻 | সপ্তাহের সেরা 12টি গল্প একসাথে",
   "facebook": "2385531558921725",
-  "youtube": "kerP2EoM1dQ"
+  "youtube": "kerP2EoM1dQ",
+  "stats": {
+   "likes": 2,
+   "comments": 0,
+   "views": 0,
+   "checked": "2026-10-26T06:26+00:00"
+  }
  },
  {
   "date": "2026-10-25T15:33+00:00",
@@ -397,5 +421,25 @@
   "youtube": "e528H5F97Ig",
   "fb_reel": "1823099422364193",
   "yt_short": "LCOOFAkRNds"
+ },
+ {
+  "date": "2026-10-26T09:07+00:00",
+  "lang": "bn",
+  "slot": "2026-10-26@13",
+  "theme": "a daayan who takes children's shadows",
+  "format": "classic third-person radio-drama narration",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "ছায়াহারিণী ডাইনের অভিশাপ 🌑",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1647712670279965",
+  "youtube": "FVh2MA8HhiE",
+  "fb_reel": "1118182363909919",
+  "yt_short": "SmsZS5mINhE"
  }
 ]
