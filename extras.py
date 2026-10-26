@@ -1606,6 +1606,26 @@ def _pick_key(model):
     return k
 
 
+def gemini_quota_left():
+    """True while at least one key can still use at least one voice model today"""
+    keys = [k for k in tts_keys() if k not in KEY_DEAD]
+    models = [m for m in NEW_TTS + OLD_TTS if m not in TTS_STATE["bad_models"]]
+    return any((k, m) not in DAY_OUT for k in keys for m in models)
+
+
+def _line_until_quota_ends(make, tries=6):
+    """A line that failed is tried again (after a short wait) as long as Gemini's daily limit is not over -
+    a busy minute or a hiccup never sends the whole video to the slower voices."""
+    for i in range(tries):
+        if make():
+            return True
+        if TTS_STATE["off"] or not gemini_quota_left():
+            return False
+        log(f"    voice line failed but the free limit is not over - trying again ({i + 1})")
+        time.sleep(30 + 30 * i)
+    return False
+
+
 def _tts_call(requests_to_try):
     """requests_to_try: [(model, url, body)] in order of preference. Returns raw audio bytes or None."""
     import base64 as _b64
@@ -1780,8 +1800,10 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
         if TTS_STATE["off"]:
             return False
         el = time.time() - t0
-        if el > minutes * 60 or (gi >= 3 and el / gi * len(groups) > minutes * 60):
-            log("  expressive voices too slow today")
+        # slow is fine - Gemini is still the fastest good voice. We only stop when its free limit is really
+        # over (TTS_STATE off / a failed line) or after a hard safety cap so the GitHub job is never killed.
+        if el > float(env("TTS_MAX_MINUTES") or 180) * 60:
+            log("  expressive voices: safety time limit reached")
             return False
         ok = False
         spk = []
@@ -1819,9 +1841,10 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
                     ok = True
         if not ok:                                    # one line per request for this group
             for x in g:
-                if not tts_gemini(x["text"], x["voice"],
-                                  f"Character: {x['who']}. Emotion: {x['feel']}. " + PRONOUNCE.get(x.get("lang", "bn"), ""),
-                                  lang_label, x["out"], sr):
+                if not _line_until_quota_ends(lambda: tts_gemini(
+                        x["text"], x["voice"],
+                        f"Character: {x['who']}. Emotion: {x['feel']}. " + PRONOUNCE.get(x.get("lang", "bn"), ""),
+                        lang_label, x["out"], sr)):
                     return False
         done += len(g)
         log(f"  voices: {done}/{len(items)} lines ({(time.time() - t0) / 60:.1f} min)")
@@ -1980,8 +2003,10 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
         if TTS_STATE["off"]:
             return False
         el = time.time() - t0
-        if el > minutes * 60 or (gi >= 3 and el / gi * len(groups) > minutes * 60):
-            log("  expressive voices too slow today")
+        # slow is fine - Gemini is still the fastest good voice. We only stop when its free limit is really
+        # over (TTS_STATE off / a failed line) or after a hard safety cap so the GitHub job is never killed.
+        if el > float(env("TTS_MAX_MINUTES") or 180) * 60:
+            log("  expressive voices: safety time limit reached")
             return False
         spk = []
         for x in g:
@@ -2008,8 +2033,9 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
                     ok = True
         if not ok:
             for x in g:
-                if not tts_gemini(x["text"], x["voice"], f"{x['who']}. {x['feel']}. " + PRONOUNCE.get(lang, ""),
-                                  lang_label, x["out"], sr):
+                if not _line_until_quota_ends(lambda: tts_gemini(
+                        x["text"], x["voice"], f"{x['who']}. {x['feel']}. " + PRONOUNCE.get(lang, ""),
+                        lang_label, x["out"], sr)):
                     return False
         done += len(g)
         log(f"  voices: {done}/{len(items)} lines ({(time.time() - t0) / 60:.1f} min)")
