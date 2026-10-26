@@ -423,7 +423,16 @@ Story rules:
   * the ghost is shown little by little (a shadow, then a voice, then a face) - the full reveal comes late;
   * 2-3 real jump scares, and a shocking twist ending that makes people comment.
   Keep the narration moving at a natural pace - short punchy sentences in tense moments.
-- Spooky and suspenseful, NOT gory: no blood, no violence details, no harm to children, nothing sexual.
+- TERRIFYING but NOT gory: no blood, no violence details, no harm to children, nothing sexual. The fear can be
+  very strong: the ghost's horrifying look described slowly (hollow black eyes, a neck turned the wrong way, feet
+  turned backward, long wet hair over the face, nails scraping wood), a ghost that is cunning and getting closer
+  every scene, someone who vanishes in the night, a death that is only hinted at (found the next morning, eyes
+  open, cold as ice), a real threat to the hero until the very last line.
+- EXACT, CORRECT WORDS: every word must be a real, correctly spelled word with exactly the right meaning; no
+  made-up words, no word-for-word translation from English, no wrong word just because it sounds similar. Use
+  strong, vivid, precise horror words (e.g. Bengali: গা ছমছমে, হিমশীতল, শিরদাঁড়া বেয়ে, ফিসফিস, খসখস, ঠকঠক,
+  দপদপ করে নিভে গেল, পচা ফুলের গন্ধ, রক্ত জল করা হাসি) instead of flat words like 'ভয় লাগল'. Before
+  answering, re-read every line once and correct any wrong or unnatural word.
 - 2 to 4 characters plus a narrator. Real dialogue between characters (short, natural lines).
 - Each scene has 4 to 7 lines. The narrator describes; characters speak only their own words
   (no "he said" inside dialogue). Narrator lines 25-50 words, dialogue lines 4-20 words.
@@ -433,6 +442,9 @@ Story rules:
 - SOUND DESIGN like a radio horror drama: for every line think what the listener should HEAR.
   When a line mentions a door, footsteps, knocking, wind, rain, a scream, bells, a phone, breaking glass,
   put that exact sound in that line's "sfx" with the right timing. 0-3 sfx per line, only real story events.
+  SOUND MUST BE IN SYNC: if the words of the line name the sound ("দরজায় টোকা", "নূপুরের শব্দ", "চিৎকার"), give
+  that exact word in "word" so the sound plays at that very moment - never a sound before or after the words
+  that describe it. A sound the character REACTS to ("কে ওখানে?") comes "before" the line.
   Be very specific so a real recording can be found ('rusty iron gate creaks open', 'barefoot steps on wet floor',
   'anklet bells (ghungroo) jingling slowly', 'woman laughing in the distance', 'heavy breathing close to ear').
   Every time the ghost comes near, add a ghost sound (cold wind gust, whisper, ghungroo, low growl, slow breathing).
@@ -478,7 +490,8 @@ Return ONLY JSON with exactly these keys:
                 "delivery": "ENGLISH acting direction for the voice (pitch, speed, loudness, feeling)",
                 "voice_text": "same words as text, with 0-2 sound tags like <gasp> or <sigh> where they fit",
                 "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
-                          "when": "before (sound first, then the line), during, or after (line first, then the sound)"}}],
+                          "word": "the EXACT word of this line's text (copied letter by letter) at which the sound is heard, e.g. for 'হঠাৎ দরজায় তিনবার টোকা পড়ল' the word is 'টোকা' - the sound plays exactly on that word; '' if the sound is not mentioned in the words",
+                          "when": "only when word is '': before (sound first, then the line), during, or after (line first, then the sound)"}}],
                 "jump_scare": false,
                 "ghost_laugh": "",
                 "image": {{"prompt": "ENGLISH picture prompt for THIS line, 30-50 words, like a horror film still: WHO/WHAT is in frame and their exact action, pose and facial expression matching the words of this line, WHERE (which part of the setting), camera (extreme close-up / close-up / wide / over-the-shoulder / low angle), light source (lantern, moonlight, lightning), key objects. Only things that can be SEEN. Every line gets a different picture that matches its words exactly",
@@ -1582,6 +1595,32 @@ def write_wav(path, a):
 SCENE_FX = {}          # scene index -> {"jump": [seconds], "flash": [seconds]} for the camera effects
 
 
+def word_time(a, text, word):
+    """When (seconds into the spoken line) is this word said? The words are spread over the time the voice
+    is really sounding (pauses skipped), so a knock lands exactly on 'knock', not before or after the line."""
+    np = _np()
+    w = str(word or "").strip(" .,!?।\"'")
+    if not w:
+        return None
+    k = text.find(w)
+    if k < 0:                                     # small spelling differences: try the first part of the word
+        k = text.find(w[:max(2, len(w) * 2 // 3)])
+    if k < 0:
+        return None
+    frac = k / max(1, len(text))
+    hop = int(SR * 0.02)
+    m = len(a) // hop
+    if m < 3:
+        return frac * len(a) / SR
+    rms = np.sqrt(np.mean(a[:m * hop].reshape(m, hop) ** 2, axis=1))
+    voiced = rms > max(0.02, 0.12 * np.percentile(rms, 95))
+    cum = np.cumsum(voiced)
+    if cum[-1] == 0:
+        return frac * len(a) / SR
+    i = int(np.searchsorted(cum, frac * cum[-1]))
+    return min(i, m - 1) * hop / SR
+
+
 def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=None, place=""):
     """Like a radio drama: every line is spoken with its own voice + emotion, and each sound
     effect is placed exactly where the story says it happens (before / during / after the line).
@@ -1596,6 +1635,9 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         if not text:
             continue
         sfx = [x for x in (ln.get("sfx") or []) if isinstance(x, dict) and x.get("sound")]
+        # a sound tied to a word of the line plays exactly on that word (in sync with the voice)
+        on_word = [x for x in sfx if str(x.get("word", "")).strip() and str(x["word"]).strip(" .,!?।") in text]
+        sfx = [x for x in sfx if x not in on_word]
         before = [x for x in sfx if str(x.get("when", "")).startswith("before")]
         during = [x for x in sfx if str(x.get("when", "")).startswith("during")]
         after = [x for x in sfx if str(x.get("when", "")).startswith("after")]
@@ -1644,6 +1686,11 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         sp = ascii_text(ln.get("speaker", "")).lower()
         is_nar = (not sp) or sp.startswith("narrat") or voices.cast.find(sp) is None
         subs.append((t, len(a) / SR, is_nar, text))
+        for x in on_word[:3]:
+            wt = word_time(a, text, x.get("word"))
+            snd = get_oneshot(x["sound"], rnd, max_sec=6.0)
+            if snd is not None and wt is not None:
+                cues.append((t + max(0.0, wt - 0.05), snd, 0.75, x["sound"]))
         for x in during[:3]:
             snd = get_oneshot(x["sound"], rnd, max_sec=min(6.0, len(a) / SR + 1))
             if snd is not None:
@@ -1706,7 +1753,7 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     for s0, s1 in silences:
         quiet[int(s0 * SR):int(s1 * SR)] = 0.08
     quiet = _filt(quiet, "lowpass", 6, 1)
-    duck = (1 - 0.6 * talk) * quiet
+    duck = (1 - 0.35 * talk) * quiet            # the place's sound keeps going under the words (not only between lines)
     mixL = vL * 0.95 + bedL * duck + fxL * (1 - 0.3 * talk)
     mixR = vR * 0.95 + bedR * duck + fxR * (1 - 0.3 * talk)
     peak = max(np.abs(mixL).max(), np.abs(mixR).max())

@@ -1538,8 +1538,12 @@ STORY CRAFT (very important - the story must feel rich and alive, not a summary)
 WRITING_RULES = {
     "bn": """
 BENGALI WRITING (it will be read aloud by a voice engine, so pronunciation must come out right):
-- Standard, natural Kolkata চলিত বাংলা (the way a good Bengali radio storyteller speaks). Never সাধু ভাষা
-  (no করিয়াছিল / তাহার), no Bangladeshi or village dialect spellings unless a character is meant to speak so.
+- Pure, standard Kolkata চলিত বাংলা ONLY (the way a good Kolkata radio storyteller speaks - শুদ্ধ চলিত ভাষা):
+  করছিল / গিয়েছিল / তাকাল / বলল / এখানে / ওখানে / কেন / কী. Never সাধু ভাষা (no করিয়াছিল / তাহার / যাইতেছে),
+  never Bangladeshi forms (no করসে / গেসে / কইলো / পানি / আসেন না ক্যান), never village dialect - not even
+  for village characters; old people may only sound older (slower, with old sayings), still in চলিত বাংলা.
+- No Hindi or Urdu words where a Bengali word exists (not 'লেকিন', 'মগর', 'বহুত', 'দরওয়াজা'), no English words
+  in the lines (write 'ভূত', 'দরজা', 'আলো', 'টর্চ' only if that is what Kolkata people really say).
 - Correct Bengali spelling (বানান) - especially ী/ি, ূ/ু, ণ/ন, শ/ষ/স, য-ফলা, র-ফলা and যুক্তাক্ষর.
   Use proper Bengali punctuation (। , ? ! ...).
 - Write numbers in words (তিনটে, সাতাশ, দুশো), never digits. No abbreviations, no emoji, no English letters
