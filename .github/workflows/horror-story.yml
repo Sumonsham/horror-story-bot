@@ -69,7 +69,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python packages
-        run: pip install -q requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
+        run: pip install -q fonttools requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
 
       - name: Keep the free voice model saved between runs
         if: env.USE_FREE_MODEL == '1'
@@ -95,6 +95,7 @@ jobs:
       - name: Make the horror video and post it
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FREEMODEL_API_KEY: ${{ secrets.FREEMODEL_API_KEY }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID_2: ${{ secrets.CF_ACCOUNT_ID_2 }}
