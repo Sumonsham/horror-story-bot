@@ -78,6 +78,15 @@ LANGS = {
         "taranath": "तारानाथ तांत्रिक #{n}", "taranath_pl": "तारानाथ तांत्रिक की कहानियाँ - Taranath Tantrik",
         "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
         "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
+        "show_21": "रात नौ बजे का डर", "show_13": "मशहूर भूतिया कहानियाँ",
+        "open_21": "रात के नौ बज गए हैं... कमरे की बत्ती बुझा दीजिए, हेडफ़ोन कानों में लगा लीजिए... शुरू हो रहा है 'रात नौ बजे का डर'।",
+        "open_13": "शुरू हो रही हैं 'मशहूर भूतिया कहानियाँ'... हेडफ़ोन लगा लीजिए... और अगर आप अकेले हैं, तो ज़रा संभलकर सुनिए।",
+        "open_karna": "कर्णपिशाचिनी... वो आत्मा जो कान में हर सच फुसफुसा देती है... पर उसकी क़ीमत बहुत भयानक है।",
+        "next_own": "और कल रात नौ बजे... '{title}'। {hook} कल रात नौ बजे, मिस मत कीजिए।",
+        "next_classic": "कल दोपहर एक बजे... {writer} की मशहूर कहानी '{title}'। ज़रूर सुनिए।",
+        "next_karna": "कल दोपहर एक बजे... कर्णपिशाचिनी का नया केस। वो फिर फुसफुसाएगी... ज़रूर आइए।",
+        "guess_line": "रुकिए... एक पल यहीं रुकिए। आपको क्या लगता है? {q} एक, {o1}। दो, {o2}। तीन, {o3}। कमेंट में सिर्फ़ नंबर लिखिए - सही जवाब देने वालों का नाम अगले वीडियो में लिया जाएगा।",
+        "at_13": "आज दोपहर 1 बजे पूरी कहानी", "at_21": "आज रात 9 बजे पूरी कहानी",
         "how_to_join": "आप भी इस कहानी का हिस्सा बनिए! कमेंट में जवाब दीजिए, जिनका जवाब सही होगा उनका नाम अगले वीडियो में लिया जाएगा। और अपनी सच्ची डरावनी घटना कमेंट में हैशटैग मेरी कहानी लिखकर भेजिए, सबसे अच्छी घटना पर आपके नाम के साथ कहानी बनेगी।",
         "shout_line": "पिछली कहानी में सही जवाब दिया था {names} ने। आप सबको बधाई!",
         "viewer_credit": "आज की ये कहानी हमें भेजी थी {name} ने। धन्यवाद {name}! आप भी अपनी घटना भेजिए।",
@@ -115,6 +124,15 @@ LANGS = {
         "taranath": "তারানাথ তান্ত্রিক #{n}", "taranath_pl": "তারানাথ তান্ত্রিকের গল্প - Taranath Tantrik",
         "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
         "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
+        "show_21": "রাত ন'টার ভয়", "show_13": "বিখ্যাত ভূতের গল্প",
+        "open_21": "রাত ন'টা বাজল... ঘরের আলোটা নিভিয়ে দিন, হেডফোনটা কানে দিন... শুরু হচ্ছে 'রাত ন'টার ভয়'।",
+        "open_13": "শুরু হচ্ছে 'বিখ্যাত ভূতের গল্প'... হেডফোনটা কানে দিন... আর যদি একা থাকেন, তাহলে একটু সাবধানে শুনবেন।",
+        "open_karna": "কর্ণপিশাচিনী... যে আত্মা কানে কানে সব সত্যি বলে দেয়... কিন্তু তার দাম বড় ভয়ঙ্কর।",
+        "next_own": "আর কাল রাত ন'টায়... '{title}'। {hook} কাল রাত ন'টায়, মিস করবেন না।",
+        "next_classic": "কাল দুপুর একটায়... {writer} বিখ্যাত গল্প '{title}'। অবশ্যই শুনবেন।",
+        "next_karna": "কাল দুপুর একটায়... কর্ণপিশাচিনীর নতুন কেস। সে আবার কানে কানে ফিসফিস করবে... অবশ্যই আসবেন।",
+        "guess_line": "দাঁড়ান... এক মুহূর্ত এখানে থামুন। আপনার কী মনে হয়? {q} এক, {o1}। দুই, {o2}। তিন, {o3}। কমেন্টে শুধু নম্বরটা লিখুন - যাঁদের উত্তর ঠিক হবে, পরের ভিডিওতে তাঁদের নাম বলা হবে।",
+        "at_13": "আজ দুপুর ১টায় পুরো গল্প", "at_21": "আজ রাত ৯টায় পুরো গল্প",
         "how_to_join": "আপনিও এই গল্পের অংশ হয়ে উঠুন! কমেন্টে উত্তর দিন, যাঁদের উত্তর ঠিক হবে পরের ভিডিওতে তাঁদের নাম বলা হবে। আর আপনার জীবনের সত্যি ভৌতিক ঘটনা কমেন্টে হ্যাশট্যাগ আমার গল্প লিখে পাঠান, সেরা ঘটনা নিয়ে আপনার নাম সহ গল্প হবে।",
         "shout_line": "আগের গল্পে ঠিক উত্তর দিয়েছিলেন {names}। আপনাদের সবাইকে অভিনন্দন!",
         "viewer_credit": "আজকের এই গল্পটা আমাদের পাঠিয়েছিলেন {name}। ধন্যবাদ {name}! আপনিও আপনার ঘটনা পাঠান।",
@@ -393,6 +411,65 @@ def karna_rule(history, lang):
                              "first learns that Nilkantha 'knows everything'", looks=json.dumps(KARNA))
 
 
+PROMISE_FILE = os.path.join(HERE, "assets", "next_up.json")
+STATE = {}                   # this run's time slot and series (for the trailer)
+
+
+def load_promise(slot_hour):
+    """yesterday's video promised this story for this time slot"""
+    try:
+        with open(PROMISE_FILE, encoding="utf-8") as f:
+            p = json.load(f).get(str(slot_hour))
+        made = dt.datetime.fromisoformat(p["made"])
+        if p.get("idea") and (dt.datetime.now(dt.timezone.utc) - made).days <= 3:
+            return p
+    except Exception:
+        pass
+    return None
+
+
+def save_promise(story, slot_hour, lang, continues):
+    ns = story.get("next_story") if isinstance(story.get("next_story"), dict) else {}
+    try:
+        data = {}
+        if os.path.exists(PROMISE_FILE):
+            with open(PROMISE_FILE, encoding="utf-8") as f:
+                data = json.load(f)
+        if slot_hour == 21 and not continues and ns.get("title") and ns.get("idea"):
+            data["21"] = {"title": str(ns["title"])[:60], "hook": str(ns.get("hook", ""))[:200],
+                          "idea": str(ns["idea"])[:600], "lang": lang,
+                          "made": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")}
+        else:
+            data.pop(str(slot_hour), None)           # the promise is kept: remove it
+        os.makedirs(os.path.dirname(PROMISE_FILE), exist_ok=True)
+        with open(PROMISE_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+    except Exception as e:
+        log("  next-story promise not saved:", str(e)[:120])
+
+
+def next_preview(story, history, lang, slot_hour, classic):
+    """the last words of the video: what comes tomorrow in this time slot"""
+    L = LANGS[lang]
+    k = 0 if lang == "bn" else 1
+    if slot_hour == 21:
+        ns = story.get("next_story") if isinstance(story.get("next_story"), dict) else {}
+        if ns.get("title"):
+            return L["next_own"].format(title=str(ns["title"]).strip(), hook=str(ns.get("hook", "")).strip())
+        return None
+    tomorrow = (dt.datetime.now(extras.IST) + dt.timedelta(days=1)).weekday()
+    karna_days = [int(x) for x in re.findall(r"\d", env("KARNA_DAYS") or "1,4")]
+    classic_days = [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "0,2,3,5,6")]
+    if tomorrow in karna_days and env("KARNA") != "0":
+        return L["next_karna"]
+    if tomorrow in classic_days and env("CLASSICS") != "0":
+        used = {h.get("classic_id") for h in history if h.get("lang") == lang} | ({classic[0]} if classic else set())
+        c = next((c for c in CLASSICS if c[0] not in used), CLASSICS[0])
+        writer = bn_of(c[1][0]) if lang == "bn" else c[1][1]
+        return L["next_classic"].format(writer=writer, title=c[3][k])
+    return None
+
+
 def pick_theme(history):
     used = [h.get("theme") for h in history[-12:]]
     options = [t for t in THEMES if t not in used] or THEMES
@@ -401,6 +478,59 @@ def pick_theme(history):
 
 # ----------------------------------------------------------------- 1. story (Gemini)
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
+
+
+def edit_story(story, lang, classic=False):
+    """A second pass by a 'chief editor' (like a publisher's editor): scores the story and rewrites the weak parts
+    - more fear, a fairer and bigger twist, logic, scenes flowing into each other, natural dialogue, correct
+    language. Returns the better story, or the original if anything goes wrong."""
+    if MOCK or env("EDITOR") == "0":
+        return story
+    key = env("GEMINI_API_KEY")
+    if not key:
+        return story
+    L = LANGS[lang]
+    words0 = sum(len(str(ln.get("text", "")).split()) for sc in story.get("scenes", []) for ln in sc.get("lines", []))
+    rule = ("This is a retelling of a famous classic: do NOT change its events, characters or ending - improve only "
+            "the telling (suspense, dialogue, sound, pictures, language)." if classic else
+            "Improve the plot too where it is weak: a bigger, fairer twist, a cleverer ghost, a stronger ending.")
+    prompt = f"""You are the chief editor of India's most successful horror audio-drama channel.
+Here is a {L['name']} horror story script as JSON. First judge it honestly (1-10) on: real fear and dread, the twist
+(surprising but fair), logic and consistency (names, time, place, who knows what), each scene flowing into the next,
+natural dialogue with feeling, a hook in the first lines, sound design that matches the words exactly, and correct,
+natural {L['name']} ({'pure Kolkata cholit Bengali, correct spelling' if lang == 'bn' else 'natural correct Hindi'}).
+Then REWRITE every weak line and scene to make it a 10. {rule}
+Keep EXACTLY the same JSON structure and ALL keys (every scene, line, sfx, image, people, ghost_reveal, guess,
+next_story...), the same characters with the same names and looks, and at least the same length (more is fine).
+Add one key "editor_scores": {{"fear": n, "twist": n, "logic": n, "flow": n, "dialogue": n, "language": n}} with the
+scores of YOUR improved version. Return ONLY the complete improved JSON.
+
+STORY JSON:
+{json.dumps(story, ensure_ascii=False)}"""
+    body = {"contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.8, "responseMimeType": "application/json", "maxOutputTokens": 60000}}
+    for model in gemini_models(key)[:4]:
+        try:
+            log(f"Editor checking the story with {model} ...")
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json=body, timeout=360)
+            if not r.ok:
+                log(f"  editor: {model} {r.status_code}")
+                continue
+            new = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+            sc = new.get("scenes") or []
+            words = sum(len(str(ln.get("text", "")).split()) for s in sc for ln in s.get("lines", []) or [])
+            if (new.get("title") and len(sc) >= max(6, int(len(story["scenes"]) * 0.8)) and
+                    all(s.get("lines") for s in sc) and words >= words0 * 0.9):
+                for k, v in story.items():               # anything the editor dropped stays as it was
+                    new.setdefault(k, v)
+                log(f"  editor improved the story ({words0} -> {words} words), scores: {new.get('editor_scores')}")
+                return new
+            log(f"  editor's version not complete enough ({len(sc)} scenes, {words} words) - keeping the original")
+            return story
+        except Exception as e:
+            log(f"  editor ({model}) failed: {str(e)[:150]}")
+    return story
 
 
 def gemini_models(key):
@@ -629,6 +759,12 @@ Story rules:
 - Telling style for this story: {fmt}
 {series_rule}{extra_rules}
 - Every picture must show exactly what that scene's lines describe.
+- PLANT A CLUE: in the first two scenes show one small, innocent-looking thing (an old key, a scratch on the wall,
+  a line of a lullaby, a smell) - at the end it turns out to be the key to the whole horror.
+- BACKGROUND SOUND MUST BE EXACT: each scene's "ambience" is ONLY what can really be heard in that exact place at
+  that time (indoors at night with rain outside = 'heavy rain heard from inside a closed room'; a village pond at
+  dusk = 'frogs and crickets at a village pond'). Never a sound that is not there. Each sfx only for a real event
+  in the words.
 - SCENES FLOW INTO EACH OTHER like a film: the end of every scene leads straight into the start of the next (the
   same moment continuing, a sound or a question that the next scene picks up, or a clear time/place bridge such
   as 'that night...', 'the next morning at the station...'). Never jump to an unrelated moment; the listener must
@@ -696,7 +832,9 @@ Return ONLY JSON with exactly these keys:
  "comment_question": "one short {L['name']} question to viewers that makes them comment (e.g. 'आप होते तो क्या करते?'), with 1 emoji",
  "mystery_answer": "only for a which-suspect mystery: the right number (1, 2 or 3) as asked in the story; otherwise 0",
  "teaser_scene": "number: the scene (1 = first) where the most gripping 50 seconds START - used for the Reel/Short teaser",
- "ghost_reveal": {{"<each ghost's name>": "number: the scene (1 = first) where the LISTENERS first realise this character is a ghost (before that it speaks like a normal person)"}}
+ "ghost_reveal": {{"<each ghost's name>": "number: the scene (1 = first) where the LISTENERS first realise this character is a ghost (before that it speaks like a normal person)"}},
+ "guess": {{"question": "{L['name']}: ONE short question for the viewers at the middle of the story about what is really going on / who is behind it / what happens next (max 14 words)", "options": ["3 short {L['name']} answers (2-6 words), only one right"], "answer": "1, 2 or 3: the right option (revealed by the ending)"}},
+ "next_story": {{"title": "{L['name']} title of a DIFFERENT, brand-new horror story for tomorrow (max 40 characters)", "hook": "ONE chilling {L['name']} sentence that makes people wait for it (max 18 words)", "idea": "ENGLISH, 2-3 sentences: its premise, place and the central horror (it will be written tomorrow exactly from this)"}}
 }}
 Every scene object also has "chapter": "2-4 word {L['name']} chapter name for YouTube chapters".
 """
@@ -1621,13 +1759,30 @@ def freesound(query, loop):
                    "clock": "clock ticking", "owl": "owl hoot", "howl": "dog howling night", "drip": "water drip",
                    "whisper": "whisper", "crickets": "crickets night", "scare_hit": "horror impact"}
         g = generic.get(_keyword_tag(query) or "", "")
-        tries = [" ".join(words), " ".join(core)] + pairs + core[:2] + ([g] if g else [])
+        # only the exact sound: no single loose words (they bring unrelated sounds), and every recording must
+        # really be about this sound (its name / tags contain the important words of what the story says)
+        tries = [" ".join(words), " ".join(core)] + pairs + ([g] if g else [])
+        adj = {"slow", "fast", "loud", "soft", "quiet", "distant", "heavy", "light", "big", "small", "long", "short",
+               "eerie", "creepy", "scary", "dark", "night", "close", "faint", "deep", "low", "high", "sudden"}
+        keyw = [w for w in core if len(w) > 2 and w not in adj]
+
+        def stem(w):
+            for suf in ("ing", "es", "s", "ed"):
+                if w.endswith(suf) and len(w) - len(suf) >= 3:
+                    return w[:-len(suf)]
+            return w
+
+        def relevant(x, q):
+            hay = (str(x.get("name", "")) + " " + " ".join(x.get("tags") or [])).lower()
+            want = [stem(w) for w in (q.split() if q == g else keyw)]
+            hits = sum(1 for w in want if w in hay)
+            return hits >= max(1, min(2, (len(want) + 1) // 2))
         res = []
         for q in dict.fromkeys(t for t in tries if t):
             r = requests.get("https://freesound.org/apiv2/search/", timeout=30, params={
-                "query": q, "token": key, "fields": "id,name,duration,previews,avg_rating,num_downloads",
-                "filter": f'license:"Creative Commons 0" duration:{dur}', "sort": "score", "page_size": 8})
-            res = r.json().get("results", []) if r.ok else []
+                "query": q, "token": key, "fields": "id,name,tags,duration,previews,avg_rating,num_downloads",
+                "filter": f'license:"Creative Commons 0" duration:{dur}', "sort": "score", "page_size": 12})
+            res = [x for x in (r.json().get("results", []) if r.ok else []) if relevant(x, q)]
             if res:
                 # among the most relevant, prefer well-liked, much-used recordings (better quality)
                 res = sorted(res[:5], key=lambda x: (x.get("avg_rating") or 0) * 10 + min(x.get("num_downloads") or 0, 5000) / 500,
@@ -1884,6 +2039,25 @@ def word_time(a, text, word):
     return min(i, m - 1) * hop / SR
 
 
+SHOW_STING = True
+
+
+def signature_sting():
+    """The show's sound signature (always identical): a cold breath, two slow heartbeats, a deep hit."""
+    np = _np()
+    r = np.random.default_rng(4242)
+    n = int(SR * 3.2)
+    out = np.zeros(n)
+    w = synth("whisper", int(SR * 1.6), r) * np.linspace(0, 1, int(SR * 1.6)) ** 2 * 0.6
+    out[:len(w)] += w
+    hb = synth("heartbeat", int(SR * 1.2), r) * 0.8
+    out[int(SR * 0.9):int(SR * 0.9) + len(hb)] += hb[:n - int(SR * 0.9)]
+    hit = synth("scare_hit", int(SR * 1.2), r)
+    s = int(SR * 2.0)
+    out[s:s + len(hit)] += hit[:n - s]
+    return out / (np.abs(out).max() + 1e-9) * 0.85
+
+
 def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=None, place=""):
     """Like a radio drama: every line is spoken with its own voice + emotion, and each sound
     effect is placed exactly where the story says it happens (before / during / after the line).
@@ -1893,6 +2067,9 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     rnd = np.random.default_rng(1000 + idx)
     gap, lead, tail = 0.35, 0.5, 1.0
     pieces, subs, cues, silences, t = [], [], [], [], lead
+    if idx == 0 and SHOW_STING:                       # our show's own opening sound - the same every day
+        cues.append((0.05, signature_sting(), 0.9, "sting"))
+        t += 2.2
     for j, ln in enumerate(lines):
         text = str(ln.get("text", "")).strip()
         if not text:
@@ -1918,8 +2095,10 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
                 t += min(len(lg) / SR, 4.0) * 0.8 + 0.1
                 log("    ghost laugh added")
         if ln.get("jump_scare"):
-            # classic jump scare: everything goes almost silent, then a sudden hit
-            silences.append((max(0.0, t - 0.9), t))
+            # a real jump scare: a long, held silence (only a slow heartbeat) ... then the sudden hit
+            t += 1.4
+            silences.append((max(0.0, t - 2.4), t))
+            cues.append((t - 1.35, synth("heartbeat", int(SR * 1.3), rnd) * 0.45, 0.8, "heartbeat"))
             cues.append((t, synth("scare_hit", int(SR * 2.5), rnd), 1.0, "scare_hit"))
             t += 0.45
         spec = voices.for_speaker(ln.get("speaker", "narrator"))
@@ -2738,7 +2917,9 @@ def main():
     prev = load_next_part()
     series_waiting = prev is None and load_next_part(ready_only=False) is not None   # next part comes tomorrow
     festival, special, extra_rules, viewer = None, "", "", None
-    classic, plain_rules = None, ""
+    classic, plain_rules, promised = None, "", None
+    slot_hour = int(str(SLOT).split("@")[1]) if SLOT and "@" in str(SLOT) else 21
+    STATE["slot_hour"] = slot_hour
     shout_names, shout_ids = [], []
     lastp = extras.last_post(history)                # who answered the last video's question right?
     if lastp and not MOCK and not lastp.get("continues", lastp.get("part") == 1) and (lastp.get("mystery_answer") or lastp.get("hidden")):
@@ -2800,6 +2981,13 @@ def main():
             plain_rules = extra_rules
             extra_rules += classic_rule(classic, lang)
             log(f"Famous writer's story: {classic[4]}")
+        elif not festival and env("MODE") != "amavasya" and load_promise(slot_hour):
+            promised = load_promise(slot_hour)
+            theme = promised["idea"]
+            extra_rules += (f"\nPROMISED STORY: yesterday we promised the viewers exactly this story - title "
+                            f"'{promised['title']}', hook: '{promised['hook']}'. Use exactly this title (in "
+                            f"{LANGS[lang]['name']}) and deliver what the hook promises.\n")
+            log(f"Yesterday's promised story: {promised['title']}")
         elif not festival and not part and env("MODE") != "amavasya":
             used = {h.get("viewer_story_id") for h in history}
             last_v = max((h.get("date", "") for h in history if h.get("viewer_story_id")), default="")
@@ -2849,6 +3037,8 @@ def main():
         special, classic, theme = None, None, pick_theme(history)
         extra_rules = plain_rules + MASTER_STYLE
         story = make_story(lang, theme, history, fmt=fmt, part=0, prev=prev, extra_rules=extra_rules, total=2)
+    story = edit_story(story, lang, classic=special == "classic")
+    STATE["special"] = special
     ensure_ghost_laughs(story)
     mark_reveals(story)
     if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
@@ -2998,7 +3188,8 @@ def main():
     t_prompt = extras.poster_prompt("horror", {**ti, "hero": hero, "second": gname}, describe, "", cast.setting)
     if not extras.hq_image(t_prompt, thumb_base, seed):
         if not make_image(cast, t_prompt, "", [n for n in (hero, gname) if n], thumb_base, seed):
-            shutil.copy(first_ok, thumb_base)
+            gf_ = os.path.join(WORK, "ghost_face.jpg")
+            shutil.copy(gf_ if os.path.exists(gf_) else first_ok, thumb_base)   # the ghost is always on it
     thumb = os.path.join(WORK, "thumbnail.jpg")
     series_bn = {"taranath": L["taranath"].split(" #")[0], "karna": L["karna"].split(" #")[0], "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "")
                  .replace(" का केस", "")}.get(special)
@@ -3012,7 +3203,18 @@ def main():
 
     clean_title = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?-]", "", title).strip()
     page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or L["page_default"]
-    parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "text": L["intro"].format(title=clean_title)}],
+    g = story.get("guess") if isinstance(story.get("guess"), dict) else {}
+    gopts = [str(o).strip() for o in (g.get("options") or []) if str(o).strip()][:3]
+    if (not continues and not str(story.get("mystery_answer", "0")).strip()[:1] in "123" and g.get("question")
+            and len(gopts) == 3 and str(g.get("answer", "")).strip()[:1] in ("1", "2", "3") and len(scenes) >= 4):
+        mid = scenes[len(scenes) // 2 - 1]           # the viewers guess at the middle: comment 1, 2 or 3
+        mid.setdefault("lines", []).append({"speaker": "narrator", "emotion": "eerie", "text": L["guess_line"].format(
+            q=str(g["question"]).strip(), o1=gopts[0], o2=gopts[1], o3=gopts[2])})
+        story["mystery_answer"] = int(str(g["answer"]).strip()[0])
+        log(f"Viewers' guess at scene {len(scenes) // 2}: answer {story['mystery_answer']}")
+    opener = L["open_karna"] if special == "karna" else L["open_13"] if slot_hour == 13 else L["open_21"]
+    parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": opener},
+                                            {"speaker": "narrator", "text": L["intro"].format(title=clean_title)}],
               "sounds": ["wind"], "mood": "creepy", "voices": voices}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
@@ -3037,6 +3239,9 @@ def main():
         end_lines.append({"speaker": "narrator", "text": L["vote_thanks"].format(names=lang_names(vote_names))})
     if shout_names:
         end_lines.append({"speaker": "narrator", "text": L["shout_line"].format(names=lang_names(shout_names))})
+    nxt = None if continues or env("MODE") == "amavasya" else next_preview(story, history, lang, slot_hour, classic)
+    if nxt:                                          # "tomorrow at 9 PM..." - so people wait for it
+        end_lines.append({"speaker": "narrator", "emotion": "eerie", "text": nxt})
     end_lines.append({"speaker": "narrator", "text": L["how_to_join"]})
     end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if continues else L["outro"]).format(page=page)})
     parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
@@ -3096,6 +3301,8 @@ def main():
                     "episode_summary": str(story.get("episode_summary", ""))[:400] if special == "karna" else None,
                     "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
+    if not MOCK and not DRY_RUN:
+        save_promise(story, slot_hour, lang, continues)
     if not MOCK:
         save_history(history)
         if continues:
@@ -3283,16 +3490,176 @@ def make_compilation(history):
         save_history(history)
 
 
+# ----------------------------------------------------------------- the Reel: a film trailer
+def _card(path, lines, sizes, colors, bg=None):
+    """a 9:16 title card: big text on black (or on a dark picture)"""
+    from PIL import ImageEnhance
+    VW, VH = 720, 1280
+    if bg and os.path.exists(bg):
+        img = Image.open(bg).convert("RGB")
+        s = max(VW / img.width, VH / img.height)
+        img = img.resize((int(img.width * s) + 1, int(img.height * s) + 1))
+        img = img.crop(((img.width - VW) // 2, (img.height - VH) // 2, (img.width - VW) // 2 + VW, (img.height - VH) // 2 + VH))
+        img = ImageEnhance.Brightness(img).enhance(0.35)
+    else:
+        img = Image.new("RGB", (VW, VH), (0, 0, 0))
+    d = ImageDraw.Draw(img)
+    blocks = []
+    for text, size, col in zip(lines, sizes, colors):
+        rows, f, sz = extras._fit_text(d, extras.no_tofu(text), FONT, VW - 80, size, lines_max=3)
+        blocks.append((rows, f, sz, col))
+    total = sum(len(r) * int(sz * 1.35) for r, f, sz, c in blocks) + 30 * (len(blocks) - 1)
+    y = (VH - total) // 2
+    for rows, f, sz, col in blocks:
+        for r in rows:
+            tw = d.textlength(r, font=f)
+            d.text(((VW - tw) / 2, y), r, font=f, fill=col, stroke_width=max(3, sz // 14), stroke_fill=(0, 0, 0))
+            y += int(sz * 1.35)
+        y += 30
+    img.save(path, quality=92)
+    return path
+
+
+def _still_clip(img, sound, dur, out, zoom=False):
+    VW, VH = 720, 1280
+    wav = out + ".wav"
+    np = _np()
+    a = np.zeros(int(SR * dur))
+    if sound is not None:
+        a[:min(len(a), len(sound))] += sound[:len(a)]
+    write_wav(wav, a)
+    z = (f"zoompan=z='min(1+0.0035*on,1.25)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={int(dur * FPS) + 1}"
+         f":s={VW}x{VH}:fps={FPS}," if zoom else "")
+    run(["ffmpeg", "-y", "-loop", "1", "-i", img, "-i", wav, "-t", f"{dur:.2f}",
+         "-vf", f"scale={VW}:{VH},{z}format=yuv420p", "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast",
+         "-crf", "21", "-c:a", "aac", "-b:a", "160k", "-ar", "44100", "-ac", "2", "-shortest", out])
+    return out
+
+
+def _video_clip(video, st, dur, out, text=""):
+    """a moment of the film, shown big in 9:16 (blurred copy behind), with its own sound and its words as a
+    big caption (the picture without the wide video's subtitles, so nothing is cut off)"""
+    VW, VH = 720, 1280
+    fh = int(VH * 0.62) // 2 * 2
+    fw = int(fh * 16 / 9) // 2 * 2
+    clean_v = os.path.join(WORK, "joined.mp4")           # the film before the subtitles were burned in
+    src_v = clean_v if os.path.exists(clean_v) else video
+    src_a = os.path.join(WORK, "full.wav") if src_v == clean_v else video
+    cap = os.path.join(WORK, os.path.basename(out) + ".png")
+    img = Image.new("RGBA", (VW, VH), (0, 0, 0, 0))
+    if text:
+        d = ImageDraw.Draw(img)
+        rows, f, sz = extras._fit_text(d, text, FONT, VW - 70, 46, lines_max=3)
+        y = int(VH * 0.83) - len(rows) * int(sz * 1.3) // 2
+        for r in rows:
+            tw = d.textlength(r, font=f)
+            d.text(((VW - tw) / 2, y), r, font=f, fill=(255, 230, 0, 255), stroke_width=4, stroke_fill=(0, 0, 0, 255))
+            y += int(sz * 1.3)
+    img.save(cap)
+    fc = (f"[0:v]split[a][b];[a]scale=-2:{VH},crop={VW}:{VH},boxblur=22:2,eq=brightness=-0.3[bg];"
+          f"[b]scale={fw}:{fh},crop={VW}:{fh}[fg];[bg][fg]overlay=0:{(VH - fh) // 2}[m];[m][2:v]overlay=0:0,"
+          "format=yuv420p[v]")
+    run(["ffmpeg", "-y", "-ss", f"{st:.2f}", "-t", f"{dur:.2f}", "-i", src_v, "-ss", f"{st:.2f}", "-t", f"{dur:.2f}",
+         "-i", src_a, "-i", cap, "-filter_complex", fc, "-map", "[v]", "-map", "1:a", "-af", "afade=t=in:d=0.08",
+         "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-c:a", "aac", "-b:a", "160k",
+         "-ar", "44100", "-ac", "2", "-t", f"{dur:.2f}", out])
+    return out
+
+
+def make_trailer(video, story, title, lang, L, out, slot_hour, special):
+    """A cinema-trailer Reel (under a minute): a quiet cold open, title cards, quick cuts of the scariest moments
+    with hits in between, a held breath ... then the ghost's face, and the show's title card with the time."""
+    np = _np()
+    part_times, segs = TIMELINE
+    if len(part_times) < 3:
+        raise RuntimeError("too short for a trailer")
+    st0, st1 = part_times[1], part_times[-1]
+    limit = st0 + (st1 - st0) * 0.78                   # never show the ending
+    cand = [(s, d, nar, tx) for s, d, nar, tx in segs if st0 <= s < limit and d > 1.0]
+    if len(cand) < 4:
+        raise RuntimeError("not enough moments")
+    score = lambda c: (0 if c[2] else 2) + (1 if any(ch in c[3] for ch in "!?") else 0) + min(c[1], 4) / 4
+    n_cl = 6
+    span = (limit - st0) / n_cl
+    picks = []
+    for b in range(n_cl):
+        lo, hi = st0 + b * span, st0 + (b + 1) * span
+        inb = [c for c in cand if lo <= c[0] < hi]
+        if inb:
+            picks.append(max(inb, key=score))
+    rnd = np.random.default_rng(7)
+    hit = synth("scare_hit", int(SR * 1.2), rnd) * 0.9
+    boom = synth("scare_hit", int(SR * 2.0), rnd)
+    parts, k = [], 0
+
+    def nxt(name):
+        nonlocal k
+        k += 1
+        return os.path.join(WORK, f"tr_{k:02d}_{name}.mp4")
+    black = os.path.join(WORK, "tr_black.jpg")
+    Image.new("RGB", (720, 1280), (0, 0, 0)).save(black)
+    hook = str(story.get("thumbnail_text") or "").strip()
+    first = picks[0]
+    parts.append(_video_clip(video, first[0] - 0.15, min(first[1], 4.0) + 0.3, nxt("open"), first[3]))
+    if hook:
+        parts.append(_still_clip(_card(os.path.join(WORK, "tr_c1.jpg"), [hook], [64], [(255, 255, 255)]),
+                     boom, 1.8, nxt("card")))
+    for c in picks[1:4]:
+        parts.append(_still_clip(black, hit, 0.3, nxt("flash")))
+        parts.append(_video_clip(video, c[0] - 0.15, min(c[1], 3.6) + 0.25, nxt("cut"), c[3]))
+    when = L["at_13"] if slot_hour == 13 else L["at_21"]
+    if extras.PUBLISH.get("at") and extras.PUBLISH["at"] > dt.datetime.now(extras.IST):
+        parts.append(_still_clip(_card(os.path.join(WORK, "tr_c2.jpg"), [when], [70], [(255, 40, 40)]),
+                     boom, 1.4, nxt("when")))
+    for c in picks[4:]:
+        parts.append(_still_clip(black, hit, 0.25, nxt("flash")))
+        parts.append(_video_clip(video, c[0] - 0.1, min(c[1], 2.4) + 0.2, nxt("fast"), c[3]))
+    # a held breath ... the ghost
+    parts.append(_still_clip(black, synth("heartbeat", int(SR * 1.4), rnd) * 0.6, 1.4, nxt("breath")))
+    gface = os.path.join(WORK, "ghost_face.jpg")
+    ghost_img = gface if os.path.exists(gface) else os.path.join(WORK, "thumb_base.jpg")
+    scream = None
+    try:
+        gl = ghost_laugh_sound("female", rnd)
+        if gl is not None:
+            scream = gl * 0.9
+    except Exception:
+        pass
+    sc = boom.copy()
+    if scream is not None:
+        sc = np.concatenate([sc, np.zeros(max(0, len(scream) - len(sc)))])
+        sc[:len(scream)] += scream
+    parts.append(_still_clip(ghost_img, sc, 2.4, nxt("ghost"), zoom=True))
+    show = L["show_13"] if slot_hour == 13 else L["show_21"]
+    if special == "karna":
+        show = L["karna"].split(" #")[0]
+    clean = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?'-]", "", title).strip()
+    final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["cta"]], [50, 66, 46, 38],
+                  [(200, 200, 200), (255, 225, 0), (255, 60, 60), (255, 255, 255)], bg=ghost_img)
+    parts.append(_still_clip(final, signature_sting(), 3.4, nxt("title")))
+    lst = os.path.join(WORK, "trailer.txt")
+    with open(lst, "w") as f:
+        f.writelines(f"file '{os.path.basename(p)}'\n" for p in parts)
+    run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c:v", "libx264", "-preset", "veryfast",
+         "-crf", "22", "-r", str(FPS), "-c:a", "aac", "-b:a", "160k", "-ac", "2", "-movflags", "+faststart", out])
+    return out
+
+
 def grow(video, story, title, lang, L, tags, results, history, page):
     """Extra reach after the main post: Reel + Short teaser, first comment, playlist. Never stops the run."""
     out = {}
     part_times, segs = TIMELINE
     teaser = os.path.join(WORK, "teaser.mp4")
     try:
-        st, en = extras.pick_window(segs, part_times, story.get("teaser_scene") or 2)
-        extras.make_teaser(video, st, en, teaser, FONT, story.get("thumbnail_text") or title, L["cta"], WORK,
-                           colors=((255, 230, 0), (200, 0, 20)))
-        log(f"Teaser ready ({en - st:.0f} s, from {st:.0f} s)")
+        try:                                         # a cinema trailer (ghost and the time at the end)
+            make_trailer(video, story, title, lang, L, teaser, STATE.get("slot_hour", 21), STATE.get("special"))
+            log(f"Trailer ready ({duration(teaser):.0f} s)")
+        except Exception as e:
+            log("  trailer not made, plain teaser:", str(e)[:200])
+            st, en = extras.pick_window(segs, part_times, story.get("teaser_scene") or 2)
+            extras.make_teaser(video, st, en, teaser, FONT, story.get("thumbnail_text") or title, L["cta"], WORK,
+                               colors=((255, 230, 0), (200, 0, 20)))
+            log(f"Teaser ready ({en - st:.0f} s, from {st:.0f} s)")
     except Exception as e:
         log("  teaser skipped:", str(e)[:200])
         teaser = None
