@@ -456,9 +456,38 @@ CLASSICS = [  # id, writer (bn, hi), book (bn, hi), story (bn, hi), English iden
      ("মেডেল", "मेडल"), "Bibhutibhushan Bandyopadhyay's ghost story 'Medal'"),
     ("trailokya_lullu", ("ত্রৈলোক্যনাথ মুখোপাধ্যায়", "त्रैलोक्यनाथ मुखोपाध्याय"), ("ভূত ও মানুষ", "भूत और मानुष"),
      ("লুল্লু", "लुल्लु"), "Trailokyanath Mukhopadhyay's 'Lullu' (from Bhoot o Manush)"),
-    ("parashuram_bhushondi", ("পরশুরাম (রাজশেখর বসু)", "परशुराम (राजशेखर बसु)"), ("গড্ডলিকা", "गड्डलिका"),
+    ("parashuram_bhushondi", ("পরশুরাম", "परशुराम"), ("গড্ডলিকা", "गड्डलिका"),
      ("ভুশণ্ডীর মাঠে", "भुशंडी के मैदान में"), "Parashuram (Rajshekhar Basu)'s 'Bhushondir Mathe' (from Gaddalika)"),
 ]
+WORLD_CLASSICS = [  # world classics (writers who died long ago - free to use in India), told 'based on'
+    ('poe_telltale', ('এডগার অ্যালান পো', 'एडगर एलन पो'), ('', ''), ('দ্য টেল-টেল হার্ট', 'द टेल-टेल हार्ट'), "Edgar Allan Poe's 'The Tell-Tale Heart' (1843)", True),
+    ('jacobs_paw', ('ডব্লিউ. ডব্লিউ. জেকবস', 'डब्ल्यू. डब्ल्यू. जैकब्स'), ('', ''), ('বাঁদরের থাবা', 'बंदर का पंजा'), "W. W. Jacobs' 'The Monkey's Paw' (1902)", True),
+    ('dickens_signal', ('চার্লস ডিকেন্স', 'चार्ल्स डिकेंस'), ('', ''), ('সিগন্যালম্যান', 'सिग्नलमैन'), "Charles Dickens' 'The Signal-Man' (1866)", True),
+    ('kipling_rickshaw', ('রাডইয়ার্ড কিপলিং', 'रुडयार्ड किपलिंग'), ('', ''), ('ভুতুড়ে রিকশা', 'भुतहा रिक्शा'), "Rudyard Kipling's 'The Phantom Rickshaw' (1885, Shimla)", True),
+    ('stoker_judge', ('ব্রাম স্টোকার', 'ब्रैम स्टोकर'), ('', ''), ('জজসাহেবের বাড়ি', 'जज का मकान'), "Bram Stoker's 'The Judge's House' (1891)", True),
+    ('poe_blackcat', ('এডগার অ্যালান পো', 'एडगर एलन पो'), ('', ''), ('কালো বিড়াল', 'काली बिल्ली'), "Edgar Allan Poe's 'The Black Cat' (1843) - without cruelty details", True),
+    ('mrjames_whistle', ('এম. আর. জেমস', 'एम. आर. जेम्स'), ('', ''), ('বাঁশি বাজালেই আসব', 'सीटी बजाओ, मैं आऊँगा'), "M. R. James' 'Oh, Whistle, and I'll Come to You, My Lad' (1904)", True),
+    ('kipling_owntrue', ('রাডইয়ার্ড কিপলিং', 'रुडयार्ड किपलिंग'), ('', ''), ('আমার নিজের সত্যি ভূতের গল্প', 'मेरी अपनी सच्ची भूत-कथा'), "Rudyard Kipling's 'My Own True Ghost Story' (1888, an Indian dak-bungalow)", True),
+    ('crawford_upper', ('এফ. ম্যারিয়ন ক্রফোর্ড', 'एफ. मैरियन क्रॉफ़र्ड'), ('', ''), ('ওপরের বার্থ', 'ऊपर की बर्थ'), "F. Marion Crawford's 'The Upper Berth' (1886)", True),
+    ('poe_usher', ('এডগার অ্যালান পো', 'एडगर एलन पो'), ('', ''), ('আশার বংশের পতন', 'अशर वंश का पतन'), "Edgar Allan Poe's 'The Fall of the House of Usher' (1839)", True),
+    ('maupassant_horla', ('গী দ্য মোপাসাঁ', 'गी द मोपासाँ'), ('', ''), ('লে অর্লা', 'ला होर्ला'), "Guy de Maupassant's 'Le Horla' (1887)", True),
+    ('benson_tower', ('ই. এফ. বেনসন', 'ई. एफ. बेन्सन'), ('', ''), ('মিনারের ঘর', 'मीनार का कमरा'), "E. F. Benson's 'The Room in the Tower' (1912)", True),
+    ('mrjames_runes', ('এম. আর. জেমস', 'एम. आर. जेम्स'), ('', ''), ('অভিশপ্ত রুন', 'शापित रून'), "M. R. James' 'Casting the Runes' (1911)", True),
+    ('gogol_viy', ('নিকোলাই গোগোল', 'निकोलाई गोगोल'), ('', ''), ('ভিই', 'वीय'), "Nikolai Gogol's 'Viy' (1835)", True),
+    ('saki_window', ('সাকি', 'साकी'), ('', ''), ('খোলা জানালা', 'खुली खिड़की'), "Saki's 'The Open Window' (1914)", True),
+    ('stevenson_snatcher', ('রবার্ট লুই স্টিভেনসন', 'रॉबर्ट लुई स्टीवेन्सन'), ('', ''), ('লাশচোর', 'लाश-चोर'), "Robert Louis Stevenson's 'The Body Snatcher' (1884)", True),
+    ('gaskell_nurse', ('এলিজাবেথ গাসকেল', 'एलिज़ाबेथ गैस्केल'), ('', ''), ('বুড়ি দাইমার গল্প', 'बूढ़ी आया की कहानी'), "Elizabeth Gaskell's 'The Old Nurse's Story' (1852)", True),
+    ('poe_masque', ('এডগার অ্যালান পো', 'एडगर एलन पो'), ('', ''), ('লাল মৃত্যুর মুখোশ', 'लाल मौत का नक़ाब'), "Edgar Allan Poe's 'The Masque of the Red Death' (1842)", True),
+    ('mrjames_lost', ('এম. আর. জেমস', 'एम. आर. जेम्स'), ('', ''), ('হারানো হৃদয়', 'खोए हुए दिल'), "M. R. James' 'Lost Hearts' (1895) - without harm details to children", True),
+    ('harvey_hand', ('ডব্লিউ. এফ. হার্ভে', 'डब्ल्यू. एफ. हार्वे'), ('', ''), ('পাঁচ আঙুলের দানব', 'पाँच उँगलियों वाला दानव'), "W. F. Harvey's 'The Beast with Five Fingers' (1919)", True),
+    ('lefanu_tea', ('শেরিডান লে ফানু', 'शेरिडन ले फ़ानू'), ('', ''), ('সবুজ চা', 'हरी चाय'), "Sheridan Le Fanu's 'Green Tea' (1869)", True),
+    ('doyle_pole', ('আর্থার কোনান ডয়েল', 'आर्थर कॉनन डॉयल'), ('', ''), ('পোল-স্টারের ক্যাপ্টেন', 'पोल-स्टार का कप्तान'), "Arthur Conan Doyle's 'The Captain of the Pole-Star' (1883)", True),
+    ('irving_sleepy', ('ওয়াশিংটন আরভিং', 'वॉशिंगटन इरविंग'), ('', ''), ('স্লিপি হলোর মুণ্ডহীন ঘোড়সওয়ার', 'स्लीपी हॉलो का बिना सिर वाला घुड़सवार'), "Washington Irving's 'The Legend of Sleepy Hollow' (1820)", True),
+    ('wilde_canterville', ('অস্কার ওয়াইল্ড', 'ऑस्कर वाइल्ड'), ('', ''), ('ক্যান্টারভিলের ভূত', 'कैंटरविल का भूत'), "Oscar Wilde's 'The Canterville Ghost' (1887)", True),
+]
+_BN = [c + (False,) for c in CLASSICS]
+CLASSICS = [x for pair in zip(_BN, WORLD_CLASSICS) for x in pair] + _BN[len(WORLD_CLASSICS):] + \
+    WORLD_CLASSICS[len(_BN):]        # Bengali and world classics in turn
 CLASSIC_RULE = (
     "\nFAMOUS CLASSIC (very important): this video retells {en} - a public-domain classic. Tell THAT story "
     "faithfully: the same events in the same order, the same characters and their relations, the same place and "
@@ -482,8 +511,8 @@ class ClassicUnknown(Exception):
 
 
 def pick_classic(history, lang):
-    """on the classic days (Wednesday and Saturday by default), the day's first horror video"""
-    days = [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "2,5")]
+    """the day's first horror video (1 PM) on every day without Karna Pishachini - a famous writer's story"""
+    days = [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "0,2,3,5,6")]
     now = dt.datetime.now(extras.IST)
     if now.weekday() not in days or env("CLASSICS") == "0":
         return None
@@ -500,11 +529,26 @@ def pick_classic(history, lang):
     return left[0]
 
 
+def bn_of(name):
+    """Bengali 'of': ঠাকুর -> ঠাকুরের, পো -> পো-র, সাকি -> সাকির"""
+    last = name.strip()[-1:]
+    if last in "ািীুূেৈোৌ":
+        return name + "র"
+    if "\u0995" <= last <= "\u09b9" or last in "ড়ঢ়য়":
+        return name + "ের"
+    return name + "-এর"
+
+
 def classic_rule(c, lang):
     k = 0 if lang == "bn" else 1
     writer, book, title = c[1][k], c[2][k], c[3][k]
-    if lang == "bn":
-        intro = (f"'আজকের গল্প {writer}-এর লেখা " + (f"\"{book}\" বইয়ের " if book else "") + f"গল্প \"{title}\"।'")
+    world = len(c) > 5 and c[5]
+    if lang == "bn" and world:
+        intro = f"'আজকের গল্প বিশ্ববিখ্যাত লেখক {bn_of(writer)} বিখ্যাত গল্প অবলম্বনে - \"{title}\"।'"
+    elif lang == "bn":
+        intro = (f"'আজকের গল্প {bn_of(writer)} লেখা " + (f"\"{book}\" বইয়ের " if book else "") + f"গল্প \"{title}\"।'")
+    elif world:
+        intro = f"'आज की कहानी विश्व-प्रसिद्ध लेखक {writer} की मशहूर कहानी पर आधारित है - \"{title}\"।'"
     else:
         intro = (f"'आज की कहानी {writer} की लिखी " + (f"\"{book}\" से " if book else "") + f"कहानी \"{title}\" है।'")
     return CLASSIC_RULE.format(en=c[4], lang=LANGS[lang]["name"], intro=intro)
@@ -585,6 +629,10 @@ Story rules:
 - Telling style for this story: {fmt}
 {series_rule}{extra_rules}
 - Every picture must show exactly what that scene's lines describe.
+- SCENES FLOW INTO EACH OTHER like a film: the end of every scene leads straight into the start of the next (the
+  same moment continuing, a sound or a question that the next scene picks up, or a clear time/place bridge such
+  as 'that night...', 'the next morning at the station...'). Never jump to an unrelated moment; the listener must
+  always know where we are, who is there and why. Keep every detail consistent (names, time, place, who knows what).
 - SOUND DESIGN like a radio horror drama: for every line think what the listener should HEAR.
   When a line mentions a door, footsteps, knocking, wind, rain, a scream, bells, a phone, breaking glass,
   put that exact sound in that line's "sfx" with the right timing. 0-3 sfx per line, only real story events.
@@ -647,7 +695,8 @@ Return ONLY JSON with exactly these keys:
  "ending_line": "one short {L['name']} line from the narrator that leaves a chill",
  "comment_question": "one short {L['name']} question to viewers that makes them comment (e.g. 'आप होते तो क्या करते?'), with 1 emoji",
  "mystery_answer": "only for a which-suspect mystery: the right number (1, 2 or 3) as asked in the story; otherwise 0",
- "teaser_scene": "number: the scene (1 = first) where the most gripping 50 seconds START - used for the Reel/Short teaser"
+ "teaser_scene": "number: the scene (1 = first) where the most gripping 50 seconds START - used for the Reel/Short teaser",
+ "ghost_reveal": {{"<each ghost's name>": "number: the scene (1 = first) where the LISTENERS first realise this character is a ghost (before that it speaks like a normal person)"}}
 }}
 Every scene object also has "chapter": "2-4 word {L['name']} chapter name for YouTube chapters".
 """
@@ -1086,15 +1135,21 @@ NARRATOR_GEMINI = ("Charon", "the narrator of a famous late-night radio horror d
 GHOST_GEMINI = ("Enceladus", "a ghost: a hollow, breathy, cold, slow, otherworldly whispering voice")
 
 
-def gemini_persona(voices, speaker):
+def gemini_persona(voices, speaker, revealed=True):
     s = ascii_text(speaker).lower()
     c = voices.cast.find(s) if s and not s.startswith("narrat") else None
     if not c:
         return NARRATOR_GEMINI
     if c["kind"].startswith("ghost"):
         g = "female" if c["gender"].startswith("f") else "male"
-        gk = ghost_kind(g, age_group(c["age"]))
-        return voices.gemini_map.get(c["name"].lower(), GHOST_POOL[gk][0]), GHOST_WORDS[gk]
+        ag = age_group(c["age"])
+        gk = ghost_kind(g, ag)
+        voice = voices.gemini_map.get(c["name"].lower(), GHOST_POOL[gk][0])
+        who = f"{AGE_WORDS[ag]} ({'woman' if g == 'female' else 'man'} named {c['name']})"
+        if not revealed:                       # nobody knows yet: a completely normal, real person
+            return voice, f"{who}, a real person, natural and believable"
+        return voice, (f"{who} - the listeners now know this is a ghost: the same natural human voice (never "
+                       "robotic, no hissing, no growling), a little lower, slower, heavier and cold, very calm")
     g = "female" if c["gender"].startswith("f") else "male"
     ag = age_group(c["age"])
     voice = voices.gemini_map.get(c["name"].lower(), GEMINI_VOICES[(g, ag)])
@@ -1199,7 +1254,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     log(f"Expressive voices for all {len(todo)} lines")
     items = []
     for (i, j, ln) in todo:
-        voice, who = gemini_persona(voices, ln.get("speaker", "narrator"))
+        voice, who = gemini_persona(voices, ln.get("speaker", "narrator"), ln.get("_revealed", True))
         feel = EMOTION_WORDS.get(str(ln.get("emotion", "normal")).lower(), "naturally") + (
             f", {ln.get('delivery')}" if ln.get("delivery") else "")
         items.append({"text": extras.performed(ln), "plain": extras.strip_tags(str(ln["text"])), "voice": voice,
@@ -1258,13 +1313,20 @@ GHOST_FX = {
 }
 
 
+GHOST_DEPTH = {"male": 0.93, "female": 0.96, "old_female": 0.95, "child": 0.97}
+
+
 def ghost_fx(src, out_wav, kind, af="anull"):
-    """Turns a voice into a frightening ghost voice that still sounds like the right gender and age."""
-    layers = GHOST_FX.get(kind, GHOST_FX["male"])
-    g = (f"[0:a]{af},asplit=3[a][b][c];{layers};"
-         "[main][high][pre]amix=inputs=3:normalize=0,aecho=0.8:0.8:130:0.22,lowpass=f=8000,"
-         "dynaudnorm=f=150:g=7,volume=1.1[out]")
-    run(["ffmpeg", "-y", "-i", src, "-filter_complex", g, "-map", "[out]", "-ac", "1", "-ar", str(SR), out_wav])
+    """A revealed ghost: the SAME natural voice (never robotic), only a little deeper and heavier, with the cold
+    echo of an empty room. The formants are kept, so it still sounds like a real person."""
+    k = GHOST_DEPTH.get(kind, 0.95)
+    g = (f"{af},rubberband=pitch={k:.3f}:formant=preserved,"
+         "aecho=0.8:0.55:70|160:0.22|0.12,bass=g=3:f=140,lowpass=f=9000,volume=1.05")
+    try:
+        run(["ffmpeg", "-y", "-i", src, "-af", g, "-ac", "1", "-ar", str(SR), out_wav])
+    except RuntimeError:                       # ffmpeg without rubberband: a plain echo only
+        run(["ffmpeg", "-y", "-i", src, "-af", f"{af},aecho=0.8:0.55:70|160:0.22|0.12,bass=g=3:f=140",
+             "-ac", "1", "-ar", str(SR), out_wav])
 
 
 def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
@@ -1665,6 +1727,37 @@ GHOST_LAUGH_QUERIES = {
 }
 
 
+def mark_reveals(story):
+    """When do the listeners learn that a character is a ghost? Before that its voice is a plain human voice;
+    from then on the same voice, a little deeper, with a cold echo. From the story's "ghost_reveal" (scene number),
+    else the ghost's first laugh / jump scare, else its first line."""
+    ghosts = [str(c.get("name", "")) for c in story.get("characters", []) if str(c.get("kind", "")).startswith("ghost")]
+    given = story.get("ghost_reveal") if isinstance(story.get("ghost_reveal"), dict) else {}
+    given = {ascii_text(k).lower(): v for k, v in given.items()}
+    scenes = story.get("scenes", [])
+    for gname in ghosts:
+        key = ascii_text(gname).lower()
+        rev = None
+        try:
+            rev = max(0, int(str(given.get(key, "")).strip()[:2]) - 1)
+        except ValueError:
+            pass
+        if rev is None:
+            for i, s in enumerate(scenes):
+                if any(ascii_text(str(ln.get("ghost_laugh", ""))).lower() == key or
+                       (ln.get("jump_scare") and key in ascii_text(str(ln.get("speaker", ""))).lower())
+                       for ln in s.get("lines") or []):
+                    rev = i
+                    break
+        if rev is None:
+            rev = 0
+        for i, s in enumerate(scenes):
+            for ln in s.get("lines") or []:
+                if ascii_text(str(ln.get("speaker", ""))).lower() == key:
+                    ln["_revealed"] = i >= rev
+        log(f"  {gname}: a normal voice until scene {rev + 1}, then the ghost's voice")
+
+
 def ghost_of(voices, name, speaker):
     """Which kind of ghost laughs (female / old_female / male / child): the named ghost, else the speaker,
     else the story's first ghost."""
@@ -1830,11 +1923,14 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             cues.append((t, synth("scare_hit", int(SR * 2.5), rnd), 1.0, "scare_hit"))
             t += 0.45
         spec = voices.for_speaker(ln.get("speaker", "narrator"))
+        if spec[3] and not ln.get("_revealed", True):  # the ghost is not known yet: a plain human voice
+            spec = (spec[0], spec[1], spec[2], False)
         p = os.path.join(WORK, f"v_{idx:02d}_{j:02d}.wav")
         from_gemini = True
         if (idx, j) in GEMINI_CACHE:
             shutil.copy(GEMINI_CACHE[(idx, j)], p)
-        elif not gemini_line(extras.performed(ln), gemini_persona(voices, ln.get("speaker", "narrator")),
+        elif not gemini_line(extras.performed(ln), gemini_persona(voices, ln.get("speaker", "narrator"),
+                                                                 ln.get("_revealed", True)),
                              ln.get("emotion", "normal"), lang, p, str(ln.get("delivery", ""))):
             from_gemini = False
             tts_line(extras.strip_tags(text), spec, LANGS[lang]["gtts"], p, ln.get("emotion", "normal"))
@@ -1847,15 +1943,15 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         if pk > 0:                                    # every voice equally clear; whispers softer
             emo = str(ln.get("emotion", "normal")).lower()
             a = a / pk * {"whisper": 0.6, "shout": 0.97, "angry": 0.93}.get(emo, 0.88)
-        if spec[3]:                                   # ghost speaking: cold swell + whispers
+        if spec[3]:                                   # the revealed ghost: a cold swell just before it speaks
             m = int(SR * 1.2)
-            swell = _filt(_noise(m, rnd), "bandpass", [300, 3000]) * np.linspace(0, 1, m) ** 2 * 0.35
+            swell = _filt(_noise(m, rnd), "bandpass", [300, 3000]) * np.linspace(0, 1, m) ** 2 * 0.25
             cues.append((max(0.0, t - 1.1), swell, 1.0, "ghost_swell"))
-            cues.append((t, synth("whisper", len(a) + int(SR * 0.8), rnd) * 1.4, 0.8, "ghost_whisper"))
         pieces.append((t, a, bool(spec[3])))
         sp = ascii_text(ln.get("speaker", "")).lower()
         is_nar = (not sp) or sp.startswith("narrat") or voices.cast.find(sp) is None
         subs.append((t, len(a) / SR, is_nar, text))
+        extras.remember_voice(text, a, SR)
         for x in on_word[:3]:
             wt = word_time(a, text, x.get("word"))
             snd = get_oneshot(x["sound"], rnd, max_sec=6.0)
@@ -1872,15 +1968,14 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
                 cues.append((t - gap + 0.1, snd, 0.85, x["sound"]))
                 t += min(len(snd) / SR, 2.0) * 0.7
     total = t - gap + tail
+    total = math.ceil(total * FPS - 1e-6) / FPS   # a whole number of video frames: picture and sound never drift
     n = int(total * SR)
 
     # voices: people in the middle; a ghost's voice drifts around the listener's head
     vL, vR = np.zeros(n), np.zeros(n)
     for start, a, is_ghost in pieces:
-        if is_ghost and SPATIAL:
-            side = 1 if rnd.uniform() < 0.5 else -1
-            l, r = extras.spatialize(a, side * 70, -side * 40, SR)
-            l, r = extras.reverb_stereo(l, r, "hall", SR, seed=idx + 7)
+        if is_ghost and SPATIAL:                      # in front of us, clear - only the cold room around it
+            l, r = extras.reverb_stereo(a, a, "room", SR, seed=idx + 7)
         else:
             l, r = a, a
         _place(vL, l, start)
@@ -1918,12 +2013,14 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     talk = np.zeros(n)
     for start, a, _g in pieces:
         talk[int(start * SR):int(start * SR) + len(a)] = 1
-    talk = np.clip(_filt(talk, "lowpass", 3, 1), 0, 1)
+    talk = np.clip(_filt(talk, "lowpass", 4, 1) * 1.15, 0, 1)    # starts a moment before, ends a moment after
     quiet = np.ones(n)
     for s0, s1 in silences:
         quiet[int(s0 * SR):int(s1 * SR)] = 0.08
     quiet = _filt(quiet, "lowpass", 6, 1)
-    duck = (1 - 0.35 * talk) * quiet            # the place's sound keeps going under the words (not only between lines)
+    # between the lines the place's sound is BIG (rain, wind, the house creaking); while someone speaks it
+    # drops well down so every word is clear, and it swells back up as soon as the words end
+    duck = (1.35 - 1.05 * talk) * quiet
     mixL = vL * 0.95 + bedL * duck + fxL * (1 - 0.3 * talk)
     mixR = vR * 0.95 + bedR * duck + fxR * (1 - 0.3 * talk)
     peak = max(np.abs(mixL).max(), np.abs(mixR).max())
@@ -2197,7 +2294,7 @@ def scene_clip_animated(segments, audio, out, idx, mood, talk=None):
         looks.append((lt, brnd.uniform(-0.35, 0.35), brnd.uniform(-0.2, 0.2)))
         lt += brnd.uniform(1.0, 2.6)
     gaze_now = [0.0, 0.0]
-    n = int(dur * FPS) + 1
+    n = max(1, int(round(dur * FPS)))
     shots = plan_shots(segments, dur)
     rnd = np.random.default_rng(idx + 50)
     flicker = (rnd.uniform(0, 1, 400) > 0.93).astype("float32") * rnd.uniform(0.4, 1, 400)
@@ -2388,12 +2485,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     rows = []
     for start, dur, is_nar, text in segments:
         chunks = split_subs(text)
-        total = sum(len(c) for c in chunks) or 1
-        t = start
-        for c in chunks:
-            d = dur * len(c) / total
-            rows.append(f"Dialogue: 0,{ass_time(t)},{ass_time(t + d)},{'Nar' if is_nar else 'Talk'},,0,0,0,,{c}")
-            t += d
+        for c, (s0, s1) in zip(chunks, extras.sub_times(text, dur, chunks)):   # in step with the real voice
+            rows.append(f"Dialogue: 0,{ass_time(start + s0)},{ass_time(start + s1)},"
+                        f"{'Nar' if is_nar else 'Talk'},,0,0,0,,{c}")
     with open(path, "w", encoding="utf-8") as f:
         f.write(head + "\n".join(rows) + "\n")
 
@@ -2756,6 +2850,7 @@ def main():
         extra_rules = plain_rules + MASTER_STYLE
         story = make_story(lang, theme, history, fmt=fmt, part=0, prev=prev, extra_rules=extra_rules, total=2)
     ensure_ghost_laughs(story)
+    mark_reveals(story)
     if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
         try:
             total = min(3, max(2, int(str(story.get("total_parts") or 2)[:1])))
