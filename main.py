@@ -363,34 +363,52 @@ KARNA = [
      "look": "Bapi, Nilkantha's nephew, a slim Bengali college student of about twenty, short messy black hair, "
              "light moustache, a checked half-sleeve shirt and grey trousers, a cloth bag, a torch in his hand"},
     {"name": "Pishachini", "gender": "female", "age": "young", "kind": "ghost",
-     "look": "the Karna Pishachini: a tall pale female spirit seen only in glimpses - long wet black hair covering her "
-             "face, a black saree with a thin blood-red border, silver anklets, very long thin fingers, a faint "
-             "smoky glow; when she shows her face for a moment: dark hollow eyes and a sweet, cruel smile"},
+     "look": "the Karna Pishachini, a fierce tantric yogini spirit: tall, dark-skinned, wild loose black hair down to "
+             "her knees, burning red eyes, a red sindoor mark on the forehead, a black saree with a blood-red border, "
+             "bone and rudraksha ornaments, silver anklets, long thin fingers; she stays in smoke and lamp-shadow, "
+             "mostly only a dark shape at the left shoulder; her face is seen only for a moment"},
 ]
 KARNA_RULE = (
-    "OUR OWN SERIES 'KARNA PISHACHINI', episode {n} (an original series built on the old Bengal belief in the Karna "
-    "Pishachini - the spirit a tantrik wins by a dangerous sadhana, who whispers hidden truths into his ear; never "
-    "copy any existing book, film or series). NILKANTHA ACHARYA, an astrologer in a small town of Nadia in the "
-    "1980s (lanterns, radio, bicycles, the last bus), won a Karna Pishachini as a young man and has lived with her "
-    "ever since. She whispers into his LEFT ear the hidden truth about anyone who comes to him. His nephew BAPI, a "
-    "college student who lives with him, is the only one who knows - Bapi tells the story ('my uncle...') and asks "
-    "the questions the viewers would ask.\n"
-    "PLOT LIKE A MASTER (most important): every episode is one complete, tightly plotted MYSTERY-HORROR case that "
-    "feels like it really happened: someone comes with a problem nobody can solve (a missing daughter, a death that "
-    "looks natural, a house where a lamp lights itself, a stolen temple idol, a letter from a dead man...). Plant 3-4 "
-    "real clues and 2-3 believable suspects early; the Pishachini answers only in riddles and half-truths, and once "
-    "she deliberately misleads him out of jealousy; a false lead; then a twist the listener did not see coming but "
-    "that is FAIR - every clue was there. The truth is human AND supernatural at once. Every whisper has a PRICE "
-    "(a year of his life, a memory, the peace of someone he loves) and she wants Nilkantha only for herself - "
-    "jealous, possessive, sweet one moment and cruel the next. She is never fully shown: a cold breath at the left "
-    "ear, the smell of burnt camphor and wet hair, anklet bells, a shadow with hair over the face; her whisper is "
-    "close and soft and turns cruel. Before the scenes, add the JSON key \"plot_plan\": {{\"case\", \"suspects\", "
-    "\"clues\", \"false_lead\", \"twist\", \"price\"}} (ENGLISH) and follow it. Also add \"episode_summary\": "
-    "ENGLISH, 2 sentences.\n"
+    "OUR OWN SERIES 'KARNA PISHACHINI', episode {n} (an original series; never copy any existing book, film or "
+    "series).\n"
+    "THE TRUE BELIEF - FOLLOW IT EXACTLY (it is the base of the whole series):\n"
+    "* In the tantric belief of Bengal the Karna Pishachini is NOT a common ghost. She is a fierce YOGINI - in our "
+    "series one of the yoginis in the following of Ma Kali - a spirit-power who NEVER comes on her own. She comes "
+    "ONLY to a sadhak who calls her by a long, hard, dangerous SADHANA (night after night of japa alone at a "
+    "cremation ground, on amavasya nights, with fasting, a lamp that must not go out, and terrifying tests: she "
+    "frightens and tempts him to break him; if he fails or breaks a rule, he goes mad or dies).\n"
+    "* When the sadhana is complete she is BOUND to that sadhak: she sits at his LEFT shoulder unseen and whispers "
+    "into his ear (karna = ear) the hidden truth of anyone in front of him - their PAST and PRESENT. She does not "
+    "know the future for certain. Nobody else can see or hear her.\n"
+    "* She comes when he calls her - he closes his eyes, touches his left ear, says her name under his breath - "
+    "never in the middle of nowhere without reason. Her presence: a sudden cold at the left ear, the smell of "
+    "burnt camphor and wet earth, anklets, the lamp flame bending.\n"
+    "* Her conditions (the price of the bond): he must keep her secret, keep her rules (purity, never use her "
+    "power for greed or to harm the innocent), give her offerings, and give her his loyalty; she is jealous and "
+    "possessive - she wants him only for herself. If a rule is broken she turns cruel: she misleads him, hurts the "
+    "people close to him, and in the end she can take his life or his mind.\n"
+    "* She is a power to be respected and feared, never mocked. No real mantra, no real ritual steps - show the "
+    "sadhana only as a story (the night, the fear, the tests, the cost).\n"
+    "THE CHARACTERS (introduce each by name and relation the first time: 'আমার মামা, নীলকণ্ঠ আচার্য...'): "
+    "NILKANTHA ACHARYA, an astrologer in a small town of Nadia in the 1980s (lanterns, radio, bicycles, the last "
+    "bus), who did the sadhana of the Karna Pishachini as a young man and has been bound to her ever since. His "
+    "nephew BAPI, a college student who lives with him, is the only one who knows - Bapi tells the story ('my "
+    "uncle...') and asks the questions the viewers would ask.\n"
+    "{origin}"
+    "PLOT LIKE A MASTER: every episode is one complete, tightly plotted MYSTERY-HORROR case that feels like it "
+    "really happened: someone comes to Nilkantha with a problem nobody can solve (a missing daughter, a death that "
+    "looks natural, a lamp that lights itself, a stolen temple idol, a letter from a dead man...). Nilkantha CALLS "
+    "the Pishachini (as above) to learn the truth; she answers in riddles and half-truths, and once misleads him "
+    "out of jealousy; plant 3-4 real clues and 2-3 believable suspects early; a false lead; then a twist the "
+    "listener did not see coming but that is FAIR. Every whisper has a PRICE (an offering she demands, a year of "
+    "his life, the peace of someone he loves). ONE STORY LINE from first to last scene: each scene follows from "
+    "the previous one; nothing happens without a reason. Before the scenes, add the JSON key \"plot_plan\": "
+    "{{\"case\", \"suspects\", \"clues\", \"false_lead\", \"twist\", \"price\"}} (ENGLISH) and follow it. "
+    "Also add \"episode_summary\": ENGLISH, 2 sentences.\n"
     "SERIES SO FAR (never repeat a case; keep the running thread - her growing jealousy, Bapi coming closer to "
-    "danger, the secret of how Nilkantha won her): {past}\n"
-    "Use exactly these looks: {looks}. No real ritual instructions, no gore, no harm to children. End with a hook: "
-    "the Pishachini whispers something chilling about the NEXT case - or about Bapi.\n")
+    "danger): {past}\n"
+    "Use exactly these looks: {looks}. No gore, no harm to children. End with a hook: the Pishachini whispers "
+    "something chilling about the NEXT case - or about Bapi.\n")
 
 
 def pick_karna(history, lang):
@@ -413,8 +431,15 @@ def pick_karna(history, lang):
 def karna_rule(history, lang):
     eps = [h for h in history if h.get("special") == "karna" and h.get("lang") == lang]
     past = " | ".join(f"Ep {k + 1}: {h.get('episode_summary') or h.get('title')}" for k, h in enumerate(eps))[-2500:]
-    return KARNA_RULE.format(n=len(eps) + 1, past=past or "this is the FIRST episode - also show how the town "
-                             "first learns that Nilkantha 'knows everything'", looks=json.dumps(KARNA))
+    told = any(h.get("karna_origin") for h in eps)
+    origin = ("" if told else
+              "THIS EPISODE ALSO TELLS HOW SHE CAME (the viewers must know it): woven into the case, Nilkantha tells "
+              "Bapi - in 2-3 flashback scenes - how as a young man, against his guru's warning, he did her sadhana at "
+              "the cremation ground by the Jalangi river: the amavasya nights, the lamp, the fear, her tests (voices "
+              "of his dead mother calling, a woman's laughter, the lamp almost going out), the night she finally "
+              "came and the conditions she set. This is how she is bound to him - she never came on her own.\n")
+    return KARNA_RULE.format(n=len(eps) + 1, origin=origin, past=past or "this is the FIRST episode - also show "
+                             "how the town first learns that Nilkantha 'knows everything'", looks=json.dumps(KARNA))
 
 
 PROMISE_FILE = os.path.join(HERE, "assets", "next_up.json")
@@ -486,7 +511,129 @@ def pick_theme(history):
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 
-def edit_story(story, lang, classic=False):
+LORE_DIR = os.path.join(HERE, "assets", "lore")
+
+
+def research_brief(subject, cache_key=None):
+    """BEFORE WRITING: look the subject up on the internet (Gemini with Google Search) - the true belief, form, look,
+    behaviour, how it comes, its rules; for a known story its real characters and plot. The story must follow it.
+    Fixed subjects (a series, a classic) are kept in assets/lore for 60 days."""
+    if MOCK or env("RESEARCH") == "0":
+        return ""
+    key = env("GEMINI_API_KEY")
+    if not key:
+        return ""
+    path = os.path.join(LORE_DIR, re.sub(r"[^a-z0-9]+", "_", cache_key.lower())[:60] + ".json") if cache_key else None
+    if path and os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as f:
+                c = json.load(f)
+            if (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(c["made"])).days <= 60 and c.get("brief"):
+                log("Research brief (saved):", c["brief"][:160].replace("\n", " "), "...")
+                return c["brief"]
+        except Exception:
+            pass
+    prompt = f"""Search the internet first, then answer. Subject of a horror story we are going to write:
+{subject}
+
+Identify the central supernatural being / belief / ritual / place / custom of this subject (and, if it is a known
+published story, the story itself). Then write a factual RESEARCH BRIEF in English (max 280 words) of what the
+traditional sources and folklore REALLY say, as bullet points:
+- what it is and which tradition/region it belongs to (Bengal, India...)
+- its true form and look
+- how it behaves; what it can and cannot do
+- how it comes: what calls it, binds it or wakes it (does it ever come on its own?)
+- its rules, taboos, the price, and how people protect themselves
+- for a known story: the real characters' names and how they are related, the plot in order, the ending
+- COMMON MISTAKES a writer must avoid about it
+No mantras, no step-by-step ritual instructions. If sources disagree, give the most common Bengali belief."""
+    for model in gemini_models(key)[:3]:
+        for tools in ([{"google_search": {}}], None):
+            body = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.3}}
+            if tools:
+                body["tools"] = tools
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json=body, timeout=180)
+                if r.status_code == 400 and tools:
+                    continue                         # this model cannot search: ask it without searching
+                if not r.ok:
+                    break
+                parts = r.json()["candidates"][0]["content"]["parts"]
+                brief = "\n".join(p.get("text", "") for p in parts).strip()[:2500]
+                if len(brief) < 150:
+                    break
+                log(f"Research brief ({model}{', web search' if tools else ''}):", brief[:160].replace("\n", " "), "...")
+                if path:
+                    try:
+                        os.makedirs(LORE_DIR, exist_ok=True)
+                        with open(path, "w", encoding="utf-8") as f:
+                            json.dump({"made": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
+                                       "subject": subject, "brief": brief}, f, ensure_ascii=False, indent=1)
+                    except Exception:
+                        pass
+                return brief
+            except Exception as e:
+                log(f"  research ({model}) failed: {str(e)[:120]}")
+                break
+    return ""
+
+
+def ensure_intros(story):
+    """Every person is introduced (name + who they are) the moment they ENTER the story. If the script forgot it,
+    the narrator's intro line goes in just before their first line (for the cold-open scene 1: right after the
+    time-bridge at the start of scene 2, so the hook stays fast). Ghosts keep their mystery."""
+    chars = [c for c in story.get("characters", []) if isinstance(c, dict) and c.get("name")]
+    scenes = story.get("scenes") or []
+    if not chars or not scenes:
+        return
+    said = ""
+
+    def known(c):
+        keys = [str(c.get("name_local") or "").strip(), str(c["name"]).strip()]
+        return any(k and k.split()[0] in said for k in keys)
+
+    def intro_line(c):
+        return {"speaker": "narrator", "emotion": "calm", "text": str(c["intro"]).strip(),
+                "en": str(c.get("intro_en", "")), "intro_of": c["name"],
+                "image": {"prompt": f"introduction shot of {c['name']}: {c.get('look', '')}", "characters": [c["name"]],
+                          "people": [{"name": c["name"], "pose": "standing", "where": "middle",
+                                      "doing": "looking at the camera", "feeling": "natural"}]}}
+    late, added = [], 0
+    for si, sc in enumerate(scenes):
+        lines = sc.get("lines") or []
+        out = []
+        visible = [n for n in (sc.get("characters") or []) if isinstance(n, str)]
+        for k, ln in enumerate(lines):
+            if si == 1 and k == 1 and late:          # after scene 2's time-bridge: those of the cold open
+                out += [intro_line(c) for c in late if c.get("intro") and not known(c)]
+                added += len(late)
+                late = []
+            sp = str(ln.get("speaker", ""))
+            pic = ln.get("image") if isinstance(ln.get("image"), dict) else {}
+            here = {sp} | set(visible if k == 0 else []) | set(pic.get("characters") or [])
+            for c in chars:
+                if c["name"] not in here or known(c) or not c.get("intro") or c.get("kind") == "ghost" \
+                        or c in late or any(x.get("intro_of") == c["name"] for x in out):
+                    continue
+                if si == 0:
+                    late.append(c)
+                else:
+                    out.append(intro_line(c))
+                    said += " " + str(c["intro"])
+                    added += 1
+            out.append(ln)
+            said += " " + str(ln.get("text", ""))
+        if si == 1 and late:                         # scene 2 had only one line
+            out[1:1] = [intro_line(c) for c in late if c.get("intro") and not known(c)]
+            added += len(late)
+            late = []
+        sc["lines"] = out
+    if added:
+        log(f"  introduced {added} character(s) where they first enter")
+
+
+def edit_story(story, lang, classic=False, brief=""):
     """A second pass by a 'chief editor' (like a publisher's editor): scores the story and rewrites the weak parts
     - more fear, a fairer and bigger twist, logic, scenes flowing into each other, natural dialogue, correct
     language. Returns the better story, or the original if anything goes wrong."""
@@ -503,14 +650,24 @@ def edit_story(story, lang, classic=False):
     prompt = f"""You are the chief editor of India's most successful horror audio-drama channel.
 Here is a {L['name']} horror story script as JSON. First judge it honestly (1-10) on: real fear and dread, the twist
 (surprising but fair), logic and consistency (names, time, place, who knows what), each scene flowing into the next,
-natural dialogue with feeling, a hook in the first lines, sound design that matches the words exactly, and correct,
+natural dialogue with feeling, a hook in the first lines, sound design that matches the words exactly, CHARACTERS
+INTRODUCED (the first time anyone appears, the listener hears their NAME and WHO they are - relation or job - and
+names are used often enough that the listener always knows who is speaking), CONTINUITY (one unbroken chain: every
+scene follows from the scene before it - cause and effect, or a clear time/place bridge said aloud; no scene that
+comes from nowhere; after a cold-open flash-forward in scene 1, the story must later reach that moment again),
+TRUTH TO THE BELIEF (it must follow the research brief below exactly), STRUCTURE (a clear beginning that
+introduces who/where/when/why after a clear time-bridge from the cold open; a full middle with at least three
+escalating events, a clue, a false lead and a discovery; a clear end with climax, twist, and a resolution scene
+that explains the whole mystery and what became of everyone - ADD the missing scenes if the beginning, middle or
+end is thin or abrupt), and correct,
 natural {L['name']} ({'pure Kolkata cholit Bengali, correct spelling' if lang == 'bn' else 'natural correct Hindi'}).
 Then REWRITE every weak line and scene to make it a 10. {rule}
 Keep EXACTLY the same JSON structure and ALL keys (every scene, line, sfx, image, people, ghost_reveal, guess,
 next_story...), the same characters with the same names and looks, and at least the same length (more is fine).
-Add one key "editor_scores": {{"fear": n, "twist": n, "logic": n, "flow": n, "dialogue": n, "language": n}} with the
+Add one key "editor_scores": {{"fear": n, "twist": n, "logic": n, "flow": n, "structure": n, "names": n, "belief": n, "dialogue": n, "language": n}} with the
 scores of YOUR improved version. Return ONLY the complete improved JSON.
 
+{"RESEARCH BRIEF (true facts - the story must not contradict them):" + chr(10) + brief + chr(10) if brief else ""}
 STORY JSON:
 {json.dumps(story, ensure_ascii=False)}"""
     body = {"contents": [{"parts": [{"text": prompt}]}],
@@ -761,6 +918,27 @@ Story rules:
   দপদপ করে নিভে গেল, পচা ফুলের গন্ধ, রক্ত জল করা হাসি) instead of flat words like 'ভয় লাগল'. Before
   answering, re-read every line once and correct any wrong or unnatural word.
 - 2 to 4 characters plus a narrator. Real dialogue between characters (short, natural lines).
+- INTRODUCE EVERY CHARACTER: the first time anyone appears, the listener hears their NAME and WHO they are
+  (relation, job, age) - naturally, in narration or dialogue ('আমার মামা, নীলকণ্ঠ আচার্য...', 'পাশের বাড়ির
+  বউ, সরলা...'). Use the names often so the listener always knows who is speaking and who is in the room.
+- ONE UNBROKEN STORY LINE (like a well-made film): plan the whole story first as a chain of cause and effect,
+  then write it. Every scene happens BECAUSE of the scene before it and leads to the next; every new person,
+  place or event is explained; nothing is forgotten (a clue, a promise, a person who left must come back).
+  Scene 1 may be a flash-forward (the cold open); scene 2 then goes back to the start, and the story must later
+  reach the moment of scene 1 again and continue past it.
+- A CLEAR BEGINNING, A FULL MIDDLE AND A CLEAR END (never an abrupt start or an abrupt end):
+  * BEGINNING (after the cold open, about scenes 2-4): scene 2 opens with a clear bridge back in time said by the
+    narrator ('কিন্তু এর শুরু হয়েছিল ঠিক তিন দিন আগে...'). Then: WHO the people are (names, relations), WHERE
+    and WHEN we are, WHY they are there, their ordinary life - and the first small strange sign.
+  * MIDDLE (about scenes 5-12): at least THREE separate events, each stronger than the last (a sign, then a
+    sighting, then a real attack/loss); the people react, talk, argue, investigate; a clue is found; a false
+    lead; a midpoint discovery that changes everything. Never skip from the first sign straight to the end.
+  * END (the last 3-4 scenes): the climax (the confrontation / the trap), the twist, then a RESOLUTION scene
+    that clearly explains what really happened and why (the listener must understand the whole mystery), what
+    became of every main character, and only then the last chilling line. Never end on a sudden cut.
+- TRUE TO THE BELIEF: any ghost, spirit, yogini, ritual or custom must be exactly as the tradition and the
+  research brief describe it (its form, how it comes, what it can do, its rules). A spirit that in the tradition
+  comes only when called or bound must never just appear without that reason.
 - Each scene has 4 to 7 lines. The narrator describes; characters speak only their own words
   (no "he said" inside dialogue). Narrator lines 25-50 words, dialogue lines 4-20 words.
 - Telling style for this story: {fmt}
@@ -817,10 +995,15 @@ Return ONLY JSON with exactly these keys:
  "setting": "ENGLISH: the ONE main place of the story (architecture, objects, era, weather, time of night, colors). Reused in every picture",
  "characters": [{{"name": "name in English letters", "gender": "male or female",
                   "age": "child, young, adult or old", "kind": "human or ghost",
-                  "look": "ENGLISH, very specific never-changing look: age, face, hair, skin, clothes with exact colors, one special detail. 20-35 words"}}],
+                  "look": "ENGLISH, very specific never-changing look: age, face, hair, skin, clothes with exact colors, one special detail. 20-35 words",
+                  "name_local": "the name exactly as spoken in the {L['name']} story",
+                  "intro": "{L['name']}: ONE short narrator sentence that introduces this person when they first enter the story - name, who they are (relation / job / age) and one telling detail, e.g. 'পাশের বাড়ির সরলা পিসি - বিধবা, একা থাকেন, পাড়ার সব খবর তাঁর কাছে।' For a ghost: only how people first meet it (e.g. 'a woman in a white saree at the ghat'), never revealing early that it is a ghost",
+                  "intro_en": "the same intro in English"}}],
  "episode_name": "2-3 word {L['name']} episode name for the thumbnail, eerie and exact (e.g. 'নিশির ডাক', 'পোড়ো বাড়ির ছায়া')",
  "thumbnail_image": {{"hero": "the main human character's name (big in the foreground)", "hero_action": "ENGLISH: pose, what the hands hold (lantern, torch) and the tense face at the scariest moment, e.g. 'holding a brass lantern, looking up toward the window with tense, focused fear'", "second": "the ghost's name", "ghost": "ENGLISH: exactly how THIS story's ghost looks at its scariest (face, eyes, hair, clothes, skin, special detail like backward feet or red saree) - 25-40 words", "second_action": "ENGLISH: where the ghost is and what it does, e.g. 'standing in the upstairs window behind him, staring down'", "place": "ENGLISH: the exact haunted place with rich authentic Bengal details", "moment": "ENGLISH: one sentence - the visual story of the thumbnail"}},
+ "plot_outline": ["ENGLISH: one sentence per scene, in order - the whole cause-and-effect chain, written BEFORE the scenes and followed exactly"],
  "scenes": [{{
+    "follows_from": "ENGLISH: one sentence - how this scene follows from the previous scene (for scene 1: 'cold open')",
     "characters": ["names VISIBLE in the picture"],
     "action": "ENGLISH: exactly what happens in this scene: who does what, poses, expressions, key objects",
     "place": "ENGLISH: where in the setting + lighting",
@@ -3072,6 +3255,18 @@ def main():
 
     if special != "classic":
         extra_rules += MASTER_STYLE
+    if special == "karna":
+        subject, ck = ("Karna Pishachini (কর্ণপিশাচিনী) in Bengali and Indian tantric belief: the yogini, her sadhana, "
+                       "her nature, look and rules"), "karna_pishachini"
+    elif special == "classic" and classic:
+        subject, ck = f"the published story {classic[4]}", f"classic_{classic[0]}"
+    else:
+        subject, ck = f"{theme} (with the folk ghost or belief it is about)", None
+    brief = research_brief(subject, ck)
+    STATE["brief"] = brief
+    if brief:
+        extra_rules += ("\nRESEARCH BRIEF (true facts we looked up before writing - FOLLOW THEM EXACTLY; never "
+                        "contradict them):\n" + brief + "\n")
     try:
         story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
                            total=total if part else 2)
@@ -3080,8 +3275,9 @@ def main():
         special, classic, theme = None, None, pick_theme(history)
         extra_rules = plain_rules + MASTER_STYLE
         story = make_story(lang, theme, history, fmt=fmt, part=0, prev=prev, extra_rules=extra_rules, total=2)
-    story = edit_story(story, lang, classic=special == "classic")
+    story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""))
     STATE["special"] = special
+    ensure_intros(story)
     ensure_ghost_laughs(story)
     mark_reveals(story)
     if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
@@ -3360,6 +3556,7 @@ def main():
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "classic_id": classic[0] if special == "classic" and classic else None,
                     "episode_summary": str(story.get("episode_summary", ""))[:400] if special == "karna" else None,
+                    "karna_origin": True if special == "karna" else None,
                     "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
     if not MOCK and not DRY_RUN:
