@@ -2897,6 +2897,12 @@ def main():
     shutil.rmtree(WORK, ignore_errors=True)
     os.makedirs(WORK)
     history = load_history()
+    if not MOCK and not DRY_RUN:
+        try:
+            if extras.flush_pending(history):          # comments of earlier videos that are live now
+                save_history(history)
+        except Exception as e:
+            log("  earlier comments skipped:", str(e)[:120])
     global SLOT
     SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
@@ -3295,6 +3301,7 @@ def main():
     results.update(grow(video, story, title, lang, L, tags, results, history, page))
 
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "slot": SLOT,
+                    "pending_comments": list(extras.PENDING),
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "classic_id": classic[0] if special == "classic" and classic else None,
@@ -3715,10 +3722,10 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 log(f"  'coming soon' post scheduled for {when.strftime('%d %b %H:%M')} India time")
         except Exception as e:
             log("  announcement skipped:", str(e)[:160])
-    extras.wait_for_publish()
+    live = extras.wait_for_publish()
     if question and results.get("facebook"):
         try:
-            extras.fb_comment(results["facebook"], question)
+            extras.comment_when_live(results["facebook"], question, live)
             log("  first comment posted on Facebook")
         except Exception as e:
             log("  Facebook comment skipped (needs pages_manage_engagement):", str(e)[:160])
