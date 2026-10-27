@@ -10,7 +10,7 @@
    "likes": 0,
    "comments": 0,
    "views": 1,
-   "checked": "2026-10-24T09:08+00:00"
+   "checked": "2026-10-27T11:53+00:00"
   }
  },
  {
@@ -24,7 +24,7 @@
    "likes": 2,
    "comments": 0,
    "views": 33,
-   "checked": "2026-10-24T09:08+00:00"
+   "checked": "2026-10-27T11:53+00:00"
   }
  },
  {
@@ -38,7 +38,7 @@
    "likes": 1,
    "comments": 0,
    "views": 22,
-   "checked": "2026-10-24T09:08+00:00"
+   "checked": "2026-10-27T11:53+00:00"
   }
  },
  {
@@ -52,7 +52,7 @@
    "likes": 5,
    "comments": 2,
    "views": 59,
-   "checked": "2026-10-24T09:08+00:00"
+   "checked": "2026-10-27T11:53+00:00"
   }
  },
  {
@@ -66,7 +66,7 @@
    "likes": 1,
    "comments": 2,
    "views": 9,
-   "checked": "2026-10-24T09:08+00:00"
+   "checked": "2026-10-27T11:53+00:00"
   }
  },
  {
@@ -80,7 +80,7 @@
    "likes": 1,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-24T09:08+00:00"
+   "checked": "2026-10-27T11:53+00:00"
   }
  },
  {
@@ -235,7 +235,7 @@
    "likes": 0,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-24T09:08+00:00"
+   "checked": "2026-10-27T11:53+00:00"
   }
  },
  {
@@ -446,7 +446,13 @@
   "facebook": "1647712670279965",
   "youtube": "FVh2MA8HhiE",
   "fb_reel": "1118182363909919",
-  "yt_short": "SmsZS5mINhE"
+  "yt_short": "SmsZS5mINhE",
+  "stats": {
+   "likes": 0,
+   "comments": 2,
+   "views": 0,
+   "checked": "2026-10-27T11:53+00:00"
+  }
  },
  {
   "date": "2026-10-26T16:36+00:00",
@@ -487,5 +493,27 @@
   "youtube": "k5bx73km1Ck",
   "fb_reel": "1960988508195397",
   "yt_short": "BzZ4kabBJ5s"
+ },
+ {
+  "date": "2026-10-27T13:19+00:00",
+  "lang": "bn",
+  "slot": "2026-10-27@13",
+  "theme": "a new Karna Pishachini case",
+  "format": "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "কর্ণপিশাচিনী #1: কর্না পিশাচিনী: প্রথম বলি 🕯️",
+  "festival": null,
+  "special": "karna",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": "যখন নদীপাড়ের এক শান্ত গ্রামে হদিশ মেলে না নিখোঁজ শিক্ষকের, তখন নীলকণ্ঠ আচার্যের সাহায্যপ্রার্থী হন তাঁর ভাই। কিন্তু কর্না পিশাচিনীর বাঁকা ইশারায় সত্যের বদলে ঘনীভূত হয় এক ভয়ানক রহস্য।",
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1435155218705988",
+  "youtube": "f7JoQkMGQbY",
+  "fb_reel": "1111966984787844",
+  "yt_short": "fLYh6fGuFxQ"
  }
 ]
