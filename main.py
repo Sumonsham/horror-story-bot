@@ -296,13 +296,15 @@ FORMATS = [
 NEXT_PART = os.path.join(HERE, "next_part.json")
 
 
-def load_next_part(ready_only=True):
+def load_next_part(ready_only=True, slot_hour=None):
     """Part 1 of a series saves what part 2 needs. The next part comes the NEXT DAY (part 1 today, part 2
     tomorrow, part 3 the day after), so viewers wait for it. ready_only=False: also a part not due yet."""
     try:
         with open(NEXT_PART, encoding="utf-8") as f:
             nxt = json.load(f)
         made = dt.datetime.fromisoformat(nxt["created"])
+        if ready_only and slot_hour is not None and nxt.get("slot") not in (None, slot_hour):
+            return None                              # the next part comes at the SAME time as part 1
         if (dt.datetime.now(dt.timezone.utc) - made).total_seconds() < 5 * 86400:
             if ready_only and env("SERIES_NEXT_DAY") != "0" and \
                     made.astimezone(extras.IST).date() >= dt.datetime.now(extras.IST).date():
@@ -514,6 +516,61 @@ GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
 LORE_DIR = os.path.join(HERE, "assets", "lore")
 
 
+def find_source_story(theme, history):
+    """Search the internet for ONE big, really frightening horror story to build today's story on - a folk legend,
+    an urban legend, a famous haunted-place story, a reported 'true' experience or a public-domain story (never a
+    copyrighted modern book / film / series). Returns (source name, full plot + facts) or ("", "")."""
+    if MOCK or env("SOURCE_STORY") == "0" or not env("GEMINI_API_KEY"):
+        return "", ""
+    key = env("GEMINI_API_KEY")
+    used = [h.get("source") for h in history if h.get("source")][-60:]
+    prompt = f"""Search the internet, then answer. We make Bengali horror audio-story videos. Find ONE big, truly
+terrifying, well-loved horror story that fits this idea: {theme}
+It must be a folk legend, an urban legend, a famous haunted-place story (India / Bengal first, else the world), a
+widely reported 'true' ghost experience, or a public-domain story (author died more than 60 years ago). NOT the
+plot of a copyrighted modern book, film or web series. Not one of these (already used): {json.dumps(used)}
+
+Answer in English:
+SOURCE: <the story's name> - <where it comes from>
+PEOPLE: every person: name, who they are, where they come from
+FULL STORY (600-900 words), in time order: how it began (when, who, where from, why and how they came to the
+place), every event in order as the fear grows, the climax, the ending and what really happened.
+FACTS: what the tradition says about this ghost / spirit / belief (its form, how it comes, its rules)."""
+    for model in gemini_models(key)[:3]:
+        for tools in ([{"google_search": {}}], None):
+            body = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.7}}
+            if tools:
+                body["tools"] = tools
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json=body, timeout=200)
+                if r.status_code == 400 and tools:
+                    continue
+                if not r.ok:
+                    break
+                text = "\n".join(p.get("text", "") for p in r.json()["candidates"][0]["content"]["parts"]).strip()
+                mm = re.search(r"SOURCE:\s*(.+)", text)
+                if not mm or len(text) < 800:
+                    break
+                name = mm.group(1).strip()[:120]
+                log(f"Source story from the internet ({model}): {name}")
+                return name, text[:7000]
+            except Exception as e:
+                log(f"  source story ({model}) failed: {str(e)[:120]}")
+                break
+    return "", ""
+HORROR_HOOK = """
+KEEP THEM LISTENING:
+- One short chilling hook line first, then the real beginning (see above) - no slow, empty description, but a
+  proper introduction of the people: the listener must know who they are and care about them.
+- OPEN LOOPS: every 2-3 scenes raise a new question before answering the old one. Every scene ends on a small
+  cliffhanger or a strong feeling. Change the rhythm: tense short lines, a quiet moment, then a shock.
+- NEVER REPEAT: no line, sentence or event is said twice; every scene shows something NEW.
+- The text of a line is ONLY the spoken words - never stage directions like (long pause), [short pause], (sighs)
+  in "text"; such tags go only in "voice_text" as <long pause>, <sigh>.
+"""
+
+
 def research_brief(subject, cache_key=None):
     """BEFORE WRITING: look the subject up on the internet (Gemini with Google Search) - the true belief, form, look,
     behaviour, how it comes, its rules; for a known story its real characters and plot. The story must follow it.
@@ -579,7 +636,44 @@ No mantras, no step-by-step ritual instructions. If sources disagree, give the m
     return ""
 
 
-def ensure_intros(story):
+STAGE_RX = re.compile(r"\s*[\(\[\{<][^\)\]\}>]{0,40}[\)\]\}>]\s*")
+PAUSE_RX = re.compile(r"\b(?:long|short|brief|dramatic)?\s*pause\b|\b(?:sighs?|gasps?|laughs?|whispers?)\b|"
+                      r"(?:দীর্ঘ|লম্বা|ছোট|সংক্ষিপ্ত)\s*(?:বিরতি|বিরাম|পজ)|(?:लंबा|लम्बा|छोटा)\s*(?:विराम|ठहराव|पॉज़)", re.I)
+
+
+def clean_story_text(story):
+    """Only the spoken words go into "text" (= subtitles + voice): stage directions like (long pause), [sighs],
+    <short pause> are removed; a line that repeats an earlier one is dropped."""
+    seen, removed = set(), 0
+    for sc in story.get("scenes") or []:
+        out = []
+        for ln in sc.get("lines") or []:
+            t = str(ln.get("text", ""))
+            t2 = STAGE_RX.sub(" ", t)
+            t2 = PAUSE_RX.sub(" ", t2) if re.search(r"[ঀ-৿ऀ-ॿ]", t2) else t2
+            t2 = re.sub(r"\s{2,}", " ", t2).strip(" ,")
+            if t2 != t.strip():
+                t2 = t2.lstrip(" ,.…।")
+            for k in ("en",):
+                if ln.get(k):
+                    ln[k] = re.sub(r"\s{2,}", " ", STAGE_RX.sub(" ", str(ln[k]))).strip()
+            key = re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", t2)
+            if not key or (len(key) > 12 and key in seen):
+                removed += 1
+                continue
+            seen.add(key)
+            if t2 != t:
+                ln["text"] = t2
+                if ln.get("voice_text"):              # keep the acting tags, but the same words
+                    ln["voice_text"] = re.sub(r"\[([^\]]{1,24})\]|\(([^\)]{1,24})\)",
+                                              lambda mm: f"<{mm.group(1) or mm.group(2)}>", str(ln["voice_text"]))
+            out.append(ln)
+        sc["lines"] = out
+    if removed:
+        log(f"  removed {removed} repeated / empty line(s)")
+
+
+def ensure_intros(story, cold=False):
     """Every person is introduced (name + who they are) the moment they ENTER the story. If the script forgot it,
     the narrator's intro line goes in just before their first line (for the cold-open scene 1: right after the
     time-bridge at the start of scene 2, so the hook stays fast). Ghosts keep their mystery."""
@@ -616,7 +710,7 @@ def ensure_intros(story):
                 if c["name"] not in here or known(c) or not c.get("intro") or c.get("kind") == "ghost" \
                         or c in late or any(x.get("intro_of") == c["name"] for x in out):
                     continue
-                if si == 0:
+                if si == 0 and cold and k == 0:
                     late.append(c)
                 else:
                     out.append(intro_line(c))
@@ -654,9 +748,10 @@ natural dialogue with feeling, a hook in the first lines, sound design that matc
 INTRODUCED (the first time anyone appears, the listener hears their NAME and WHO they are - relation or job - and
 names are used often enough that the listener always knows who is speaking), CONTINUITY (one unbroken chain: every
 scene follows from the scene before it - cause and effect, or a clear time/place bridge said aloud; no scene that
-comes from nowhere; after a cold-open flash-forward in scene 1, the story must later reach that moment again),
-TRUTH TO THE BELIEF (it must follow the research brief below exactly), STRUCTURE (a clear beginning that
-introduces who/where/when/why after a clear time-bridge from the cold open; a full middle with at least three
+comes from nowhere; the story is told in time order from its real beginning - never a flash-forward),
+TRUTH TO THE BELIEF (it must follow the research brief below exactly), STRUCTURE (a clear beginning: one hook line, then
+WHEN it began (month, weekday, time of day), the main person's name, village/town, family, situation, WHY and
+HOW he/she came to this place - in that order; a full middle with at least three
 escalating events, a clue, a false lead and a discovery; a clear end with climax, twist, and a resolution scene
 that explains the whole mystery and what became of everyone - ADD the missing scenes if the beginning, middle or
 end is thin or abrupt), and correct,
@@ -789,19 +884,49 @@ CLASSIC_RULE = (
     "only dramatize it: natural spoken dialogue for the characters, sound, pictures and suspense, in today's "
     "simple spoken {lang} (if the original's language is old-fashioned, keep the meaning but tell it the way "
     "people speak today). Begin "
-    "straight with the most gripping moment of the story (the writer is credited separately just after the opening "
-    "- do not start with an introduction). Use the original title as the title. If you do "
+    "where the original begins, in the same order (the writer is credited separately before the story), with one "
+    "short chilling hook line first, and introduce every character by name and who they are when they enter. Use the original title as the title. If you do "
     "NOT remember this story well enough to retell it faithfully, return ONLY this JSON: {{\"unknown\": true}}.\n")
 MASTER_STYLE = (
     "\nCRAFT OF THE GREAT BENGALI HORROR WRITERS: write with the atmosphere of Bibhutibhushan's Taranath, "
     "Hemendra Kumar Roy, Sharadindu's Baroda and Satyajit Ray's ghost stories - a slow, REALISTIC build-up in "
     "ordinary life, exact everyday detail, every event with a believable cause, people who act like real people, "
-    "logic that holds to the end, and the supernatural entering quietly. But the plot, the people and the twist "
-    "must be completely your OWN: never retell or closely follow any existing story or film.\n")
+    "logic that holds to the end, and the supernatural entering quietly. Never retell or closely follow any "
+    "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
 
 
 class ClassicUnknown(Exception):
     pass
+
+
+class _Saved(Exception):
+    pass
+
+
+SCRIPTS = {}                 # the next parts of today's series, written today, posted on the next days
+
+
+def prewrite_parts(story1, lang, theme, history, fmt, total, extra_rules, special):
+    """A long story: write ALL its parts now, in one go, so they fit together exactly; parts 2-3 are saved and
+    posted on the next days unchanged."""
+    out, prev = {}, {"title": story1.get("title"), "summary": story1.get("summary", ""),
+                     "part2_plan": story1.get("part2_plan", ""), "characters": story1.get("characters"),
+                     "setting": story1.get("setting", "")}
+    for p in range(2, total + 1):
+        try:
+            log(f"Writing part {p} of {total} now (it will be posted on day {p}) ...")
+            s = make_story(lang, theme, history, fmt=fmt, part=p, prev=dict(prev), extra_rules=extra_rules,
+                           total=total)
+            s = edit_story(s, lang, brief=STATE.get("brief", ""))
+            s.pop("choice", None)
+            s["characters"], s["setting"] = prev["characters"], prev["setting"]
+            out[str(p)] = s
+            prev["summary"] = s.get("summary") or (prev["summary"] + " " + str(s.get("episode_summary", "")))
+            prev["part2_plan"] = s.get("part2_plan", "")
+        except Exception as e:
+            log(f"  part {p} could not be written now ({str(e)[:120]}) - it will be written on its day")
+            break
+    return out
 
 
 def pick_classic(history, lang):
@@ -895,7 +1020,8 @@ You are India's best {L['name']} horror storyteller, writing for a horror story 
 Write ONE brand-new horror story in {L['name']} ({L['script']} script; simple, natural,
 spoken {L['name']} that ordinary people use). Idea to build on: {theme}.
 You may use classic Indian folk ghosts (chudail, brahmadaitya, shakchunni, nishi, pishach, vetal, daayan...)
-but the plot, people and events must be your OWN. Do not copy films or real incidents; no real people.
+but the plot must be your OWN or built on the SOURCE STORY given below (a legend / folk tale / haunted-place
+story / public-domain story). Never copy a copyrighted modern book, film or series; no real people's names.
 Must be different from these earlier stories: {json.dumps(old_titles, ensure_ascii=False)}
 
 Story rules:
@@ -924,12 +1050,11 @@ Story rules:
 - ONE UNBROKEN STORY LINE (like a well-made film): plan the whole story first as a chain of cause and effect,
   then write it. Every scene happens BECAUSE of the scene before it and leads to the next; every new person,
   place or event is explained; nothing is forgotten (a clue, a promise, a person who left must come back).
-  Scene 1 may be a flash-forward (the cold open); scene 2 then goes back to the start, and the story must later
-  reach the moment of scene 1 again and continue past it.
+  Tell everything in time order.
 - A CLEAR BEGINNING, A FULL MIDDLE AND A CLEAR END (never an abrupt start or an abrupt end):
-  * BEGINNING (after the cold open, about scenes 2-4): scene 2 opens with a clear bridge back in time said by the
-    narrator ('কিন্তু এর শুরু হয়েছিল ঠিক তিন দিন আগে...'). Then: WHO the people are (names, relations), WHERE
-    and WHEN we are, WHY they are there, their ordinary life - and the first small strange sign.
+  * BEGINNING (scenes 1-4): the hook line, then WHO the main person is (name, home, family, situation), WHY and
+    HOW he/she came to this place, WHERE and WHEN we are, the other people (each introduced), ordinary life -
+    and the first small strange sign.
   * MIDDLE (about scenes 5-12): at least THREE separate events, each stronger than the last (a sign, then a
     sighting, then a real attack/loss); the people react, talk, argue, investigate; a clue is found; a false
     lead; a midpoint discovery that changes everything. Never skip from the first sign straight to the end.
@@ -944,11 +1069,15 @@ Story rules:
 - Telling style for this story: {fmt}
 {series_rule}{extra_rules}
 - Every picture must show exactly what that scene's lines describe.
-- THE FIRST 3 SECONDS DECIDE EVERYTHING (the video starts directly with scene 1, no introduction): the very
-  first line is max 10 words and is a SHOCK - a scream, a terrified whisper, the ghost's voice, or a sentence that
-  makes the skin crawl (e.g. 'ও আবার এসেছে... দরজার ঠিক বাইরে!'), with a sound effect on it. Never start with a
-  calm description of a place or a person. Scene 1 is the most gripping moment; the next scene can go back to how
-  it began.
+- THE STORY STARTS AT ITS REAL BEGINNING, told in order like a real storyteller (never a flash-forward, never
+  in the middle). The very first line is ONE short chilling narrator hook (max 14 words) that promises the horror
+  to come (e.g. 'সেই হোস্টেলের তেরো নম্বর ঘরে যা ঘটেছিল, আজও কেউ মুখে আনে না...'). Then the narrator
+  STRICTLY in this order: (1) WHEN it began - 'ঘটনার শুরু হয়েছিল ... মাসের এক শনিবার সকালে।' (a month, a
+  day of the week, a time of day); (2) WHO and WHERE FROM - 'রতন নামে একটি ছেলে বাঁকুড়ার ... গ্রামে থাকত।'
+  with the family and situation (poor / alone / a new job...); (3) WHY he/she came to this place; (4) HOW - the
+  journey and the search (e.g. 'কলকাতায় পড়তে এসে অনেক খুঁজে, অনেক জায়গায় ঘুরে, শেষে সস্তায় একটা পুরোনো
+  হোস্টেলে একটা ঘর পেল...'). Only then the first day there, the people he/she meets (each introduced), and the
+  first small strange sign. The listener must always know where we are, who is there, how and why.
 - PLANT A CLUE: in the first two scenes show one small, innocent-looking thing (an old key, a scratch on the wall,
   a line of a lullaby, a smell) - at the end it turns out to be the key to the whole horror.
 - BACKGROUND SOUND MUST BE EXACT: each scene's "ambience" is ONLY what can really be heard in that exact place at
@@ -984,7 +1113,7 @@ Story rules:
   first shows itself, when the hero is trapped, at the final twist). On those lines put the ghost's name in
   "ghost_laugh" (the line can be the ghost's own words or the narrator describing the laugh, e.g. 'অন্ধকার চিরে
   ভেসে এল এক কর্কশ, তীব্র হাসি...'). The ghost's own lines may also contain হা-হা-হা / হি-হি-হি.
-{extras.STORY_CRAFT}{extras.HOOK_RULES}{extras.HORROR_DREAD}{extras.WRITING_RULES.get(lang, "")}{extras.VOICE_ACTING}
+{extras.STORY_CRAFT}{HORROR_HOOK}{extras.HORROR_DREAD}{extras.WRITING_RULES.get(lang, "")}{extras.VOICE_ACTING}
 
 Return ONLY JSON with exactly these keys:
 {{
@@ -3140,12 +3269,12 @@ def main():
             extras.refresh_stats(history)            # learn which stories people liked
         except Exception as e:
             log("  stats skipped:", str(e)[:150])
-    prev = load_next_part()
-    series_waiting = prev is None and load_next_part(ready_only=False) is not None   # next part comes tomorrow
-    festival, special, extra_rules, viewer = None, "", "", None
-    classic, plain_rules, promised = None, "", None
     slot_hour = int(str(SLOT).split("@")[1]) if SLOT and "@" in str(SLOT) else 21
     STATE["slot_hour"] = slot_hour
+    prev = load_next_part(slot_hour=slot_hour)
+    series_waiting = prev is None and load_next_part(ready_only=False) is not None   # a story is still unfinished
+    festival, special, extra_rules, viewer = None, "", "", None
+    classic, plain_rules, promised = None, "", None
     shout_names, shout_ids = [], []
     lastp = extras.last_post(history)                # who answered the last video's question right?
     if lastp and not MOCK and not lastp.get("continues", lastp.get("part") == 1) and (lastp.get("mystery_answer") or lastp.get("hidden")):
@@ -3196,7 +3325,7 @@ def main():
         classic = None
         if not festival and env("MODE") != "amavasya":
             classic = pick_classic(history, lang)
-        if not classic and not festival and env("MODE") != "amavasya" and pick_karna(history, lang):
+        if not classic and not festival and not series_waiting and env("MODE") != "amavasya" and pick_karna(history, lang):
             special, part = "karna", 0
             theme = "a new Karna Pishachini case"
             fmt = "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters"
@@ -3262,22 +3391,45 @@ def main():
         subject, ck = f"the published story {classic[4]}", f"classic_{classic[0]}"
     else:
         subject, ck = f"{theme} (with the folk ghost or belief it is about)", None
-    brief = research_brief(subject, ck)
+    has_script = bool(((prev or {}).get("scripts") or {}).get(str(part)))
+    brief = ""
+    if not has_script and part <= 1 and special in ("", "taranath", "bhairab", "amavasya", None) and not viewer:
+        src_name, src = find_source_story(theme, history)   # a big frightening story from the internet as the base
+        if src:
+            STATE["source_name"] = src_name
+            brief = src
+            extra_rules += ("\nSOURCE STORY (found on the internet - BUILD TODAY'S STORY ON IT): keep its core people, "
+                            "events, horror and ending, but make it MORE REALISTIC (a believable Bengal / India setting, "
+                            "real everyday detail, people who act like real people, every event with a cause) and "
+                            "SCARIER; fill every gap so the story is complete from its real beginning to its end. "
+                            "Tell it in your own words (never copy sentences).\n" + src + "\n")
+    if not has_script and not brief:
+        brief = research_brief(subject, ck)
     STATE["brief"] = brief
-    if brief:
+    if brief and not STATE.get("source_name"):
         extra_rules += ("\nRESEARCH BRIEF (true facts we looked up before writing - FOLLOW THEM EXACTLY; never "
                         "contradict them):\n" + brief + "\n")
+    saved = ((prev or {}).get("scripts") or {}).get(str(part)) if part >= 2 else None
+    if saved:                                        # this part was written together with part 1: use it as is
+        SCRIPTS.update({k: v for k, v in (prev.get("scripts") or {}).items() if int(k) > part})
+        log(f"Series part {part}: using the script written with part 1")
     try:
+        if saved:
+            raise _Saved()
         story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
                            total=total if part else 2)
+    except _Saved:
+        story = saved
     except ClassicUnknown:                           # the model does not know that classic well: our own story
         log("  the classic is not remembered well enough - writing our own story instead")
         special, classic, theme = None, None, pick_theme(history)
         extra_rules = plain_rules + MASTER_STYLE
         story = make_story(lang, theme, history, fmt=fmt, part=0, prev=prev, extra_rules=extra_rules, total=2)
-    story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""))
+    if not saved:
+        story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""))
     STATE["special"] = special
-    ensure_intros(story)
+    clean_story_text(story)
+    ensure_intros(story, cold=env("COLD_OPEN") == "1")
     ensure_ghost_laughs(story)
     mark_reveals(story)
     if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
@@ -3286,6 +3438,10 @@ def main():
         except ValueError:
             total = 2
     continues = bool(part) and part < total          # this part ends on a cliffhanger, the next run goes on
+    if part == 1 and continues and env("PREWRITE_PARTS") != "0":
+        SCRIPTS.update(prewrite_parts(story, lang, theme, history, fmt, total, extra_rules, special))
+        if SCRIPTS:
+            story.pop("choice", None)                # the next parts are already written: no vote
     series_id = (((prev or {}).get("series_id") or (prev or {}).get("created")) if part >= 2 else
                  (dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes") if part == 1 else None))
     if special in ("bhairab", "taranath", "karna"):  # always the same faces for our recurring heroes
@@ -3466,7 +3622,7 @@ def main():
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
-    cold = env("COLD_OPEN") != "0" and len(parts) > 2
+    cold = env("COLD_OPEN") == "1" and len(parts) > 2   # off: the story is told from its beginning
     if cold:
         parts[0], parts[1] = parts[1], parts[0]       # first scene, then the title
     end_lines = []
@@ -3552,6 +3708,7 @@ def main():
 
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "slot": SLOT,
                     "pending_comments": list(extras.PENDING),
+                    "source": STATE.get("source_name") or (prev or {}).get("source") or None,
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "classic_id": classic[0] if special == "classic" and classic else None,
@@ -3566,10 +3723,11 @@ def main():
         if continues:
             with open(NEXT_PART, "w", encoding="utf-8") as f:
                 json.dump({"created": dt.datetime.now(dt.timezone.utc).isoformat(), "lang": lang, "theme": theme,
+                           "slot": slot_hour, "source": STATE.get("source_name", ""),
                            "fmt": fmt, "title": (prev or {}).get("title") or story["title"],
                            "done": part, "total": total, "series_id": series_id, "summary": story.get("summary", ""),
                            "part2_plan": story.get("part2_plan", ""), "characters": story.get("characters"),
-                           "setting": story.get("setting", ""), "choice": choice,
+                           "setting": story.get("setting", ""), "choice": choice, "scripts": SCRIPTS,
                            "fb": results.get("facebook"), "yt": results.get("youtube")}, f, ensure_ascii=False, indent=1)
             log(f"Series: part {part + 1} of {total} will be made in the next horror run")
         elif part >= 2 and os.path.exists(NEXT_PART):
@@ -3837,14 +3995,26 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     if len(cand) < 4:
         raise RuntimeError("not enough moments")
     score = lambda c: (0 if c[2] else 2) + (1 if any(ch in c[3] for ch in "!?") else 0) + min(c[1], 4) / 4
-    n_cl = 6
-    span = (limit - st0) / n_cl
-    picks = []
-    for b in range(n_cl):
-        lo, hi = st0 + b * span, st0 + (b + 1) * span
-        inb = [c for c in cand if lo <= c[0] < hi]
-        if inb:
-            picks.append(max(inb, key=score))
+    import bisect
+    scene_of = lambda c: bisect.bisect_right(part_times, c[0])       # which scene this moment belongs to
+    best = {}                                        # never the same scene (picture) or the same words twice
+    for c in cand:
+        s = scene_of(c)
+        if s not in best or score(c) > score(best[s]):
+            best[s] = c
+    chosen = sorted(best.values(), key=score, reverse=True)
+    picks, words = [], set()
+    for c in chosen:
+        w = re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", c[3])[:30]
+        if w in words or any(abs(c[0] - p[0]) < 6 for p in picks):
+            continue
+        words.add(w)
+        picks.append(c)
+        if len(picks) == 6:
+            break
+    picks.sort(key=lambda c: c[0])
+    if len(picks) < 2:
+        raise RuntimeError("not enough different moments")
     rnd = np.random.default_rng(7)
     hit = synth("scare_hit", int(SR * 1.2), rnd) * 0.9
     boom = synth("scare_hit", int(SR * 2.0), rnd)
