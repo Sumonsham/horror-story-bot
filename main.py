@@ -74,6 +74,7 @@ LANGS = {
         "ann1": "नई भूतिया कहानी", "ann_msg": "👻 {when} आ रही है नई भूतिया कहानी... हेडफ़ोन तैयार रखिए! 🎧🔔",
         "comp_title": "{m} मिनट की भूतिया कहानियाँ 👻 | हफ्ते की {n} कहानियाँ एक साथ", "comp_thumb": "{m} मिनट का डर",
         "bhairab": "भैरव ठाकुर का केस #{n}", "bhairab_pl": "भैरव ठाकुर के केस - Bhairab Thakur Cases",
+        "karna": "कर्णपिशाचिनी #{n}", "karna_pl": "कर्णपिशाचिनी - Karna Pishachini",
         "taranath": "तारानाथ तांत्रिक #{n}", "taranath_pl": "तारानाथ तांत्रिक की कहानियाँ - Taranath Tantrik",
         "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
         "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
@@ -110,6 +111,7 @@ LANGS = {
         "ann1": "নতুন ভৌতিক গল্প", "ann_msg": "👻 {when} আসছে নতুন ভৌতিক গল্প... হেডফোন রেডি রাখুন! 🎧🔔",
         "comp_title": "{m} মিনিটের ভূতের গল্প 👻 | সপ্তাহের সেরা {n}টি গল্প একসাথে", "comp_thumb": "{m} মিনিটের ভয়",
         "bhairab": "ভৈরব ঠাকুরের কেস #{n}", "bhairab_pl": "ভৈরব ঠাকুরের কেস - Bhairab Thakur Cases",
+        "karna": "কর্ণপিশাচিনী #{n}", "karna_pl": "কর্ণপিশাচিনী - Karna Pishachini",
         "taranath": "তারানাথ তান্ত্রিক #{n}", "taranath_pl": "তারানাথ তান্ত্রিকের গল্প - Taranath Tantrik",
         "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
         "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
@@ -327,6 +329,70 @@ TARANATH_RULE = (
     "Taranath hinting at another, even more dangerous experience 'next time'.")
 
 
+# ----------------------------------------------------------------- our own series: Karna Pishachini
+KARNA = [
+    {"name": "Nilkantha", "gender": "male", "age": "old", "kind": "human",
+     "look": "Nilkantha Acharya, a thin Bengali astrologer of about sixty, grey hair combed back, grey stubble, deep "
+             "tired eyes with dark circles, a red-and-black thread and a copper ring on his left hand, a cream "
+             "panjabi and white dhoti, a brown woollen shawl, small round brass-rimmed glasses"},
+    {"name": "Bapi", "gender": "male", "age": "young", "kind": "human",
+     "look": "Bapi, Nilkantha's nephew, a slim Bengali college student of about twenty, short messy black hair, "
+             "light moustache, a checked half-sleeve shirt and grey trousers, a cloth bag, a torch in his hand"},
+    {"name": "Pishachini", "gender": "female", "age": "young", "kind": "ghost",
+     "look": "the Karna Pishachini: a tall pale female spirit seen only in glimpses - long wet black hair covering her "
+             "face, a black saree with a thin blood-red border, silver anklets, very long thin fingers, a faint "
+             "smoky glow; when she shows her face for a moment: dark hollow eyes and a sweet, cruel smile"},
+]
+KARNA_RULE = (
+    "OUR OWN SERIES 'KARNA PISHACHINI', episode {n} (an original series built on the old Bengal belief in the Karna "
+    "Pishachini - the spirit a tantrik wins by a dangerous sadhana, who whispers hidden truths into his ear; never "
+    "copy any existing book, film or series). NILKANTHA ACHARYA, an astrologer in a small town of Nadia in the "
+    "1980s (lanterns, radio, bicycles, the last bus), won a Karna Pishachini as a young man and has lived with her "
+    "ever since. She whispers into his LEFT ear the hidden truth about anyone who comes to him. His nephew BAPI, a "
+    "college student who lives with him, is the only one who knows - Bapi tells the story ('my uncle...') and asks "
+    "the questions the viewers would ask.\n"
+    "PLOT LIKE A MASTER (most important): every episode is one complete, tightly plotted MYSTERY-HORROR case that "
+    "feels like it really happened: someone comes with a problem nobody can solve (a missing daughter, a death that "
+    "looks natural, a house where a lamp lights itself, a stolen temple idol, a letter from a dead man...). Plant 3-4 "
+    "real clues and 2-3 believable suspects early; the Pishachini answers only in riddles and half-truths, and once "
+    "she deliberately misleads him out of jealousy; a false lead; then a twist the listener did not see coming but "
+    "that is FAIR - every clue was there. The truth is human AND supernatural at once. Every whisper has a PRICE "
+    "(a year of his life, a memory, the peace of someone he loves) and she wants Nilkantha only for herself - "
+    "jealous, possessive, sweet one moment and cruel the next. She is never fully shown: a cold breath at the left "
+    "ear, the smell of burnt camphor and wet hair, anklet bells, a shadow with hair over the face; her whisper is "
+    "close and soft and turns cruel. Before the scenes, add the JSON key \"plot_plan\": {{\"case\", \"suspects\", "
+    "\"clues\", \"false_lead\", \"twist\", \"price\"}} (ENGLISH) and follow it. Also add \"episode_summary\": "
+    "ENGLISH, 2 sentences.\n"
+    "SERIES SO FAR (never repeat a case; keep the running thread - her growing jealousy, Bapi coming closer to "
+    "danger, the secret of how Nilkantha won her): {past}\n"
+    "Use exactly these looks: {looks}. No real ritual instructions, no gore, no harm to children. End with a hook: "
+    "the Pishachini whispers something chilling about the NEXT case - or about Bapi.\n")
+
+
+def pick_karna(history, lang):
+    """the Karna Pishachini series: the day's first video on its days (Tuesday and Friday by default)"""
+    days = [int(x) for x in re.findall(r"\d", env("KARNA_DAYS") or "1,4")]
+    now = dt.datetime.now(extras.IST)
+    if now.weekday() not in days or env("KARNA") == "0":
+        return False
+    today = now.date().isoformat()
+    for h in history[-6:]:
+        try:
+            if h.get("special") == "karna" and \
+                    dt.datetime.fromisoformat(h["date"]).astimezone(extras.IST).date().isoformat() == today:
+                return False
+        except Exception:
+            pass
+    return True
+
+
+def karna_rule(history, lang):
+    eps = [h for h in history if h.get("special") == "karna" and h.get("lang") == lang]
+    past = " | ".join(f"Ep {k + 1}: {h.get('episode_summary') or h.get('title')}" for k, h in enumerate(eps))[-2500:]
+    return KARNA_RULE.format(n=len(eps) + 1, past=past or "this is the FIRST episode - also show how the town "
+                             "first learns that Nilkantha 'knows everything'", looks=json.dumps(KARNA))
+
+
 def pick_theme(history):
     used = [h.get("theme") for h in history[-12:]]
     options = [t for t in THEMES if t not in used] or THEMES
@@ -362,6 +428,86 @@ def gemini_models(key):
         if t and t not in out:
             out.append(t)
     return out
+
+
+# ----------------------------------------------------------------- famous writers' ghost stories (public domain)
+# Only writers whose works are free to use in India (author died 60+ years ago, counted from 1 January after
+# the death). Retold faithfully, with the writer and the book named at the start.
+CLASSICS = [  # id, writer (bn, hi), book (bn, hi), story (bn, hi), English identification for the model
+    ("tagore_kshudhita", ("রবীন্দ্রনাথ ঠাকুর", "रवींद्रनाथ टैगोर"), ("গল্পগুচ্ছ", "गल्पगुच्छ"),
+     ("ক্ষুধিত পাষাণ", "क्षुधित पाषाण"), "Rabindranath Tagore's 'Kshudhita Pashan' (The Hungry Stones, 1895)"),
+    ("tagore_monihara", ("রবীন্দ্রনাথ ঠাকুর", "रवींद्रनाथ टैगोर"), ("গল্পগুচ্ছ", "गल्पगुच्छ"),
+     ("মণিহারা", "मणिहारा"), "Rabindranath Tagore's 'Monihara' (The Lost Jewels, 1898)"),
+    ("tagore_kankal", ("রবীন্দ্রনাথ ঠাকুর", "रवींद्रनाथ टैगोर"), ("গল্পগুচ্ছ", "गल्पगुच्छ"),
+     ("কঙ্কাল", "कंकाल"), "Rabindranath Tagore's 'Kankal' (The Skeleton, 1892)"),
+    ("tagore_nishithe", ("রবীন্দ্রনাথ ঠাকুর", "रवींद्रनाथ टैगोर"), ("গল্পগুচ্ছ", "गल्पगुच्छ"),
+     ("নিশীথে", "निशीथे"), "Rabindranath Tagore's 'Nishithe' (In the Night, 1894)"),
+    ("tagore_jibito", ("রবীন্দ্রনাথ ঠাকুর", "रवींद्रनाथ टैगोर"), ("গল্পগুচ্ছ", "गल्पगुच्छ"),
+     ("জীবিত ও মৃত", "जीवित और मृत"), "Rabindranath Tagore's 'Jibito o Mrito' (The Living and the Dead, 1892)"),
+    ("bibhuti_taranath", ("বিভূতিভূষণ বন্দ্যোপাধ্যায়", "विभूतिभूषण बंद्योपाध्याय"), ("তারানাথ তান্ত্রিক", "तारानाथ तांत्रिक"),
+     ("তারানাথ তান্ত্রিকের গল্প", "तारानाथ तांत्रिक की कहानी"),
+     "Bibhutibhushan Bandyopadhyay's original 'Taranath Tantriker Golpo' (the first Taranath Tantrik story, "
+     "Taranath's youth and Madhusundari Devi) - NOT the later stories by his son Taradas"),
+    ("bibhuti_rankini", ("বিভূতিভূষণ বন্দ্যোপাধ্যায়", "विभूतिभूषण बंद्योपाध्याय"), ("", ""),
+     ("রঙ্কিনী দেবীর খড়্গ", "रंकिणी देवी का खड्ग"), "Bibhutibhushan Bandyopadhyay's 'Rankini Debir Khorgo'"),
+    ("bibhuti_abhishapta", ("বিভূতিভূষণ বন্দ্যোপাধ্যায়", "विभूतिभूषण बंद्योपाध्याय"), ("", ""),
+     ("অভিশপ্ত", "अभिशप्त"), "Bibhutibhushan Bandyopadhyay's 'Abhishapta'"),
+    ("bibhuti_medal", ("বিভূতিভূষণ বন্দ্যোপাধ্যায়", "विभूतिभूषण बंद्योपाध्याय"), ("", ""),
+     ("মেডেল", "मेडल"), "Bibhutibhushan Bandyopadhyay's ghost story 'Medal'"),
+    ("trailokya_lullu", ("ত্রৈলোক্যনাথ মুখোপাধ্যায়", "त्रैलोक्यनाथ मुखोपाध्याय"), ("ভূত ও মানুষ", "भूत और मानुष"),
+     ("লুল্লু", "लुल्लु"), "Trailokyanath Mukhopadhyay's 'Lullu' (from Bhoot o Manush)"),
+    ("parashuram_bhushondi", ("পরশুরাম (রাজশেখর বসু)", "परशुराम (राजशेखर बसु)"), ("গড্ডলিকা", "गड्डलिका"),
+     ("ভুশণ্ডীর মাঠে", "भुशंडी के मैदान में"), "Parashuram (Rajshekhar Basu)'s 'Bhushondir Mathe' (from Gaddalika)"),
+]
+CLASSIC_RULE = (
+    "\nFAMOUS CLASSIC (very important): this video retells {en} - a public-domain classic. Tell THAT story "
+    "faithfully: the same events in the same order, the same characters and their relations, the same place and "
+    "era, the same mystery and the same ending - nothing invented that changes the plot (this overrides the rules "
+    "about inventing your own plot; build the hook and the fear through suspense, not by changing events). You "
+    "only dramatize it: natural spoken dialogue for the characters, sound, pictures and suspense, in today's "
+    "simple spoken {lang} (if the original's language is old-fashioned, keep the meaning but tell it the way "
+    "people speak today). The "
+    "narrator's FIRST line says exactly whose story it is: {intro} Use the original title as the title. If you do "
+    "NOT remember this story well enough to retell it faithfully, return ONLY this JSON: {{\"unknown\": true}}.\n")
+MASTER_STYLE = (
+    "\nCRAFT OF THE GREAT BENGALI HORROR WRITERS: write with the atmosphere of Bibhutibhushan's Taranath, "
+    "Hemendra Kumar Roy, Sharadindu's Baroda and Satyajit Ray's ghost stories - a slow, REALISTIC build-up in "
+    "ordinary life, exact everyday detail, every event with a believable cause, people who act like real people, "
+    "logic that holds to the end, and the supernatural entering quietly. But the plot, the people and the twist "
+    "must be completely your OWN: never retell or closely follow any existing story or film.\n")
+
+
+class ClassicUnknown(Exception):
+    pass
+
+
+def pick_classic(history, lang):
+    """on the classic days (Wednesday and Saturday by default), the day's first horror video"""
+    days = [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "2,5")]
+    now = dt.datetime.now(extras.IST)
+    if now.weekday() not in days or env("CLASSICS") == "0":
+        return None
+    today = now.date().isoformat()
+    for h in history[-6:]:
+        try:
+            if h.get("special") == "classic" and \
+                    dt.datetime.fromisoformat(h["date"]).astimezone(extras.IST).date().isoformat() == today:
+                return None
+        except Exception:
+            pass
+    used = {h.get("classic_id") for h in history if h.get("lang") == lang}
+    left = [c for c in CLASSICS if c[0] not in used] or CLASSICS
+    return left[0]
+
+
+def classic_rule(c, lang):
+    k = 0 if lang == "bn" else 1
+    writer, book, title = c[1][k], c[2][k], c[3][k]
+    if lang == "bn":
+        intro = (f"'আজকের গল্প {writer}-এর লেখা " + (f"\"{book}\" বইয়ের " if book else "") + f"গল্প \"{title}\"।'")
+    else:
+        intro = (f"'आज की कहानी {writer} की लिखी " + (f"\"{book}\" से " if book else "") + f"कहानी \"{title}\" है।'")
+    return CLASSIC_RULE.format(en=c[4], lang=LANGS[lang]["name"], intro=intro)
 
 
 def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2):
@@ -513,6 +659,25 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
     models = gemini_models(key)
     waits = [0, 90, 180, 300, 300, 420]           # Google's servers are sometimes busy for a while: be patient
     for round_no, wait in enumerate(waits):
+        if wait and round_no <= 2:                # Gemini busy: try the backup writer before waiting
+            try:
+                text = extras.freemodel_text(body["contents"][0]["parts"][0]["text"])
+                if text:
+                    story = extras.load_json_loose(text)
+                    if story.get("unknown"):
+                        raise ClassicUnknown()
+                    assert story.get("title") and len(story.get("scenes", [])) >= 6
+                    assert all(s.get("lines") for s in story["scenes"])
+                    words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc["lines"])
+                    log(f"  backup story: {len(story['scenes'])} scenes, {words} spoken words")
+                    if words >= min_words * 0.8:
+                        return story
+                    if not best or words > best[0]:
+                        best = (words, story)
+            except ClassicUnknown:
+                raise
+            except Exception as e:
+                log("  backup writer failed:", (str(e) or type(e).__name__)[:150])
         if wait:
             log(f"All Gemini models busy - waiting {wait} s (round {round_no + 1}/{len(waits)})")
             time.sleep(wait)
@@ -530,6 +695,8 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
                 text = cand["content"]["parts"][0]["text"]
                 text = re.sub(r"^```(?:json)?|```$", "", text.strip()).strip()
                 story = extras.load_json_loose(text)     # small JSON mistakes are repaired, not thrown away
+                if story.get("unknown"):
+                    raise ClassicUnknown()
                 assert story.get("title") and len(story.get("scenes", [])) >= 6
                 assert all(s.get("lines") for s in story["scenes"])
                 words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc["lines"])
@@ -542,6 +709,8 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
                         f"Write at least {min_words + 150} spoken words: more scenes and more lines per scene.")
                     raise ValueError("story too short - asking for a longer one")
                 return story
+            except ClassicUnknown:
+                raise
             except LookupError as e:
                 last_err = e
                 models.remove(model)
@@ -2475,6 +2644,7 @@ def main():
     prev = load_next_part()
     series_waiting = prev is None and load_next_part(ready_only=False) is not None   # next part comes tomorrow
     festival, special, extra_rules, viewer = None, "", "", None
+    classic, plain_rules = None, ""
     shout_names, shout_ids = [], []
     lastp = extras.last_post(history)                # who answered the last video's question right?
     if lastp and not MOCK and not lastp.get("continues", lastp.get("part") == 1) and (lastp.get("mystery_answer") or lastp.get("hidden")):
@@ -2522,7 +2692,21 @@ def main():
                                    "a lonely road on Amavasya night and the woman with a lantern"])
             extra_rules += ("\nSPECIAL: this is our AMAVASYA MIDNIGHT SPECIAL - tonight is the new-moon night. The story "
                             "happens on an Amavasya night and must be the scariest of the month.\n")
-        elif not festival and not part:
+        classic = None
+        if not festival and env("MODE") != "amavasya":
+            classic = pick_classic(history, lang)
+        if not classic and not festival and env("MODE") != "amavasya" and pick_karna(history, lang):
+            special, part = "karna", 0
+            theme = "a new Karna Pishachini case"
+            fmt = "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters"
+            extra_rules += "\n" + karna_rule(history, lang)
+            log("Karna Pishachini series")
+        elif classic:
+            special, part, theme = "classic", 0, f"the classic: {classic[4]}"
+            plain_rules = extra_rules
+            extra_rules += classic_rule(classic, lang)
+            log(f"Famous writer's story: {classic[4]}")
+        elif not festival and not part and env("MODE") != "amavasya":
             used = {h.get("viewer_story_id") for h in history}
             last_v = max((h.get("date", "") for h in history if h.get("viewer_story_id")), default="")
             days_v = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(last_v)).days if last_v else 99
@@ -2561,8 +2745,16 @@ def main():
     VHS = "first person" in str(fmt)               # found-footage camera look for "I lived it" stories
     log(f"Language: {L['name']} | Idea: {theme} | Style: {fmt}" + (f" | SERIES part {part}" if part else ""))
 
-    story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
-                       total=total if part else 2)
+    if special != "classic":
+        extra_rules += MASTER_STYLE
+    try:
+        story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
+                           total=total if part else 2)
+    except ClassicUnknown:                           # the model does not know that classic well: our own story
+        log("  the classic is not remembered well enough - writing our own story instead")
+        special, classic, theme = None, None, pick_theme(history)
+        extra_rules = plain_rules + MASTER_STYLE
+        story = make_story(lang, theme, history, fmt=fmt, part=0, prev=prev, extra_rules=extra_rules, total=2)
     ensure_ghost_laughs(story)
     if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
         try:
@@ -2572,8 +2764,8 @@ def main():
     continues = bool(part) and part < total          # this part ends on a cliffhanger, the next run goes on
     series_id = (((prev or {}).get("series_id") or (prev or {}).get("created")) if part >= 2 else
                  (dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes") if part == 1 else None))
-    if special in ("bhairab", "taranath"):           # always the same faces for our recurring heroes
-        fixed = BHAIRAB if special == "bhairab" else TARANATH
+    if special in ("bhairab", "taranath", "karna"):  # always the same faces for our recurring heroes
+        fixed = {"bhairab": BHAIRAB, "taranath": TARANATH, "karna": KARNA}[special]
         names = {c["name"].lower(): c for c in fixed}
         story["characters"] = [names.get(str(c.get("name", "")).lower(), c) for c in story.get("characters", [])]
         for b in fixed:
@@ -2592,8 +2784,15 @@ def main():
         case_no = 1 + sum(1 for h in history if h.get("special") == "taranath")
         title = f"{L['taranath'].format(n=case_no)}: {title}"[:95]
         story["_playlist"] = L["taranath_pl"]
+    elif special == "karna":
+        case_no = 1 + sum(1 for h in history if h.get("special") == "karna" and h.get("lang") == lang)
+        title = f"{L['karna'].format(n=case_no)}: {title}"[:95]
+        story["_playlist"] = L["karna_pl"]
     elif special == "amavasya":
         title = f"{L['amavasya']}: {title}"[:95]
+    elif special == "classic" and classic:
+        k = 0 if lang == "bn" else 1
+        title = f"{classic[3][k]} | {classic[1][k]}"[:95]
     log("Title:", title)
     with open(os.path.join(WORK, "story.json"), "w", encoding="utf-8") as f:
         json.dump(story, f, ensure_ascii=False, indent=1)
@@ -2706,7 +2905,7 @@ def main():
         if not make_image(cast, t_prompt, "", [n for n in (hero, gname) if n], thumb_base, seed):
             shutil.copy(first_ok, thumb_base)
     thumb = os.path.join(WORK, "thumbnail.jpg")
-    series_bn = {"taranath": L["taranath"].split(" #")[0], "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "")
+    series_bn = {"taranath": L["taranath"].split(" #")[0], "karna": L["karna"].split(" #")[0], "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "")
                  .replace(" का केस", "")}.get(special)
     big = series_bn or str(story.get("thumbnail_text") or title).strip()
     sub = str(story.get("episode_name") or (story.get("thumbnail_text") if series_bn else "") or "").strip()
@@ -2798,6 +2997,8 @@ def main():
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "slot": SLOT,
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
+                    "classic_id": classic[0] if special == "classic" and classic else None,
+                    "episode_summary": str(story.get("episode_summary", ""))[:400] if special == "karna" else None,
                     "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
     if not MOCK:
