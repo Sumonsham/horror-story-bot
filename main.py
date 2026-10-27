@@ -65,7 +65,8 @@ LANGS = {
         "badge": "लाइक • शेयर • फॉलो", "part": "भाग {n}",
         "outro_part1": "कहानी का अगला भाग जल्द ही आएगा... उसे मिस मत कीजिए, अभी {page} को फॉलो कीजिए।",
         "ch_intro": "शुरुआत", "ch_end": "अंत", "chapters": "⏱️ अध्याय",
-        "cta": "पूरी कहानी हमारे पेज पर 👉", "playlist": "भूतिया कहानियाँ - Hindi Horror Stories",
+        "cta": "पूरी कहानी हमारे पेज पर 👉", "follow": "फ़ॉलो कीजिए - हर रात 9 बजे नई डरावनी कहानी",
+        "guess_card": "आपका जवाब क्या है? कमेंट में लिखिए 1 या 2 या 3", "core_tags": ["#BhootKiKahani", "#HindiHorrorStories", "#डरावनीकहानी", "#horrorstories"], "playlist": "भूतिया कहानियाँ - Hindi Horror Stories",
         "full_link": "पूरी कहानी देखें:",
         "hp": "हेडफ़ोन लगाकर सुनिए",
         "find_ghost": "🔍 वीडियो की तस्वीरों में भूत कितनी बार छिपा था? ध्यान दिया? कमेंट में लिखिए!",
@@ -79,6 +80,8 @@ LANGS = {
         "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
         "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
         "show_21": "रात नौ बजे का डर", "show_13": "मशहूर भूतिया कहानियाँ",
+        "title_21": "रात नौ बजे का डर... {title}।", "title_13": "मशहूर भूतिया कहानियाँ... {title}।",
+        "title_karna": "कर्णपिशाचिनी... {title}।", "title_classic": "मशहूर भूतिया कहानियाँ... {writer} की लिखी... '{title}'।",
         "open_21": "रात के नौ बज गए हैं... कमरे की बत्ती बुझा दीजिए, हेडफ़ोन कानों में लगा लीजिए... शुरू हो रहा है 'रात नौ बजे का डर'।",
         "open_13": "शुरू हो रही हैं 'मशहूर भूतिया कहानियाँ'... हेडफ़ोन लगा लीजिए... और अगर आप अकेले हैं, तो ज़रा संभलकर सुनिए।",
         "open_karna": "कर्णपिशाचिनी... वो आत्मा जो कान में हर सच फुसफुसा देती है... पर उसकी क़ीमत बहुत भयानक है।",
@@ -111,7 +114,8 @@ LANGS = {
         "badge": "লাইক • শেয়ার • ফলো", "part": "পর্ব {n}",
         "outro_part1": "গল্পের পরের পর্ব আসছে কাল... আর রবিবার আসবে পুরো গল্পটা একসাথে। মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
         "ch_intro": "শুরু", "ch_end": "শেষ", "chapters": "⏱️ অধ্যায়",
-        "cta": "পুরো গল্প আমাদের পেজে 👉", "playlist": "ভৌতিক গল্প - Bengali Horror Stories",
+        "cta": "পুরো গল্প আমাদের পেজে 👉", "follow": "ফলো করুন — রোজ রাত ৯টায় নতুন ভূতের গল্প",
+        "guess_card": "আপনার উত্তর কী? কমেন্টে লিখুন ১ বা ২ বা ৩", "core_tags": ["#ভূতেরগল্প", "#BengaliHorrorStory", "#BhuterGolpo", "#ভৌতিকগল্প", "#horrorstories"], "playlist": "ভৌতিক গল্প - Bengali Horror Stories",
         "full_link": "পুরো গল্প দেখুন:",
         "hp": "হেডফোন পরে শুনুন",
         "find_ghost": "🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!",
@@ -125,6 +129,8 @@ LANGS = {
         "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
         "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
         "show_21": "রাত ন'টার ভয়", "show_13": "বিখ্যাত ভূতের গল্প",
+        "title_21": "রাত ন'টার ভয়... {title}।", "title_13": "বিখ্যাত ভূতের গল্প... {title}।",
+        "title_karna": "কর্ণপিশাচিনী... {title}।", "title_classic": "বিখ্যাত ভূতের গল্প... {writer} লেখা... '{title}'।",
         "open_21": "রাত ন'টা বাজল... ঘরের আলোটা নিভিয়ে দিন, হেডফোনটা কানে দিন... শুরু হচ্ছে 'রাত ন'টার ভয়'।",
         "open_13": "শুরু হচ্ছে 'বিখ্যাত ভূতের গল্প'... হেডফোনটা কানে দিন... আর যদি একা থাকেন, তাহলে একটু সাবধানে শুনবেন।",
         "open_karna": "কর্ণপিশাচিনী... যে আত্মা কানে কানে সব সত্যি বলে দেয়... কিন্তু তার দাম বড় ভয়ঙ্কর।",
@@ -625,8 +631,9 @@ CLASSIC_RULE = (
     "about inventing your own plot; build the hook and the fear through suspense, not by changing events). You "
     "only dramatize it: natural spoken dialogue for the characters, sound, pictures and suspense, in today's "
     "simple spoken {lang} (if the original's language is old-fashioned, keep the meaning but tell it the way "
-    "people speak today). The "
-    "narrator's FIRST line says exactly whose story it is: {intro} Use the original title as the title. If you do "
+    "people speak today). Begin "
+    "straight with the most gripping moment of the story (the writer is credited separately just after the opening "
+    "- do not start with an introduction). Use the original title as the title. If you do "
     "NOT remember this story well enough to retell it faithfully, return ONLY this JSON: {{\"unknown\": true}}.\n")
 MASTER_STYLE = (
     "\nCRAFT OF THE GREAT BENGALI HORROR WRITERS: write with the atmosphere of Bibhutibhushan's Taranath, "
@@ -759,6 +766,11 @@ Story rules:
 - Telling style for this story: {fmt}
 {series_rule}{extra_rules}
 - Every picture must show exactly what that scene's lines describe.
+- THE FIRST 3 SECONDS DECIDE EVERYTHING (the video starts directly with scene 1, no introduction): the very
+  first line is max 10 words and is a SHOCK - a scream, a terrified whisper, the ghost's voice, or a sentence that
+  makes the skin crawl (e.g. 'ও আবার এসেছে... দরজার ঠিক বাইরে!'), with a sound effect on it. Never start with a
+  calm description of a place or a person. Scene 1 is the most gripping moment; the next scene can go back to how
+  it began.
 - PLANT A CLUE: in the first two scenes show one small, innocent-looking thing (an old key, a scratch on the wall,
   a line of a lullaby, a smell) - at the end it turns out to be the key to the whole horror.
 - BACKGROUND SOUND MUST BE EXACT: each scene's "ambience" is ONLY what can really be heard in that exact place at
@@ -2040,6 +2052,8 @@ def word_time(a, text, word):
 
 
 SHOW_STING = True
+STING_AT = [0]               # which part of the video gets the opening sound (the title, after the cold open)
+HOOK_TEXT = [""]             # big words on screen in the first seconds (the thumbnail's hook)
 
 
 def signature_sting():
@@ -2067,7 +2081,7 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     rnd = np.random.default_rng(1000 + idx)
     gap, lead, tail = 0.35, 0.5, 1.0
     pieces, subs, cues, silences, t = [], [], [], [], lead
-    if idx == 0 and SHOW_STING:                       # our show's own opening sound - the same every day
+    if idx == STING_AT[0] and SHOW_STING:             # our show's own opening sound - the same every day
         cues.append((0.05, signature_sting(), 0.9, "sting"))
         t += 2.2
     for j, ln in enumerate(lines):
@@ -2675,6 +2689,25 @@ TIMELINE = ([], [])          # (start second of every part, every spoken line) o
 BADGE_COLORS = ((200, 0, 20), (255, 255, 255))
 
 
+def hook_png(text, path):
+    """the hook in big words at the top for the first seconds - most people watch the feed WITHOUT sound"""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    if text:
+        d = ImageDraw.Draw(img)
+        rows, f, sz = extras._fit_text(d, text, FONT, W - 120, 78, lines_max=2)
+        band = int(len(rows) * sz * 1.35 + 40)
+        for y in range(band):                         # dark band fading down
+            d.line([(0, y), (W, y)], fill=(0, 0, 0, int(190 * (1 - y / band) ** 0.6)))
+        y = 20
+        for r in rows:
+            tw = d.textlength(r, font=f)
+            d.text(((W - tw) / 2, y), r, font=f, fill=(255, 225, 0, 255), stroke_width=max(4, sz // 12),
+                   stroke_fill=(120, 0, 0, 255))
+            y += int(sz * 1.35)
+    img.save(path)
+    return path
+
+
 def build_video(scene_parts, lang, out):
     """scene_parts: list of dict(image, lines, sounds, mood). Returns mp4 path."""
     global TIMELINE
@@ -2718,9 +2751,11 @@ def build_video(scene_parts, lang, out):
     try:                                   # small "Like - Share - Follow" pill, top right, at the start and the end
         extras.make_badge(FONT, LANGS[lang]["badge"], os.path.join(WORK, "badge.png"), BADGE_COLORS)
         extras.headphone_hint(FONT, LANGS[lang]["hp"], os.path.join(WORK, "hp.png"))
-        pic = ["-i", "badge.png", "-i", "hp.png", "-filter_complex",
+        hook_png(HOOK_TEXT[0], os.path.join(WORK, "hook.png"))
+        pic = ["-i", "badge.png", "-i", "hp.png", "-i", "hook.png", "-filter_complex",
                f"[0:v]{vf}[b];[b][2:v]overlay=W-w-24:22:enable='{extras.badge_filter(total)}'[c];"
-               f"[c][3:v]overlay=(W-w)/2:H-h-110:enable='between(t,0.5,7)'[v]", "-map", "[v]"]
+               f"[c][3:v]overlay=(W-w)/2:H-h-110:enable='between(t,0.5,7)'[d];"
+               f"[d][4:v]overlay=0:0:enable='between(t,0,4.5)'[v]", "-map", "[v]"]
     except Exception as e:
         log("  badge skipped:", str(e)[:120])
         pic = ["-vf", vf, "-map", "0:v"]
@@ -2899,7 +2934,9 @@ def main():
     history = load_history()
     if not MOCK and not DRY_RUN:
         try:
-            if extras.flush_pending(history):          # comments of earlier videos that are live now
+            changed = extras.flush_pending(history)    # comments of earlier videos that are live now
+            changed = extras.reply_fans(history, env("LANGUAGE") or "bn") or changed   # answer the fans
+            if changed:
                 save_history(history)
         except Exception as e:
             log("  earlier comments skipped:", str(e)[:120])
@@ -3218,14 +3255,24 @@ def main():
             q=str(g["question"]).strip(), o1=gopts[0], o2=gopts[1], o3=gopts[2])})
         story["mystery_answer"] = int(str(g["answer"]).strip()[0])
         log(f"Viewers' guess at scene {len(scenes) // 2}: answer {story['mystery_answer']}")
-    opener = L["open_karna"] if special == "karna" else L["open_13"] if slot_hour == 13 else L["open_21"]
-    parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": opener},
-                                            {"speaker": "narrator", "text": L["intro"].format(title=clean_title)}],
-              "sounds": ["wind"], "mood": "creepy", "voices": voices}]
+    # COLD OPEN: viewers decide in 3 seconds - the video starts INSIDE the story (its first, most gripping scene);
+    # the show's short title with its sound comes right after it, then the rest of the story
+    if special == "classic" and classic:
+        kk = 0 if lang == "bn" else 1
+        tline = L["title_classic"].format(writer=bn_of(classic[1][0]) if lang == "bn" else classic[1][1],
+                                          title=classic[3][kk])
+    else:
+        tline = (L["title_karna"] if special == "karna" else L["title_13"] if slot_hour == 13 else
+                 L["title_21"]).format(title=clean_title)
+    parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": tline}],
+              "sounds": ["wind"], "mood": "creepy", "voices": voices, "title_part": True}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
+    cold = env("COLD_OPEN") != "0" and len(parts) > 2
+    if cold:
+        parts[0], parts[1] = parts[1], parts[0]       # first scene, then the title
     end_lines = []
     choice = story.get("choice") if continues and isinstance(story.get("choice"), dict) else None
     vote_text = ""
@@ -3252,17 +3299,24 @@ def main():
     end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if continues else L["outro"]).format(page=page)})
     parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
+    STING_AT[0] = 1 if cold else 0
+    HOOK_TEXT[0] = str(story.get("thumbnail_text") or "").strip()
     video = os.path.join(WORK, "final.mp4")
     build_video(parts, lang, video)
     log(f"Video ready: {duration(video):.0f} seconds")
 
-    tags = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
+    own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
+    tags = []                                        # Facebook shows the first 5: 2 of this story + 3 fixed horror tags
+    for t in own[:2] + L.get("core_tags", [])[:3] + own[2:] + L.get("core_tags", [])[3:]:
+        if t.lower() not in {x.lower() for x in tags}:
+            tags.append(t)
     description = (f"{title}\n\n{story.get('description', '').strip()}\n\n" + (f"🗳️ {vote_text}\n\n" if vote_text else "")
                    + (f"{L['find_ghost']}\n\n" if hidden else "") + f"{L['your_story']}\n\n"
                    + f"{L['ai_note']}\n\n{' '.join(tags)}")
     part_times, segs = TIMELINE
-    chap = extras.chapters_text(part_times, [L["ch_intro"]] + [sc.get("chapter") or f"{k + 1}" for k, sc in
-                                                                 enumerate(scenes)] + [L["ch_end"]], L["chapters"])
+    labels = [sc.get("chapter") or f"{k + 1}" for k, sc in enumerate(scenes)]
+    labels = ([labels[0], L["ch_intro"]] + labels[1:]) if cold else [L["ch_intro"]] + labels
+    chap = extras.chapters_text(part_times, labels + [L["ch_end"]], L["chapters"])
     yt_description = description.replace(f"\n\n{L['ai_note']}", (f"\n\n{chap}" if chap else "") + f"\n\n{L['ai_note']}")
 
     results = {}
@@ -3580,7 +3634,7 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     part_times, segs = TIMELINE
     if len(part_times) < 3:
         raise RuntimeError("too short for a trailer")
-    st0, st1 = part_times[1], part_times[-1]
+    st0, st1 = part_times[0], part_times[-1]          # the whole story (the cold open is its first scene)
     limit = st0 + (st1 - st0) * 0.78                   # never show the ending
     cand = [(s, d, nar, tx) for s, d, nar, tx in segs if st0 <= s < limit and d > 1.0]
     if len(cand) < 4:
@@ -3621,6 +3675,14 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     for c in picks[4:]:
         parts.append(_still_clip(black, hit, 0.25, nxt("flash")))
         parts.append(_video_clip(video, c[0] - 0.1, min(c[1], 2.4) + 0.2, nxt("fast"), c[3]))
+    g = story.get("guess") if isinstance(story.get("guess"), dict) else {}
+    opts = [str(x) for x in (g.get("options") or [])][:3]
+    if g.get("question") and len(opts) == 3:      # the viewers' puzzle: they comment 1, 2 or 3
+        nums = "১২৩" if lang == "bn" else "123"
+        qcard = _card(os.path.join(WORK, "tr_cq.jpg"),
+                      [str(g["question"])] + [f"{nums[i]}) {o}" for i, o in enumerate(opts)] + [L["guess_card"]],
+                      [52, 42, 42, 42, 40], [(255, 255, 255)] + [(255, 225, 0)] * 3 + [(255, 70, 70)])
+        parts.append(_still_clip(qcard, hit, 3.2, nxt("guess")))
     # a held breath ... the ghost
     parts.append(_still_clip(black, synth("heartbeat", int(SR * 1.4), rnd) * 0.6, 1.4, nxt("breath")))
     gface = os.path.join(WORK, "ghost_face.jpg")
@@ -3641,7 +3703,7 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     if special == "karna":
         show = L["karna"].split(" #")[0]
     clean = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?'-]", "", title).strip()
-    final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["cta"]], [50, 66, 46, 38],
+    final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["follow"]], [50, 66, 46, 40],
                   [(200, 200, 200), (255, 225, 0), (255, 60, 60), (255, 255, 255)], bg=ghost_img)
     parts.append(_still_clip(final, signature_sting(), 3.4, nxt("title")))
     lst = os.path.join(WORK, "trailer.txt")
@@ -3680,6 +3742,12 @@ def grow(video, story, title, lang, L, tags, results, history, page):
             log("Posted Facebook Reel:", out["fb_reel"])
         except Exception as e:
             log("  Facebook Reel skipped:", str(e)[:200])
+        try:                                     # the teaser on the page Story too (24 h, top of the feed)
+            out["fb_story"] = extras.fb_post_story(teaser)
+            if out["fb_story"]:
+                log("Shared to Facebook Story:", out["fb_story"])
+        except Exception as e:
+            log("  Facebook Story skipped:", str(e)[:200])
     if teaser and env("INSTAGRAM") == "1":           # only if you switch Instagram on (secret INSTAGRAM = 1)
         try:
             out["ig_reel"] = extras.ig_post_reel(teaser, short_desc)
