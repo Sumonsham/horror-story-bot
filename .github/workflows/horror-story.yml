@@ -2,13 +2,11 @@ name: Daily Horror Story
 
 on:
   schedule:
-    # The main start comes from cron-job.org at 8:30 AM and 4:30 PM India time: the ~30-minute video is made
-    # ~4.5 hours early and goes live by itself at exactly 1:00 PM and 9:00 PM (scheduled post).
+    # The main start comes from cron-job.org at 9:30 AM and 3:30 PM India time: the 5-8 minute story goes live
+    # by itself at 1:00 PM, the ~30-minute story at 8:00 PM (scheduled posts).
     # These GitHub times are only a backup - they do nothing if that slot's video is already done.
-    - cron: "0 5 * * *"     # backup 10:30 AM India time
-    - cron: "0 13 * * *"    # backup 6:30 PM India time
-    - cron: "30 5 * * 0"    # Sunday 11:00 AM India time: weekly long compilation video
-    - cron: "25 18 * * *"   # 11:55 PM India time: Amavasya midnight special (only on new-moon nights)
+    - cron: "30 4 * * *"    # backup 10:00 AM India time
+    - cron: "0 11 * * *"    # backup 4:30 PM India time
   workflow_dispatch:        # "Run workflow" button for tests
     inputs:
       language:
@@ -69,7 +67,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python packages
-        run: pip install -q fonttools requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
+        run: pip install -q ephem fonttools requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
 
       - name: Keep the free voice model saved between runs
         if: env.USE_FREE_MODEL == '1'
