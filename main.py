@@ -61,6 +61,8 @@ LANGS = {
         "intro": "आज की डरावनी कहानी है... {title}।",
         "outro": "कहानी कैसी लगी, कमेंट में ज़रूर बताइए। और ऐसी ही डरावनी कहानियों के लिए {page} को फॉलो कीजिए।",
         "page_default": "हमारे पेज",
+        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 9 बजे नई डरावनी कहानी।",
+        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 9 बजे नई डरावनी कहानी।",
         "ai_note": "🎨 यह कहानी और तस्वीरें AI की मदद से बनाई गई हैं। सब काल्पनिक है।",
         "badge": "लाइक • शेयर • फॉलो", "part": "भाग {n}",
         "outro_part1": "कहानी का अगला भाग जल्द ही आएगा... उसे मिस मत कीजिए, अभी {page} को फॉलो कीजिए।",
@@ -110,6 +112,7 @@ LANGS = {
         "intro": "আজকের ভৌতিক গল্প... {title}।",
         "outro": "গল্পটা কেমন লাগল কমেন্টে জানাবেন। আর এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করুন।",
         "page_default": "আমাদের পেজ",
+        "share_cta": "🔁 ভালো লাগলে বন্ধুদের শেয়ার করুন আর পেজটা ফলো করুন - রোজ রাত ৯টায় নতুন ভূতের গল্প।",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
         "badge": "লাইক • শেয়ার • ফলো", "part": "পর্ব {n}",
         "outro_part1": "গল্পের পরের পর্ব আসছে কাল... আর রবিবার আসবে পুরো গল্পটা একসাথে। মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
@@ -3663,7 +3666,7 @@ def main():
         if t.lower() not in {x.lower() for x in tags}:
             tags.append(t)
     description = (f"{title}\n\n{story.get('description', '').strip()}\n\n" + (f"🗳️ {vote_text}\n\n" if vote_text else "")
-                   + (f"{L['find_ghost']}\n\n" if hidden else "") + f"{L['your_story']}\n\n"
+                   + (f"{L['find_ghost']}\n\n" if hidden else "") + f"{L['your_story']}\n\n{L['share_cta']}\n\n"
                    + f"{L['ai_note']}\n\n{' '.join(tags)}")
     part_times, segs = TIMELINE
     labels = [sc.get("chapter") or f"{k + 1}" for k, sc in enumerate(scenes)]
@@ -4135,6 +4138,13 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 log("Posted YouTube Short:", out["yt_short"])
             except Exception as e:
                 log("  YouTube Short skipped:", str(e)[:200])
+    if results.get("facebook"):
+        try:                                          # closed captions (CC) on the Facebook video
+            extras.fb_add_captions(results["facebook"], segs, lang,
+                                   {str(ln.get("text", "")).strip(): str(ln.get("en", "")).strip()
+                                    for sc in story.get("scenes", []) for ln in sc.get("lines", []) if ln.get("en")})
+        except Exception as e:
+            log("  Facebook captions skipped:", str(e)[:160])
     if results.get("youtube") and extras.yt_extra_ok():
         try:                                          # English subtitles: more people can follow, better search
             tr = {str(ln.get("text", "")).strip(): str(ln.get("en", "")).strip()
