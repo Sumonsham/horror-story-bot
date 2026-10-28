@@ -94,7 +94,7 @@
    "likes": 2,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-25T07:21+00:00"
+   "checked": "2026-10-28T14:26+00:00"
   }
  },
  {
@@ -108,7 +108,7 @@
    "likes": 2,
    "comments": 0,
    "views": 48,
-   "checked": "2026-10-25T07:21+00:00"
+   "checked": "2026-10-28T14:26+00:00"
   }
  },
  {
@@ -122,7 +122,7 @@
    "likes": 1,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-25T07:21+00:00"
+   "checked": "2026-10-28T14:26+00:00"
   }
  },
  {
@@ -140,7 +140,7 @@
    "likes": 5,
    "comments": 3,
    "views": 3,
-   "checked": "2026-10-25T07:21+00:00"
+   "checked": "2026-10-28T14:26+00:00"
   }
  },
  {
@@ -283,7 +283,7 @@
    "likes": 3,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-25T07:21+00:00"
+   "checked": "2026-10-28T14:26+00:00"
   }
  },
  {
@@ -307,7 +307,7 @@
    "likes": 2,
    "comments": 2,
    "views": 1,
-   "checked": "2026-10-25T07:21+00:00"
+   "checked": "2026-10-28T14:26+00:00"
   }
  },
  {
@@ -328,10 +328,10 @@
   "youtube": "_47PRv4Jxvs",
   "fb_reel": "2034104107284200",
   "stats": {
-   "likes": 3,
+   "likes": 4,
    "comments": 2,
    "views": 3,
-   "checked": "2026-10-25T14:26+00:00"
+   "checked": "2026-10-28T14:26+00:00"
   }
  },
  {
@@ -526,7 +526,13 @@
   "facebook": "1435155218705988",
   "youtube": "f7JoQkMGQbY",
   "fb_reel": "1111966984787844",
-  "yt_short": "fLYh6fGuFxQ"
+  "yt_short": "fLYh6fGuFxQ",
+  "stats": {
+   "likes": 0,
+   "comments": 2,
+   "views": 3,
+   "checked": "2026-10-28T14:26+00:00"
+  }
  },
  {
   "date": "2026-10-27T19:24+00:00",
@@ -577,5 +583,32 @@
   "fb_reel": "4405689296346903",
   "fb_story": "1799354061099552",
   "yt_short": "aqd9yjeTnZU"
+ },
+ {
+  "date": "2026-10-28T17:23+00:00",
+  "lang": "bn",
+  "slot": "2026-10-28@21",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": "a cursed cremation ghat on a lonely Bengal river and the last ferry at midnight that carries the dead - tantric folklore",
+  "theme": "a shakchunni who wants to become a married woman",
+  "format": "two friends telling ghost stories at night, and one story becomes real",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "শাঁখচূড়ির সিঁদুর 🩸 | শাঁখচূড়ির সিঁদুর পরে সেজেছিল বধু",
+  "festival": null,
+  "special": null,
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "29152693931035255",
+  "youtube": "wS-M2sXJ6U4",
+  "fb_reel": "1753884662338385",
+  "fb_story": "3661199970712079",
+  "yt_short": "mInfBtgFWq0"
  }
 ]
