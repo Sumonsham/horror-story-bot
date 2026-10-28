@@ -472,8 +472,10 @@ def save_promise(story, slot_hour, lang, continues):
             with open(PROMISE_FILE, encoding="utf-8") as f:
                 data = json.load(f)
         if slot_hour == 21 and not continues and ns.get("title") and ns.get("idea"):
+            up = STATE.get("upcoming")
             data["21"] = {"title": str(ns["title"])[:60], "hook": str(ns.get("hook", ""))[:200],
                           "idea": str(ns["idea"])[:600], "lang": lang,
+                          "from_idea": up[0] if up else None, "series": bool(up and up[1]),
                           "made": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")}
         else:
             data.pop(str(slot_hour), None)           # the promise is kept: remove it
@@ -503,6 +505,25 @@ def next_preview(story, history, lang, slot_hour, classic):
         c = next((c for c in CLASSICS if c[0] not in used), CLASSICS[0])
         writer = bn_of(c[1][0]) if lang == "bn" else c[1][1]
         return L["next_classic"].format(writer=writer, title=c[3][k])
+    return None
+
+
+IDEAS_FILE = os.path.join(HERE, "assets", "ideas.json")
+
+
+def next_idea(history, also_used=()):
+    """an idea from assets/ideas.json (e.g. from Meta's suggestions) that has not been used yet: (idea, series)"""
+    try:
+        with open(IDEAS_FILE, encoding="utf-8") as f:
+            ideas = json.load(f).get("ideas") or []
+    except Exception:
+        return None
+    used = ({str(h.get("theme", "")).strip() for h in history} | {str(h.get("idea_used", "")).strip() for h in history}
+            | {str(x).strip() for x in also_used if x})
+    for it in ideas:
+        idea = str((it or {}).get("idea", "")).strip()
+        if idea and idea not in used:
+            return idea, bool(it.get("series"))
     return None
 
 
@@ -3325,6 +3346,12 @@ def main():
         lang, theme = pick_language(history), pick_theme(history)
         fmt = extras.weighted_choice(FORMATS, extras.weights(history, "format", FORMATS))
         part = 1 if (not series_waiting and random.random() < float(env("SERIES_CHANCE") or 0.45)) else 0
+        idea = next_idea(history) if slot_hour == 21 else None
+        if idea and not load_promise(slot_hour):     # our idea list comes first (used once each)
+            theme = idea[0]
+            part = 1 if (idea[1] and not series_waiting) else 0
+            STATE["idea_used"] = idea[0]
+            log(f"Idea from the list: {theme}")
         total = 2
         fest = extras.festival_today("horror")
         if fest and not any(h.get("festival") == fest[0] and
@@ -3357,6 +3384,8 @@ def main():
         elif not festival and env("MODE") != "amavasya" and load_promise(slot_hour):
             promised = load_promise(slot_hour)
             theme = promised["idea"]
+            STATE["idea_used"] = promised.get("from_idea")
+            part = 1 if (promised.get("series") and not series_waiting) else 0
             extra_rules += (f"\nPROMISED STORY: yesterday we promised the viewers exactly this story - title "
                             f"'{promised['title']}', hook: '{promised['hook']}'. Use exactly this title (in "
                             f"{LANGS[lang]['name']}) and deliver what the hook promises.\n")
@@ -3402,6 +3431,12 @@ def main():
 
     if special != "classic":
         extra_rules += MASTER_STYLE
+    if slot_hour == 21 and part == 0 and env("MODE") != "amavasya":
+        up = next_idea(history, also_used=(STATE.get("idea_used"), theme))
+        if up:                                       # tonight's "tomorrow at 9 PM..." promises the next idea
+            STATE["upcoming"] = up
+            extra_rules += (f"\nTOMORROW'S STORY (for the \"next_story\" key): it is already chosen - build its "
+                            f"title, hook and idea on exactly this: {up[0]}\n")
     if special == "karna":
         subject, ck = ("Karna Pishachini (কর্ণপিশাচিনী) in Bengali and Indian tantric belief: the yogini, her sadhana, "
                        "her nature, look and rules"), "karna_pishachini"
@@ -3727,6 +3762,7 @@ def main():
     history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "slot": SLOT,
                     "pending_comments": list(extras.PENDING),
                     "source": STATE.get("source_name") or (prev or {}).get("source") or None,
+                    "idea_used": STATE.get("idea_used"),
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "classic_id": classic[0] if special == "classic" and classic else None,
