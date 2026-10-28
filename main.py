@@ -676,6 +676,21 @@ def clean_story_text(story):
         log(f"  removed {removed} repeated / empty line(s)")
 
 
+SERIES_RX = {   # the series name is added in front of the title once - never twice (or misspelt) inside it
+    "karna": r"(?:কর্[ণন]া?\s*-?\s*পিশাচিনী|कर्[णन]ा?\s*-?\s*पिशाचिनी|करना\s*पिशाचिनी|karna\s*pi?sh?achini)",
+    "taranath": r"(?:তারানাথ(?:\s*তান্ত্রিক)?|तारानाथ(?:\s*तांत्रिक)?|taranath(?:\s*tantrik)?)",
+    "bhairab": r"(?:ভৈরব\s*ঠাকুর(?:ের)?(?:\s*কেস)?|भैरव\s*ठाकुर(?:\s*का)?(?:\s*केस)?|bhairab\s*thakur)",
+}
+
+
+def no_series_name(title, special):
+    rx = SERIES_RX.get(special)
+    if not rx:
+        return title
+    t = re.sub(rf"^\s*{rx}\s*(?:#?\s*[\d০-৯०-९]+)?\s*[:：।|\-–—]*\s*", "", str(title), flags=re.I).strip()
+    return t if len(t) >= 3 else title
+
+
 def ensure_intros(story, cold=False):
     """Every person is introduced (name + who they are) the moment they ENTER the story. If the script forgot it,
     the narrator's intro line goes in just before their first line (for the cold-open scene 1: right after the
@@ -3461,15 +3476,15 @@ def main():
         title = f"{title} | {L['part'].format(n=part)}"
     if special == "bhairab":
         case_no = 1 + sum(1 for h in history if h.get("special") == "bhairab")
-        title = f"{L['bhairab'].format(n=case_no)}: {title}"[:95]
+        title = f"{L['bhairab'].format(n=case_no)}: {no_series_name(title, 'bhairab')}"[:95]
         story["_playlist"] = L["bhairab_pl"]
     elif special == "taranath":
         case_no = 1 + sum(1 for h in history if h.get("special") == "taranath")
-        title = f"{L['taranath'].format(n=case_no)}: {title}"[:95]
+        title = f"{L['taranath'].format(n=case_no)}: {no_series_name(title, 'taranath')}"[:95]
         story["_playlist"] = L["taranath_pl"]
     elif special == "karna":
         case_no = 1 + sum(1 for h in history if h.get("special") == "karna" and h.get("lang") == lang)
-        title = f"{L['karna'].format(n=case_no)}: {title}"[:95]
+        title = f"{L['karna'].format(n=case_no)}: {no_series_name(title, 'karna')}"[:95]
         story["_playlist"] = L["karna_pl"]
     elif special == "amavasya":
         title = f"{L['amavasya']}: {title}"[:95]
