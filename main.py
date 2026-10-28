@@ -171,7 +171,7 @@ THEMES = [
     "the possessed doll of a zamindar's daughter", "a cremation-ground caretaker's last night",
     "a wedding procession of ghosts on a lonely road", "a fisherman and the woman who walks on water",
     "a chudail with backward feet on the village road at night", "a brahmadaitya living in an old bel tree",
-    "a shakchunni who wants to become a married woman", "nishi daak - a voice at midnight calling your name",
+    "a shankchunni (শাঁকচুন্নি) who wants to become a married woman", "nishi daak - a voice at midnight calling your name",
     "a mechho bhoot who steals fish from the fishermen", "a pishach in the cremation ground (shamshan)",
     "a vetal hanging from a tree in the forest", "a headless ghost (skandhakata) near the railway line",
     "a daayan who takes children's shadows", "a ghost bride in a red saree on the highway",
@@ -247,7 +247,7 @@ def load_history():
 
 # cron-job.org starts each video about 1 hour before it should be online (India time):
 # (start hour, start minute, the hour the video should be out)
-TRIGGERS = [(10, 0, 13), (18, 0, 21)]   # start 3 hours early, publish at 1 PM and 9 PM
+TRIGGERS = [(8, 30, 13), (16, 30, 21)]  # long stories: start 4.5 hours early, publish at 1 PM and 9 PM
 SLOT = None
 
 
@@ -540,6 +540,66 @@ GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
 LORE_DIR = os.path.join(HERE, "assets", "lore")
 
 
+def plan_story(lang, theme, extra_rules, fmt):
+    """A professional writers' room BEFORE the script: (1) plan the whole plot as a chain of cause and effect,
+    every decision and its consequence, the escalating scares, clues and twist; (2) a 'script doctor' finds the
+    plot holes and unrealistic choices and returns the corrected plan. The script then follows it beat by beat."""
+    if MOCK or env("PLAN") == "0" or not env("GEMINI_API_KEY"):
+        return ""
+    key = env("GEMINI_API_KEY")
+    ask1 = f"""You are the head writer of India's best horror audio-drama series. Plan (do not write yet) ONE
+long, realistic, truly frightening {LANGS[lang]['name']} horror story. Idea: {theme}. Telling style: {fmt}.
+Rules and material to use:
+{extra_rules[-9000:]}
+
+Return ONLY JSON (ENGLISH):
+{{"premise": "2 sentences",
+ "when_where": "month, weekday, time of day it begins; the exact town/village and place",
+ "characters": [{{"name": "", "gender": "male/female", "age": "", "kind": "human/ghost", "who": "relation/job/home", "wants": "", "fears": "", "secret": ""}}],
+ "beats": [{{"n": 1, "what_happens": "", "decision": "who decides what, and WHY (or '')", "follow_up": "how and in which beat this decision is carried out or why it fails - shown, not skipped", "new_fear": "the new, fresh frightening detail of this beat (never a stock phrase)"}}],
+ "clues": ["clue - beat where planted - beat where it pays off"],
+ "twist": "", "resolution": "what really happened, why, and what became of every character", "last_line": ""}}
+Make {max(18, int(LONG_MIN * 1.6))} beats: beginning (who/where/when/why/how they came), a full middle with at least three escalating
+events, a midpoint discovery and a false lead, then climax, twist and a clear resolution."""
+    ask2 = """You are a strict script doctor. Here is a horror story plan as JSON. Find EVERY problem: a decision
+that is not followed up (someone decides to leave - why couldn't he? show it), a person acting unrealistically,
+a coincidence, an unexplained event, a jump in time or place without a bridge, a clue with no payoff, a scare
+that repeats an earlier one, a weak or unfair twist, an unclear ending, anything that breaks the belief/facts.
+Fix all of them. Return ONLY the corrected plan as JSON with the same keys plus "fixed": ["each problem and fix"].
+PLAN:
+"""
+    plan = None
+    for model in gemini_models(key)[:3]:
+        try:
+            body = {"contents": [{"parts": [{"text": ask1}]}],
+                    "generationConfig": {"temperature": 0.9, "responseMimeType": "application/json"}}
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json=body, timeout=240)
+            if not r.ok:
+                continue
+            plan = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+            if not plan.get("beats"):
+                plan = None
+                continue
+            body["contents"][0]["parts"][0]["text"] = ask2 + json.dumps(plan, ensure_ascii=False)
+            body["generationConfig"]["temperature"] = 0.5
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json=body, timeout=240)
+            if r.ok:
+                p2 = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                if p2.get("beats") and len(p2["beats"]) >= len(plan["beats"]) * 0.8:
+                    log(f"  script doctor fixed {len(p2.get('fixed') or [])} problem(s) in the plan")
+                    plan = p2
+            break
+        except Exception as e:
+            log(f"  story plan ({model}) failed: {str(e)[:120]}")
+    if not plan:
+        return ""
+    log(f"Story plan ready: {len(plan['beats'])} beats - {str(plan.get('premise', ''))[:120]}")
+    plan.pop("fixed", None)
+    return json.dumps(plan, ensure_ascii=False)[:12000]
+
+
 def find_source_story(theme, history):
     """Search the internet for ONE big, really frightening horror story to build today's story on - a folk legend,
     an urban legend, a famous haunted-place story, a reported 'true' experience or a public-domain story (never a
@@ -665,6 +725,13 @@ PAUSE_RX = re.compile(r"\b(?:long|short|brief|dramatic)?\s*pause\b|\b(?:sighs?|g
                       r"(?:দীর্ঘ|লম্বা|ছোট|সংক্ষিপ্ত)\s*(?:বিরতি|বিরাম|পজ)|(?:लंबा|लम्बा|छोटा)\s*(?:विराम|ठहराव|पॉज़)", re.I)
 
 
+SPELL_FIX = [   # common wrong spellings (they are also read out wrongly)
+    (r"শাক(?:\s*)চু(?:ন্নি|নি|ন্নী|নী)|শাঁকচু(?:নি|নী|ন্নী)|শাঁকচুন্নী", "শাঁকচুন্নি"),
+    (r"ব্রম্ভদৈত্য|ব্রহ্মদত্যি|ব্রম্মদৈত্য", "ব্রহ্মদৈত্য"), (r"পেত্নী", "পেত্নি"), (r"শশ্মান|শ্মষান", "শ্মশান"),
+    (r"তান্ত্রীক", "তান্ত্রিক"), (r"স্কন্দকাটা", "স্কন্ধকাটা"),
+]
+
+
 def clean_story_text(story):
     """Only the spoken words go into "text" (= subtitles + voice): stage directions like (long pause), [sighs],
     <short pause> are removed; a line that repeats an earlier one is dropped."""
@@ -673,6 +740,12 @@ def clean_story_text(story):
         out = []
         for ln in sc.get("lines") or []:
             t = str(ln.get("text", ""))
+            for a, b in SPELL_FIX:
+                if re.search(a, t):
+                    t = re.sub(a, b, t)
+                    ln["text"] = t
+                    if ln.get("voice_text"):
+                        ln["voice_text"] = re.sub(a, b, str(ln["voice_text"]))
             t2 = STAGE_RX.sub(" ", t)
             t2 = PAUSE_RX.sub(" ", t2) if re.search(r"[ঀ-৿ऀ-ॿ]", t2) else t2
             t2 = re.sub(r"\s{2,}", " ", t2).strip(" ,")
@@ -693,8 +766,98 @@ def clean_story_text(story):
                                               lambda mm: f"<{mm.group(1) or mm.group(2)}>", str(ln["voice_text"]))
             out.append(ln)
         sc["lines"] = out
+    story["scenes"] = [sc for sc in story.get("scenes") or [] if sc.get("lines")]
     if removed:
         log(f"  removed {removed} repeated / empty line(s)")
+
+
+CLICHES = {
+    "bn": ["শিরদাঁড়া বেয়ে ঠান্ডা স্রোত", "পচা ফুলের গন্ধ", "রক্ত জল করা হাসি", "গা ছমছম করে উঠল", "হিমশীতল হাওয়া",
+           "দপদপ করে নিভে গেল", "বুকের ভেতরটা ধড়াস করে উঠল", "সারা শরীরে কাঁটা দিয়ে উঠল", "পায়ের তলার মাটি সরে গেল",
+           "নিঃশ্বাস আটকে এল", "কেউ যেন পেছনে দাঁড়িয়ে আছে", "চোখ দুটো জ্বলছে", "অদ্ভুত এক গন্ধ", "রক্ত হিম হয়ে গেল"],
+    "hi": ["रीढ़ की हड्डी में ठंडी लहर", "सड़े फूलों की गंध", "खून जमा देने वाली हँसी", "रोंगटे खड़े हो गए", "बर्फ़ जैसी ठंडी हवा",
+           "दिल धक से रह गया", "पैरों तले ज़मीन खिसक गई", "साँस अटक गई", "कोई पीछे खड़ा है", "आँखें जल रही थीं",
+           "अजीब सी गंध", "खून जम गया", "सन्नाटा छा गया", "दीया टिमटिमा कर बुझ गया"],
+}
+CLICHE_ROOTS = {"bn": ["শিরদাঁড়া", "পচা ফুল", "রক্ত জল", "গা ছমছম", "হিমশীতল", "দপদপ", "ধড়াস", "কাঁটা দিয়ে", "রক্ত হিম",
+                       "মাটি সরে"],
+                "hi": ["रीढ़", "सड़े फूल", "खून जमा", "रोंगटे", "धक से", "ज़मीन खिसक", "खून जम"]}
+
+
+def find_cliches(story, lang):
+    """the worn-out phrases still in the story (so the editor replaces them)"""
+    found = []
+    for sc in story.get("scenes") or []:
+        for ln in sc.get("lines") or []:
+            t = str(ln.get("text", ""))
+            if any(r in t for r in CLICHE_ROOTS.get(lang, [])):
+                found.append(t[:120])
+    return found
+
+
+FEMALE_WORDS = ("পিসি", "মাসি", "দিদি", "বউ", "বৌ", "মা ", "মাগো", "ঠাকুমা", "দিদিমা", "মেয়ে", "কাকিমা", "জেঠিমা",
+                "বৌদি", "রানি", "দেবী", "বালা", "pishi", "mashi", "didi", "bou", "boudi", "thakuma", "didima",
+                "kakima", "jethima", "rani", "devi", "bala", "girl", "woman", "aunt", "mother", "grandma", "wife",
+                "mrs", "बुआ", "मौसी", "दीदी", "माँ", "दादी", "नानी", "चाची", "ताई", "भाभी", "लड़की", "औरत", "देवी",
+                "bua", "mausi", "dadi", "nani", "chachi", "tai", "bhabhi")
+MALE_A_NAMES = {"bapi", "raja", "krishna", "ravi", "hari", "shibu", "sona", "bhola", "gora", "kana", "nanda", "rama",
+                "nitai", "gopi", "kali", "bhai", "dada", "kaka", "mama", "jethu", "thakurda", "dadu", "pishemoshai",
+                "ali", "babai", "tapai", "rabi", "shashi", "bishu", "montu", "pintu", "kishori", "paltu", "bapida"}
+NARRATOR_DELIVERY = ("a deep, heavy, grave, low male voice, like a man in his fifties quietly telling a true incident "
+                     "late at night: natural spoken Bengali/Hindi as in real conversation, steady and a little slow; "
+                     "NOT theatrical, NOT sing-song, NOT like jatra or stage drama, no musical rise and fall, no "
+                     "exaggerated stress - the fear comes from the words and the silences")
+
+
+def fix_speakers(story):
+    """Every speaking person gets the right voice: a speaker written in Bengali or with a title ('সরলা পিসি')
+    is matched to the character; someone who speaks but is missing from the list is added (a woman is never
+    voiced by a man); a woman's title fixes a wrong gender. Narrator lines get a plain, grave delivery."""
+    chars = [c for c in story.get("characters", []) if isinstance(c, dict) and c.get("name")]
+    story["characters"] = chars
+
+    def norm(s):
+        return re.sub(r"\s+", " ", str(s or "")).strip().lower()
+
+    def match(sp):
+        s = norm(sp)
+        if not s:
+            return None
+        for c in chars:
+            keys = [norm(c["name"]), norm(c.get("name_local"))]
+            for k in keys:
+                if k and (k == s or k in s or s in k or k.split()[0] == s.split()[0]):
+                    return c
+        return None
+    fixed, added = 0, 0
+    for sc in story.get("scenes") or []:
+        for ln in sc.get("lines") or []:
+            sp = str(ln.get("speaker", "")).strip()
+            if not sp or norm(sp).startswith("narrat") or sp in ("কথক", "সূত্রধর", "कथावाचक"):
+                ln["speaker"] = "narrator"
+                ln["delivery"] = NARRATOR_DELIVERY + (f"; feeling: {ln['emotion']}" if ln.get("emotion") else "")
+                continue
+            c = match(sp)
+            if not c:
+                fem = any(w in sp.lower() for w in FEMALE_WORDS)
+                nm = re.sub(r"[^A-Za-z]", "", sp.split()[0]).lower() if re.search(r"[A-Za-z]", sp) else ""
+                if not fem and nm and nm[-1] in "ai" and nm not in MALE_A_NAMES:
+                    fem = True                       # Mala, Sarala, Mita, Rani ... (Bapi, Raja are men)
+                latin = re.sub(r"[^A-Za-z ]", "", sp).strip() or f"Person{len(chars) + 1}"
+                c = {"name": latin.title(), "name_local": sp, "gender": "female" if fem else "male", "age": "adult",
+                     "kind": "human", "look": f"an ordinary Bengali {'woman' if fem else 'man'}"}
+                chars.append(c)
+                added += 1
+            if c["name"] != sp:
+                ln["speaker"] = c["name"]
+                fixed += 1
+    for c in chars:                                  # 'Sarala Pishi' marked male -> female
+        both = f"{c['name']} {c.get('name_local', '')}".lower()
+        if str(c.get("gender", "")).lower().startswith("m") and any(w in both for w in FEMALE_WORDS[:30]):
+            c["gender"] = "female"
+            fixed += 1
+    if fixed or added:
+        log(f"  voices: {fixed} speaker name(s) matched / corrected, {added} missing speaker(s) added")
 
 
 SERIES_RX = {   # the series name is added in front of the title once - never twice (or misspelt) inside it
@@ -766,7 +929,7 @@ def ensure_intros(story, cold=False):
         log(f"  introduced {added} character(s) where they first enter")
 
 
-def edit_story(story, lang, classic=False, brief=""):
+def edit_story(story, lang, classic=False, brief="", outline=""):
     """A second pass by a 'chief editor' (like a publisher's editor): scores the story and rewrites the weak parts
     - more fear, a fairer and bigger twist, logic, scenes flowing into each other, natural dialogue, correct
     language. Returns the better story, or the original if anything goes wrong."""
@@ -788,7 +951,11 @@ INTRODUCED (the first time anyone appears, the listener hears their NAME and WHO
 names are used often enough that the listener always knows who is speaking), CONTINUITY (one unbroken chain: every
 scene follows from the scene before it - cause and effect, or a clear time/place bridge said aloud; no scene that
 comes from nowhere; the story is told in time order from its real beginning - never a flash-forward),
-TRUTH TO THE BELIEF (it must follow the research brief below exactly), STRUCTURE (a clear beginning: one hook line, then
+TRUTH TO THE BELIEF (it must follow the research brief below exactly), PLOT HOLES (find EVERY decision a person
+makes and check it is followed up in its own scene - he decides to leave: either he leaves, or we SEE why he
+could not; nothing unexplained, no coincidence, every person acts like a real person; fix each hole by adding or
+rewriting scenes), FRESH WORDS (no stock horror phrases - replace every worn-out line with a new, exact image
+that belongs to this place; never the same image twice), STRUCTURE (a clear beginning: one hook line, then
 WHEN it began (month, weekday, time of day), the main person's name, village/town, family, situation, WHY and
 HOW he/she came to this place - in that order; a full middle with at least three
 escalating events, a clue, a false lead and a discovery; a clear end with climax, twist, and a resolution scene
@@ -802,6 +969,9 @@ Add one key "editor_scores": {{"fear": n, "twist": n, "logic": n, "flow": n, "st
 scores of YOUR improved version. Return ONLY the complete improved JSON.
 
 {"RESEARCH BRIEF (true facts - the story must not contradict them):" + chr(10) + brief + chr(10) if brief else ""}
+{"MASTER OUTLINE (the planned plot - the story must follow it):" + chr(10) + outline + chr(10) if outline else ""}
+{"WORN-OUT LINES TO REPLACE (rewrite each with a fresh image):" + chr(10) + chr(10).join(find_cliches(story, lang)) + chr(10) if find_cliches(story, lang) else ""}
+Add also the key "plot_holes_fixed": ["ENGLISH: each hole you found and how you fixed it"].
 STORY JSON:
 {json.dumps(story, ensure_ascii=False)}"""
     body = {"contents": [{"parts": [{"text": prompt}]}],
@@ -934,6 +1104,83 @@ MASTER_STYLE = (
     "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
 
 
+LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 30)     # every horror video: about this many minutes
+os.environ.setdefault("VOICE_MAX", "170" if LONG_MIN > 15 else "120")    # long stories: more time for the voices
+os.environ.setdefault("VOICE_RESERVE", "80" if LONG_MIN > 15 else "40")  # ... and for making the long video
+
+
+def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
+    """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
+    continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
+    n_ch = max(2, round(LONG_MIN / 6))
+    words_per = int(LONG_MIN * 130 / n_ch)            # ~130 spoken words a minute
+    chapters, summary, last = [], "", ""
+    for k in range(1, n_ch + 1):
+        final = k == n_ch
+        rule = (f"\nLONG STORY - CHAPTER {k} OF {n_ch}: today's video is ONE long story of about {int(LONG_MIN)} "
+                f"minutes, written in {n_ch} chapters. Write ONLY chapter {k}, telling the beats of the MASTER OUTLINE "
+                f"that belong to it (the beats split evenly into {n_ch} chapters, in order). ")
+        if k == 1:
+            rule += ("It is the real BEGINNING: the hook line, then when / who / where from / why / how they came, "
+                     "the people, ordinary life and the first strange signs. ")
+        else:
+            rule += (f"Continue EXACTLY from where chapter {k - 1} stopped - same people, names, place and time; no "
+                     f"recap, no new introduction, no hook line. Story so far:{summary}\nThe last lines were: {last}\n")
+        rule += ("This is the FINAL chapter: the climax, the twist, a full resolution scene that explains everything "
+                 "and what became of every person, then the last chilling line. " if final else
+                 "End the chapter on a strong cliffhanger that leads straight into the next chapter (never say "
+                 "'next part' or 'to be continued'). ")
+        rule += ("Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
+                 "chapter, with names, decisions, clues and open questions.\n")
+        length = (f"- LENGTH OF THIS CHAPTER: 11 to 14 scenes, about {words_per} spoken words (at least "
+                  f"{int(words_per * 0.85)}). Slow-burning, real conversations, every moment lived - never rushed.")
+        try:
+            s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules + rule,
+                           length=length, min_w=int(words_per * 0.8))
+        except ClassicUnknown:
+            raise
+        except Exception as e:
+            if k == 1:
+                raise
+            log(f"  chapter {k} failed ({str(e)[:100]}) - closing the story in one last chapter")
+            if final or k == n_ch - 1:
+                break
+            continue
+        s = edit_story(s, lang, classic=classic, brief=STATE.get("brief", ""), outline=STATE.get("outline", ""))
+        chapters.append(s)
+        summary += f"\nChapter {k}: {s.get('chapter_summary') or s.get('episode_summary') or ''}"
+        tail = [str(ln.get("text", "")) for ln in (s["scenes"][-1].get("lines") or [])][-3:]
+        last = " / ".join(tail)
+        words = sum(len(str(ln.get("text", "")).split()) for sc in s["scenes"] for ln in sc.get("lines") or [])
+        log(f"Chapter {k}/{n_ch} written: {len(s['scenes'])} scenes, {words} words")
+    if not chapters:
+        raise RuntimeError("no chapter written")
+    story = dict(chapters[0])
+    story["scenes"], off, reveal, chars = [], 0, {}, {}
+    for s in chapters:
+        for c in s.get("characters") or []:
+            if isinstance(c, dict) and c.get("name"):
+                chars.setdefault(str(c["name"]).lower(), c)
+        for g, n in (s.get("ghost_reveal") or {}).items():
+            try:
+                reveal.setdefault(g, int(str(n)[:2].strip() or 0) + off)
+            except ValueError:
+                pass
+        story["scenes"] += s.get("scenes") or []
+        off += len(s.get("scenes") or [])
+    story["characters"] = list(chars.values())
+    story["ghost_reveal"] = reveal
+    end = chapters[-1]
+    for k in ("ending_line", "next_story", "comment_question", "guess", "mystery_answer", "episode_summary"):
+        if end.get(k):
+            story[k] = end[k]
+    story["summary"] = summary.strip()
+    words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc.get("lines") or [])
+    log(f"LONG STORY: {len(chapters)} chapters, {len(story['scenes'])} scenes, {words} words "
+        f"(~{words / 130:.0f} minutes)")
+    return story
+
+
 class ClassicUnknown(Exception):
     pass
 
@@ -956,7 +1203,7 @@ def prewrite_parts(story1, lang, theme, history, fmt, total, extra_rules, specia
             log(f"Writing part {p} of {total} now (it will be posted on day {p}) ...")
             s = make_story(lang, theme, history, fmt=fmt, part=p, prev=dict(prev), extra_rules=extra_rules,
                            total=total)
-            s = edit_story(s, lang, brief=STATE.get("brief", ""))
+            s = edit_story(s, lang, brief=STATE.get("brief", ""), outline=STATE.get("outline", ""))
             s.pop("choice", None)
             s["characters"], s["setting"] = prev["characters"], prev["setting"]
             out[str(p)] = s
@@ -1012,7 +1259,7 @@ def classic_rule(c, lang):
     return CLASSIC_RULE.format(en=c[4], lang=LANGS[lang]["name"], intro=intro)
 
 
-def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2):
+def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2, length=None, min_w=None):
     """part=0: one complete story; part=1: first half of a 2-part series (ends on a cliffhanger);
     part=2: the final part, continuing `prev` (saved from part 1)."""
     if MOCK:
@@ -1058,17 +1305,20 @@ def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules=""
 You are India's best {L['name']} horror storyteller, writing for a horror story video page.
 Write ONE brand-new horror story in {L['name']} ({L['script']} script; simple, natural,
 spoken {L['name']} that ordinary people use). Idea to build on: {theme}.
-You may use classic Indian folk ghosts (chudail, brahmadaitya, shakchunni, nishi, pishach, vetal, daayan...)
+You may use classic Indian folk ghosts (chudail, brahmadaitya, shankchunni - spelt শাঁকচুন্নি, nishi, pishach, vetal, daayan...)
 but the plot must be your OWN or built on the SOURCE STORY given below (a legend / folk tale / haunted-place
 story / public-domain story). Never copy a copyrighted modern book, film or series; no real people's names.
 Must be different from these earlier stories: {json.dumps(old_titles, ensure_ascii=False)}
 
 Story rules:
-- LENGTH: 14 to 18 scenes, 5-6 minutes when spoken - at least 800 spoken words in total. Never rush the
-  ending; the story must feel complete. It must be GENUINELY SCARY and impossible to stop listening:
+{length or """- LENGTH: a LONG, slow-burning story: 18 to 24 scenes, 8-10 minutes when spoken - at least 1200 spoken words.
+  Take time for real life, real conversations and the slow build of dread. Never rush the
+  ending; the story must feel complete."""}
+- It must be GENUINELY SCARY and impossible to stop listening:
   * the FIRST line is a chilling hook (a strange fact, a warning, or a scream) - no slow introduction;
   * every scene ends with a small cliffhanger, the fear grows scene by scene;
-  * use the five senses: cold air, a smell of burning flowers or wet earth, a sound behind you, a touch in the dark;
+  * use the five senses - but with FRESH details that belong only to THIS place and THIS story (what this very
+    room, river, hostel or village really smells, sounds and feels like), never stock phrases;
   * the ghost is shown little by little (a shadow, then a voice, then a face) - the full reveal comes late;
   * 2-3 real jump scares, and a shocking twist ending that makes people comment.
   Keep the narration moving at a natural pace - short punchy sentences in tense moments.
@@ -1079,10 +1329,19 @@ Story rules:
   open, cold as ice), a real threat to the hero until the very last line.
 - EXACT, CORRECT WORDS: every word must be a real, correctly spelled word with exactly the right meaning; no
   made-up words, no word-for-word translation from English, no wrong word just because it sounds similar. Use
-  strong, vivid, precise horror words (e.g. Bengali: গা ছমছমে, হিমশীতল, শিরদাঁড়া বেয়ে, ফিসফিস, খসখস, ঠকঠক,
-  দপদপ করে নিভে গেল, পচা ফুলের গন্ধ, রক্ত জল করা হাসি) instead of flat words like 'ভয় লাগল'. Before
+  strong, vivid, precise words instead of flat words like 'ভয় লাগল' - show the fear through what the person
+  DOES and NOTICES (his hand stops on the latch, he counts the steps, he cannot swallow). NO STOCK PHRASES: never
+  use these worn-out lines: {', '.join(CLICHES[lang][:14])} - invent a new, exact image for every moment, and never
+  use the same image twice in one story. Before
   answering, re-read every line once and correct any wrong or unnatural word.
-- 2 to 4 characters plus a narrator. Real dialogue between characters (short, natural lines).
+- 2 to 5 characters plus a narrator. Real dialogue between characters (short, natural lines). Every "speaker"
+  is EXACTLY a name from "characters" (in English letters) or "narrator" - every person who speaks must be in
+  "characters" with the right gender, so a woman always gets a woman's voice.
+- REALISTIC DECISIONS (very important): every person acts like a real person would. When someone decides
+  something (to leave, to call the police, to open the door, to tell nobody), the story must FOLLOW IT UP in its
+  own scene: either he does it and we see what happens, or we SEE why he could not (the last bus has gone, his
+  mother falls ill, the door will not open, he is tricked) - never a decision that is silently forgotten. Every
+  surprising event is prepared earlier (no coincidences that solve or create problems).
 - INTRODUCE EVERY CHARACTER: the first time anyone appears, the listener hears their NAME and WHO they are
   (relation, job, age) - naturally, in narration or dialogue ('আমার মামা, নীলকণ্ঠ আচার্য...', 'পাশের বাড়ির
   বউ, সরলা...'). Use the names often so the listener always knows who is speaking and who is in the room.
@@ -1205,7 +1464,7 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
             "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json",
                                  "maxOutputTokens": 60000}}
     last_err = None
-    best, min_words = None, int(env("MIN_WORDS") or 650)       # ~650+ spoken words = 5+ minutes
+    best, min_words = None, min_w or int(env("MIN_WORDS") or 950)       # ~950+ spoken words = 8+ minutes
     models = gemini_models(key)
     waits = [0, 90, 180, 300, 300, 420]           # Google's servers are sometimes busy for a while: be patient
     for round_no, wait in enumerate(waits):
@@ -1605,7 +1864,7 @@ GEMINI_TTS_OFF = False
 GEMINI_POOL = {   # prebuilt Gemini voices for each kind of character (first free one is used)
     ("male", "child"): ["Puck", "Achird"], ("male", "young"): ["Fenrir", "Zubenelgenubi", "Sadachbia"],
     ("male", "adult"): ["Orus", "Iapetus", "Alnilam", "Schedar", "Umbriel"],
-    ("male", "old"): ["Algenib", "Rasalgethi", "Sadaltager"],
+    ("male", "old"): ["Rasalgethi", "Sadaltager", "Algenib"],
     ("female", "child"): ["Leda", "Laomedeia"], ("female", "young"): ["Zephyr", "Aoede", "Despina"],
     ("female", "adult"): ["Kore", "Callirrhoe", "Erinome", "Sulafat"],
     ("female", "old"): ["Gacrux", "Pulcherrima", "Autonoe"],
@@ -1614,7 +1873,7 @@ GEMINI_VOICES = {k: v[0] for k, v in GEMINI_POOL.items()}
 GHOST_POOL = {"female": ["Vindemiatrix", "Achernar"], "old_female": ["Gacrux", "Pulcherrima"],
               "male": ["Enceladus", "Algieba"], "child": ["Laomedeia", "Leda"]}
 GHOST_WORDS = {
-    "female": "a terrifying FEMALE ghost (a chudail / shakchunni): a cold, shrill, breathy woman's voice that wavers "
+    "female": "a terrifying FEMALE ghost (a chudail / shankchunni): a cold, shrill, breathy woman's voice that wavers "
               "and hisses, sometimes dropping into a slow cruel whisper, and bursting into a harsh, piercing, blood-curdling laugh",
     "old_female": "a terrifying OLD WOMAN ghost (a witch-like crone): a cracked, rasping, trembling old woman's voice, "
                   "slow and spiteful, with a shrill, cracked, terrifying cackle",
@@ -1631,8 +1890,11 @@ EMOTION_WORDS = {
     "angry": "angrily, sharply", "sad": "sadly, slowly, with a heavy heart", "crying": "while crying and sobbing",
     "eerie": "in a low, mysterious voice", "happy": "happily", "excited": "excitedly", "laughing": "laughing",
 }
-NARRATOR_GEMINI = ("Charon", "the narrator of a famous late-night radio horror drama: a deep, rich, resonant, "
-                   "dramatic male baritone voice, at a normal steady storytelling pace (not slow), gripping, with short suspenseful pauses, every word clear")
+NARRATOR_GEMINI = ((os.environ.get("NARRATOR_VOICE") or "Algenib").strip(),
+                   "the storyteller: a deep, heavy, grave, low male voice with a little gravel - a man in his fifties "
+                   "quietly telling a true incident late at night. Natural, conversational speech, steady and a "
+                   "little slow, every word clear. NOT theatrical, NOT sing-song, NOT like jatra or stage drama: no "
+                   "musical rise and fall, no exaggerated stress, no singing tone")
 GHOST_GEMINI = ("Enceladus", "a ghost: a hollow, breathy, cold, slow, otherworldly whispering voice")
 
 
@@ -3466,11 +3728,27 @@ def main():
     if saved:                                        # this part was written together with part 1: use it as is
         SCRIPTS.update({k: v for k, v in (prev.get("scripts") or {}).items() if int(k) > part})
         log(f"Series part {part}: using the script written with part 1")
+    if LONG_MIN > 15 and part == 1 and not prev:
+        part = 0                                     # one long ~30-minute story instead of a 2-3 part series
+    outline = ""
+    if not saved and special != "classic" and part <= 1:
+        outline = plan_story(lang, theme, extra_rules, fmt)
+        if outline:
+            extra_rules += ("\nMASTER OUTLINE (planned and checked by our script doctor - FOLLOW IT EXACTLY, beat by "
+                            "beat; every beat becomes one scene or more; keep every name, decision and follow-up. In a series of 2-3 "
+                            "parts each part tells only its own share of the beats in order - part 1 up to the big "
+                            "cliffhanger):\n"
+                            + outline + "\n")
+    STATE["outline"] = outline
     try:
         if saved:
             raise _Saved()
-        story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
-                           total=total if part else 2)
+        if LONG_MIN > 15 and part == 0:
+            story = write_long_story(lang, theme, history, fmt, extra_rules, classic=special == "classic")
+            saved = story                            # already checked chapter by chapter by the editor
+        else:
+            story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
+                               total=total if part else 2)
     except _Saved:
         story = saved
     except ClassicUnknown:                           # the model does not know that classic well: our own story
@@ -3479,9 +3757,11 @@ def main():
         extra_rules = plain_rules + MASTER_STYLE
         story = make_story(lang, theme, history, fmt=fmt, part=0, prev=prev, extra_rules=extra_rules, total=2)
     if not saved:
-        story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""))
+        story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""),
+                           outline=STATE.get("outline", ""))
     STATE["special"] = special
     clean_story_text(story)
+    fix_speakers(story)
     ensure_intros(story, cold=env("COLD_OPEN") == "1")
     ensure_ghost_laughs(story)
     mark_reveals(story)
@@ -3504,8 +3784,11 @@ def main():
         for b in fixed:
             if b["name"].lower() not in [str(c.get("name", "")).lower() for c in story["characters"]]:
                 story["characters"].append(b)
-    if part >= 2:                                    # same people and place as part 1
-        story["characters"], story["setting"] = prev["characters"], prev["setting"]
+    if part >= 2:                                    # same people and place as part 1 (+ anyone new who speaks)
+        old = {str(c.get("name", "")).lower() for c in prev["characters"] or []}
+        story["characters"] = list(prev["characters"] or []) + [c for c in story.get("characters", [])
+                                                                if str(c.get("name", "")).lower() not in old]
+        story["setting"] = prev["setting"]
     title = story["title"].strip()[:85]
     if part:
         title = f"{title} | {L['part'].format(n=part)}"
@@ -3535,14 +3818,14 @@ def main():
     for c in cast.chars.values():
         log(f"  {c['name']} ({c['gender']}, {c['age']}, {c['kind']}) -> voice {voices.map[c['name'].lower()][:3]}")
     seed = random.randint(1, 1_000_000)
-    scenes = story["scenes"][:24]          # never cut the story short
+    scenes = story["scenes"][:120]         # never cut the story short
 
     log("Cast reference picture")
     if not make_cast_sheet(cast, os.path.join(WORK, "cast.jpg"), seed):
         log("  no cast picture - using text descriptions only")
 
     # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
-    budget = int(env("MAX_IMAGES") or 48)
+    budget = int(env("MAX_IMAGES") or (90 if LONG_MIN > 15 else 48))
     scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
     total_lines = sum(len(x) for x in scene_lines) or 1
     imgs, shots_per_scene, last_ok, count = [], [], None, 0
