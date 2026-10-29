@@ -61,15 +61,15 @@ LANGS = {
         "intro": "आज की डरावनी कहानी है... {title}।",
         "outro": "कहानी कैसी लगी, कमेंट में ज़रूर बताइए। और ऐसी ही डरावनी कहानियों के लिए {page} को फॉलो कीजिए।",
         "page_default": "हमारे पेज",
-        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 8 बजे नई डरावनी कहानी।",
-        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 8 बजे नई डरावनी कहानी।",
+        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 9 बजे नई डरावनी कहानी।",
+        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 9 बजे नई डरावनी कहानी।",
         "ai_note": "🎨 यह कहानी और तस्वीरें AI की मदद से बनाई गई हैं। सब काल्पनिक है।",
         "badge": "लाइक • शेयर • फॉलो", "part": "भाग {n}",
         "outro_part1": "कहानी का अगला भाग जल्द ही आएगा... उसे मिस मत कीजिए, अभी {page} को फॉलो कीजिए।",
         "ch_intro": "शुरुआत", "ch_end": "अंत", "chapters": "⏱️ अध्याय",
-        "cta": "पूरी कहानी हमारे पेज पर 👉", "follow": "फ़ॉलो कीजिए - हर रात 8 बजे नई डरावनी कहानी",
+        "cta": "पूरी कहानी का लिंक नीचे लिखा है 👇", "link_below": "पूरी कहानी का लिंक नीचे लिखा है", "follow": "फ़ॉलो कीजिए - हर रात 9 बजे नई डरावनी कहानी",
         "guess_card": "आपका जवाब क्या है? कमेंट में लिखिए 1 या 2 या 3", "core_tags": ["#BhootKiKahani", "#HindiHorrorStories", "#डरावनीकहानी", "#horrorstories"], "playlist": "भूतिया कहानियाँ - Hindi Horror Stories",
-        "full_link": "पूरी कहानी देखें:",
+        "full_link": "👉 पूरी कहानी सुनने के लिए इस लिंक पर क्लिक करें:",
         "hp": "हेडफ़ोन लगाकर सुनिए",
         "find_ghost": "🔍 वीडियो की तस्वीरों में भूत कितनी बार छिपा था? ध्यान दिया? कमेंट में लिखिए!",
         "find_ghost_line": "और हाँ... इस वीडियो की तस्वीरों में वो भूत कुछ बार छिपा हुआ था। आपने कितनी बार देखा? कमेंट में ज़रूर बताइए।",
@@ -81,18 +81,20 @@ LANGS = {
         "taranath": "तारानाथ तांत्रिक #{n}", "taranath_pl": "तारानाथ तांत्रिक की कहानियाँ - Taranath Tantrik",
         "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
         "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
-        "show_21": "रात आठ बजे का डर", "show_13": "दोपहर का डर",
-        "title_21": "रात आठ बजे का डर... {title}।", "title_13": "दोपहर का डर... {title}।",
-        "tonight_long": "और आज रात आठ बजे... आज की बड़ी कहानी, पूरे आधे घंटे की। लाइट बुझाइए, हेडफ़ोन लगाइए... मिस मत कीजिए।",
+        "show_21": "रात नौ बजे का डर", "show_13": "दोपहर का डर",
+        "title_21": "रात नौ बजे का डर... {title}।", "title_13": "दोपहर का डर... {title}।",
+        "next_generic": "और कल रात नौ बजे... फिर आ रही है एक नई डरावनी कहानी, और गहरी, और अँधेरी। ज़रूर आइए।",
+        "tonight_title": "और आज रात नौ बजे... आज की बड़ी कहानी, '{title}'। {hook} आधे घंटे की कहानी... लाइट बुझाकर सुनिए, मिस मत कीजिए।",
+        "tonight_long": "और आज रात नौ बजे... आज की बड़ी कहानी, पूरे आधे घंटे की। लाइट बुझाइए, हेडफ़ोन लगाइए... मिस मत कीजिए।",
         "title_karna": "कर्णपिशाचिनी... {title}।", "title_classic": "मशहूर भूतिया कहानियाँ... {writer} की लिखी... '{title}'।",
-        "open_21": "रात के आठ बज गए हैं... कमरे की बत्ती बुझा दीजिए, हेडफ़ोन कानों में लगा लीजिए... शुरू हो रहा है 'रात आठ बजे का डर'।",
+        "open_21": "रात के नौ बज गए हैं... कमरे की बत्ती बुझा दीजिए, हेडफ़ोन कानों में लगा लीजिए... शुरू हो रहा है 'रात नौ बजे का डर'।",
         "open_13": "शुरू हो रहा है 'दोपहर का डर'... हेडफ़ोन लगा लीजिए... और अगर आप अकेले हैं, तो ज़रा संभलकर सुनिए।",
         "open_karna": "कर्णपिशाचिनी... वो आत्मा जो कान में हर सच फुसफुसा देती है... पर उसकी क़ीमत बहुत भयानक है।",
-        "next_own": "और कल रात आठ बजे... '{title}'। {hook} कल रात आठ बजे, मिस मत कीजिए।",
-        "next_classic": "कल रात आठ बजे... {writer} की मशहूर कहानी '{title}'। ज़रूर सुनिए।",
-        "next_karna": "कल रात आठ बजे... कर्णपिशाचिनी का नया केस। वो फिर फुसफुसाएगी... ज़रूर आइए।",
+        "next_own": "और कल रात नौ बजे... '{title}'। {hook} कल रात नौ बजे, मिस मत कीजिए।",
+        "next_classic": "कल रात नौ बजे... {writer} की मशहूर कहानी '{title}'। ज़रूर सुनिए।",
+        "next_karna": "कल रात नौ बजे... कर्णपिशाचिनी का नया केस। वो फिर फुसफुसाएगी... ज़रूर आइए।",
         "guess_line": "रुकिए... एक पल यहीं रुकिए। आपको क्या लगता है? {q} एक, {o1}। दो, {o2}। तीन, {o3}। कमेंट में सिर्फ़ नंबर लिखिए - सही जवाब देने वालों का नाम अगले वीडियो में लिया जाएगा।",
-        "at_13": "आज दोपहर 1 बजे पूरी कहानी", "at_21": "आज रात 8 बजे पूरी कहानी",
+        "at_13": "आज दोपहर 1 बजे पूरी कहानी", "at_21": "आज रात 9 बजे पूरी कहानी",
         "how_to_join": "आप भी इस कहानी का हिस्सा बनिए! कमेंट में जवाब दीजिए, जिनका जवाब सही होगा उनका नाम अगले वीडियो में लिया जाएगा। और अपनी सच्ची डरावनी घटना कमेंट में हैशटैग मेरी कहानी लिखकर भेजिए, सबसे अच्छी घटना पर आपके नाम के साथ कहानी बनेगी।",
         "shout_line": "पिछली कहानी में सही जवाब दिया था {names} ने। आप सबको बधाई!",
         "viewer_credit": "आज की ये कहानी हमें भेजी थी {name} ने। धन्यवाद {name}! आप भी अपनी घटना भेजिए।",
@@ -113,14 +115,14 @@ LANGS = {
         "intro": "আজকের ভৌতিক গল্প... {title}।",
         "outro": "গল্পটা কেমন লাগল কমেন্টে জানাবেন। আর এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করুন।",
         "page_default": "আমাদের পেজ",
-        "share_cta": "🔁 ভালো লাগলে বন্ধুদের শেয়ার করুন আর পেজটা ফলো করুন - রোজ রাত ৮টায় নতুন ভূতের গল্প।",
+        "share_cta": "🔁 ভালো লাগলে বন্ধুদের শেয়ার করুন আর পেজটা ফলো করুন - রোজ রাত ৯টায় নতুন ভূতের গল্প।",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
         "badge": "লাইক • শেয়ার • ফলো", "part": "পর্ব {n}",
         "outro_part1": "গল্পের পরের পর্ব আসছে কাল... আর রবিবার আসবে পুরো গল্পটা একসাথে। মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
         "ch_intro": "শুরু", "ch_end": "শেষ", "chapters": "⏱️ অধ্যায়",
-        "cta": "পুরো গল্প আমাদের পেজে 👉", "follow": "ফলো করুন — রোজ রাত ৮টায় নতুন ভূতের গল্প",
+        "cta": "পুরো গল্পের লিংক নিচের লেখায় 👇", "link_below": "পুরো গল্পের লিংক নিচের লেখায়", "follow": "ফলো করুন — রোজ রাত ৯টায় নতুন ভূতের গল্প",
         "guess_card": "আপনার উত্তর কী? কমেন্টে লিখুন ১ বা ২ বা ৩", "core_tags": ["#ভূতেরগল্প", "#BengaliHorrorStory", "#BhuterGolpo", "#ভৌতিকগল্প", "#horrorstories"], "playlist": "ভৌতিক গল্প - Bengali Horror Stories",
-        "full_link": "পুরো গল্প দেখুন:",
+        "full_link": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে:",
         "hp": "হেডফোন পরে শুনুন",
         "find_ghost": "🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!",
         "find_ghost_line": "আর হ্যাঁ... এই ভিডিওর ছবিগুলোর মধ্যে সেই ভূত কয়েকবার লুকিয়ে ছিল। আপনি কতবার দেখেছেন? কমেন্টে অবশ্যই জানাবেন।",
@@ -132,18 +134,20 @@ LANGS = {
         "taranath": "তারানাথ তান্ত্রিক #{n}", "taranath_pl": "তারানাথ তান্ত্রিকের গল্প - Taranath Tantrik",
         "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
         "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
-        "show_21": "রাত আটটার ভয়", "show_13": "দুপুরের ভয়",
-        "title_21": "রাত আটটার ভয়... {title}।", "title_13": "দুপুরের ভয়... {title}।",
-        "tonight_long": "আর আজ রাত আটটায়... আজকের বড় গল্প, পুরো আধ ঘণ্টার। আলো নিভিয়ে, হেডফোন কানে দিয়ে... অবশ্যই শুনবেন।",
+        "show_21": "রাত ন'টার ভয়", "show_13": "দুপুরের ভয়",
+        "title_21": "রাত ন'টার ভয়... {title}।", "title_13": "দুপুরের ভয়... {title}।",
+        "next_generic": "আর কাল রাত ন'টায়... আবার আসছে নতুন এক ভয়ের গল্প, আরও গভীর, আরও অন্ধকার। অবশ্যই আসবেন।",
+        "tonight_title": "আর আজ রাত ন'টায়... আজকের বড় গল্প, '{title}'। {hook} আধ ঘণ্টার গল্প... আলো নিভিয়ে শুনবেন, মিস করবেন না।",
+        "tonight_long": "আর আজ রাত ন'টায়... আজকের বড় গল্প, পুরো আধ ঘণ্টার। আলো নিভিয়ে, হেডফোন কানে দিয়ে... অবশ্যই শুনবেন।",
         "title_karna": "কর্ণপিশাচিনী... {title}।", "title_classic": "বিখ্যাত ভূতের গল্প... {writer} লেখা... '{title}'।",
-        "open_21": "রাত আটটা বাজল... ঘরের আলোটা নিভিয়ে দিন, হেডফোনটা কানে দিন... শুরু হচ্ছে 'রাত আটটার ভয়'।",
+        "open_21": "রাত ন'টা বাজল... ঘরের আলোটা নিভিয়ে দিন, হেডফোনটা কানে দিন... শুরু হচ্ছে 'রাত ন'টার ভয়'।",
         "open_13": "শুরু হচ্ছে 'দুপুরের ভয়'... হেডফোনটা কানে দিন... আর যদি একা থাকেন, তাহলে একটু সাবধানে শুনবেন।",
         "open_karna": "কর্ণপিশাচিনী... যে আত্মা কানে কানে সব সত্যি বলে দেয়... কিন্তু তার দাম বড় ভয়ঙ্কর।",
-        "next_own": "আর কাল রাত আটটায়... '{title}'। {hook} কাল রাত আটটায়, মিস করবেন না।",
-        "next_classic": "কাল রাত আটটায়... {writer} বিখ্যাত গল্প '{title}'। অবশ্যই শুনবেন।",
-        "next_karna": "কাল রাত আটটায়... কর্ণপিশাচিনীর নতুন কেস। সে আবার কানে কানে ফিসফিস করবে... অবশ্যই আসবেন।",
+        "next_own": "আর কাল রাত ন'টায়... '{title}'। {hook} কাল রাত ন'টায়, মিস করবেন না।",
+        "next_classic": "কাল রাত ন'টায়... {writer} বিখ্যাত গল্প '{title}'। অবশ্যই শুনবেন।",
+        "next_karna": "কাল রাত ন'টায়... কর্ণপিশাচিনীর নতুন কেস। সে আবার কানে কানে ফিসফিস করবে... অবশ্যই আসবেন।",
         "guess_line": "দাঁড়ান... এক মুহূর্ত এখানে থামুন। আপনার কী মনে হয়? {q} এক, {o1}। দুই, {o2}। তিন, {o3}। কমেন্টে শুধু নম্বরটা লিখুন - যাঁদের উত্তর ঠিক হবে, পরের ভিডিওতে তাঁদের নাম বলা হবে।",
-        "at_13": "আজ দুপুর ১টায় পুরো গল্প", "at_21": "আজ রাত ৮টায় পুরো গল্প",
+        "at_13": "আজ দুপুর ১টায় পুরো গল্প", "at_21": "আজ রাত ৯টায় পুরো গল্প",
         "how_to_join": "আপনিও এই গল্পের অংশ হয়ে উঠুন! কমেন্টে উত্তর দিন, যাঁদের উত্তর ঠিক হবে পরের ভিডিওতে তাঁদের নাম বলা হবে। আর আপনার জীবনের সত্যি ভৌতিক ঘটনা কমেন্টে হ্যাশট্যাগ আমার গল্প লিখে পাঠান, সেরা ঘটনা নিয়ে আপনার নাম সহ গল্প হবে।",
         "shout_line": "আগের গল্পে ঠিক উত্তর দিয়েছিলেন {names}। আপনাদের সবাইকে অভিনন্দন!",
         "viewer_credit": "আজকের এই গল্পটা আমাদের পাঠিয়েছিলেন {name}। ধন্যবাদ {name}! আপনিও আপনার ঘটনা পাঠান।",
@@ -249,9 +253,9 @@ def load_history():
 
 # cron-job.org starts each video about 1 hour before it should be online (India time):
 # (start hour, start minute, the hour the video should be out)
-EVENING = 20                             # ONE horror story a day, at 8 PM
+EVENING = 21                             # the big (~30 minute) horror story, at 9 PM
 NOON = 13                                # + a 5-8 minute story at 1 PM
-TRIGGERS = [(9, 30, NOON), (15, 30, EVENING)]   # start early; publish at 1 PM (short) and 8 PM (~30 minutes)
+TRIGGERS = [(9, 0, NOON), (14, 0, EVENING)]    # start 4 / 7 hours early; publish at 1 PM (short) and 9 PM (~30 min)
 SLOT = None
 
 
@@ -528,6 +532,13 @@ def tonight():
     return day, month, moon, belief
 
 
+def tomorrow_special_today():
+    """is TONIGHT's 8 PM a Karna Pishachini / classic night (then yesterday's promise waits)?"""
+    today = dt.datetime.now(extras.IST).weekday()
+    return (today in [int(x) for x in re.findall(r"\d", env("KARNA_DAYS") or "1,4")] and env("KARNA") != "0") or \
+           (today in [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "6")] and env("CLASSICS") != "0")
+
+
 def tomorrow_special():
     """what tomorrow's 8 PM story is: 'karna', 'classic' or None (our own story)"""
     tomorrow = (dt.datetime.now(extras.IST) + dt.timedelta(days=1)).weekday()
@@ -542,13 +553,16 @@ def next_preview(story, history, lang, slot_hour, classic):
     """the last words of the video: what comes tomorrow in this time slot"""
     L = LANGS[lang]
     k = 0 if lang == "bn" else 1
-    if slot_hour == NOON:                            # "... and tonight at 8: the big story"
+    if slot_hour == NOON:                            # "... and tonight at 8: '<title>'"
+        pr = load_promise(EVENING)
+        if pr and pr.get("title") and not tomorrow_special_today():
+            return L["tonight_title"].format(title=str(pr["title"]).strip(), hook=str(pr.get("hook", "")).strip())
         return L["tonight_long"]
     if slot_hour == EVENING and not tomorrow_special():
         ns = story.get("next_story") if isinstance(story.get("next_story"), dict) else {}
         if ns.get("title"):
             return L["next_own"].format(title=str(ns["title"]).strip(), hook=str(ns.get("hook", "")).strip())
-        return None
+        return L["next_generic"]
     tomorrow = (dt.datetime.now(extras.IST) + dt.timedelta(days=1)).weekday()
     karna_days = [int(x) for x in re.findall(r"\d", env("KARNA_DAYS") or "1,4")]
     classic_days = [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "6")]
@@ -559,7 +573,7 @@ def next_preview(story, history, lang, slot_hour, classic):
         c = next((c for c in CLASSICS if c[0] not in used), CLASSICS[0])
         writer = bn_of(c[1][0]) if lang == "bn" else c[1][1]
         return L["next_classic"].format(writer=writer, title=c[3][k])
-    return None
+    return L["next_generic"]
 
 
 IDEAS_FILE = os.path.join(HERE, "assets", "ideas.json")
@@ -784,6 +798,68 @@ SPELL_FIX = [   # common wrong spellings (they are also read out wrongly)
     (r"ব্রম্ভদৈত্য|ব্রহ্মদত্যি|ব্রম্মদৈত্য", "ব্রহ্মদৈত্য"), (r"পেত্নী", "পেত্নি"), (r"শশ্মান|শ্মষান", "শ্মশান"),
     (r"তান্ত্রীক", "তান্ত্রিক"), (r"স্কন্দকাটা", "স্কন্ধকাটা"),
 ]
+
+
+SOUND_WORDS = [   # (words in the line, the sound to play exactly on that word)
+    (("ঢং", "ঢঙ", "ঘণ্টা", "ঘন্টা", "टन टन", "घंटा", "घंटे की", "घंटी"), "bell"),
+    (("টোকা", "ঠকঠক", "ঠক ঠক", "খটখট", "খট খট", "কড়া নাড়", "दस्तक", "खट-खट", "खटखट", "ठक-ठक"), "knocking on a wooden door"),
+    (("নূপুর", "ঘুঙুর", "মল বাজ", "पायल", "घुंघरू"), "anklet bells jingling slowly"),
+    (("ক্যাঁচ", "কাঁচকোঁচ", "चरमराह", "चूँ-चूँ"), "old wooden door creaks open"),
+    (("চিৎকার", "আর্তনাদ", "চেঁচিয়ে", "चीख", "चिल्ला"), "terrified scream"),
+    (("কুকুরের কান্না", "কুকুরটা কেঁদে", "কুকুর ডেকে", "কুকুরের ডাক", "कुत्ते रो", "कुत्ता रो", "कुत्ते भौंक"), "dog howling at night"),
+    (("শেয়াল", "हुआँ", "सियार"), "jackals howling at night"),
+    (("বাজ পড়", "মেঘ ডাক", "মেঘের গর্জন", "बिजली कड़", "बादल गरज"), "thunder crack"),
+    (("শাঁখ", "शंख"), "conch shell blowing"),
+    (("উলু", "উলুধ্বনি"), "bengali women ululation"),
+    (("হুইসল", "ট্রেনের বাঁশি", "सीटी"), "train whistle"),
+    (("পায়ের শব্দ", "পায়ের আওয়াজ", "পায়ের আওয়াজ", "পায়ের শব্দ", "কদমों", "कदमों की आहट", "क़दमों"), "slow footsteps on wooden floor"),
+    (("ফুঁপিয়ে", "কান্নার শব্দ", "কেউ কাঁদছে", "सिसक", "रोने की आवाज़"), "woman sobbing softly"),
+    (("কাচ ভাঙ", "কাঁচ ভাঙ", "शीशा टूट", "कांच टूट"), "glass shatters"),
+    (("শেকল", "শিকল", "जंजीर", "ज़ंजीर"), "chains rattling"),
+    (("পেঁচা", "उल्लू"), "owl hooting at night"),
+    (("দড়াম", "দুম করে", "সজোরে বন্ধ", "धड़ाम", "ज़ोर से बंद"), "door slams shut"),
+    (("ঝনঝন", "ঝন ঝন", "झनझन"), "metal pots falling and clattering"),
+]
+
+
+def bell_kind(text):
+    if any(w in text for w in ("ঘড়ি", "घड़ी")):
+        return "old wall clock chiming slowly"
+    if any(w in text for w in ("মন্দির", "আরতি", "मंदिर", "आरती")):
+        return "temple bell ringing"
+    if any(w in text for w in ("গির্জা", "চার্চ", "चर्च")):
+        return "church bell tolling in the distance"
+    return "heavy bell tolling slowly"
+
+
+def sync_sounds(story):
+    """A sound that the words name is heard EXACTLY when it is said: 'ঘণ্টা বাজছে, ঢং... ঢং...' -> the bell on
+    'ঢং'. Adds the missing sound effects and ties existing ones to their word (never before or after)."""
+    added = tied = 0
+    for sc in story.get("scenes") or []:
+        for ln in sc.get("lines") or []:
+            text = str(ln.get("text", ""))
+            sfx = [x for x in (ln.get("sfx") or []) if isinstance(x, dict) and x.get("sound")]
+            n_auto = 0
+            for words, sound in SOUND_WORDS:
+                hit = next((w for w in words if w in text), None)
+                if not hit:
+                    continue
+                if sound == "bell":
+                    sound = bell_kind(text)
+                key = set(re.findall(r"[a-z]+", sound)) - {"a", "on", "the", "at", "of", "slowly", "night", "in"}
+                same = next((x for x in sfx if key & set(re.findall(r"[a-z]+", str(x["sound"]).lower()))), None)
+                if same:
+                    if not str(same.get("word", "")).strip() or str(same["word"]).strip(" .,!?।") not in text:
+                        same["word"] = hit
+                        tied += 1
+                elif n_auto < 2:
+                    sfx.append({"sound": sound, "word": hit})
+                    n_auto += 1
+                    added += 1
+            ln["sfx"] = sfx
+    if added or tied:
+        log(f"  sounds in sync with the words: {added} added, {tied} tied to their word")
 
 
 def clean_story_text(story):
@@ -1166,7 +1242,7 @@ os.environ.setdefault("VOICE_RESERVE", "80" if LONG_MIN > 15 else "40")  # ... a
 def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
-    n_ch = max(2, round(LONG_MIN / 6))
+    n_ch = max(2, round(LONG_MIN / 8.5))             # 4 big chapters: fewer Gemini requests a day
     words_per = int(LONG_MIN * 120 / n_ch)            # ~120 spoken words a minute (slow, grave telling)
     chapters, summary, last = [], "", ""
     for k in range(1, n_ch + 1):
@@ -1448,6 +1524,9 @@ Story rules:
   first small strange sign. The listener must always know where we are, who is there, how and why.
 - PLANT A CLUE: in the first two scenes show one small, innocent-looking thing (an old key, a scratch on the wall,
   a line of a lullaby, a smell) - at the end it turns out to be the key to the whole horror.
+- A SOUND THAT STARTS IN THE MIDDLE OF A SCENE (the rain begins, a bell rings, a storm rises, a dog starts to
+  howl) is NEVER "ambience" - it is an "sfx" on the exact word that names it, so it is heard exactly when it is
+  said, not before and not after. "ambience" is only what is heard from the first to the last line of the scene.
 - BACKGROUND SOUND MUST BE EXACT: each scene's "ambience" is ONLY what can really be heard in that exact place at
   that time (indoors at night with rain outside = 'heavy rain heard from inside a closed room'; a village pond at
   dusk = 'frogs and crickets at a village pond'). Never a sound that is not there. Each sfx only for a real event
@@ -1796,6 +1875,19 @@ def make_cast_sheet(cast, path, seed):
                 return False
             time.sleep(6 * (attempt + 1))
     return False
+
+
+def key_line(grp):
+    """of the lines that share one picture: the one most worth showing (the scare, a described action, else the
+    first) - so the picture matches what the listener hears most"""
+    for ln in grp:
+        if ln.get("jump_scare"):
+            return ln
+    pics = [ln for ln in grp if isinstance(ln.get("image"), dict) and (ln["image"].get("people") or ln["image"].get("prompt"))]
+    nar = [ln for ln in pics if str(ln.get("speaker", "")).lower().startswith("narrat")]
+    if nar:
+        return max(nar, key=lambda ln: len(str(ln.get("en") or ln.get("text", ""))))
+    return pics[0] if pics else grp[0]
 
 
 def make_image(cast, action, place, names, path, seed):
@@ -3456,7 +3548,7 @@ def build_video(scene_parts, lang, out):
         log("  badge skipped:", str(e)[:120])
         pic = ["-vf", vf, "-map", "0:v"]
     r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-i", "full.wav"] + pic + ["-map", "1:a",
-                        "-t", f"{total:.2f}", "-c:v", "libx264", "-preset", "medium",
+                        "-t", f"{total:.2f}", "-c:v", "libx264", "-preset", "veryfast" if total > 900 else "medium",
                         "-crf", "23", "-maxrate", "3500k", "-bufsize", "7000k", "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-movflags", "+faststart",
                         os.path.abspath(out)], capture_output=True, text=True, cwd=WORK)
     if r.returncode != 0:
@@ -3468,6 +3560,34 @@ def build_video(scene_parts, lang, out):
         except Exception as e:
             log("  9:16 version failed - Facebook gets the normal one:", str(e)[:200])
     return out
+
+
+def next_card(text, bg):
+    """16:9 card for the 'next story' preview: the title big on a dark picture"""
+    try:
+        from PIL import ImageEnhance, ImageFilter
+        img = Image.open(bg).convert("RGB").resize((W, H)) if bg and os.path.exists(bg) else Image.new("RGB", (W, H))
+        img = ImageEnhance.Brightness(img.filter(ImageFilter.GaussianBlur(6))).enhance(0.3)
+        d = ImageDraw.Draw(img)
+        mt = re.search(r"['‘’\"]([^'‘’\"]{2,60})['‘’\"]", text)
+        head = text.split("...")[0].strip(" .।") + "..."
+        lines = [(head, 46, (255, 255, 255)), ((mt.group(1) if mt else ""), 78, (255, 215, 0))]
+        y = H // 2 - 110
+        for t_, size, col in lines:
+            if not t_:
+                continue
+            rows, f, sz = extras._fit_text(d, extras.no_tofu(t_), FONT, W - 120, size, lines_max=2)
+            for r_ in rows:
+                tw = d.textlength(r_, font=f)
+                d.text(((W - tw) / 2, y), r_, font=f, fill=col, stroke_width=max(3, sz // 14), stroke_fill=(0, 0, 0))
+                y += int(sz * 1.3)
+            y += 20
+        out = os.path.join(WORK, "next_card.jpg")
+        img.save(out, quality=92)
+        return out
+    except Exception as e:
+        log("  next-story card skipped:", str(e)[:120])
+        return None
 
 
 def top_png(path, show, title):
@@ -3940,6 +4060,7 @@ def main():
                            outline=STATE.get("outline", ""))
     STATE["special"] = special
     clean_story_text(story)
+    sync_sounds(story)
     fix_speakers(story)
     NAME_LOCAL.update({str(c["name"]).lower(): str(c.get("name_local") or c["name"]) for c in story["characters"]})
     ensure_intros(story, cold=env("COLD_OPEN") == "1")
@@ -4016,9 +4137,13 @@ def main():
         for g, grp in enumerate(groups):
             count += 1
             p = os.path.join(WORK, f"shot_{i:02d}_{g:02d}.jpg")
-            first = grp[0] if grp else {}
+            first = key_line(grp) if grp else {}           # the line this picture must show
             pic = first.get("image") if isinstance(first.get("image"), dict) else {}
             action = pic.get("prompt") or first.get("shot") or s.get("action", "")
+            said = " ".join(str(x.get("en", "")).strip() for x in grp if x.get("en"))[:420]
+            if said:                                     # the picture shows exactly what these words tell
+                action = (f"{action}. It must show exactly what is being told: \"{said}\". Same place, time of "
+                          f"day and light as the story ({s.get('place', '')})")
             names = pic.get("characters") if isinstance(pic.get("characters"), list) else s.get("characters")
             people = [x for x in (pic.get("people") or []) if isinstance(x, dict) and x.get("name")]
             if people:                                   # exact poses first: the picture model follows them best
@@ -4161,11 +4286,18 @@ def main():
     if shout_names:
         end_lines.append({"speaker": "narrator", "text": L["shout_line"].format(names=lang_names(shout_names))})
     nxt = None if continues or env("MODE") == "amavasya" else next_preview(story, history, lang, slot_hour, classic)
-    if nxt:                                          # "tomorrow at 9 PM..." - so people wait for it
-        end_lines.append({"speaker": "narrator", "emotion": "eerie", "text": nxt})
-    end_lines.append({"speaker": "narrator", "text": L["how_to_join"]})
-    end_lines.append({"speaker": "narrator", "text": (L["outro_part1"] if continues else L["outro"]).format(page=page)})
-    parts.append({"image": shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1], "lines": end_lines, "sounds": ["wind"], "mood": "creepy", "voices": voices})
+    last_img = shots_per_scene[-1][-1] if shots_per_scene[-1] else imgs[-1]
+    first_end = end_lines[:1]                        # the story's last chilling line ...
+    parts.append({"image": last_img, "lines": first_end or [{"speaker": "narrator", "text": "..."}],
+                  "sounds": ["wind"], "mood": "creepy", "voices": voices})
+    if nxt:                                          # ... then at once: what comes next, with its own card
+        log("Next story preview:", nxt[:120])
+        card = next_card(nxt, last_img)
+        parts.append({"image": card or last_img, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": nxt}],
+                      "sounds": ["wind"], "mood": "creepy", "voices": voices})
+    rest = end_lines[1:] + [{"speaker": "narrator", "text": L["how_to_join"]},
+                            {"speaker": "narrator", "text": (L["outro_part1"] if continues else L["outro"]).format(page=page)}]
+    parts.append({"image": last_img, "lines": rest, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
     STING_AT[0] = 1 if cold else 0
     HOOK_TEXT[0] = str(story.get("thumbnail_text") or "").strip()
@@ -4590,8 +4722,8 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     if special == "karna":
         show = L["karna"].split(" #")[0]
     clean = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?'-]", "", title).strip()
-    final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["follow"]], [50, 66, 46, 40],
-                  [(200, 200, 200), (255, 225, 0), (255, 60, 60), (255, 255, 255)], bg=ghost_img)
+    final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["follow"], L["link_below"]], [50, 66, 46, 40, 40],
+                  [(200, 200, 200), (255, 225, 0), (255, 60, 60), (255, 255, 255), (120, 220, 255)], bg=ghost_img)
     parts.append(_still_clip(final, signature_sting(), 3.4, nxt("title")))
     lst = os.path.join(WORK, "trailer.txt")
     with open(lst, "w") as f:
@@ -4622,7 +4754,8 @@ def grow(video, story, title, lang, L, tags, results, history, page):
     if DRY_RUN:
         return out
     question = str(story.get("comment_question", "")).strip()
-    short_desc = f"{title}\n{L['full_link']} {page}\n{' '.join(tags[:6])}"
+    fb_full = f"https://www.facebook.com/watch/?v={results['facebook']}" if results.get("facebook") else page
+    short_desc = f"{title}\n\n{L['full_link']} {fb_full}\n\n{' '.join(tags[:5])}"   # the FULL story's own link
     if teaser and env("FB_REELS") != "0":
         try:
             out["fb_reel"] = extras.fb_post_reel(teaser, short_desc)
@@ -4650,7 +4783,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         if (teaser and extras.yt_extra_ok() and env("YT_SHORTS") != "0"
                 and extras.shorts_today(history) < int(env("YT_SHORTS_PER_DAY") or 2)):
             try:
-                desc = f"{title}\n{L['full_link']} https://youtu.be/{results['youtube']}\n{' '.join(tags[:6])}"
+                desc = f"{L['full_link']} https://youtu.be/{results['youtube']}\n\n{title}\n{' '.join(tags[:5])}"
                 out["yt_short"] = post_to_youtube(teaser, None, f"{title[:80]} #Shorts", desc, tags, lang)
                 log("Posted YouTube Short:", out["yt_short"])
             except Exception as e:
