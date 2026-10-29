@@ -2,11 +2,11 @@ name: Daily Horror Story
 
 on:
   schedule:
-    # The main start comes from cron-job.org at 9:30 AM and 3:30 PM India time: the 5-8 minute story goes live
-    # by itself at 1:00 PM, the ~30-minute story at 8:00 PM (scheduled posts).
+    # The main start comes from cron-job.org at 9:00 AM and 2:00 PM India time: the 5-8 minute story goes live
+    # by itself at 1:00 PM, the ~30-minute story at 9:00 PM (scheduled posts).
     # These GitHub times are only a backup - they do nothing if that slot's video is already done.
     - cron: "30 4 * * *"    # backup 10:00 AM India time
-    - cron: "0 11 * * *"    # backup 4:30 PM India time
+    - cron: "30 9 * * *"    # backup 3:00 PM India time
   workflow_dispatch:        # "Run workflow" button for tests
     inputs:
       language:
@@ -28,7 +28,7 @@ concurrency:
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 320
+    timeout-minutes: 360    # 6 hours (the most GitHub allows)
     env:
       USE_FREE_MODEL: ${{ secrets.USE_FREE_MODEL }}   # "1" = also try the slow free on-GitHub voice model
     steps:
