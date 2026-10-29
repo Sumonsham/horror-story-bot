@@ -644,6 +644,7 @@ PLAN:
             r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
                               json=body, timeout=240)
             if not r.ok:
+                log(f"  story plan: {model} {r.status_code}")
                 continue
             plan = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
             if not plan.get("beats"):
@@ -699,6 +700,7 @@ FACTS: what the tradition says about this ghost / spirit / belief (its form, how
                 if r.status_code == 400 and tools:
                     continue
                 if not r.ok:
+                    log(f"  source story: {model} {r.status_code}")
                     break
                 text = "\n".join(p.get("text", "") for p in r.json()["candidates"][0]["content"]["parts"]).strip()
                 mm = re.search(r"SOURCE:\s*(.+)", text)
@@ -1242,40 +1244,49 @@ os.environ.setdefault("VOICE_RESERVE", "80" if LONG_MIN > 15 else "40")  # ... a
 def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
-    n_ch = max(2, round(LONG_MIN / 8.5))             # 4 big chapters: fewer Gemini requests a day
+    n_ch = max(2, round(LONG_MIN / 6))               # ~6 chapters of ~6 minutes (what one Gemini answer holds)
     words_per = int(LONG_MIN * 120 / n_ch)            # ~120 spoken words a minute (slow, grave telling)
-    chapters, summary, last = [], "", ""
-    for k in range(1, n_ch + 1):
-        final = k == n_ch
-        rule = (f"\nLONG STORY - CHAPTER {k} OF {n_ch}: today's video is ONE long story of about {int(LONG_MIN)} "
-                f"minutes, written in {n_ch} chapters. Write ONLY chapter {k}, telling the beats of the MASTER OUTLINE "
-                f"that belong to it (the beats split evenly into {n_ch} chapters, in order). ")
+    need = int(float(env("MIN_LONG_MINUTES") or 30) * 120)   # never under 30 minutes
+    max_ch = n_ch + 3
+    chapters, summary, last, total, k, force_final, final_tries = [], "", "", 0, 0, False, 0
+    while k < max_ch:
+        k += 1
+        final = force_final or k == max_ch or (k >= 3 and total + words_per >= need)
+        rule = (f"\nLONG STORY - CHAPTER {k} (of about {n_ch}): today's video is ONE long story of at least "
+                f"{int(LONG_MIN)} minutes, written chapter by chapter. Write ONLY chapter {k}, telling the NEXT beats "
+                f"of the MASTER OUTLINE in order (continue from where the story so far stopped). ")
         if k == 1:
             rule += ("It is the real BEGINNING: the hook line, then when / who / where from / why / how they came, "
                      "the people, ordinary life and the first strange signs. ")
         else:
             rule += (f"Continue EXACTLY from where chapter {k - 1} stopped - same people, names, place and time; no "
                      f"recap, no new introduction, no hook line. Story so far:{summary}\nThe last lines were: {last}\n")
-        rule += ("This is the FINAL chapter: the climax, the twist, a full resolution scene that explains everything "
-                 "and what became of every person, then the last chilling line. " if final else
+        rule += ("This is the FINAL chapter: tell all remaining beats - the climax, the twist, a full resolution scene "
+                 "that explains everything and what became of every person, then the last chilling line. " if final else
                  "End the chapter on a strong cliffhanger that leads straight into the next chapter (never say "
-                 "'next part' or 'to be continued'). ")
+                 "'next part' or 'to be continued'). Do NOT end the story yet. ")
         rule += ("Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
                  "chapter, with names, decisions, clues and open questions.\n")
-        length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, about {words_per} spoken words (at least "
-                  f"{int(words_per * 0.9)} - never fewer). Slow-burning, real conversations, every moment lived - "
-                  "never rushed.")
-        try:
+        length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, about {words_per} spoken words. Slow-burning, real "
+                  "conversations, every moment lived - never rushed.")
+        try:                                         # a shorter chapter is kept (no costly rewrite) -
             s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules + rule,
-                           length=length, min_w=int(words_per * 0.88))
+                           length=length, min_w=int(words_per * 0.7))   # ... more chapters make up the length
         except ClassicUnknown:
             raise
         except Exception as e:
             if k == 1:
                 raise
-            log(f"  chapter {k} failed ({str(e)[:100]}) - closing the story in one last chapter")
-            if final or k == n_ch - 1:
-                break
+            if final:
+                final_tries += 1
+                if final_tries >= 2:
+                    log(f"  the last chapter failed twice ({str(e)[:100]})")
+                    break
+                k -= 1                               # try the ending again
+                continue
+            log(f"  chapter {k} failed ({str(e)[:100]}) - the next chapter will end the story")
+            force_final = True
+            k -= 1
             continue
         s = edit_story(s, lang, classic=classic, brief=STATE.get("brief", ""), outline=STATE.get("outline", ""))
         chapters.append(s)
@@ -1283,7 +1294,11 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
         tail = [str(ln.get("text", "")) for ln in (s["scenes"][-1].get("lines") or [])][-3:]
         last = " / ".join(tail)
         words = sum(len(str(ln.get("text", "")).split()) for sc in s["scenes"] for ln in sc.get("lines") or [])
-        log(f"Chapter {k}/{n_ch} written: {len(s['scenes'])} scenes, {words} words")
+        total += words
+        log(f"Chapter {k} written: {len(s['scenes'])} scenes, {words} words (story so far {total} words, "
+            f"~{total / 120:.0f} min)" + (" - the ending" if final else ""))
+        if final:
+            break
     if not chapters:
         raise RuntimeError("no chapter written")
     story = dict(chapters[0])
@@ -1617,6 +1632,9 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
     models = gemini_models(key)
     waits = [0, 90, 180, 300, 300, 420]           # Google's servers are sometimes busy for a while: be patient
     for round_no, wait in enumerate(waits):
+        if min_w and best and round_no >= 1 and best[0] >= min_words * 0.6:
+            log(f"  keeping the longest version ({best[0]} words) - no more rewriting (saves the Gemini limit)")
+            return best[1]
         if wait and round_no <= 2:                # Gemini busy: try the backup writer before waiting
             try:
                 text = extras.freemodel_text(body["contents"][0]["parts"][0]["text"])
