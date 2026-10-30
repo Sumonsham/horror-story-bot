@@ -28,9 +28,9 @@ concurrency:
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 360    # 6 hours (the most GitHub allows)
+    timeout-minutes: 240    # four-hour ceiling; long stages have their own smaller retry/time budgets
     env:
-      USE_FREE_MODEL: ${{ secrets.USE_FREE_MODEL }}   # "1" = also try the slow free on-GitHub voice model
+      USE_FREE_MODEL: "0"   # horror narration is Gemini-only
     steps:
       - uses: actions/checkout@v4
         with:
@@ -92,7 +92,26 @@ jobs:
 
       - name: Make the horror video and post it
         env:
+          HORROR_MINUTES: "30"
+          MAX_IMAGES: "36"
+          IMAGE_WORKERS: "3"
+          IMAGE_TIMEOUT_SECONDS: "75"
+          TTS_MAX_MINUTES: "60"
+          TTS_REQUEST_TIMEOUT: "45"
+          TTS_REQUEST_ATTEMPTS: "4"
+          TTS_CALL_TIMEOUT: "120"
+          VOICE_MAX: "75"
+          VOICE_RESERVE: "40"
+          FREE_VOICE_MINUTES: "20"
+          EDGE_TTS_TIMEOUT: "25"
+          ALLOW_MICROSOFT: "0"
+          FB_UPLOAD_ATTEMPTS: "2"
+          FB_CHUNK_ATTEMPTS: "2"
+          FB_CHUNK_TIMEOUT: "180"
+          YT_UPLOAD_TIMEOUT: "1200"
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           FREEMODEL_API_KEY: ${{ secrets.FREEMODEL_API_KEY }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -113,6 +132,7 @@ jobs:
           GEMINI_TTS_KEY_3: ${{ secrets.GEMINI_TTS_KEY_3 }}
           GEMINI_TTS_KEY_4: ${{ secrets.GEMINI_TTS_KEY_4 }}
           GEMINI_TTS_KEY_5: ${{ secrets.GEMINI_TTS_KEY_5 }}
+          GEMINI_TTS_KEY_6: ${{ secrets.GEMINI_TTS_KEY_6 }}
           TTS_PAID: ${{ secrets.TTS_PAID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           LANGUAGE: ${{ github.event.inputs.language }}
