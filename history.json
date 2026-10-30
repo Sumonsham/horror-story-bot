@@ -10,7 +10,7 @@
    "likes": 0,
    "comments": 0,
    "views": 1,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -24,7 +24,7 @@
    "likes": 2,
    "comments": 0,
    "views": 33,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -38,7 +38,7 @@
    "likes": 1,
    "comments": 0,
    "views": 22,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -52,7 +52,7 @@
    "likes": 5,
    "comments": 2,
    "views": 59,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -66,7 +66,7 @@
    "likes": 1,
    "comments": 2,
    "views": 9,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -80,7 +80,7 @@
    "likes": 1,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -235,7 +235,7 @@
    "likes": 0,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -259,7 +259,7 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-27T17:01+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -451,7 +451,7 @@
    "likes": 0,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-27T11:53+00:00"
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -476,8 +476,8 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 1,
-   "checked": "2026-10-27T17:01+00:00"
+   "views": 0,
+   "checked": "2026-10-30T18:45+00:00"
   }
  },
  {
@@ -688,5 +688,32 @@
   "fb_reel": "2144201283153739",
   "fb_story": "2108891783067780",
   "yt_short": "_ULpl8DA3ms"
+ },
+ {
+  "date": "2026-10-30T23:21+00:00",
+  "lang": "bn",
+  "slot": "2026-10-30@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": "a bloodstained bridal veil found inside an antique zamindar family trunk - a cursed heirloom that wakes up before every wedding in the family",
+  "theme": "Halloween night party in an old British bungalow",
+  "format": "classic third-person radio-drama narration",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-10-30T21:52+00:00",
+  "title": "ভ্যান্স কুঠির অভিশাপ 🎃 | পর্ব ১ | পর্ব 1",
+  "festival": "Halloween",
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1846548890125431",
+  "youtube": "zVyMhEAhvtE",
+  "fb_reel": "4464579803853392",
+  "fb_story": "986779953851989",
+  "yt_short": "CptD01gIlD8"
  }
 ]

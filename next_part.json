@@ -1,0 +1,92 @@
+{
+ "20": {
+  "created": "2026-10-30T23:21:09.468350+00:00",
+  "lang": "bn",
+  "theme": "Halloween night party in an old British bungalow",
+  "slot": 20,
+  "source": "",
+  "fmt": "classic third-person radio-drama narration",
+  "title": "ভ্যান্স কুঠির অভিশাপ 🎃 | পর্ব ১",
+  "done": 1,
+  "total": 2,
+  "series_id": "2026-10-30T21:52+00:00",
+  "summary": "Soumya, Rini, Debu, and Mitali travel to Vance Kuthi—an abandoned 1860s indigo planter's estate in Nadia—for an ironic Victorian Halloween party on a Kartik Saturday. Caretaker Haru Mondal warns them that the river tide will flood the causeway by eight o'clock, cutting them off until morning, and strictly forbids touching the old hearth. Ignoring the warnings, the group settles in, but Rini's sound recorder detects mechanical grain-scale clangs and breathing beneath the floor. Debu opens loose floorboards near the fireplace, uncovering 160-year-old unhusked rice and a sealed basement vault. As Soumya mockingly acts out a colonial auction, the liquid in their glasses turns into stinking indigo dye, and a terrifying draft snuffs out their light in the cellar. Attempting to flee, they discover the causeway is underwater and their car engine is stuffed with river mud. Locked inside, they hear 44 invisible bare feet pacing outside, and Debu confesses that planter Archibald Vance starved 44 villagers in that cell before being trapped there himself. As the episode ends, Vance's spectral shadow emerges from the open floor holding an iron ledger.",
+  "part2_plan": "Part 2 begins immediately as Vance's shadow demands their signatures on the century-old seed ledger to release the trapped souls. The group must decide whether to attempt a desperate escape through the surging river or face the subterranean granary vault to destroy the original debt contracts. Rini discovers her recorded sound frequencies can temporarily repel the phantom when played at maximum resonance. Debu's failing health forces Mitali to take a perilous lead in finding the original iron bolt that locked the vault. Ultimately, the ancestral sky-lamps across the river must be re-lit to break Archibald Vance's legal curse and grant peace to the forty-four ryots.",
+  "characters": [
+   {
+    "name": "Soumya",
+    "gender": "female",
+    "age": "adult",
+    "kind": "human",
+    "look": "32-year-old male with neatly styled short hair, wearing a dark green Victorian frock coat and casual trousers, holding a brass storm lantern.",
+    "name_local": "সৌমা মুখার্জি",
+    "intro": "বিজ্ঞাপন সংস্থার সিনিয়র কপিরাইটার সৌমা মুখার্জি - উৎসাহী কিন্তু বেপরোয়া, আজকের হ্যালোউইন পার্টির প্রধান উদ্যোক্তা।",
+    "intro_en": "Soumya Mukherjee, an ad agency copywriter, enthusiastic but reckless, the main organizer of tonight's Halloween party."
+   },
+   {
+    "name": "Rini",
+    "gender": "female",
+    "age": "adult",
+    "kind": "human",
+    "look": "29-year-old female with long dark hair tied in a loose bun, wearing a red shawl over a dark kurta, holding a portable professional audio recorder and headphones.",
+    "name_local": "রিনি সেন",
+    "intro": "ডকুমেন্টারি সাউন্ড ডিজাইনার রিনি সেন - সৌমার বান্ধবী, যে নদীর ধারের লোকসংস্কৃতির শব্দ রেকর্ড করতে এসেছে।",
+    "intro_en": "Rini Sen, a documentary sound designer and Soumya's pragmatic girlfriend, here to record authentic riverside audio."
+   },
+   {
+    "name": "Debu",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "33-year-old male wearing wire-rimmed spectacles, a grey coat over a shirt, carrying a heavy duffel bag and a brass lighter.",
+    "name_local": "দেবাশিস 'দেবু' রায়",
+    "intro": "ইতিহাসের পোকা আর তথ্য বিশ্লেষক দেবাশিস রায় - যে যুক্তি ছাড়া কিচ্ছু বিশ্বাস করে না।",
+    "intro_en": "Debashis 'Debu' Roy, a data analyst and colonial history enthusiast who trusts nothing without physical evidence."
+   },
+   {
+    "name": "Mitali",
+    "gender": "female",
+    "age": "adult",
+    "kind": "human",
+    "look": "30-year-old school history teacher with expressive eyes, wearing a blue saree with a thick knit cardigan, her face etched with quiet worry.",
+    "name_local": "মিতালী ধর",
+    "intro": "স্কুলের ইতিহাসের শিক্ষিকা মিতালী ধর - দেবুর সঙ্গিনী, যার লোকবিশ্বাসের ওপর অদ্ভুত একটা ভীতি আছে।",
+    "intro_en": "Mitali Dhar, a high-school history teacher and Debu's partner, deeply sensitive to local folklore and superstitions."
+   },
+   {
+    "name": "Haru",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "61-year-old thin rural man with deep facial wrinkles, grey beard, wearing a coarse cotton dhoti and a faded checked gamchha on his shoulder.",
+    "name_local": "হারু মণ্ডল",
+    "intro": "কুঠির দীর্ঘদিনের কেয়ারটেকার আর খেয়াঘাটের মাঝি ষাটোর্ধ্ব হারু মণ্ডল।",
+    "intro_en": "Haru Mondal, the sixty-year-old hereditary caretaker of Vance Kuthi and riverside ferryman."
+   },
+   {
+    "name": "Vance",
+    "gender": "male",
+    "age": "adult",
+    "kind": "ghost",
+    "look": "Tall shadowy figure in an 1860s indigo planter's ruined suit, face pale like dry chalk, hollow dark sockets, skin tinged with dark indigo dye stains.",
+    "name_local": "আর্চিবল্ড ভ্যান্স",
+    "intro": "১৮৬০ সালের নীলবিদ্রোহের সময় মারা যাওয়া নিষ্ঠুর স্কটিশ নীলকর আর্চিবল্ড ভ্যান্স।",
+    "intro_en": "Archibald Vance, the brutal Scottish indigo planter who died trapped in his own vault during the 1860 revolt."
+   }
+  ],
+  "setting": "Vance Kuthi, a derelict 1860s British indigo planter's mansion on an isolated river peninsula along Jalangi River in Nadia. Damp lime-washed walls, high ceilinged drawing room with a large brick fireplace, antique rosewood floorboards, dark river fog, humid autumn night in Kartik.",
+  "choice": {
+   "question": "সৌমাদের এখন কী করা উচিত?",
+   "option1": "নিচে নেমে দলিল খোঁজা",
+   "option2": "নদীতে ঝাঁপ দিয়ে পালানো",
+   "plan1": "If option 1 wins, the group descends into the claustrophobic indigo vault, battling suffocating heat to find the original contract ledger.",
+   "plan2": "If option 2 wins, they brave the dark Jalangi river in the pitch darkness, where the drowned spirits of the 1860 revolt attempt to pull their boat down."
+  },
+  "scripts": {},
+  "special": "",
+  "festival": "Halloween",
+  "classic": null,
+  "fb": "1846548890125431",
+  "yt": "zVyMhEAhvtE"
+ }
+}
