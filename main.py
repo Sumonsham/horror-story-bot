@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """
-Horror Story Bot (Hindi + Bengali)
+Bengali Horror Story Bot
 ----------------------------------
-Every run makes ONE brand-new, original horror story video and posts it to a
+Every run makes ONE brand-new, original Bengali horror story video and posts it to a
 Facebook Page (and YouTube, if YouTube secrets are set):
 
   1. Google Gemini          -> story with dialogue, title, description, hashtags
-  2. Cloudflare Workers AI  -> realistic, cinematic pictures (same characters in every scene)
-  3. Microsoft Edge voices  -> narrator + a different voice for every character (gTTS backup)
-  4. Built-in sound engine  -> wind, rain, thunder, heartbeat, footsteps, creaks... (no copyright)
-  5. FFmpeg + OpenCV        -> moving picture layers, fog, grain, flicker, subtitles
+  2. Cloudflare / Agnes     -> cinematic pictures (same characters in every scene)
+  3. Gemini TTS             -> narrator + a different voice for every character
+  4. Built-in sound engine  -> wind, rain, thunder, heartbeat, footsteps, creaks
+  5. FFmpeg + OpenCV        -> moving picture layers, fog, grain, flicker, Bengali subtitles
   6. Facebook / YouTube APIs
 
-Languages alternate: Hindi, Bengali, Hindi, ...
+Story language: Bengali only.
 
 Secrets (GitHub > Settings > Secrets > Actions):
   GEMINI_API_KEY, CF_ACCOUNT_ID, CF_API_TOKEN, FB_PAGE_ID, FB_PAGE_TOKEN
 Optional:
-  PAGE_NAME_HI, PAGE_NAME_BN        page/channel name said at the end
+  PAGE_NAME_BN                      page/channel name said at the end
   YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN   -> also upload to YouTube
-  LANGUAGE=hi|bn (force), DRY_RUN=1 (don't post), MOCK=1 (offline test)
+  DRY_RUN=1 (don't post), MOCK=1 (offline test)
 """
 import asyncio
 import base64
@@ -306,16 +306,8 @@ def save_history(items):
 
 
 def pick_language(history):
-    """One language per page/channel (default Bengali) - a mixed-language channel splits its audience.
-    Set the secret CHANNEL_LANG to "hi" for Hindi; "both" brings back one Hindi, one Bengali."""
-    forced = env("LANGUAGE").lower()
-    if forced in LANGS:
-        return forced
-    chan = (env("CHANNEL_LANG") or "bn").lower()
-    if chan in LANGS:
-        return chan
-    last = history[-1].get("lang", "hi") if history else "bn"
-    return "bn" if last == "hi" else "hi"
+    """This horror channel publishes Bengali stories only."""
+    return "bn"
 
 
 FORMATS = [
@@ -338,6 +330,8 @@ def load_next_part(ready_only=True, slot_hour=None):
     try:
         with open(NEXT_PART, encoding="utf-8") as f:
             nxt = json.load(f)
+        if nxt.get("lang", "bn") != "bn":
+            return None                              # this channel publishes Bengali only
         made = dt.datetime.fromisoformat(nxt["created"])
         if ready_only and slot_hour is not None and len(TRIGGERS) > 1 and \
                 {21: EVENING}.get(nxt.get("slot"), nxt.get("slot")) not in (None, slot_hour):
@@ -491,6 +485,8 @@ def load_promise(slot_hour):
         with open(PROMISE_FILE, encoding="utf-8") as f:
             d = json.load(f)
             p = d.get(str(slot_hour)) or d.get("21")      # (older promises were saved for 9 PM)
+        if p.get("lang", "bn") != "bn":
+            return None                              # ignore a promise from an older Hindi run
         made = dt.datetime.fromisoformat(p["made"])
         if p.get("idea") and (dt.datetime.now(dt.timezone.utc) - made).days <= 3:
             return p
@@ -3914,11 +3910,11 @@ DEMO_CAST = [("man", "male", "adult", "human"), ("woman", "female", "adult", "hu
 
 
 def voice_demo():
-    """Makes work/voice_demo_hi.mp3 and work/voice_demo_bn.mp3 - every voice type says one line."""
+    """Makes a Bengali voice sample - every voice type says one line."""
     np = _np()
     shutil.rmtree(WORK, ignore_errors=True)
     os.makedirs(WORK)
-    for lang in ("hi", "bn"):
+    for lang in ("bn",):
         cast = Cast({"characters": [{"name": n, "gender": g, "age": a, "kind": k, "look": ""}
                                     for n, g, a, k in DEMO_CAST]})
         voices = Voices(lang, cast)
@@ -3929,7 +3925,7 @@ def voice_demo():
         run(["ffmpeg", "-y", "-i", out, "-b:a", "160k", out.replace(".wav", ".mp3")])
         for n, *_ in DEMO_CAST:
             log(f"  {lang} {n:12s} -> {voices.map[n.lower()]}")
-    log("Voice demo ready: download 'horror-video' from this run's page (Artifacts).")
+    log("Bengali voice demo ready: download 'horror-video' from this run's page (Artifacts).")
 
 
 # ----------------------------------------------------------------- main
@@ -3943,7 +3939,7 @@ def main():
     if not MOCK and not DRY_RUN:
         try:
             changed = extras.flush_pending(history)    # comments of earlier videos that are live now
-            changed = extras.reply_fans(history, env("LANGUAGE") or "bn") or changed   # answer the fans
+            changed = extras.reply_fans(history, "bn") or changed   # answer the fans in Bengali
             if changed:
                 save_history(history)
         except Exception as e:
@@ -4551,7 +4547,7 @@ def make_series_full(history):
     now = dt.datetime.now(dt.timezone.utc)
     groups = {}
     for h in history[-60:]:
-        if not h.get("part") or not h.get("facebook") or h.get("kind"):
+        if h.get("lang", "bn") != "bn" or not h.get("part") or not h.get("facebook") or h.get("kind"):
             continue
         try:
             t = dt.datetime.fromisoformat(str(h.get("date")))
@@ -4640,12 +4636,11 @@ def make_compilation(history):
             t = dt.datetime.fromisoformat(str(h.get("date")))
         except Exception:
             continue
-        if (now - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).days <= 7 and h.get("facebook") \
+        if h.get("lang", "bn") == "bn" and (now - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).days <= 7 and h.get("facebook") \
                 and h.get("kind") not in ("compilation", "series_full"):
             week.append(h)
-    langs = [h.get("lang") for h in week]
-    lang = env("LANGUAGE") if env("LANGUAGE") in LANGS else (max(set(langs), key=langs.count) if langs else "bn")
-    items = [h for h in week if h.get("lang") == lang][-12:]
+    lang = "bn"
+    items = week[-12:]
     if len(items) < 3:
         log(f"Weekly compilation: only {len(items)} stories this week - skipped")
         return
