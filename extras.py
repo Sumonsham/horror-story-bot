@@ -854,8 +854,10 @@ def yt_upload_captions(video_id, srt_path, language="en", name="English"):
 
 # ----------------------------------------------------------------- "coming soon" post before a video
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
-TIME_WORDS = {"bn": {8: "সকাল ৮টায়", 13: "দুপুর ১টায়", 19: "সন্ধ্যা ৭টায়", 21: "রাত ৯টায়"},
-              "hi": {8: "सुबह 8 बजे", 13: "दोपहर 1 बजे", 19: "शाम 7 बजे", 21: "रात 9 बजे"}}
+TIME_WORDS = {"bn": {8: "সকাল ৮টায়", 10: "সকাল ১০টায়", 13: "দুপুর ১টায়", 14: "দুপুর ২টায়",
+                      19: "সন্ধ্যা ৭টায়", 20: "রাত ৮টায়", 21: "রাত ৯টায়"},
+              "hi": {8: "सुबह 8 बजे", 10: "सुबह 10 बजे", 13: "दोपहर 1 बजे", 14: "दोपहर 2 बजे",
+                     19: "शाम 7 बजे", 20: "रात 8 बजे", 21: "रात 9 बजे"}}
 DAY_WORDS = {"bn": ("আজ", "কাল"), "hi": ("आज", "कल")}
 
 
@@ -1347,9 +1349,9 @@ def last_post(history, key=None, min_hours=1.5):
 
 # ----------------------------------------------------------------- which time slot is this run for?
 def current_slot(triggers, now=None):
-    """triggers: [(start_hour, start_minute, post_hour)] in India time, e.g. [(11, 55, 13), (19, 55, 21)].
+    """triggers: [(start_hour, start_minute, post_hour)] in India time, e.g. [(1, 30, 10), (7, 30, 14), (13, 30, 20)].
     A run belongs to the LAST slot that has already started (10 minutes early allowed), so a late
-    backup run still knows which slot it is for. Returns e.g. '2026-10-22@13'."""
+    backup run still knows which slot it is for. Returns e.g. '2026-10-22@14'."""
     now = now or dt.datetime.now(IST)
     best = None
     for add in (0, -1):
@@ -2311,13 +2313,13 @@ def pop_subject(base_img, out, glow=(255, 255, 255), size=(1280, 720)):
 
 
 # ===================== v11: make early, publish exactly on time =====================
-# The video is made about 3 hours early, uploaded as a SCHEDULED post (Facebook) / scheduled premiere-free
+# The video is made well before its slot, uploaded as a SCHEDULED post (Facebook) / scheduled premiere-free
 # publish (YouTube publishAt), so it goes live exactly at the slot time even if making it took long.
 PUBLISH = {"at": None, "used": False}
 
 
 def plan_publish(slot):
-    """slot like '2026-10-23@13' -> publish at 13:00 India time that day."""
+    """slot like '2026-10-23@14' -> publish at 14:00 India time that day."""
     PUBLISH["at"], PUBLISH["used"] = None, False
     if not slot or env("SCHEDULE_POSTS") == "0":
         return None
