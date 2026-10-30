@@ -2,10 +2,11 @@ name: Daily Horror Story
 
 on:
   schedule:
-    # Build early; the videos are scheduled to publish at 10:00 AM, 2:00 PM and 8:00 PM India time.
-    - cron: "0 20 * * *"    # 1:30 AM India time -> publish at 10:00 AM
-    - cron: "0 2 * * *"     # 7:30 AM India time -> publish at 2:00 PM
-    - cron: "0 8 * * *"     # 1:30 PM India time -> publish at 8:00 PM
+    # The main start comes from cron-job.org at 9:30 AM and 3:30 PM India time: the 5-8 minute story goes live
+    # by itself at 1:00 PM, the ~30-minute story at 8:00 PM (scheduled posts).
+    # These GitHub times are only a backup - they do nothing if that slot's video is already done.
+    - cron: "30 4 * * *"    # backup 10:00 AM India time
+    - cron: "0 11 * * *"    # backup 4:30 PM India time
   workflow_dispatch:        # "Run workflow" button for tests
     inputs:
       language:
@@ -21,7 +22,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: horror-story-${{ github.event.schedule || github.event_name }}
+  group: horror-story
   cancel-in-progress: false
 
 jobs:
@@ -30,8 +31,6 @@ jobs:
     timeout-minutes: 320
     env:
       USE_FREE_MODEL: ${{ secrets.USE_FREE_MODEL }}   # "1" = also try the slow free on-GitHub voice model
-      WAIT_FOR_LIVE: ${{ github.event_name == 'schedule' && '0' || secrets.WAIT_FOR_LIVE || '0' }} # scheduled runs save state without waiting
-      SCHEDULE: ${{ github.event.schedule }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,9 +93,6 @@ jobs:
       - name: Make the horror video and post it
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           FREEMODEL_API_KEY: ${{ secrets.FREEMODEL_API_KEY }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -117,7 +113,6 @@ jobs:
           GEMINI_TTS_KEY_3: ${{ secrets.GEMINI_TTS_KEY_3 }}
           GEMINI_TTS_KEY_4: ${{ secrets.GEMINI_TTS_KEY_4 }}
           GEMINI_TTS_KEY_5: ${{ secrets.GEMINI_TTS_KEY_5 }}
-          GEMINI_TTS_KEY_6: ${{ secrets.GEMINI_TTS_KEY_6 }}
           TTS_PAID: ${{ secrets.TTS_PAID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           LANGUAGE: ${{ github.event.inputs.language }}
