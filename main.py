@@ -255,7 +255,7 @@ def load_history():
 # (start hour, start minute, the hour the video should be out)
 EVENING = 20                             # ONE horror story a day, at 8 PM
 NOON = 13                                # + a 5-8 minute story at 1 PM
-TRIGGERS = [(9, 30, NOON), (15, 30, EVENING)]   # start early; publish at 1 PM (short) and 8 PM (~30 minutes)
+TRIGGERS = [(9, 30, NOON), (15, 30, EVENING)]   # start early; publish at 1 PM (short) and 8 PM (long, at least 15 minutes)
 SLOT = None
 
 
@@ -318,7 +318,7 @@ def load_next_part(ready_only=True, slot_hour=None):
                 {21: EVENING}.get(nxt.get("slot"), nxt.get("slot")) not in (None, slot_hour):
             return None                              # the next part comes at the SAME time as part 1
         if (dt.datetime.now(dt.timezone.utc) - made).total_seconds() < 5 * 86400:
-            if ready_only and env("SERIES_NEXT_DAY") != "0" and \
+            if ready_only and \
                     made.astimezone(extras.IST).date() >= dt.datetime.now(extras.IST).date():
                 return None
             return nxt
@@ -1234,7 +1234,8 @@ MASTER_STYLE = (
     "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
 
 
-LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 34)     # every horror video: AT LEAST 30 minutes
+LONG_MIN = max(15.0, float(os.environ.get("HORROR_MINUTES") or 15))  # night story: at least 15 minutes
+NIGHT_MIN_WORDS = 1800                              # about 15 minutes at the bot's 120-words/minute estimate
 os.environ.setdefault("VOICE_MAX", "170" if LONG_MIN > 15 else "120")    # long stories: more time for the voices
 os.environ.setdefault("VOICE_RESERVE", "80" if LONG_MIN > 15 else "40")  # ... and for making the long video
 
@@ -1262,12 +1263,12 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
                  "'next part' or 'to be continued'). ")
         rule += ("Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
                  "chapter, with names, decisions, clues and open questions.\n")
-        length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, about {words_per} spoken words (at least "
-                  f"{int(words_per * 0.9)} - never fewer). Slow-burning, real conversations, every moment lived - "
+        length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, at least {words_per} spoken words. "
+                  "Slow-burning, real conversations, every moment lived - "
                   "never rushed.")
         try:
             s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules + rule,
-                           length=length, min_w=int(words_per * 0.88))
+                           length=length, min_w=words_per)
         except ClassicUnknown:
             raise
         except Exception as e:
@@ -1309,6 +1310,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
     words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc.get("lines") or [])
     log(f"LONG STORY: {len(chapters)} chapters, {len(story['scenes'])} scenes, {words} words "
         f"(~{words / 120:.0f} minutes)")
+    if words < int(LONG_MIN * 120):
+        raise RuntimeError(f"Night story is short: {words} words; need at least {int(LONG_MIN * 120)}")
     return story
 
 
@@ -1447,7 +1450,7 @@ story / public-domain story). Never copy a copyrighted modern book, film or seri
 Must be different from these earlier stories: {json.dumps(old_titles, ensure_ascii=False)}
 
 Story rules:
-{length or """- LENGTH: a LONG, slow-burning story: 18 to 24 scenes, 8-10 minutes when spoken - at least 1200 spoken words.
+{length or f"""- LENGTH: a LONG, slow-burning story: 20 to 26 scenes, at least 15 minutes when spoken - at least {NIGHT_MIN_WORDS} spoken words.
   Take time for real life, real conversations and the slow build of dread. Never rush the
   ending; the story must feel complete."""}
 - It must be GENUINELY SCARY and impossible to stop listening:
@@ -1613,7 +1616,8 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
             "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json",
                                  "maxOutputTokens": 60000}}
     last_err = None
-    best, min_words = None, min_w or int(env("MIN_WORDS") or 950)       # ~950+ spoken words = 8+ minutes
+    default_min_words = NIGHT_MIN_WORDS if STATE.get("slot_hour") == EVENING else int(env("MIN_WORDS") or 950)
+    best, min_words = None, min_w or default_min_words
     models = gemini_models(key)
     waits = [0, 90, 180, 300, 300, 420]           # Google's servers are sometimes busy for a while: be patient
     for round_no, wait in enumerate(waits):
@@ -1677,6 +1681,8 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
                 log("  trying next model:", (str(e) or type(e).__name__)[:200])
                 time.sleep(5)
     if best:
+        if STATE.get("slot_hour") == EVENING and min_words >= NIGHT_MIN_WORDS and best[0] < min_words:
+            raise RuntimeError(f"Longest version is {best[0]} words; the night-story minimum is {min_words}")
         log(f"  using the longest story written ({best[0]} words)")
         return best[1]
     raise RuntimeError(f"Gemini failed: {last_err}")
@@ -4024,8 +4030,8 @@ def main():
     if saved:                                        # this part was written together with part 1: use it as is
         SCRIPTS.update({k: v for k, v in (prev.get("scripts") or {}).items() if int(k) > part})
         log(f"Series part {part}: using the script written with part 1")
-    if part == 1 and not prev and (LONG_MIN > 15 or slot_hour == NOON):
-        part = 0                                     # one long ~30-minute story (or a short one) - no 2-3 part series
+    if part == 1 and not prev and slot_hour == NOON:
+        part = 0                                     # the daytime short slot is always one complete story
     outline = ""
     if not saved and special != "classic" and part <= 1:
         outline = plan_story(lang, theme, extra_rules, fmt)
@@ -4042,7 +4048,7 @@ def main():
         if slot_hour == NOON and part == 0:          # 1 PM: a complete 5-8 minute radio thriller
             story = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules,
                                length=SHORT_LENGTH, min_w=int(env("SHORT_MIN_WORDS") or 620))
-        elif LONG_MIN > 15 and part == 0:
+        elif slot_hour == EVENING and part == 0:
             story = write_long_story(lang, theme, history, fmt, extra_rules, classic=special == "classic")
             saved = story                            # already checked chapter by chapter by the editor
         else:
@@ -4306,7 +4312,10 @@ def main():
                 L["show_21"])
     STATE["top_text"] = (show_top, re.sub(r"\s*\|.*$", "", title).strip())
     build_video(parts, lang, video)
-    log(f"Video ready: {duration(video):.0f} seconds")
+    video_seconds = duration(video)
+    log(f"Video ready: {video_seconds:.0f} seconds")
+    if slot_hour == EVENING and video_seconds < 15 * 60:
+        raise RuntimeError(f"Night video is {video_seconds:.0f} seconds; minimum is 900 seconds")
 
     own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
     tags = []                                        # Facebook shows the first 5: 2 of this story + 3 fixed horror tags
