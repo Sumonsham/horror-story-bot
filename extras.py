@@ -1399,7 +1399,7 @@ def tts_tags(text):
 
 
 def tts_keys():
-    keys = [k for k in (env("GEMINI_TTS_KEY" + s) for s in ("", "_2", "_3", "_4", "_5")) if k]
+    keys = [k for k in (env("GEMINI_TTS_KEY" + s) for s in ("", "_2", "_3", "_4", "_5", "_6")) if k]
     if env("TTS_PAID") == "1" and env("GEMINI_API_KEY"):
         keys.append(env("GEMINI_API_KEY"))          # your paid key, only if you switched it on
     return keys
@@ -1902,6 +1902,7 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
     import numpy as np
     from scipy.io import wavfile
     t0 = time.time()
+    budget_minutes = max(1.0, min(float(minutes or 45), float(env("TTS_MAX_MINUTES") or 75)))
     groups, cur = [], []
     for it in items:
         spk = {x["spk"] for x in cur} | {it["spk"]}
@@ -1917,10 +1918,9 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
         if TTS_STATE["off"]:
             return False
         el = time.time() - t0
-        # slow is fine - Gemini is still the fastest good voice. We only stop when its free limit is really
-        # over (TTS_STATE off / a failed line) or after a hard safety cap so the GitHub job is never killed.
-        if el > float(env("TTS_MAX_MINUTES") or 180) * 60:
-            log("  expressive voices: safety time limit reached")
+        # This is the active implementation: honor both the caller's deadline and the job-wide safety cap.
+        if el >= budget_minutes * 60:
+            log(f"  expressive voices: {budget_minutes:.0f}-minute time budget reached")
             return False
         ok = False
         spk = []
@@ -2007,17 +2007,26 @@ _SEEN_400 = set()
 def _tts_call(requests_to_try):
     """requests_to_try: [(model_key, model, url, body, extra_headers)]. Returns audio bytes or None."""
     import base64 as _b64
+    max_attempts = max(1, int(env("TTS_REQUEST_ATTEMPTS") or 4))
+    request_timeout = max(20, int(env("TTS_REQUEST_TIMEOUT") or 45))
+    deadline = time.monotonic() + max(30, int(env("TTS_CALL_TIMEOUT") or 120))
+    attempts = 0
     for item in requests_to_try:
         key_name, model, url, body, extra = item if len(item) == 5 else (item[0], item[0], item[1], item[2], {})
         if key_name in TTS_STATE["bad_models"]:
             continue
         for _ in range(14):
+            if attempts >= max_attempts or time.monotonic() >= deadline:
+                return None
             key = _pick_key(model)
             if not key:
                 break
+            if time.monotonic() >= deadline:
+                return None
+            attempts += 1
             hdr = {"x-goog-api-key": key, "Content-Type": "application/json", **(extra or {})}
             try:
-                r = requests.post(url, headers=hdr, json=body, timeout=180)
+                r = requests.post(url, headers=hdr, json=body, timeout=request_timeout)
             except Exception as e:
                 log(f"    voice request failed: {str(e)[:100]}")
                 time.sleep(3)
@@ -2105,6 +2114,7 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
     import numpy as np
     from scipy.io import wavfile
     t0 = time.time()
+    budget_minutes = max(1.0, min(float(minutes or 45), float(env("TTS_MAX_MINUTES") or 75)))
     groups, cur = [], []
     for it in items:
         spk = {x["spk"] for x in cur} | {it["spk"]}
@@ -2120,10 +2130,8 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
         if TTS_STATE["off"]:
             return False
         el = time.time() - t0
-        # slow is fine - Gemini is still the fastest good voice. We only stop when its free limit is really
-        # over (TTS_STATE off / a failed line) or after a hard safety cap so the GitHub job is never killed.
-        if el > float(env("TTS_MAX_MINUTES") or 180) * 60:
-            log("  expressive voices: safety time limit reached")
+        if el >= budget_minutes * 60:
+            log(f"  expressive voices: {budget_minutes:.0f}-minute time budget reached")
             return False
         spk = []
         for x in g:
@@ -2150,9 +2158,12 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
                     ok = True
         if not ok:
             for x in g:
-                if not _line_until_quota_ends(lambda: tts_gemini(
-                        x["text"], x["voice"], f"{x['who']}. {x['feel']}. " + PRONOUNCE.get(lang, ""),
-                        lang_label, x["out"], sr)):
+                if time.time() - t0 >= budget_minutes * 60:
+                    log(f"  expressive voices: {budget_minutes:.0f}-minute time budget reached")
+                    return False
+                if not tts_gemini(x["text"], x["voice"],
+                                  f"{x['who']}. {x['feel']}. " + PRONOUNCE.get(lang, ""),
+                                  lang_label, x["out"], sr, max_tries=1):
                     return False
         done += len(g)
         log(f"  voices: {done}/{len(items)} lines ({(time.time() - t0) / 60:.1f} min)")
