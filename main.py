@@ -15,8 +15,7 @@ Facebook Page (and YouTube, if YouTube secrets are set):
 Languages alternate: Hindi, Bengali, Hindi, ...
 
 Secrets (GitHub > Settings > Secrets > Actions):
-  GEMINI_API_KEY (story writer), GEMINI_API_KEY_2/_3/_4 (writer fallback),
-  CF_ACCOUNT_ID, CF_API_TOKEN, FB_PAGE_ID, FB_PAGE_TOKEN
+  GEMINI_API_KEY, CF_ACCOUNT_ID, CF_API_TOKEN, FB_PAGE_ID, FB_PAGE_TOKEN
 Optional:
   PAGE_NAME_HI, PAGE_NAME_BN        page/channel name said at the end
   YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN   -> also upload to YouTube
@@ -62,13 +61,13 @@ LANGS = {
         "intro": "आज की डरावनी कहानी है... {title}।",
         "outro": "कहानी कैसी लगी, कमेंट में ज़रूर बताइए। और ऐसी ही डरावनी कहानियों के लिए {page} को फॉलो कीजिए।",
         "page_default": "हमारे पेज",
-        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - रोज़ सुबह 10, दोपहर 2 और रात 8 बजे नई डरावनी कहानी का अगला भाग।",
-        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - रोज़ सुबह 10, दोपहर 2 और रात 8 बजे नई डरावनी कहानी का अगला भाग।",
+        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 8 बजे नई डरावनी कहानी।",
+        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात 8 बजे नई डरावनी कहानी।",
         "ai_note": "🎨 यह कहानी और तस्वीरें AI की मदद से बनाई गई हैं। सब काल्पनिक है।",
         "badge": "लाइक • शेयर • फॉलो", "part": "भाग {n}",
-        "outro_part1": "कहानी का अगला भाग कल इसी समय आएगा... उसे मिस मत कीजिए, अभी {page} को फॉलो कीजिए।",
+        "outro_part1": "कहानी का अगला भाग जल्द ही आएगा... उसे मिस मत कीजिए, अभी {page} को फॉलो कीजिए।",
         "ch_intro": "शुरुआत", "ch_end": "अंत", "chapters": "⏱️ अध्याय",
-        "cta": "पूरी कहानी का लिंक नीचे लिखा है 👇", "link_below": "पूरी कहानी का लिंक नीचे लिखा है", "follow": "फ़ॉलो कीजिए - रोज़ सुबह 10, दोपहर 2 और रात 8 बजे नई डरावनी कहानी का अगला भाग",
+        "cta": "पूरी कहानी का लिंक नीचे लिखा है 👇", "link_below": "पूरी कहानी का लिंक नीचे लिखा है", "follow": "फ़ॉलो कीजिए - हर रात 8 बजे नई डरावनी कहानी",
         "guess_card": "आपका जवाब क्या है? कमेंट में लिखिए 1 या 2 या 3", "core_tags": ["#BhootKiKahani", "#HindiHorrorStories", "#डरावनीकहानी", "#horrorstories"], "playlist": "भूतिया कहानियाँ - Hindi Horror Stories",
         "full_link": "👉 पूरी कहानी सुनने के लिए इस लिंक पर क्लिक करें:",
         "hp": "हेडफ़ोन लगाकर सुनिए",
@@ -82,13 +81,8 @@ LANGS = {
         "taranath": "तारानाथ तांत्रिक #{n}", "taranath_pl": "तारानाथ तांत्रिक की कहानियाँ - Taranath Tantrik",
         "amavasya": "अमावस्या स्पेशल", "your_story": "📝 आपके साथ भी कभी कुछ अजीब हुआ है? अपनी सच्ची घटना कमेंट में #मेरी_कहानी लिखकर बताइए - हो सकता है अगली कहानी आपकी हो!",
         "reply_viewer": "🙏 आपकी भेजी हुई घटना पर आज की कहानी बनी है! देखिए और बताइए कैसी लगी 👻",
-        "show_10": "सुबह दस बजे का डर", "show_14": "दोपहर दो बजे का डर", "show_20": "रात आठ बजे का डर",
-        "title_10": "सुबह दस बजे का डर... {title}।", "title_14": "दोपहर दो बजे का डर... {title}।",
-        "title_20": "रात आठ बजे का डर... {title}।",
-        "next_14": "और आज दोपहर 2 बजे... इस रहस्य का अगला डरावना पड़ाव। ज़रूर आइए।",
-        "next_20": "और आज रात 8 बजे... इस रहस्य का अगला डरावना पड़ाव। ज़रूर आइए।",
-        "next_10": "और कल सुबह 10 बजे... एक नई डरावनी कहानी का अगला भाग। ज़रूर आइए।",
-        "next_10_title": "और कल सुबह 10 बजे... '{title}'। {hook} ज़रूर आइए।",
+        "show_21": "रात आठ बजे का डर", "show_13": "दोपहर का डर",
+        "title_21": "रात आठ बजे का डर... {title}।", "title_13": "दोपहर का डर... {title}।",
         "next_generic": "और कल रात आठ बजे... फिर आ रही है एक नई डरावनी कहानी, और गहरी, और अँधेरी। ज़रूर आइए।",
         "tonight_title": "और आज रात आठ बजे... आज की बड़ी कहानी, '{title}'। {hook} आधे घंटे की कहानी... लाइट बुझाकर सुनिए, मिस मत कीजिए।",
         "tonight_long": "और आज रात आठ बजे... आज की बड़ी कहानी, पूरे आधे घंटे की। लाइट बुझाइए, हेडफ़ोन लगाइए... मिस मत कीजिए।",
@@ -100,8 +94,7 @@ LANGS = {
         "next_classic": "कल रात आठ बजे... {writer} की मशहूर कहानी '{title}'। ज़रूर सुनिए।",
         "next_karna": "कल रात आठ बजे... कर्णपिशाचिनी का नया केस। वो फिर फुसफुसाएगी... ज़रूर आइए।",
         "guess_line": "रुकिए... एक पल यहीं रुकिए। आपको क्या लगता है? {q} एक, {o1}। दो, {o2}। तीन, {o3}। कमेंट में सिर्फ़ नंबर लिखिए - सही जवाब देने वालों का नाम अगले वीडियो में लिया जाएगा।",
-        "at_10": "आज सुबह 10 बजे कहानी का नया भाग", "at_14": "आज दोपहर 2 बजे कहानी का नया भाग",
-        "at_20": "आज रात 8 बजे कहानी का नया भाग",
+        "at_13": "आज दोपहर 1 बजे पूरी कहानी", "at_21": "आज रात 8 बजे पूरी कहानी",
         "how_to_join": "आप भी इस कहानी का हिस्सा बनिए! कमेंट में जवाब दीजिए, जिनका जवाब सही होगा उनका नाम अगले वीडियो में लिया जाएगा। और अपनी सच्ची डरावनी घटना कमेंट में हैशटैग मेरी कहानी लिखकर भेजिए, सबसे अच्छी घटना पर आपके नाम के साथ कहानी बनेगी।",
         "shout_line": "पिछली कहानी में सही जवाब दिया था {names} ने। आप सबको बधाई!",
         "viewer_credit": "आज की ये कहानी हमें भेजी थी {name} ने। धन्यवाद {name}! आप भी अपनी घटना भेजिए।",
@@ -122,12 +115,12 @@ LANGS = {
         "intro": "আজকের ভৌতিক গল্প... {title}।",
         "outro": "গল্পটা কেমন লাগল কমেন্টে জানাবেন। আর এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করুন।",
         "page_default": "আমাদের পেজ",
-        "share_cta": "🔁 ভালো লাগলে বন্ধুদের শেয়ার করুন আর পেজটা ফলো করুন - রোজ সকাল ১০টা, দুপুর ২টো আর রাত ৮টায় গল্পের নতুন পর্ব।",
+        "share_cta": "🔁 ভালো লাগলে বন্ধুদের শেয়ার করুন আর পেজটা ফলো করুন - রোজ রাত ৮টায় নতুন ভূতের গল্প।",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
         "badge": "লাইক • শেয়ার • ফলো", "part": "পর্ব {n}",
-        "outro_part1": "গল্পের পরের পর্ব কাল ঠিক এই সময়েই আসবে... আর রবিবার আসবে পুরো গল্পটা একসাথে। মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
+        "outro_part1": "গল্পের পরের পর্ব আসছে কাল... আর রবিবার আসবে পুরো গল্পটা একসাথে। মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
         "ch_intro": "শুরু", "ch_end": "শেষ", "chapters": "⏱️ অধ্যায়",
-        "cta": "পুরো গল্পের লিংক নিচের লেখায় 👇", "link_below": "পুরো গল্পের লিংক নিচের লেখায়", "follow": "ফলো করুন — রোজ সকাল ১০টা, দুপুর ২টো আর রাত ৮টায় গল্পের নতুন পর্ব",
+        "cta": "পুরো গল্পের লিংক নিচের লেখায় 👇", "link_below": "পুরো গল্পের লিংক নিচের লেখায়", "follow": "ফলো করুন — রোজ রাত ৮টায় নতুন ভূতের গল্প",
         "guess_card": "আপনার উত্তর কী? কমেন্টে লিখুন ১ বা ২ বা ৩", "core_tags": ["#ভূতেরগল্প", "#BengaliHorrorStory", "#BhuterGolpo", "#ভৌতিকগল্প", "#horrorstories"], "playlist": "ভৌতিক গল্প - Bengali Horror Stories",
         "full_link": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে:",
         "hp": "হেডফোন পরে শুনুন",
@@ -141,13 +134,8 @@ LANGS = {
         "taranath": "তারানাথ তান্ত্রিক #{n}", "taranath_pl": "তারানাথ তান্ত্রিকের গল্প - Taranath Tantrik",
         "amavasya": "অমাবস্যার স্পেশাল", "your_story": "📝 আপনার জীবনেও কি কখনো অদ্ভুত কিছু ঘটেছে? সত্যি ঘটনাটা কমেন্টে #আমার_গল্প লিখে জানান - পরের গল্পটা হয়তো আপনারই!",
         "reply_viewer": "🙏 আপনার পাঠানো ঘটনা নিয়েই আজকের গল্প! দেখে জানাবেন কেমন লাগল 👻",
-        "show_10": "সকাল দশটার ভয়", "show_14": "দুপুর দুটোর ভয়", "show_20": "রাত আটটার ভয়",
-        "title_10": "সকাল দশটার ভয়... {title}।", "title_14": "দুপুর দুটোর ভয়... {title}।",
-        "title_20": "রাত আটটার ভয়... {title}।",
-        "next_14": "আর আজ দুপুর ২টোয়... এই রহস্যের পরের ভয়ংকর মোড়। শুনতে ভুলবেন না।",
-        "next_20": "আর আজ রাত ৮টায়... এই রহস্যের পরের ভয়ংকর মোড়। শুনতে ভুলবেন না।",
-        "next_10": "আর কাল সকাল ১০টায়... নতুন ভৌতিক গল্পের পরের পর্ব। শুনতে ভুলবেন না।",
-        "next_10_title": "আর কাল সকাল ১০টায়... '{title}'। {hook} শুনতে ভুলবেন না।",
+        "show_21": "রাত আটটার ভয়", "show_13": "দুপুরের ভয়",
+        "title_21": "রাত আটটার ভয়... {title}।", "title_13": "দুপুরের ভয়... {title}।",
         "next_generic": "আর কাল রাত আটটায়... আবার আসছে নতুন এক ভয়ের গল্প, আরও গভীর, আরও অন্ধকার। অবশ্যই আসবেন।",
         "tonight_title": "আর আজ রাত আটটায়... আজকের বড় গল্প, '{title}'। {hook} আধ ঘণ্টার গল্প... আলো নিভিয়ে শুনবেন, মিস করবেন না।",
         "tonight_long": "আর আজ রাত আটটায়... আজকের বড় গল্প, পুরো আধ ঘণ্টার। আলো নিভিয়ে, হেডফোন কানে দিয়ে... অবশ্যই শুনবেন।",
@@ -159,8 +147,7 @@ LANGS = {
         "next_classic": "কাল রাত আটটায়... {writer} বিখ্যাত গল্প '{title}'। অবশ্যই শুনবেন।",
         "next_karna": "কাল রাত আটটায়... কর্ণপিশাচিনীর নতুন কেস। সে আবার কানে কানে ফিসফিস করবে... অবশ্যই আসবেন।",
         "guess_line": "দাঁড়ান... এক মুহূর্ত এখানে থামুন। আপনার কী মনে হয়? {q} এক, {o1}। দুই, {o2}। তিন, {o3}। কমেন্টে শুধু নম্বরটা লিখুন - যাঁদের উত্তর ঠিক হবে, পরের ভিডিওতে তাঁদের নাম বলা হবে।",
-        "at_10": "আজ সকাল ১০টায় গল্পের নতুন পর্ব", "at_14": "আজ দুপুর ২টায় গল্পের নতুন পর্ব",
-        "at_20": "আজ রাত ৮টায় গল্পের নতুন পর্ব",
+        "at_13": "আজ দুপুর ১টায় পুরো গল্প", "at_21": "আজ রাত ৮টায় পুরো গল্প",
         "how_to_join": "আপনিও এই গল্পের অংশ হয়ে উঠুন! কমেন্টে উত্তর দিন, যাঁদের উত্তর ঠিক হবে পরের ভিডিওতে তাঁদের নাম বলা হবে। আর আপনার জীবনের সত্যি ভৌতিক ঘটনা কমেন্টে হ্যাশট্যাগ আমার গল্প লিখে পাঠান, সেরা ঘটনা নিয়ে আপনার নাম সহ গল্প হবে।",
         "shout_line": "আগের গল্পে ঠিক উত্তর দিয়েছিলেন {names}। আপনাদের সবাইকে অভিনন্দন!",
         "viewer_credit": "আজকের এই গল্পটা আমাদের পাঠিয়েছিলেন {name}। ধন্যবাদ {name}! আপনিও আপনার ঘটনা পাঠান।",
@@ -264,13 +251,11 @@ def load_history():
         return []
 
 
-# GitHub starts each video well ahead of its publish time (India time):
+# cron-job.org starts each video about 1 hour before it should be online (India time):
 # (start hour, start minute, the hour the video should be out)
-MORNING = 10                             # publish one horror-story part at 10 AM
-NOON = 14                                # publish one horror-story part at 2 PM
-EVENING = 20                             # publish one horror-story part at 8 PM
-TRIGGERS = [(1, 30, MORNING), (7, 30, NOON), (13, 30, EVENING)]  # India time; leave time to build and schedule
-WORKFLOW_SCHEDULES = {"0 20 * * *": MORNING, "0 2 * * *": NOON, "0 8 * * *": EVENING}
+EVENING = 20                             # ONE horror story a day, at 8 PM
+NOON = 13                                # + a 5-8 minute story at 1 PM
+TRIGGERS = [(9, 30, NOON), (15, 30, EVENING)]   # start early; publish at 1 PM (short) and 8 PM (~30 minutes)
 SLOT = None
 
 
@@ -322,39 +307,18 @@ FORMATS = [
 NEXT_PART = os.path.join(HERE, "next_part.json")
 
 
-def load_next_part_states():
-    """Return the unfinished series keyed by its daily publish slot, preserving legacy v12 state."""
-    try:
-        with open(NEXT_PART, encoding="utf-8") as f:
-            data = json.load(f)
-        if isinstance(data, dict) and data.get("created"):
-            old_slots = {13: NOON, 21: EVENING, "13": NOON, "21": EVENING}
-            slot_value = data.get("slot") or EVENING
-            slot = str(old_slots.get(slot_value, slot_value))
-            return {slot: data}
-        if isinstance(data, dict):
-            legacy = {"13": str(NOON), "21": str(EVENING)}
-            return {legacy.get(str(k), str(k)): v for k, v in data.items()
-                    if isinstance(v, dict) and v.get("created")}
-    except Exception:
-        pass
-    return {}
-
-
 def load_next_part(ready_only=True, slot_hour=None):
     """Part 1 of a series saves what part 2 needs. The next part comes the NEXT DAY (part 1 today, part 2
     tomorrow, part 3 the day after), so viewers wait for it. ready_only=False: also a part not due yet."""
     try:
-        states = load_next_part_states()
-        if slot_hour is None:
-            nxt = next(iter(states.values()), None)
-        else:
-            nxt = states.get(str(slot_hour))
-        if not nxt:
-            return None
+        with open(NEXT_PART, encoding="utf-8") as f:
+            nxt = json.load(f)
         made = dt.datetime.fromisoformat(nxt["created"])
+        if ready_only and slot_hour is not None and len(TRIGGERS) > 1 and \
+                {21: EVENING}.get(nxt.get("slot"), nxt.get("slot")) not in (None, slot_hour):
+            return None                              # the next part comes at the SAME time as part 1
         if (dt.datetime.now(dt.timezone.utc) - made).total_seconds() < 5 * 86400:
-            if ready_only and \
+            if ready_only and env("SERIES_NEXT_DAY") != "0" and \
                     made.astimezone(extras.IST).date() >= dt.datetime.now(extras.IST).date():
                 return None
             return nxt
@@ -445,23 +409,20 @@ KARNA_RULE = (
     "nephew BAPI, a college student who lives with him, is the only one who knows - Bapi tells the story ('my "
     "uncle...') and asks the questions the viewers would ask.\n"
     "{origin}"
-    "PLOT LIKE A MASTER: each full case is one complete, tightly plotted MYSTERY-HORROR story that feels like it "
-    "really happened, told across the planned parts as ONE continuous chain. Part 1 plants the case and its clues, "
-    "the middle part(s) deepen the same investigation, and only the final part reveals the truth and resolves it. "
-    "Never restart with a different case between parts. Someone comes to Nilkantha with a problem nobody can solve "
-    "(a missing daughter, a death that looks natural, a lamp that lights itself, a stolen temple idol, a letter from "
-    "a dead man...). Nilkantha CALLS the Pishachini (as above) to learn the truth; she answers in riddles and "
-    "half-truths, and once misleads him out of jealousy; plant 3-4 real clues and 2-3 believable suspects early; a "
-    "false lead; then a twist the listener did not see coming but that is FAIR. Every whisper has a PRICE (an offering "
-    "she demands, a year of his life, the peace of someone he loves). ONE STORY LINE from first to last scene: each "
-    "scene follows from the previous one; nothing happens without a reason. Before the scenes, add the JSON key \"plot_plan\": "
+    "PLOT LIKE A MASTER: every episode is one complete, tightly plotted MYSTERY-HORROR case that feels like it "
+    "really happened: someone comes to Nilkantha with a problem nobody can solve (a missing daughter, a death that "
+    "looks natural, a lamp that lights itself, a stolen temple idol, a letter from a dead man...). Nilkantha CALLS "
+    "the Pishachini (as above) to learn the truth; she answers in riddles and half-truths, and once misleads him "
+    "out of jealousy; plant 3-4 real clues and 2-3 believable suspects early; a false lead; then a twist the "
+    "listener did not see coming but that is FAIR. Every whisper has a PRICE (an offering she demands, a year of "
+    "his life, the peace of someone he loves). ONE STORY LINE from first to last scene: each scene follows from "
+    "the previous one; nothing happens without a reason. Before the scenes, add the JSON key \"plot_plan\": "
     "{{\"case\", \"suspects\", \"clues\", \"false_lead\", \"twist\", \"price\"}} (ENGLISH) and follow it. "
     "Also add \"episode_summary\": ENGLISH, 2 sentences.\n"
-    "SERIES SO FAR (when beginning a new case, do not repeat an old one; keep the running thread - her growing "
-    "jealousy, Bapi coming closer to danger. If this is a part-series, continue the same case instead of starting "
-    "another): {past}\n"
-    "Use exactly these looks: {looks}. No gore, no harm to children. A non-final part ends on a clue or danger "
-    "from this same case; only after the final resolution may the story tease a different next case.\n")
+    "SERIES SO FAR (never repeat a case; keep the running thread - her growing jealousy, Bapi coming closer to "
+    "danger): {past}\n"
+    "Use exactly these looks: {looks}. No gore, no harm to children. End with a hook: the Pishachini whispers "
+    "something chilling about the NEXT case - or about Bapi.\n")
 
 
 def pick_karna(history, lang):
@@ -589,18 +550,30 @@ def tomorrow_special():
 
 
 def next_preview(story, history, lang, slot_hour, classic):
-    """The last words point to the next scheduled horror-story slot."""
+    """the last words of the video: what comes tomorrow in this time slot"""
     L = LANGS[lang]
-    if slot_hour == MORNING:
-        return L["next_14"]
-    if slot_hour == NOON:
-        return L["next_20"]
-    if slot_hour == EVENING:
+    k = 0 if lang == "bn" else 1
+    if slot_hour == NOON:                            # "... and tonight at 8: '<title>'"
+        pr = load_promise(EVENING)
+        if pr and pr.get("title") and not tomorrow_special_today():
+            return L["tonight_title"].format(title=str(pr["title"]).strip(), hook=str(pr.get("hook", "")).strip())
+        return L["tonight_long"]
+    if slot_hour == EVENING and not tomorrow_special():
         ns = story.get("next_story") if isinstance(story.get("next_story"), dict) else {}
         if ns.get("title"):
-            return L["next_10_title"].format(title=str(ns["title"]).strip(), hook=str(ns.get("hook", "")).strip())
-        return L["next_10"]
-    return L["next_10"]
+            return L["next_own"].format(title=str(ns["title"]).strip(), hook=str(ns.get("hook", "")).strip())
+        return L["next_generic"]
+    tomorrow = (dt.datetime.now(extras.IST) + dt.timedelta(days=1)).weekday()
+    karna_days = [int(x) for x in re.findall(r"\d", env("KARNA_DAYS") or "1,4")]
+    classic_days = [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "6")]
+    if tomorrow in karna_days and env("KARNA") != "0":
+        return L["next_karna"]
+    if tomorrow in classic_days and env("CLASSICS") != "0":
+        used = {h.get("classic_id") for h in history if h.get("lang") == lang} | ({classic[0]} if classic else set())
+        c = next((c for c in CLASSICS if c[0] not in used), CLASSICS[0])
+        writer = bn_of(c[1][0]) if lang == "bn" else c[1][1]
+        return L["next_classic"].format(writer=writer, title=c[3][k])
+    return L["next_generic"]
 
 
 IDEAS_FILE = os.path.join(HERE, "assets", "ideas.json")
@@ -632,46 +605,6 @@ def pick_theme(history):
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 
-def gemini_writer_keys():
-    """Configured Gemini keys for story planning, writing and editing only."""
-    return list(dict.fromkeys(env("GEMINI_API_KEY" + suffix)
-                             for suffix in ("", "_2", "_3", "_4") if env("GEMINI_API_KEY" + suffix)))
-
-
-def need_gemini_writer_keys():
-    keys = gemini_writer_keys()
-    if not keys:
-        need_env("GEMINI_API_KEY")
-    return keys
-
-
-def gemini_post(model, body, keys, timeout):
-    """Retry a Gemini text request with each configured writer key in order."""
-    if isinstance(keys, str):
-        keys = [keys]
-    retry_statuses = (401, 403, 408, 429, 500, 502, 503, 504)
-    last_response, last_error = None, None
-    for index, key in enumerate(keys):
-        try:
-            response = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
-                                     headers={"x-goog-api-key": key}, json=body, timeout=timeout)
-        except requests.RequestException as e:
-            last_error = e
-            if index + 1 < len(keys):
-                log(f"Gemini writer key {index + 1} timed out; trying key {index + 2}")
-            continue
-        if response.ok or response.status_code not in retry_statuses:
-            return response
-        last_response = response
-        if index + 1 < len(keys):
-            log(f"Gemini writer key {index + 1} returned HTTP {response.status_code}; trying key {index + 2}")
-    if last_response is not None:
-        return last_response
-    if last_error is not None:
-        raise last_error
-    raise RuntimeError("No Gemini story-writer key is configured")
-
-
 LORE_DIR = os.path.join(HERE, "assets", "lore")
 
 
@@ -679,9 +612,9 @@ def plan_story(lang, theme, extra_rules, fmt):
     """A professional writers' room BEFORE the script: (1) plan the whole plot as a chain of cause and effect,
     every decision and its consequence, the escalating scares, clues and twist; (2) a 'script doctor' finds the
     plot holes and unrealistic choices and returns the corrected plan. The script then follows it beat by beat."""
-    keys = gemini_writer_keys()
-    if MOCK or env("PLAN") == "0" or not keys:
+    if MOCK or env("PLAN") == "0" or not env("GEMINI_API_KEY"):
         return ""
+    key = env("GEMINI_API_KEY")
     ask1 = f"""You are the head writer of India's best horror audio-drama series. Plan (do not write yet) ONE
 long, realistic, truly frightening {LANGS[lang]['name']} horror story. Idea: {theme}. Telling style: {fmt}.
 Rules and material to use:
@@ -694,7 +627,7 @@ Return ONLY JSON (ENGLISH):
  "beats": [{{"n": 1, "what_happens": "", "decision": "who decides what, and WHY (or '')", "follow_up": "how and in which beat this decision is carried out or why it fails - shown, not skipped", "new_fear": "the new, fresh frightening detail of this beat (never a stock phrase)"}}],
  "clues": ["clue - beat where planted - beat where it pays off"],
  "twist": "", "resolution": "what really happened, why, and what became of every character", "last_line": ""}}
-Make {max(20, int(LONG_MIN * 1.6))} beats: beginning (who/where/when/why/how they came), a full middle with at least three escalating
+Make {12 if STATE.get("slot_hour") == NOON else max(18, int(LONG_MIN * 1.6))} beats: beginning (who/where/when/why/how they came), a full middle with at least three escalating
 events, a midpoint discovery and a false lead, then climax, twist and a clear resolution."""
     ask2 = """You are a strict script doctor. Here is a horror story plan as JSON. Find EVERY problem: a decision
 that is not followed up (someone decides to leave - why couldn't he? show it), a person acting unrealistically,
@@ -704,11 +637,12 @@ Fix all of them. Return ONLY the corrected plan as JSON with the same keys plus 
 PLAN:
 """
     plan = None
-    for model in gemini_models(keys)[:3]:
+    for model in gemini_models(key)[:3]:
         try:
             body = {"contents": [{"parts": [{"text": ask1}]}],
                     "generationConfig": {"temperature": 0.9, "responseMimeType": "application/json"}}
-            r = gemini_post(model, body, keys, timeout=240)
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json=body, timeout=240)
             if not r.ok:
                 continue
             plan = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
@@ -717,7 +651,8 @@ PLAN:
                 continue
             body["contents"][0]["parts"][0]["text"] = ask2 + json.dumps(plan, ensure_ascii=False)
             body["generationConfig"]["temperature"] = 0.5
-            r = gemini_post(model, body, keys, timeout=240)
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json=body, timeout=240)
             if r.ok:
                 p2 = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
                 if p2.get("beats") and len(p2["beats"]) >= len(plan["beats"]) * 0.8:
@@ -737,9 +672,9 @@ def find_source_story(theme, history):
     """Search the internet for ONE big, really frightening horror story to build today's story on - a folk legend,
     an urban legend, a famous haunted-place story, a reported 'true' experience or a public-domain story (never a
     copyrighted modern book / film / series). Returns (source name, full plot + facts) or ("", "")."""
-    keys = gemini_writer_keys()
-    if MOCK or env("SOURCE_STORY") == "0" or not keys:
+    if MOCK or env("SOURCE_STORY") == "0" or not env("GEMINI_API_KEY"):
         return "", ""
+    key = env("GEMINI_API_KEY")
     used = [h.get("source") for h in history if h.get("source")][-60:]
     prompt = f"""Search the internet, then answer. We make Bengali horror audio-story videos. Find ONE big, truly
 terrifying, well-loved horror story that fits this idea: {theme}
@@ -753,13 +688,14 @@ PEOPLE: every person: name, who they are, where they come from
 FULL STORY (600-900 words), in time order: how it began (when, who, where from, why and how they came to the
 place), every event in order as the fear grows, the climax, the ending and what really happened.
 FACTS: what the tradition says about this ghost / spirit / belief (its form, how it comes, its rules)."""
-    for model in gemini_models(keys)[:3]:
+    for model in gemini_models(key)[:3]:
         for tools in ([{"google_search": {}}], None):
             body = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.7}}
             if tools:
                 body["tools"] = tools
             try:
-                r = gemini_post(model, body, keys, timeout=200)
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json=body, timeout=200)
                 if r.status_code == 400 and tools:
                     continue
                 if not r.ok:
@@ -793,8 +729,8 @@ def research_brief(subject, cache_key=None):
     Fixed subjects (a series, a classic) are kept in assets/lore for 60 days."""
     if MOCK or env("RESEARCH") == "0":
         return ""
-    keys = gemini_writer_keys()
-    if not keys:
+    key = env("GEMINI_API_KEY")
+    if not key:
         return ""
     path = os.path.join(LORE_DIR, re.sub(r"[^a-z0-9]+", "_", cache_key.lower())[:60] + ".json") if cache_key else None
     if path and os.path.exists(path):
@@ -820,13 +756,14 @@ traditional sources and folklore REALLY say, as bullet points:
 - for a known story: the real characters' names and how they are related, the plot in order, the ending
 - COMMON MISTAKES a writer must avoid about it
 No mantras, no step-by-step ritual instructions. If sources disagree, give the most common Bengali belief."""
-    for model in gemini_models(keys)[:3]:
+    for model in gemini_models(key)[:3]:
         for tools in ([{"google_search": {}}], None):
             body = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.3}}
             if tools:
                 body["tools"] = tools
             try:
-                r = gemini_post(model, body, keys, timeout=180)
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json=body, timeout=180)
                 if r.status_code == 400 and tools:
                     continue                         # this model cannot search: ask it without searching
                 if not r.ok:
@@ -1128,8 +1065,8 @@ def edit_story(story, lang, classic=False, brief="", outline=""):
     language. Returns the better story, or the original if anything goes wrong."""
     if MOCK or env("EDITOR") == "0":
         return story
-    keys = gemini_writer_keys()
-    if not keys:
+    key = env("GEMINI_API_KEY")
+    if not key:
         return story
     L = LANGS[lang]
     words0 = sum(len(str(ln.get("text", "")).split()) for sc in story.get("scenes", []) for ln in sc.get("lines", []))
@@ -1169,10 +1106,11 @@ STORY JSON:
 {json.dumps(story, ensure_ascii=False)}"""
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.8, "responseMimeType": "application/json", "maxOutputTokens": 60000}}
-    for model in gemini_models(keys)[:4]:
+    for model in gemini_models(key)[:4]:
         try:
             log(f"Editor checking the story with {model} ...")
-            r = gemini_post(model, body, keys, timeout=360)
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json=body, timeout=360)
             if not r.ok:
                 log(f"  editor: {model} {r.status_code}")
                 continue
@@ -1192,38 +1130,25 @@ STORY JSON:
     return story
 
 
-def gemini_models(keys):
-    if isinstance(keys, str):
-        keys = [keys]
+def gemini_models(key):
     tries = [env("GEMINI_MODEL")] if env("GEMINI_MODEL") else []
     tries.append("gemini-flash-latest")
-    for index, key in enumerate(keys):
-        try:
-            r = requests.get(f"{GEMINI_BASE}/models", headers={"x-goog-api-key": key},
-                             params={"pageSize": 200}, timeout=30)
-            if not r.ok:
-                if r.status_code in (401, 403, 408, 429, 500, 502, 503, 504) and index + 1 < len(keys):
-                    log(f"Gemini model-list key {index + 1} returned HTTP {r.status_code}; trying key {index + 2}")
-                    continue
-                log(f"Could not list Gemini models: HTTP {r.status_code}")
-                break
-            names = []
-            for m in r.json().get("models", []):
-                n = m.get("name", "").replace("models/", "")
-                if ("generateContent" in m.get("supportedGenerationMethods", []) and "flash" in n
-                        and not any(x in n for x in ("image", "tts", "audio", "live", "embed", "exp"))):
-                    names.append(n)
+    try:
+        r = requests.get(f"{GEMINI_BASE}/models", headers={"x-goog-api-key": key},
+                         params={"pageSize": 200}, timeout=30)
+        names = []
+        for m in r.json().get("models", []):
+            n = m.get("name", "").replace("models/", "")
+            if ("generateContent" in m.get("supportedGenerationMethods", []) and "flash" in n
+                    and not any(x in n for x in ("image", "tts", "audio", "live", "embed", "exp"))):
+                names.append(n)
 
-            def ver(n):
-                nums = re.findall(r"\d+(?:\.\d+)?", n)
-                return (float(nums[0]) if nums else 0, "lite" not in n, "preview" not in n)
-            tries += sorted(names, key=ver, reverse=True)
-            break
-        except Exception as e:
-            if index + 1 < len(keys):
-                log(f"Gemini model-list request failed with key {index + 1}; trying key {index + 2}")
-            else:
-                log("Could not list Gemini models:", e)
+        def ver(n):
+            nums = re.findall(r"\d+(?:\.\d+)?", n)
+            return (float(nums[0]) if nums else 0, "lite" not in n, "preview" not in n)
+        tries += sorted(names, key=ver, reverse=True)
+    except Exception as e:
+        log("Could not list Gemini models:", e)
     tries += ["gemini-2.5-flash"]
     out = []
     for t in tries:
@@ -1309,10 +1234,7 @@ MASTER_STYLE = (
     "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
 
 
-LONG_MIN = max(10.0, float(os.environ.get("HORROR_MINUTES") or 10))  # every story part: at least 10 minutes
-STORY_MIN_WORDS = int(LONG_MIN * 120)                # slow narration: about 120 spoken words per minute
-STORY_MIN_SECONDS = int(LONG_MIN * 60)
-NIGHT_MIN_WORDS = STORY_MIN_WORDS                    # retained for the long-story helper
+LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 34)     # every horror video: AT LEAST 30 minutes
 os.environ.setdefault("VOICE_MAX", "170" if LONG_MIN > 15 else "120")    # long stories: more time for the voices
 os.environ.setdefault("VOICE_RESERVE", "80" if LONG_MIN > 15 else "40")  # ... and for making the long video
 
@@ -1340,12 +1262,12 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
                  "'next part' or 'to be continued'). ")
         rule += ("Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
                  "chapter, with names, decisions, clues and open questions.\n")
-        length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, at least {words_per} spoken words. "
-                  "Slow-burning, real conversations, every moment lived - "
+        length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, about {words_per} spoken words (at least "
+                  f"{int(words_per * 0.9)} - never fewer). Slow-burning, real conversations, every moment lived - "
                   "never rushed.")
         try:
             s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules + rule,
-                           length=length, min_w=words_per)
+                           length=length, min_w=int(words_per * 0.88))
         except ClassicUnknown:
             raise
         except Exception as e:
@@ -1387,14 +1309,12 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False):
     words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc.get("lines") or [])
     log(f"LONG STORY: {len(chapters)} chapters, {len(story['scenes'])} scenes, {words} words "
         f"(~{words / 120:.0f} minutes)")
-    if words < int(LONG_MIN * 120):
-        raise RuntimeError(f"Night story is short: {words} words; need at least {int(LONG_MIN * 120)}")
     return story
 
 
-STORY_LENGTH = (f"- LENGTH: one full 10-minute-or-longer part of an original radio horror series: 18 to 24 scenes, "
-                f"at least {STORY_MIN_WORDS} spoken words. Give each scene room for natural dialogue, suspense and "
-                "cause-and-effect plotting; do not rush or pad with repeated descriptions.")
+SHORT_LENGTH = ("- LENGTH: a COMPLETE short radio thriller of 5-8 minutes: 10 to 14 scenes, 650-950 spoken words. "
+                "3-4 characters, one place, one tight frightening event, a twist and a clear explanation at the end - "
+                "short but complete, never rushed.")
 
 
 class ClassicUnknown(Exception):
@@ -1417,20 +1337,9 @@ def prewrite_parts(story1, lang, theme, history, fmt, total, extra_rules, specia
     for p in range(2, total + 1):
         try:
             log(f"Writing part {p} of {total} now (it will be posted on day {p}) ...")
-            part_rules = extra_rules
-            if special == "karna":
-                part_rules += ("\nCONTINUATION OF THE SAME KARNA PISHACHINI CASE: this is not a new case or a new "
-                               "episode. Do not retell Nilkantha's origin or restart the investigation. Continue from "
-                               "the exact previous cliffhanger, carry every clue and decision forward, and resolve this "
-                               "same case only in its final part. The Pishachini reveals only past and present, never "
-                               "certain future; every whisper follows the established rules and has a cost.\n")
-            s = make_story(lang, theme, history, fmt=fmt, part=p, prev=dict(prev), extra_rules=part_rules,
+            s = make_story(lang, theme, history, fmt=fmt, part=p, prev=dict(prev), extra_rules=extra_rules,
                            total=total)
             s = edit_story(s, lang, brief=STATE.get("brief", ""), outline=STATE.get("outline", ""))
-            words = sum(len(str(ln.get("text", "")).split()) for sc in s.get("scenes", [])
-                        for ln in sc.get("lines", []) or [])
-            if words < STORY_MIN_WORDS:
-                raise ValueError(f"part {p} has only {words} words; minimum is {STORY_MIN_WORDS}")
             s.pop("choice", None)
             s["characters"], s["setting"] = prev["characters"], prev["setting"]
             out[str(p)] = s
@@ -1443,7 +1352,7 @@ def prewrite_parts(story1, lang, theme, history, fmt, total, extra_rules, specia
 
 
 def pick_classic(history, lang):
-    """Select a public-domain classic for its existing evening slot."""
+    """the day's first horror video (1 PM) on every day without Karna Pishachini - a famous writer's story"""
     days = [int(x) for x in re.findall(r"\d", env("CLASSIC_DAYS") or "6")]
     now = dt.datetime.now(extras.IST)
     if now.weekday() not in days or env("CLASSICS") == "0":
@@ -1459,20 +1368,6 @@ def pick_classic(history, lang):
     used = {h.get("classic_id") for h in history if h.get("lang") == lang}
     left = [c for c in CLASSICS if c[0] not in used] or CLASSICS
     return left[0]
-
-
-def recurring_case_number(history, special, series_id, lang):
-    """Give every published part of one recurring case the same case number."""
-    seen = []
-    for h in history:
-        if h.get("special") != special or h.get("lang") != lang:
-            continue
-        sid = h.get("series_id") or h.get("date") or h.get("title")
-        if sid not in seen:
-            seen.append(sid)
-    if series_id in seen:
-        return seen.index(series_id) + 1
-    return len(seen) + 1
 
 
 def bn_of(name):
@@ -1505,7 +1400,7 @@ def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules=""
     part=2: the final part, continuing `prev` (saved from part 1)."""
     if MOCK:
         return mock_story(lang)
-    keys = need_gemini_writer_keys()
+    key = need_env("GEMINI_API_KEY")
     L = LANGS[lang]
     old_titles = [h["title"] for h in history[-60:] if h.get("lang") == lang]
     fmt = fmt or random.choice(FORMATS)
@@ -1521,26 +1416,14 @@ def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules=""
                        "frightening for one video). Introduce the people and the cursed place, build the fear slowly and "
                        "STOP at the most frightening cliffhanger, unresolved. Decide how many parts the WHOLE story needs: "
                        "add a key \"total_parts\": 2 or 3 (3 only if the plot is truly big, with a new layer of horror "
-                       "in each part). Plan one complete cause-and-effect mystery across every part before writing: plant "
-                       "the clues early, keep one central conflict, and reserve the true explanation and resolution for "
-                       "the final part. The next part must continue from this exact cliffhanger, with no unrelated case, "
-                       "reset, or unexplained time jump. In \"summary\" and \"part2_plan\", preserve names, timeline, "
-                       "character knowledge, important objects, clues, promises and unresolved questions precisely. "
-                       "The whole series should feel like one carefully plotted Bengali radio suspense drama: natural "
-                       "dialogue, escalating dread, fair clues, a logical reveal and a complete ending; do not imitate or "
-                       "copy any existing series or script. " + cliff_keys)
+                       "in each part). " + cliff_keys)
     elif part >= 2 and prev:
         series_rule = (f"\nSERIES: this is PART {part} of {total} of a horror series. Title of part 1: {prev.get('title')}. "
                        f"What happened so far: {prev.get('summary')} Planned continuation: {prev.get('part2_plan')} "
                        f"Use EXACTLY these characters (same names, same looks): "
                        f"{json.dumps(prev.get('characters'), ensure_ascii=False)} and this setting: {prev.get('setting')}. "
-                       "Begin with a short gripping recap by the narrator (2-3 lines), then continue from the exact last "
-                       "moment of the previous part. Keep the same timeline, character knowledge, injuries, relationships, "
-                       "clue meanings, object locations and supernatural rules; never restart the story, contradict a fact, "
-                       "or introduce an unrelated case. Each scene must follow from the previous one, and every clue or "
-                       "promise already planted must matter to the central mystery. The horror must be even WORSE than in "
-                       "the previous part. This should play as one connected Bengali radio suspense drama with a fair, "
-                       "logical reveal - do not imitate or copy any existing series or script. ")
+                       "Begin with a short gripping recap by the narrator (2-3 lines), then continue - the horror must be "
+                       "even WORSE than in the previous part. ")
         if part < total:
             series_rule += ("This is a MIDDLE part: reveal one terrible new secret, and STOP again at an even bigger "
                             "cliffhanger, unresolved. " + cliff_keys)
@@ -1564,7 +1447,9 @@ story / public-domain story). Never copy a copyrighted modern book, film or seri
 Must be different from these earlier stories: {json.dumps(old_titles, ensure_ascii=False)}
 
 Story rules:
-{length or STORY_LENGTH}
+{length or """- LENGTH: a LONG, slow-burning story: 18 to 24 scenes, 8-10 minutes when spoken - at least 1200 spoken words.
+  Take time for real life, real conversations and the slow build of dread. Never rush the
+  ending; the story must feel complete."""}
 - It must be GENUINELY SCARY and impossible to stop listening:
   * the FIRST line is a chilling hook (a strange fact, a warning, or a scream) - no slow introduction;
   * every scene ends with a small cliffhanger, the fear grows scene by scene;
@@ -1610,15 +1495,16 @@ Story rules:
   then write it. Every scene happens BECAUSE of the scene before it and leads to the next; every new person,
   place or event is explained; nothing is forgotten (a clue, a promise, a person who left must come back).
   Tell everything in time order.
-- A CLEAR STORY SHAPE (never an abrupt start or an abrupt end):
-  * For part 1 or a standalone story, begin with the hook, introduce who the main person is, where and when we
-    are, why they came, the other people and ordinary life, then the first strange sign.
-  * In every part, include at least THREE escalating events, believable reactions and investigation, a planted clue,
-    a false lead and a midpoint discovery. Never skip from the first sign straight to the ending.
-  * If this is part 1 or a middle part, end with a major event that follows from the clues and leaves the main
-    mystery unresolved at a gripping cliffhanger. Do not reveal the full answer or pretend the case is finished.
-  * If this is the final part or a standalone story, deliver the climax, a fair twist and a clear resolution that
-    explains what happened and why, accounts for every main character, and ends with one chilling line.
+- A CLEAR BEGINNING, A FULL MIDDLE AND A CLEAR END (never an abrupt start or an abrupt end):
+  * BEGINNING (scenes 1-4): the hook line, then WHO the main person is (name, home, family, situation), WHY and
+    HOW he/she came to this place, WHERE and WHEN we are, the other people (each introduced), ordinary life -
+    and the first small strange sign.
+  * MIDDLE (about scenes 5-12): at least THREE separate events, each stronger than the last (a sign, then a
+    sighting, then a real attack/loss); the people react, talk, argue, investigate; a clue is found; a false
+    lead; a midpoint discovery that changes everything. Never skip from the first sign straight to the end.
+  * END (the last 3-4 scenes): the climax (the confrontation / the trap), the twist, then a RESOLUTION scene
+    that clearly explains what really happened and why (the listener must understand the whole mystery), what
+    became of every main character, and only then the last chilling line. Never end on a sudden cut.
 - TRUE TO THE BELIEF: any ghost, spirit, yogini, ritual or custom must be exactly as the tradition and the
   research brief describe it (its form, how it comes, what it can do, its rules). A spirit that in the tradition
   comes only when called or bound must never just appear without that reason.
@@ -1627,13 +1513,15 @@ Story rules:
 - Telling style for this story: {fmt}
 {series_rule}{extra_rules}
 - Every picture must show exactly what that scene's lines describe.
-- PART 1 OR STANDALONE: start at the real beginning in time order (never a flash-forward or the middle). The first
-  line is one short chilling narrator hook (max 14 words), then establish when it began, who the main person is,
-  where they came from, why they came, the journey, the place and the people they meet before the first strange sign.
-  The listener must always know where we are, who is there, how and why.
-- PART 2 OR LATER: do NOT restart at the beginning, repeat the hook, reintroduce the cast, or jump to an unrelated
-  case. Begin with only the short recap requested in the series rule, then continue from the exact previous moment
-  in the same timeline, carrying forward each person's knowledge, decisions, clues and objects.
+- THE STORY STARTS AT ITS REAL BEGINNING, told in order like a real storyteller (never a flash-forward, never
+  in the middle). The very first line is ONE short chilling narrator hook (max 14 words) that promises the horror
+  to come (e.g. 'সেই হোস্টেলের তেরো নম্বর ঘরে যা ঘটেছিল, আজও কেউ মুখে আনে না...'). Then the narrator
+  STRICTLY in this order: (1) WHEN it began - 'ঘটনার শুরু হয়েছিল ... মাসের এক শনিবার সকালে।' (a month, a
+  day of the week, a time of day); (2) WHO and WHERE FROM - 'রতন নামে একটি ছেলে বাঁকুড়ার ... গ্রামে থাকত।'
+  with the family and situation (poor / alone / a new job...); (3) WHY he/she came to this place; (4) HOW - the
+  journey and the search (e.g. 'কলকাতায় পড়তে এসে অনেক খুঁজে, অনেক জায়গায় ঘুরে, শেষে সস্তায় একটা পুরোনো
+  হোস্টেলে একটা ঘর পেল...'). Only then the first day there, the people he/she meets (each introduced), and the
+  first small strange sign. The listener must always know where we are, who is there, how and why.
 - PLANT A CLUE: in the first two scenes show one small, innocent-looking thing (an old key, a scratch on the wall,
   a line of a lullaby, a smell) - at the end it turns out to be the key to the whole horror.
 - A SOUND THAT STARTS IN THE MIDDLE OF A SCENE (the rain begins, a bell rings, a storm rises, a dog starts to
@@ -1725,9 +1613,8 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
             "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json",
                                  "maxOutputTokens": 60000}}
     last_err = None
-    default_min_words = STORY_MIN_WORDS
-    best, min_words = None, min_w or default_min_words
-    models = gemini_models(keys)
+    best, min_words = None, min_w or int(env("MIN_WORDS") or 950)       # ~950+ spoken words = 8+ minutes
+    models = gemini_models(key)
     waits = [0, 90, 180, 300, 300, 420]           # Google's servers are sometimes busy for a while: be patient
     for round_no, wait in enumerate(waits):
         if wait and round_no <= 2:                # Gemini busy: try the backup writer before waiting
@@ -1741,7 +1628,7 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
                     assert all(s.get("lines") for s in story["scenes"])
                     words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc["lines"])
                     log(f"  backup story: {len(story['scenes'])} scenes, {words} spoken words")
-                    if words >= min_words:
+                    if words >= min_words * 0.8:
                         return story
                     if not best or words > best[0]:
                         best = (words, story)
@@ -1755,7 +1642,8 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
         for model in list(models):
             try:
                 log(f"Writing story with {model} ...")
-                r = gemini_post(model, body, keys, timeout=300)
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
+                                  headers={"x-goog-api-key": key}, json=body, timeout=300)
                 if r.status_code in (404, 400):
                     raise LookupError(r.text[:300])
                 if r.status_code in (429, 500, 502, 503, 504):
@@ -1789,8 +1677,6 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
                 log("  trying next model:", (str(e) or type(e).__name__)[:200])
                 time.sleep(5)
     if best:
-        if best[0] < min_words:
-            raise RuntimeError(f"Longest version is {best[0]} words; every story part needs at least {min_words}")
         log(f"  using the longest story written ({best[0]} words)")
         return best[1]
     raise RuntimeError(f"Gemini failed: {last_err}")
@@ -2203,7 +2089,7 @@ def gemini_persona(voices, speaker, revealed=True):
 def gemini_keys():
     """Voice keys: GEMINI_TTS_KEY, GEMINI_TTS_KEY_2, _3, _4 - each from a different free Google account
     (each account has its own daily limit)."""
-    return [k for k in (env("GEMINI_TTS_KEY" + suf) for suf in ("", "_2", "_3", "_4", "_5", "_6")) if k]
+    return [k for k in (env("GEMINI_TTS_KEY" + suf) for suf in ("", "_2", "_3", "_4")) if k]
 
 
 GEMINI_KEY_NOW = 0
@@ -3944,12 +3830,7 @@ def main():
         except Exception as e:
             log("  earlier comments skipped:", str(e)[:120])
     global SLOT
-    if env("MODE") in ("amavasya", "compilation"):
-        SLOT = None
-    elif env("EVENT") == "schedule" and env("SCHEDULE") in WORKFLOW_SCHEDULES:
-        SLOT = f"{dt.datetime.now(extras.IST).strftime('%Y-%m-%d')}@{WORKFLOW_SCHEDULES[env('SCHEDULE')]}"
-    else:
-        SLOT = extras.current_slot(TRIGGERS)
+    SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
     if env("MODE") == "compilation":
         return make_compilation(history)
@@ -3957,11 +3838,7 @@ def main():
     if env("MODE") == "amavasya" and not extras.is_amavasya_night():
         log("Not an Amavasya night - nothing to do.")
         return
-    automatic = env("EVENT") == "schedule" or env("MODE") == "auto"
-    if env("MODE") != "amavasya" and automatic and not SLOT:
-        log("No active 10 AM, 2 PM or 8 PM story slot - nothing to do.")
-        return
-    if env("MODE") != "amavasya" and automatic and extras.slot_done(history, SLOT):
+    if env("MODE") != "amavasya" and (env("EVENT") == "schedule" or env("MODE") == "auto") and (extras.slot_done(history, SLOT) or recently_posted(history, hours=2)):
         log("A video for this time slot was already posted - this backup run has nothing to do.")
         return
     if (env("EVENT") == "schedule" or env("MODE") == "auto") and SLOT and "@" in str(SLOT):
@@ -3979,11 +3856,7 @@ def main():
     slot_hour = int(str(SLOT).split("@")[1]) if SLOT and "@" in str(SLOT) else EVENING
     STATE["slot_hour"] = slot_hour
     prev = load_next_part(slot_hour=slot_hour)
-    pending = load_next_part(ready_only=False, slot_hour=slot_hour)
-    series_waiting = prev is None and pending is not None
-    if series_waiting and env("MODE") != "amavasya":
-        log(f"This {slot_hour}:00 story already has a part scheduled for the next day - nothing to do.")
-        return
+    series_waiting = prev is None and load_next_part(ready_only=False) is not None   # a story is still unfinished
     festival, special, extra_rules, viewer = None, "", "", None
     classic, plain_rules, promised = None, "", None
     shout_names, shout_ids = [], []
@@ -4001,26 +3874,6 @@ def main():
     if prev:                                         # finish the series that was started last time
         part, lang, theme, fmt = int(prev.get("done", 1)) + 1, prev["lang"], prev["theme"], prev.get("fmt")
         total = max(part, int(prev.get("total", 2)))
-        special, festival, classic = prev.get("special", ""), prev.get("festival"), prev.get("classic")
-        extra_rules += ("\nCONTINUATION: this is the next part of the exact same story and case. Continue from the "
-                        "previous cliffhanger, preserve every established fact and clue, and do not start a separate "
-                        "case or reset the plot.\n")
-        if special == "karna":
-            extra_rules += ("KARNA PISHACHINI CONTINUITY: Bapi is telling his uncle Nilkantha's same case. Keep the "
-                            "Pishachini's established rules (she tells past and present, not certain future), the same "
-                            "characters, investigation, clues and price. Do not repeat the origin story or open a new "
-                            "case; resolve this one only in its final part.\n")
-        elif special == "bhairab":
-            extra_rules += ("BHAIRAB THAKUR CONTINUITY: keep Bhairab and Paltu as the same investigators in this same "
-                            "haunting; retain their established knowledge, clues and the spirit's reason for haunting. "
-                            "Resolve the case and free the spirit only in the final part.\n")
-        elif special == "taranath":
-            extra_rules += ("TARANATH CONTINUITY: continue the same first-person account to Kishori, with the same "
-                            "people, time, place and supernatural rules. Do not restart or introduce a separate story.\n")
-        elif special == "classic" and classic:
-            extra_rules += ("CLASSIC CONTINUITY: this part continues the same public-domain source story from the exact "
-                            "last event. Preserve its characters, original order and outcome; do not restart or resolve "
-                            "the whole plot before the final part.\n")
         ch = prev.get("choice") or {}
         if ch.get("plan1") and ch.get("plan2"):      # count the viewers' votes (1 / 2) in the comments
             vc = extras.vote_count(extras.post_comments(prev.get("fb"), prev.get("yt")))
@@ -4118,21 +3971,16 @@ def main():
                                    "the Amavasya night when the dead come back to their old house",
                                    "a lonely road on Amavasya night and the woman with a lantern"])
             log("Tonight is Amavasya: the story is an Amavasya story")
-        if special != "classic":
-            slot_name = {MORNING: "morning", NOON: "afternoon", EVENING: "night"}.get(slot_hour, "day")
-            night_belief = f"; {belief}" if slot_hour == EVENING else ""
-            extra_rules += (f"\nTODAY'S STORY SLOT ({slot_hour}:00 India time, {slot_name}): the listeners hear this episode "
-                            f"today. The date is {dt.datetime.now(extras.IST).strftime('%d %B')}{night_belief}; the Bengali "
-                            f"month and season are {month}{'; ' + moon if moon else ''}. Keep the events, light, weather "
-                            "and characters' actions consistent with when each scene happens; never force a night-only "
-                            "belief into a daytime scene. Use the season and relevant folk beliefs naturally.\n")
-            log(f"Story slot: {slot_hour}:00 India time | {month}" + (f" | {moon}" if moon else ""))
+        if special != "classic":                     # the story fits TONIGHT
+            extra_rules += (f"\nTONIGHT (the listeners hear the story tonight - let it fit this very night): "
+                            f"{dt.datetime.now(extras.IST).strftime('%d %B')}, {belief}; the Bengali month of "
+                            f"{month}{'; ' + moon if moon else ''}. The story happens on such a night, in this "
+                            "season, and uses the beliefs that belong to it (naturally, never forced).\n")
+            log(f"Tonight: {belief} | {month}" + (f" | {moon}" if moon else ""))
         wx = extras.weather_now(lang) if not MOCK else None
         if wx:
             extra_rules += f"\nTODAY'S REAL WEATHER: {wx}. Set the story in this weather and let the listener feel it.\n"
             log("Weather:", wx)
-    if not prev and env("MODE") != "amavasya":
-        part = 1                              # every daily slot starts or continues its own connected series
     global VHS
     L = LANGS[lang]
     FONT = find_font(lang)
@@ -4143,7 +3991,7 @@ def main():
         extra_rules += MASTER_STYLE
     if slot_hour == EVENING and part == 0 and env("MODE") != "amavasya" and not tomorrow_special():
         up = next_idea(history, also_used=(STATE.get("idea_used"), theme))
-        if up:                                       # the evening story can promise the next evening's idea
+        if up:                                       # tonight's "tomorrow at 9 PM..." promises the next idea
             STATE["upcoming"] = up
             extra_rules += (f"\nTOMORROW'S STORY (for the \"next_story\" key): it is already chosen - build its "
                             f"title, hook and idea on exactly this: {up[0]}\n")
@@ -4176,6 +4024,8 @@ def main():
     if saved:                                        # this part was written together with part 1: use it as is
         SCRIPTS.update({k: v for k, v in (prev.get("scripts") or {}).items() if int(k) > part})
         log(f"Series part {part}: using the script written with part 1")
+    if part == 1 and not prev and (LONG_MIN > 15 or slot_hour == NOON):
+        part = 0                                     # one long ~30-minute story (or a short one) - no 2-3 part series
     outline = ""
     if not saved and special != "classic" and part <= 1:
         outline = plan_story(lang, theme, extra_rules, fmt)
@@ -4189,16 +4039,22 @@ def main():
     try:
         if saved:
             raise _Saved()
-        story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
-                           total=total if part else 2)
+        if slot_hour == NOON and part == 0:          # 1 PM: a complete 5-8 minute radio thriller
+            story = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules,
+                               length=SHORT_LENGTH, min_w=int(env("SHORT_MIN_WORDS") or 620))
+        elif LONG_MIN > 15 and part == 0:
+            story = write_long_story(lang, theme, history, fmt, extra_rules, classic=special == "classic")
+            saved = story                            # already checked chapter by chapter by the editor
+        else:
+            story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
+                               total=total if part else 2)
     except _Saved:
         story = saved
     except ClassicUnknown:                           # the model does not know that classic well: our own story
         log("  the classic is not remembered well enough - writing our own story instead")
         special, classic, theme = None, None, pick_theme(history)
         extra_rules = plain_rules + MASTER_STYLE
-        story = make_story(lang, theme, history, fmt=fmt, part=part, prev=prev, extra_rules=extra_rules,
-                           total=total if part else 2)
+        story = make_story(lang, theme, history, fmt=fmt, part=0, prev=prev, extra_rules=extra_rules, total=2)
     if not saved:
         story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""),
                            outline=STATE.get("outline", ""))
@@ -4210,10 +4066,6 @@ def main():
     ensure_intros(story, cold=env("COLD_OPEN") == "1")
     ensure_ghost_laughs(story)
     mark_reveals(story)
-    spoken_words = sum(len(str(ln.get("text", "")).split()) for sc in story.get("scenes", [])
-                       for ln in sc.get("lines", []) or [])
-    if spoken_words < STORY_MIN_WORDS:
-        raise RuntimeError(f"Story part is {spoken_words} words; every part needs at least {STORY_MIN_WORDS}")
     if part == 1:                                    # the story itself says how big it is (2 or 3 parts)
         try:
             total = min(3, max(2, int(str(story.get("total_parts") or 2)[:1])))
@@ -4238,27 +4090,26 @@ def main():
         story["characters"] = list(prev["characters"] or []) + [c for c in story.get("characters", [])
                                                                 if str(c.get("name", "")).lower() not in old]
         story["setting"] = prev["setting"]
-    title = str((prev or {}).get("title") if part >= 2 and (prev or {}).get("title") else story["title"]).strip()[:85]
+    title = story["title"].strip()[:85]
     if part:
         title = f"{title} | {L['part'].format(n=part)}"
     if special == "bhairab":
-        case_no = recurring_case_number(history, "bhairab", series_id, lang)
+        case_no = 1 + sum(1 for h in history if h.get("special") == "bhairab")
         title = f"{L['bhairab'].format(n=case_no)}: {no_series_name(title, 'bhairab')}"[:95]
         story["_playlist"] = L["bhairab_pl"]
     elif special == "taranath":
-        case_no = recurring_case_number(history, "taranath", series_id, lang)
+        case_no = 1 + sum(1 for h in history if h.get("special") == "taranath")
         title = f"{L['taranath'].format(n=case_no)}: {no_series_name(title, 'taranath')}"[:95]
         story["_playlist"] = L["taranath_pl"]
     elif special == "karna":
-        case_no = recurring_case_number(history, "karna", series_id, lang)
+        case_no = 1 + sum(1 for h in history if h.get("special") == "karna" and h.get("lang") == lang)
         title = f"{L['karna'].format(n=case_no)}: {no_series_name(title, 'karna')}"[:95]
         story["_playlist"] = L["karna_pl"]
     elif special == "amavasya":
         title = f"{L['amavasya']}: {title}"[:95]
     elif special == "classic" and classic:
         k = 0 if lang == "bn" else 1
-        base_title = f"{classic[3][k]} | {classic[1][k]}"
-        title = f"{base_title} | {L['part'].format(n=part)}"[:95] if part else base_title[:95]
+        title = f"{classic[3][k]} | {classic[1][k]}"[:95]
     log("Title:", title)
     with open(os.path.join(WORK, "story.json"), "w", encoding="utf-8") as f:
         json.dump(story, f, ensure_ascii=False, indent=1)
@@ -4404,7 +4255,8 @@ def main():
         tline = L["title_classic"].format(writer=bn_of(classic[1][0]) if lang == "bn" else classic[1][1],
                                           title=classic[3][kk])
     else:
-        tline = (L["title_karna"] if special == "karna" else L[f"title_{slot_hour}"]).format(title=clean_title)
+        tline = (L["title_karna"] if special == "karna" else L["title_13"] if slot_hour == 13 else
+                 L["title_21"]).format(title=clean_title)
     parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": tline}],
               "sounds": ["wind"], "mood": "creepy", "voices": voices, "title_part": True}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
@@ -4450,13 +4302,11 @@ def main():
     STING_AT[0] = 1 if cold else 0
     HOOK_TEXT[0] = str(story.get("thumbnail_text") or "").strip()
     video = os.path.join(WORK, "final.mp4")
-    show_top = L["karna"].split(" #")[0] if special == "karna" else L[f"show_{slot_hour}"]
+    show_top = (L["karna"].split(" #")[0] if special == "karna" else L["show_13"] if slot_hour == NOON else
+                L["show_21"])
     STATE["top_text"] = (show_top, re.sub(r"\s*\|.*$", "", title).strip())
     build_video(parts, lang, video)
-    video_seconds = duration(video)
-    log(f"Video ready: {video_seconds:.0f} seconds")
-    if slot_hour in (MORNING, NOON, EVENING) and video_seconds < STORY_MIN_SECONDS:
-        raise RuntimeError(f"Story video is {video_seconds:.0f} seconds; minimum is {STORY_MIN_SECONDS} seconds")
+    log(f"Video ready: {duration(video):.0f} seconds")
 
     own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
     tags = []                                        # Facebook shows the first 5: 2 of this story + 3 fixed horror tags
@@ -4522,25 +4372,17 @@ def main():
         save_promise(story, slot_hour, lang, continues)
     if not MOCK:
         save_history(history)
-        states = load_next_part_states()
         if continues:
-            states[str(slot_hour)] = {"created": dt.datetime.now(dt.timezone.utc).isoformat(),
-                           "lang": lang, "theme": theme, "slot": slot_hour,
-                           "source": STATE.get("source_name", ""), "fmt": fmt,
-                           "title": (prev or {}).get("title") or story["title"],
-                           "done": part, "total": total, "series_id": series_id,
-                           "summary": story.get("summary", ""), "part2_plan": story.get("part2_plan", ""),
-                           "characters": story.get("characters"), "setting": story.get("setting", ""),
-                           "choice": choice, "scripts": SCRIPTS, "special": special,
-                           "festival": festival, "classic": classic,
-                           "fb": results.get("facebook"), "yt": results.get("youtube")}
-            log(f"Series: part {part + 1} of {total} will be made in the next horror run")
-        elif part >= 2:
-            states.pop(str(slot_hour), None)
-        if states:
             with open(NEXT_PART, "w", encoding="utf-8") as f:
-                json.dump(states, f, ensure_ascii=False, indent=1)
-        elif os.path.exists(NEXT_PART):
+                json.dump({"created": dt.datetime.now(dt.timezone.utc).isoformat(), "lang": lang, "theme": theme,
+                           "slot": slot_hour, "source": STATE.get("source_name", ""),
+                           "fmt": fmt, "title": (prev or {}).get("title") or story["title"],
+                           "done": part, "total": total, "series_id": series_id, "summary": story.get("summary", ""),
+                           "part2_plan": story.get("part2_plan", ""), "characters": story.get("characters"),
+                           "setting": story.get("setting", ""), "choice": choice, "scripts": SCRIPTS,
+                           "fb": results.get("facebook"), "yt": results.get("youtube")}, f, ensure_ascii=False, indent=1)
+            log(f"Series: part {part + 1} of {total} will be made in the next horror run")
+        elif part >= 2 and os.path.exists(NEXT_PART):
             os.remove(NEXT_PART)
     if viewer and not DRY_RUN:                       # tell the viewer their story is out
         try:
@@ -4845,7 +4687,7 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     for c in picks[1:4]:
         parts.append(_still_clip(black, hit, 0.3, nxt("flash")))
         parts.append(_video_clip(video, c[0] - 0.15, min(c[1], 3.6) + 0.25, nxt("cut"), c[3]))
-    when = L[f"at_{slot_hour}"]
+    when = L["at_13"] if slot_hour == 13 else L["at_21"]
     if extras.PUBLISH.get("at") and extras.PUBLISH["at"] > dt.datetime.now(extras.IST):
         parts.append(_still_clip(_card(os.path.join(WORK, "tr_c2.jpg"), [when], [70], [(255, 40, 40)]),
                      boom, 1.4, nxt("when")))
@@ -4876,7 +4718,7 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
         sc = np.concatenate([sc, np.zeros(max(0, len(scream) - len(sc)))])
         sc[:len(scream)] += scream
     parts.append(_still_clip(ghost_img, sc, 2.4, nxt("ghost"), zoom=True))
-    show = L[f"show_{slot_hour}"]
+    show = L["show_13"] if slot_hour == 13 else L["show_21"]
     if special == "karna":
         show = L["karna"].split(" #")[0]
     clean = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?'-]", "", title).strip()
@@ -4965,7 +4807,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
             log("  subtitles skipped:", str(e)[:160])
     if results.get("facebook") and env("ANNOUNCE") != "0" and env("MODE") != "amavasya":
         try:                                          # "coming soon" post 2 hours before the next video
-            nxt = extras.next_slot([MORNING, NOON, EVENING], [MORNING, NOON, EVENING])
+            nxt = extras.next_slot([NOON, EVENING], [EVENING])
             if nxt:
                 slot, when, day = nxt
                 words = f"{extras.DAY_WORDS[lang][day]} {extras.TIME_WORDS[lang][slot.hour]}"
