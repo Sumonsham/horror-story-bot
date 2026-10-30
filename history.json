@@ -164,7 +164,7 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-26T06:26+00:00"
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -188,7 +188,7 @@
    "likes": 1,
    "comments": 2,
    "views": 2,
-   "checked": "2026-10-26T06:26+00:00"
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -211,7 +211,7 @@
    "likes": 0,
    "comments": 1,
    "views": 0,
-   "checked": "2026-10-26T13:47+00:00"
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -344,8 +344,8 @@
   "stats": {
    "likes": 1,
    "comments": 0,
-   "views": 3,
-   "checked": "2026-10-26T06:26+00:00"
+   "views": 2,
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -367,10 +367,10 @@
   "fb_reel": "1688042229603431",
   "yt_short": "IviZ3ZKLjuc",
   "stats": {
-   "likes": 2,
+   "likes": 3,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-26T06:26+00:00"
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -385,7 +385,7 @@
    "likes": 0,
    "comments": 0,
    "views": 1,
-   "checked": "2026-10-26T06:26+00:00"
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -399,7 +399,7 @@
    "likes": 2,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-26T06:26+00:00"
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -422,10 +422,10 @@
   "fb_reel": "1823099422364193",
   "yt_short": "LCOOFAkRNds",
   "stats": {
-   "likes": 1,
+   "likes": 2,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-26T13:47+00:00"
+   "checked": "2026-10-30T04:02+00:00"
   }
  },
  {
@@ -621,7 +621,13 @@
   "youtube": "wS-M2sXJ6U4",
   "fb_reel": "1753884662338385",
   "fb_story": "3661199970712079",
-  "yt_short": "mInfBtgFWq0"
+  "yt_short": "mInfBtgFWq0",
+  "stats": {
+   "likes": 4,
+   "comments": 2,
+   "views": 2,
+   "checked": "2026-10-30T04:02+00:00"
+  }
  },
  {
   "date": "2026-10-29T07:54+00:00",
@@ -648,6 +654,39 @@
   "youtube": "IV06wmEGEHc",
   "fb_reel": "1144471214591106",
   "fb_story": "1150564880864488",
-  "yt_short": "2-h8wCFkjqg"
+  "yt_short": "2-h8wCFkjqg",
+  "stats": {
+   "likes": 4,
+   "comments": 3,
+   "views": 4,
+   "checked": "2026-10-30T04:02+00:00"
+  }
+ },
+ {
+  "date": "2026-10-30T08:00+00:00",
+  "lang": "bn",
+  "slot": "2026-10-30@13",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "theme": "an old harmonium that plays by itself",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "নিঝুম রাতের সুরেলা খাঁচা 🎹 | কার্তিকের শিউরে ওঠা অমাবস্যা",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 2,
+  "facebook": "1119610034273447",
+  "youtube": "ZyrEe0XJ8xA",
+  "fb_reel": "2144201283153739",
+  "fb_story": "2108891783067780",
+  "yt_short": "_ULpl8DA3ms"
  }
 ]
