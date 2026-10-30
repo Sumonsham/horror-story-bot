@@ -15,7 +15,8 @@ Facebook Page (and YouTube, if YouTube secrets are set):
 Languages alternate: Hindi, Bengali, Hindi, ...
 
 Secrets (GitHub > Settings > Secrets > Actions):
-  GEMINI_API_KEY, CF_ACCOUNT_ID, CF_API_TOKEN, FB_PAGE_ID, FB_PAGE_TOKEN
+  GEMINI_API_KEY (story writer), GEMINI_API_KEY_2/_3/_4 (writer fallback),
+  CF_ACCOUNT_ID, CF_API_TOKEN, FB_PAGE_ID, FB_PAGE_TOKEN
 Optional:
   PAGE_NAME_HI, PAGE_NAME_BN        page/channel name said at the end
   YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN   -> also upload to YouTube
@@ -605,6 +606,46 @@ def pick_theme(history):
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 
+def gemini_writer_keys():
+    """Configured Gemini keys for story planning, writing and editing only."""
+    return list(dict.fromkeys(env("GEMINI_API_KEY" + suffix)
+                             for suffix in ("", "_2", "_3", "_4") if env("GEMINI_API_KEY" + suffix)))
+
+
+def need_gemini_writer_keys():
+    keys = gemini_writer_keys()
+    if not keys:
+        need_env("GEMINI_API_KEY")
+    return keys
+
+
+def gemini_post(model, body, keys, timeout):
+    """Retry a Gemini text request with each configured writer key in order."""
+    if isinstance(keys, str):
+        keys = [keys]
+    retry_statuses = (401, 403, 408, 429, 500, 502, 503, 504)
+    last_response, last_error = None, None
+    for index, key in enumerate(keys):
+        try:
+            response = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
+                                     headers={"x-goog-api-key": key}, json=body, timeout=timeout)
+        except requests.RequestException as e:
+            last_error = e
+            if index + 1 < len(keys):
+                log(f"Gemini writer key {index + 1} timed out; trying key {index + 2}")
+            continue
+        if response.ok or response.status_code not in retry_statuses:
+            return response
+        last_response = response
+        if index + 1 < len(keys):
+            log(f"Gemini writer key {index + 1} returned HTTP {response.status_code}; trying key {index + 2}")
+    if last_response is not None:
+        return last_response
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("No Gemini story-writer key is configured")
+
+
 LORE_DIR = os.path.join(HERE, "assets", "lore")
 
 
@@ -612,9 +653,9 @@ def plan_story(lang, theme, extra_rules, fmt):
     """A professional writers' room BEFORE the script: (1) plan the whole plot as a chain of cause and effect,
     every decision and its consequence, the escalating scares, clues and twist; (2) a 'script doctor' finds the
     plot holes and unrealistic choices and returns the corrected plan. The script then follows it beat by beat."""
-    if MOCK or env("PLAN") == "0" or not env("GEMINI_API_KEY"):
+    keys = gemini_writer_keys()
+    if MOCK or env("PLAN") == "0" or not keys:
         return ""
-    key = env("GEMINI_API_KEY")
     ask1 = f"""You are the head writer of India's best horror audio-drama series. Plan (do not write yet) ONE
 long, realistic, truly frightening {LANGS[lang]['name']} horror story. Idea: {theme}. Telling style: {fmt}.
 Rules and material to use:
@@ -637,12 +678,11 @@ Fix all of them. Return ONLY the corrected plan as JSON with the same keys plus 
 PLAN:
 """
     plan = None
-    for model in gemini_models(key)[:3]:
+    for model in gemini_models(keys)[:3]:
         try:
             body = {"contents": [{"parts": [{"text": ask1}]}],
                     "generationConfig": {"temperature": 0.9, "responseMimeType": "application/json"}}
-            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                              json=body, timeout=240)
+            r = gemini_post(model, body, keys, timeout=240)
             if not r.ok:
                 continue
             plan = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
@@ -651,8 +691,7 @@ PLAN:
                 continue
             body["contents"][0]["parts"][0]["text"] = ask2 + json.dumps(plan, ensure_ascii=False)
             body["generationConfig"]["temperature"] = 0.5
-            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                              json=body, timeout=240)
+            r = gemini_post(model, body, keys, timeout=240)
             if r.ok:
                 p2 = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
                 if p2.get("beats") and len(p2["beats"]) >= len(plan["beats"]) * 0.8:
@@ -672,9 +711,9 @@ def find_source_story(theme, history):
     """Search the internet for ONE big, really frightening horror story to build today's story on - a folk legend,
     an urban legend, a famous haunted-place story, a reported 'true' experience or a public-domain story (never a
     copyrighted modern book / film / series). Returns (source name, full plot + facts) or ("", "")."""
-    if MOCK or env("SOURCE_STORY") == "0" or not env("GEMINI_API_KEY"):
+    keys = gemini_writer_keys()
+    if MOCK or env("SOURCE_STORY") == "0" or not keys:
         return "", ""
-    key = env("GEMINI_API_KEY")
     used = [h.get("source") for h in history if h.get("source")][-60:]
     prompt = f"""Search the internet, then answer. We make Bengali horror audio-story videos. Find ONE big, truly
 terrifying, well-loved horror story that fits this idea: {theme}
@@ -688,14 +727,13 @@ PEOPLE: every person: name, who they are, where they come from
 FULL STORY (600-900 words), in time order: how it began (when, who, where from, why and how they came to the
 place), every event in order as the fear grows, the climax, the ending and what really happened.
 FACTS: what the tradition says about this ghost / spirit / belief (its form, how it comes, its rules)."""
-    for model in gemini_models(key)[:3]:
+    for model in gemini_models(keys)[:3]:
         for tools in ([{"google_search": {}}], None):
             body = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.7}}
             if tools:
                 body["tools"] = tools
             try:
-                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                                  json=body, timeout=200)
+                r = gemini_post(model, body, keys, timeout=200)
                 if r.status_code == 400 and tools:
                     continue
                 if not r.ok:
@@ -729,8 +767,8 @@ def research_brief(subject, cache_key=None):
     Fixed subjects (a series, a classic) are kept in assets/lore for 60 days."""
     if MOCK or env("RESEARCH") == "0":
         return ""
-    key = env("GEMINI_API_KEY")
-    if not key:
+    keys = gemini_writer_keys()
+    if not keys:
         return ""
     path = os.path.join(LORE_DIR, re.sub(r"[^a-z0-9]+", "_", cache_key.lower())[:60] + ".json") if cache_key else None
     if path and os.path.exists(path):
@@ -756,14 +794,13 @@ traditional sources and folklore REALLY say, as bullet points:
 - for a known story: the real characters' names and how they are related, the plot in order, the ending
 - COMMON MISTAKES a writer must avoid about it
 No mantras, no step-by-step ritual instructions. If sources disagree, give the most common Bengali belief."""
-    for model in gemini_models(key)[:3]:
+    for model in gemini_models(keys)[:3]:
         for tools in ([{"google_search": {}}], None):
             body = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.3}}
             if tools:
                 body["tools"] = tools
             try:
-                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                                  json=body, timeout=180)
+                r = gemini_post(model, body, keys, timeout=180)
                 if r.status_code == 400 and tools:
                     continue                         # this model cannot search: ask it without searching
                 if not r.ok:
@@ -1065,8 +1102,8 @@ def edit_story(story, lang, classic=False, brief="", outline=""):
     language. Returns the better story, or the original if anything goes wrong."""
     if MOCK or env("EDITOR") == "0":
         return story
-    key = env("GEMINI_API_KEY")
-    if not key:
+    keys = gemini_writer_keys()
+    if not keys:
         return story
     L = LANGS[lang]
     words0 = sum(len(str(ln.get("text", "")).split()) for sc in story.get("scenes", []) for ln in sc.get("lines", []))
@@ -1106,11 +1143,10 @@ STORY JSON:
 {json.dumps(story, ensure_ascii=False)}"""
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.8, "responseMimeType": "application/json", "maxOutputTokens": 60000}}
-    for model in gemini_models(key)[:4]:
+    for model in gemini_models(keys)[:4]:
         try:
             log(f"Editor checking the story with {model} ...")
-            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                              json=body, timeout=360)
+            r = gemini_post(model, body, keys, timeout=360)
             if not r.ok:
                 log(f"  editor: {model} {r.status_code}")
                 continue
@@ -1130,25 +1166,38 @@ STORY JSON:
     return story
 
 
-def gemini_models(key):
+def gemini_models(keys):
+    if isinstance(keys, str):
+        keys = [keys]
     tries = [env("GEMINI_MODEL")] if env("GEMINI_MODEL") else []
     tries.append("gemini-flash-latest")
-    try:
-        r = requests.get(f"{GEMINI_BASE}/models", headers={"x-goog-api-key": key},
-                         params={"pageSize": 200}, timeout=30)
-        names = []
-        for m in r.json().get("models", []):
-            n = m.get("name", "").replace("models/", "")
-            if ("generateContent" in m.get("supportedGenerationMethods", []) and "flash" in n
-                    and not any(x in n for x in ("image", "tts", "audio", "live", "embed", "exp"))):
-                names.append(n)
+    for index, key in enumerate(keys):
+        try:
+            r = requests.get(f"{GEMINI_BASE}/models", headers={"x-goog-api-key": key},
+                             params={"pageSize": 200}, timeout=30)
+            if not r.ok:
+                if r.status_code in (401, 403, 408, 429, 500, 502, 503, 504) and index + 1 < len(keys):
+                    log(f"Gemini model-list key {index + 1} returned HTTP {r.status_code}; trying key {index + 2}")
+                    continue
+                log(f"Could not list Gemini models: HTTP {r.status_code}")
+                break
+            names = []
+            for m in r.json().get("models", []):
+                n = m.get("name", "").replace("models/", "")
+                if ("generateContent" in m.get("supportedGenerationMethods", []) and "flash" in n
+                        and not any(x in n for x in ("image", "tts", "audio", "live", "embed", "exp"))):
+                    names.append(n)
 
-        def ver(n):
-            nums = re.findall(r"\d+(?:\.\d+)?", n)
-            return (float(nums[0]) if nums else 0, "lite" not in n, "preview" not in n)
-        tries += sorted(names, key=ver, reverse=True)
-    except Exception as e:
-        log("Could not list Gemini models:", e)
+            def ver(n):
+                nums = re.findall(r"\d+(?:\.\d+)?", n)
+                return (float(nums[0]) if nums else 0, "lite" not in n, "preview" not in n)
+            tries += sorted(names, key=ver, reverse=True)
+            break
+        except Exception as e:
+            if index + 1 < len(keys):
+                log(f"Gemini model-list request failed with key {index + 1}; trying key {index + 2}")
+            else:
+                log("Could not list Gemini models:", e)
     tries += ["gemini-2.5-flash"]
     out = []
     for t in tries:
@@ -1403,7 +1452,7 @@ def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules=""
     part=2: the final part, continuing `prev` (saved from part 1)."""
     if MOCK:
         return mock_story(lang)
-    key = need_env("GEMINI_API_KEY")
+    keys = need_gemini_writer_keys()
     L = LANGS[lang]
     old_titles = [h["title"] for h in history[-60:] if h.get("lang") == lang]
     fmt = fmt or random.choice(FORMATS)
@@ -1618,7 +1667,7 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
     last_err = None
     default_min_words = NIGHT_MIN_WORDS if STATE.get("slot_hour") == EVENING else int(env("MIN_WORDS") or 950)
     best, min_words = None, min_w or default_min_words
-    models = gemini_models(key)
+    models = gemini_models(keys)
     waits = [0, 90, 180, 300, 300, 420]           # Google's servers are sometimes busy for a while: be patient
     for round_no, wait in enumerate(waits):
         if wait and round_no <= 2:                # Gemini busy: try the backup writer before waiting
@@ -1646,8 +1695,7 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
         for model in list(models):
             try:
                 log(f"Writing story with {model} ...")
-                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
-                                  headers={"x-goog-api-key": key}, json=body, timeout=300)
+                r = gemini_post(model, body, keys, timeout=300)
                 if r.status_code in (404, 400):
                     raise LookupError(r.text[:300])
                 if r.status_code in (429, 500, 502, 503, 504):
