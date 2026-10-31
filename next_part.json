@@ -88,5 +88,75 @@
   "classic": null,
   "fb": "1846548890125431",
   "yt": "zVyMhEAhvtE"
+ },
+ "10": {
+  "created": "2026-10-31T03:01:07.232289+00:00",
+  "lang": "bn",
+  "theme": "a new flat in an old building",
+  "slot": 10,
+  "source": "",
+  "fmt": "classic third-person radio-drama narration",
+  "title": "কার্তিকের কুয়াশায় সেলাই করা দেয়াল 🕯️",
+  "done": 1,
+  "total": 2,
+  "series_id": "2026-10-31T00:59+00:00",
+  "summary": "Subimal Dutta rents an abnormally cheap first-floor flat in an old Bagbazar mansion during Kartik, noticing a strange cold draft and sour smell from the north wall. Landlord Aloknath forces him to touch the hemp rope for the rooftop sky lamp ritual. Subimal discovers magnetic anomalies, hollow echoes, and a hidden chamber behind his bedroom wall, warned by sweeper Manju against fire and smoke. Measuring the room reveals five missing feet, and twilight reveals sunken eyes watching him from the terracotta flue. Confronting Aloknath yields only missing blueprints and lime-covered fingers. Unlocking the service alcove, Subimal finds tallow-smeared grain weights, and his desk ink congeals into grain units. He unearths a 1943 ledger containing accountant Haripada Bose's final entry and mummified thumb. Discovering Aloknath's terror-stricken confession about his grandfather walling Haripada alive for grain hoarding, the rooftop sky lamp's hemp rope snaps from acid corrosion. The north wall bursts open, spilling rotting black seed rice and releasing the mummified skeleton of Haripada Bose, chained with Saha family crest padlocks, who traps Aloknath against the brick wall.",
+  "part2_plan": "The second part begins immediately with Subimal trapped in the room as the north wall collapses completely, swallowing Aloknath into the grain vault. Subimal must navigate the dark mansion while the ghost of Haripada Bose locks all exit doors and demands the final grain balance sheet. As the Bagbazar neighborhood sleeps through Amavasya, Subimal uncovers the hidden second ledger buried beneath the courtyard well, revealing where the rest of the 1943 famine hoard is buried. With the help of sweeper Manju, who holds a dark secret about the past sacrifices, Subimal tries to break the seal before the ghost drags him into the lime pit forever.",
+  "characters": [
+   {
+    "name": "Subimal Dutta",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "ENGLISH: A 38-year-old impoverished bachelor proofreader with tired eyes, thin hair, wearing a crumpled cotton kurta and spectacles, holding brass measuring tools and peering anxiously into dark corners.",
+    "name_local": "সুবিমল দত্ত",
+    "intro": "আমাদের কাহিনীর মূল চরিত্র সুবিমল দত্ত—অষ্টত্রিশ বছরের এক ক্লান্ত প্রুফরিডার, যিনি কম ভাড়ার আশায় উত্তর কলকাতার এই পুরোনো দালানে আশ্রয় নিয়েছেন।",
+    "intro_en": "Our main character Subimal Dutta—a 38-year-old tired proofreader who has taken shelter in this old North Kolkata mansion in search of cheap rent."
+   },
+   {
+    "name": "Aloknath Saha",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "ENGLISH: A 71-year-old retired dock clerk with yellow-stained fingers covered in lime mortar, wearing a soiled dhoti and panjabi, walking slowly with a cane while muttering prayers.",
+    "name_local": "অলোকনাথ সাহা",
+    "intro": "মালিক অলোকনাথ সাহা—একাত্তর বছরের এক বৃদ্ধ, যাঁর আঙুলগুলো চিরকাল পুরোনো চুন-সুরকিতে সাদা হয়ে থাকে।",
+    "intro_en": "Landlord Aloknath Saha—a 71-year-old old man whose fingers are forever whitened with old lime mortar."
+   },
+   {
+    "name": "Manju Dasi",
+    "gender": "female",
+    "age": "old",
+    "kind": "human",
+    "look": "ENGLISH: A 54-year-old courtyard sweeper wearing a faded cotton sari, carrying a brass water pitcher and a twig broom, her face lined with quiet terror.",
+    "name_local": "মঞ্জু দাসী",
+    "intro": "উঠানের ঝাড়ুদার ও পুজোর ফুল বিক্রেতা মঞ্জু দাসী—যিনি সন্ধ্যার কুয়াশা নামার আগেই দালান ছেড়ে পালাতে চান।",
+    "intro_en": "Courtyard sweeper and temple garland vendor Manju Dasi—who wants to leave the mansion before the evening mist settles."
+   },
+   {
+    "name": "Haripada Bose",
+    "gender": "male",
+    "age": "adult",
+    "kind": "ghost",
+    "look": "ENGLISH: A mummified corpse-like ghost with skin stretched tight over bones, eyes reduced to dark hollow sockets, mouth locked in a wide grimace, wrapped in rotting cotton dhoti stained with grain dust.",
+    "name_local": "হরিপদ বসু",
+    "intro": "হরিপদ বসু—একাত্তরের মন্বন্তরের সেই মৃত হিসাবরক্ষক, যাঁর আত্মা আজও সেই বন্ধ গহ্বরের ভেতর শস্যের হিসেব কষে চলেছে।",
+    "intro_en": "Haripada Bose—the dead accountant of the 1943 famine whose spirit still calculates grain inside the sealed vault."
+   }
+  ],
+  "setting": "ENGLISH: A partitioned first-floor flat (Flat 1B) in 'Saha Niwas', a crumbling three-storey red-brick Edwardian mansion on Nebutala Lane, Bagbazar, North Kolkata. Featuring peeling distempered walls smelling of wet river lime, antique teak furniture, flickering hurricane lanterns, and a mysterious north wall concealing a wartime grain vault. Late Kartik autumn evenings, dense grey mist rising from the courtyard pond, and terracotta chimney flues.",
+  "choice": {
+   "question": "সুবিমলের এখন কী করা উচিত?",
+   "option1": "খাতা নিয়ে পালিয়ে যাওয়া",
+   "option2": "হরিপদর হিসেব মেটানো",
+   "plan1": "If option 1 wins, Subimal tries to flee through the front door but finds the iron gates sealed by supernatural frost, forcing him to face the ghost in the courtyard.",
+   "plan2": "If option 2 wins, Subimal opens the 1943 ledger and begins reading out the grain accounts aloud to appease the accountant's spirit before midnight strikes."
+  },
+  "scripts": {},
+  "special": "",
+  "festival": null,
+  "classic": null,
+  "fb": "1142038425174711",
+  "yt": "Ma6_v4i-T9s"
  }
 }
