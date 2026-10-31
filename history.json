@@ -502,8 +502,8 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 2,
-   "checked": "2026-10-28T06:26+00:00"
+   "views": 0,
+   "checked": "2026-10-31T07:39+00:00"
   }
  },
  {
@@ -687,7 +687,13 @@
   "youtube": "ZyrEe0XJ8xA",
   "fb_reel": "2144201283153739",
   "fb_story": "2108891783067780",
-  "yt_short": "_ULpl8DA3ms"
+  "yt_short": "_ULpl8DA3ms",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 1,
+   "checked": "2026-10-31T07:39+00:00"
+  }
  },
  {
   "date": "2026-10-30T23:21+00:00",
@@ -720,12 +726,7 @@
   "date": "2026-10-31T03:01+00:00",
   "lang": "bn",
   "slot": "2026-10-31@10",
-  "pending_comments": [
-   {
-    "id": "1142038425174711",
-    "text": "সুবিমলের এখন কী করা উচিত? যদি চান খাতা নিয়ে পালিয়ে যাওয়া, কমেন্টে লিখুন ১। আর যদি চান হরিপদর হিসেব মেটানো, লিখুন ২। আপনাদের ভোটেই ঠিক হবে পরের পর্বে কী হবে!\n\n🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!\n\n👇 কীভাবে অংশ নেবেন:\n✅ প্রশ্নের উত্তর এখানে কমেন্টে লিখুন - ঠিক উত্তরদাতাদের নাম পরের ভিডিওতে!\n🗳️ ভোট থাকলে ১ বা ২ লিখুন\n📝 আপনার সত্যি ভৌতিক ঘটনা #আমার_গল্প লিখে পাঠান - পরের গল্পটা আপনার হতে পারে\n🔔 ফলো করে রাখুন, পরের পর্ব যেন মিস না হয়"
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "theme": "a new flat in an old building",
@@ -747,5 +748,32 @@
   "fb_reel": "1127749092998802",
   "fb_story": "2280886642690629",
   "yt_short": "UA0GC_zYbcQ"
+ },
+ {
+  "date": "2026-10-31T09:51+00:00",
+  "lang": "bn",
+  "slot": "2026-10-31@14",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "theme": "a viewer's own true experience",
+  "format": "two friends telling ghost stories at night, and one story becomes real",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-10-31T08:38+00:00",
+  "title": "ছায়াচিত্রের অভিশাপ 📜 | পর্ব 1",
+  "festival": null,
+  "special": "viewer",
+  "viewer_story_id": "fb_122149433457043212_1581688389910957",
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook": "2026564604724048",
+  "youtube": "ZZwT63qbyA8",
+  "fb_reel": "1090527387157102",
+  "fb_story": "899330179837447",
+  "yt_short": "uBKsSJhemT4"
  }
 ]

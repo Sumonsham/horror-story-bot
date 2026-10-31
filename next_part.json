@@ -158,5 +158,2472 @@
   "classic": null,
   "fb": "1142038425174711",
   "yt": "Ma6_v4i-T9s"
+ },
+ "14": {
+  "created": "2026-10-31T09:51:47.221527+00:00",
+  "lang": "bn",
+  "theme": "a viewer's own true experience",
+  "slot": 14,
+  "source": "",
+  "fmt": "two friends telling ghost stories at night, and one story becomes real",
+  "title": "ছায়াচিত্রের অভিশাপ 📜",
+  "done": 1,
+  "total": 2,
+  "series_id": "2026-10-31T08:38+00:00",
+  "summary": "On an ominous, stormy Kartik afternoon in Baranagar, paper restorer Anirban Sen is visited by his estranged schoolmate Suman Majumdar, who arrives soaked in river silt and carrying an antique silver-clasped photo album. Anirban feels guilty for ignoring Suman's desperate phone calls three nights ago. As the power fails and gale winds lash the mansion, Suman insists they review the vintage prints. With each turned plate from 1918 to 1923, an emaciated specter with tetanic clawed hands creeps closer to the lens. Anirban discovers the photographs were taken inside this very house, once the quarantine death-den of Pramatha Roy, who died of locked-jaw tetanus. Horrifyingly, Suman's skin is freezing, his pupils are fixed, and Plate 5 suddenly shows this current room in real-time, revealing a waterlogged corpse lurking beneath Anirban's desk while Suman blocks the only exit.",
+  "part2_plan": "Part 2 begins at the immediate cliffhanger: Anirban must deal with the trapped manifestation under his desk while confronting the fact that Suman drowned three days ago at Nimtala Ghat. Depending on the viewer vote, Anirban either tries to forcefully drag Suman's waterlogged shell out toward the flooded courtyard, or confronts the spirit of Pramatha Roy using paper restoration solvents and consecrated lamp oil to break the album's psychic seal. Anirban must race to extinguish the ritual Akash Prodip on the rain-swept terrace before the sixth and final plate develops fully, threatening to transfer Pramatha's soul into Anirban's living flesh.",
+  "characters": [
+   {
+    "name": "Anirban Sen",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "29 years old, lean scholar with round metal-rimmed spectacles, disheveled dark hair, wearing a rumpled cream khadi kurta and grey pajamas, face pale with anxiety.",
+    "name_local": "অনির্বাণ সেন",
+    "intro": "আমাদের শ্রোতা ডেইলির পাঠানো সত্যি অভিজ্ঞতার নায়ক অনির্বাণের কথা দিয়েই শুরু করছি—বরানগরের গঙ্গার ধারের পুরোনো ভিটেতে পুরোনো নথিপত্র আর পান্ডুলিপি সংস্কার করাই যার পেশা।",
+    "intro_en": "Beginning with our listener Daily's true experience: Anirban Sen, an archivist who restores antique manuscripts in his ancestral riverside house in Baranagar."
+   },
+   {
+    "name": "Suman Majumdar",
+    "gender": "male",
+    "age": "adult",
+    "kind": "possessed",
+    "look": "29 years old, gaunt schoolteacher, soaking wet dark hair plastered to his forehead, wearing a drenched navy shirt and sodden trousers, skin unnaturally greyish-blue, eyes wide and unblinking.",
+    "name_local": "সুমন মজুমদার",
+    "intro": "সুমন মজুমদার—অনির্বাণের স্কুলের বন্ধু, ইতিহাসের শিক্ষক, যে গত তিনদিন ধরে নিখোঁজ থাকার পর এই দুর্যোগের বিকেলে হঠাৎ দরজায় এসে দাঁড়িয়েছে।",
+    "intro_en": "Suman Majumdar, Anirban's school friend and history teacher, who had been missing for three days before turning up at the door on this stormy afternoon."
+   },
+   {
+    "name": "Pramatha Roy",
+    "gender": "male",
+    "age": "adult",
+    "kind": "ghost",
+    "look": "Tall, emaciated 1920s aristocrat with locked, twisted jaw, skin the color of river muck, hollow sunken eye sockets glowing dull yellow, wearing an unbleached antique zamindari dhoti.",
+    "name_local": "প্রমথ রায়",
+    "intro": "প্রমথ রায়—এই পুরোনো বাড়ির অতীত মালিকের মেজ ছেলে, এক শতাব্দী আগে কার্তিক মাসের ভূত চতুর্দশীতে ধনুষ্টঙ্কারের যন্ত্রণায় যার মৃত্যু হয়েছিল এই ঘরেই।",
+    "intro_en": "Pramatha Roy, the zamindar's second son who perished from locked-jaw tetanus in this exact room a century ago on Kartik Bhoot Chaturdashi."
+   }
+  ],
+  "setting": "A decaying two-century-old riverfront mansion in Baranagar, North Kolkata, overlooking the violent grey waters of the Hooghly river. The study is lined with damp teak bookshelves, tall louvered green Venetian windows, an antique carved mahogany desk, high ceilings with exposed wooden rafters, and peeling lime plaster. Lit only by a flicker of a brass hurricane lantern and lightning flashes amidst a ferocious Kartik October afternoon thunderstorm.",
+  "choice": null,
+  "scripts": {
+   "2": {
+    "editor_scores": {
+     "fear": 10,
+     "twist": 10,
+     "logic": 10,
+     "flow": 10,
+     "structure": 10,
+     "names": 10,
+     "belief": 10,
+     "dialogue": 10,
+     "language": 10
+    },
+    "plot_holes_fixed": [
+     "Fixed the abrupt jump in previous draft where the glass negative appeared spontaneously in Anirban's kurta pocket: added precise setup in dialogue and narration explaining that Suman slipped the negative when grabbing Anirban's shoulder during their standoff.",
+     "Clarified why Anirban had windproof lighter and volatile solvents readily available: established his profession as an archivist and paper conservator working with restoration spirits (acetone, denatured alcohol, dissolved camphor) on his workbench.",
+     "Resolved the logical contradiction of the ghost burning: the entity Pramatha Roy was bound to the silver-halide photo emulsions and the ancestral property; burning the plate severed his tie to Suman's corpse while fulfilling the trap of forcing Anirban to mirror the final exposure.",
+     "Addressed why Suman's body didn't decay immediately: preserved by cold saline Hooghly river silt and held upright by the rigor mortis of the tetanus curse until the final ritual release.",
+     "Ensured character names and relationships are stated explicitly in the live audio dialogue and narrator bridges across every scene for immediate audio-drama clarity."
+    ],
+    "title": "ছায়াচিত্রের অভিশাপ 📜 | অন্তিম পর্ব",
+    "thumbnail_text": "ষষ্ঠ ছবিটা কার?",
+    "description": "বরানগরের পুরোনো ভিটেতে কার্তিকের দুর্যোগের বিকেলে পুরোনো অ্যালবামের পঞ্চম পাতা খুলতেই ঘটে গেল বিভীষিকা! টেবিলের নিচে ওটা কার ভেজা শরীর? সুমন কি সত্যিই বেঁচে নেই? শুনুন শেষ পর্বের চমকপ্রদ সমাপ্তি!",
+    "hashtags": [
+     "#HorrorStory",
+     "#BengaliAudioStory",
+     "#SundaySuspense",
+     "#BhuterGolpo",
+     "#KolkataHorror",
+     "#SupernaturalThriller",
+     "#GhostStoryInBengali",
+     "#RadioHorror",
+     "#BengaliPodcast"
+    ],
+    "setting": "A decaying two-century-old riverfront mansion in Baranagar, North Kolkata, overlooking the violent grey waters of the Hooghly river. The study is lined with damp teak bookshelves, tall louvered green Venetian windows, an antique carved mahogany desk, high ceilings with exposed wooden rafters, and peeling lime plaster. Lit only by a flicker of a brass hurricane lantern and lightning flashes amidst a ferocious Kartik October afternoon thunderstorm.",
+    "characters": [
+     {
+      "name": "Anirban Sen",
+      "gender": "male",
+      "age": "adult",
+      "kind": "human",
+      "look": "29 years old, lean scholar with round metal-rimmed spectacles, disheveled dark hair, wearing a rumpled cream khadi kurta and grey pajamas, face pale with anxiety.",
+      "name_local": "অনির্বাণ সেন",
+      "intro": "আমাদের শ্রোতা ডেইলির পাঠানো সত্যি অভিজ্ঞতার নায়ক অনির্বাণের কথা দিয়েই শুরু করছি—বরানগরের গঙ্গার ধারের পুরোনো ভিটেতে পুরোনো নথিপত্র আর পান্ডুলিপি সংস্কার করাই যার পেশা।",
+      "intro_en": "Beginning with our listener Daily's true experience: Anirban Sen, an archivist who restores antique manuscripts in his ancestral riverside house in Baranagar."
+     },
+     {
+      "name": "Suman Majumdar",
+      "gender": "male",
+      "age": "adult",
+      "kind": "possessed",
+      "look": "29 years old, gaunt schoolteacher, soaking wet dark hair plastered to his forehead, wearing a drenched navy shirt and sodden trousers, skin unnaturally greyish-blue, eyes wide and unblinking.",
+      "name_local": "সুমন মজুমদার",
+      "intro": "সুমন মজুমদার—অনির্বাণের স্কুলের বন্ধু, ইতিহাসের শিক্ষক, যে গত তিনদিন ধরে নিখোঁজ থাকার পর এই দুর্যোগের বিকেলে হঠাৎ দরজায় এসে দাঁড়িয়েছে।",
+      "intro_en": "Suman Majumdar, Anirban's school friend and history teacher, who had been missing for three days before turning up at the door on this stormy afternoon."
+     },
+     {
+      "name": "Pramatha Roy",
+      "gender": "male",
+      "age": "adult",
+      "kind": "ghost",
+      "look": "Tall, emaciated 1920s aristocrat with locked, twisted jaw, skin the color of river muck, hollow sunken eye sockets glowing dull yellow, wearing an unbleached antique zamindari dhoti.",
+      "name_local": "প্রমথ রায়",
+      "intro": "প্রমথ রায়—এই পুরোনো বাড়ির অতীত মালিকের মেজ ছেলে, এক শতাব্দী আগে কার্তিক মাসের ভূত চতুর্দশীতে ধনুষ্টঙ্কারের যন্ত্রণায় যার মৃত্যু হয়েছিল এই ঘরেই।",
+      "intro_en": "Pramatha Roy, the zamindar's second son who perished from locked-jaw tetanus in this exact room a century ago on Kartik Bhoot Chaturdashi."
+     }
+    ],
+    "episode_name": "অভিশপ্ত নেগেটিভ",
+    "thumbnail_image": {
+     "hero": "Anirban Sen",
+     "hero_action": "holding a bottle of chemical solvent in one trembling hand and a lantern in the other, backing away from the desk in pure horror",
+     "second": "Pramatha Roy",
+     "ghost": "emaciated aristocrat with locked, dislocated jaw, swamp-muck skin, dull yellow glowing sockets, claw-like rigid fingers reaching out from under the mahogany table",
+     "second_action": "crouching under the desk, slowly dragging his waterlogged torso out toward the floorboards",
+     "place": "antique study room with peeling lime walls, tall green shutters rattled by rain and river storm",
+     "moment": "Anirban realizes the photographic figure has materialized beneath his own workspace."
+    },
+    "plot_outline": [
+     "Anirban kicks his chair backward as bloated grey hands clutch the desk frame from below.",
+     "Suman speaks with a choked, hollow cadence, confirming he drowned seventy-two hours ago at Nimtala Ghat.",
+     "Anirban refuses to inspect the final plate and grabs his restoration tray of pure alcohol and acetone.",
+     "Pramatha Roy's spirit begins emerging from the knee-hole of the desk, filling the room with the stench of river silt.",
+     "Suman reveals that the terrace Akash Prodip lantern is anchoring the dead zamindar's crossing into living flesh.",
+     "Anirban dashes restorative solvent directly into Suman's possessed face, forcing the rigid corpse to stumble aside.",
+     "Anirban unlatches the study door and flees into the pitch-black, storm-battered corridor toward the roof stairs.",
+     "Lightning reveals wet, barefoot footprints ascending the staircase ahead of Anirban.",
+     "Reaching the rain-swept terrace, Anirban spots the wicker Akash Prodip burning against impossible cyclone winds.",
+     "Pramatha Roy manifests directly on the terrace balustrade, blocking the lantern with tetanic, clawed arms.",
+     "Anirban attempts to snuff out the flame with rain, but the wick feeds on spirit energy and river oil.",
+     "Suman's dripping shell arrives on the terrace, cornering Anirban against the fragile brick parapet.",
+     "Suman's throat emits a moment of his genuine living voice, begging Anirban to destroy the album's silver master negative.",
+     "Anirban pulls the silver-clasped fifth plate negative from his kurta pocket, realizing it was planted on him.",
+     "Using his brass restoration lighter and remaining chemical solvent, Anirban sets the antique glass plate on fire.",
+     "Pramatha Roy lets out a bone-chilling shriek as the photographic silver emulsion bubbles and disintegrates.",
+     "With the negative destroyed, the Akash Prodip shatters in a blue flash, banishing the aristocrat's shadow into the tempest.",
+     "Suman's lifeless body collapses onto the wet terrace tiles, finally free of the parasitic spirit.",
+     "At dawn, the police and river patrol retrieve Suman's body, verifying he died three days earlier in the river.",
+     "Back in his study, Anirban looks into his pocket mirror and finds his jaw muscles spasming into an unnatural lock."
+    ],
+    "scenes": [
+     {
+      "chapter": "টেবিলের নিচে ছায়া",
+      "follows_from": "cold open",
+      "characters": [
+       "Anirban Sen",
+       "Suman Majumdar"
+      ],
+      "action": "Anirban shoves his chair backward with a violent clatter; Suman remains frozen at the closed doorway, his eyes glossy and dead.",
+      "place": "antique mahogany study, storm twilight, brass hurricane lantern flickering",
+      "mood": "scare",
+      "ambience": [
+       "violent Kartik thunderstorm rattling louvered windows",
+       "heavy rain splashing against floorboards"
+      ],
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "কার্তিক মাসের শেষ বৃহস্পতিবার, বরানগরের দুশো বছরের ভিটেতে যখন গঙ্গার জল আছড়ে পড়ছে, তখন পুরোনো মেহগনি টেবিলের নিচে জমাট অন্ধকারটা হঠাৎ দুলে উঠল। অনির্বাণের শিরদাঁড়া বেয়ে নেমে গেল এক হিমশীতল স্রোত।",
+        "en": "On the last Thursday of Kartik, as river waters battered the two-century-old Baranagar estate, the coagulated darkness under the mahogany desk suddenly swayed. A glacial dread shot down Anirban's spine.",
+        "emotion": "eerie",
+        "delivery": "low, measured, atmospheric voice with a dark undercurrent",
+        "voice_text": "কার্তিক মাসের শেষ বৃহস্পতিবার, বরানগরের দুশো বছরের ভিটেতে যখন গঙ্গার জল আছড়ে পড়ছে, তখন পুরোনো মেহগনি টেবিলের নিচে জমাট অন্ধকারটা হঠাৎ দুলে উঠল। অনির্বাণের শিরদাঁড়া বেয়ে নেমে গেল এক হিমশীতল স্রোত।",
+        "sfx": [
+         {
+          "sound": "distant heavy thunderclap rolling",
+          "word": "কার্তিক",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban Sen stumbling back from an antique carved desk, round spectacles reflecting lantern light, staring down at the dark knee-hole beneath the table where water drips onto floorboards",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "gripping his chair with shaking knuckles",
+           "where": "center foreground near desk",
+           "feeling": "intense dread and shock"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "সুমন! দরজার সামনে পাথরের মতো দাঁড়িয়ে আছিস কেন? টেবিলের তলায় ওটা কার হাত? জবাব দে সুমন!",
+        "en": "Suman! Why are you standing like stone at the door? Whose hands are those under the desk? Answer me Suman!",
+        "emotion": "scared",
+        "delivery": "choked, breathless stammer, voice pitched high with terror",
+        "voice_text": "<gasp> সুমন! দরজার সামনে পাথরের মতো দাঁড়িয়ে আছিস কেন? টেবিলের তলায় ওটা কার হাত? জবাব দে সুমন!",
+        "sfx": [
+         {
+          "sound": "wooden chair scraping violently on floorboards",
+          "word": "সুমন!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban Sen facing the doorway, hand raised defensively, chest heaving, vintage green louvers behind him shaking with monsoon lightning",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "holding an arm up in self-defense",
+           "where": "middle of room",
+           "feeling": "terrified panic"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Suman Majumdar",
+        "text": "চিনতে পারছিস না অনির্বাণ? তোর এই ভিটের একশো বছরের পুরোনো বাসিন্দা... প্রমথ রায়। যাকে ধনুষ্টঙ্কারের জ্বরে এই ঘরেই তক্তপোশে বেঁধে রাখা হয়েছিল!",
+        "en": "Can't you recognize him, Anirban? The century-old occupant of your estate... Pramatha Roy. The one tied to the cot in this very room during violent tetanus convulsions!",
+        "emotion": "eerie",
+        "delivery": "flat monotone, accompanied by a hollow rattling undertone from his chest",
+        "voice_text": "চিনতে পারছিস না অনির্বাণ? তোর এই ভিটের একশো বছরের পুরোনো বাসিন্দা... প্রমথ রায়। যাকে ধনুষ্টঙ্কারের জ্বরে এই ঘরেই তক্তপোশে বেঁধে রাখা হয়েছিল!",
+        "sfx": [
+         {
+          "sound": "wet, gurgling breath rattling in windpipe",
+          "word": "বাসিন্দা...",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Suman Majumdar standing rigid at the door frame, waterlogged navy shirt dripping dark river slime, completely dilated unblinking pupils",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "standing",
+           "doing": "arms hanging stiffly at sides",
+           "where": "blocking the doorway",
+           "feeling": "lifeless and possessed"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "মেহগনি টেবিলের অন্ধকার গহ্বর থেকে ইঞ্চি ইঞ্চি করে বেরিয়ে এল দুটো কালচে নীলচে হাত। অনির্বাণের হ্যারিকেনের আলোয় স্পষ্ট দেখা গেল—নখগুলো পচে যাওয়া কাঠের মতো কালো, আর আঙুলগুলো ধনুকের টানটান ছিলার মতো পেছনের দিকে উল্টে রয়েছে!",
+        "en": "From the dark cavity beneath the mahogany desk emerged two bluish-black hands inch by inch. In Anirban's lantern glow, it was horrifyingly clear—the nails were blackened like rotting timber, and the fingers were wrenched backward like taut bowstrings!",
+        "emotion": "scared",
+        "delivery": "slow, tense narration, painting the horrifying detail",
+        "voice_text": "মেহগনি টেবিলের অন্ধকার গহ্বর থেকে ইঞ্চি ইঞ্চি করে বেরিয়ে এল দুটো কালচে নীলচে হাত। অনির্বাণের হ্যারিকেনের আলোয় স্পষ্ট দেখা গেল—নখগুলো পচে যাওয়া কাঠের মতো কালো, আর আঙুলগুলো ধনুকের টানটান ছিলার মতো পেছনের দিকে উল্টে রয়েছে!",
+        "sfx": [
+         {
+          "sound": "nails scraping loudly against polished teakwood",
+          "word": "উল্টে",
+          "when": ""
+         }
+        ],
+        "jump_scare": true,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Extreme close-up of claw-like, swollen grey fingers gripping the bottom edge of an antique mahogany desk, surrounded by dark muddy puddle",
+         "people": [],
+         "characters": []
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "নিমতলা ঘাটের স্মৃতি",
+      "follows_from": "The clawed fingers scrape the floor as Suman blocks the exit.",
+      "characters": [
+       "Anirban Sen",
+       "Suman Majumdar"
+      ],
+      "action": "Anirban edges sideways toward his restoration workbench; Suman takes one stiff, squelching step forward.",
+      "place": "study corner near the chemical shelf, dim yellow light",
+      "mood": "tense",
+      "ambience": [
+       "wind howling through high rafters",
+       "steady dripping of river water"
+      ],
+      "lines": [
+       {
+        "speaker": "Anirban Sen",
+        "text": "সুমন... তোর জামা থেকে কিসের গন্ধ বেরোচ্ছে রে? বৃষ্টির জল তো এমন পচা পাঁকের মতো দুর্গন্ধ হয় না! তিন দিন আগে তুই নিমতলা ঘাট থেকে আমায় ফোন করেছিলিস...",
+        "en": "Suman... what is that smell reeking from your shirt? Rainwater never smells of such rancid silt! Three nights ago you called me from Nimtala Ghat...",
+        "emotion": "whisper",
+        "delivery": "shivering, hesitant whisper, piecing the truth together",
+        "voice_text": "সুমন... তোর জামা থেকে কিসের গন্ধ বেরোচ্ছে রে? বৃষ্টির জল তো এমন পচা পাঁকের মতো দুর্গন্ধ হয় না! তিন দিন আগে তুই নিমতলা ঘাট থেকে আমায় ফোন করেছিলিস...",
+        "sfx": [
+         {
+          "sound": "slow water dripping onto floorboards",
+          "word": "দুর্গন্ধ",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban Sen backing toward a wooden chemical rack, spectacles askew, staring in wide-eyed realization at Suman",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "reaching behind him toward glass bottles",
+           "where": "left side near shelves",
+           "feeling": "sheer comprehension of death"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Suman Majumdar",
+        "text": "হ্যাঁ অনির্বাণ! জোয়ারের টানে তলিয়ে যাওয়ার সময় আমি তোকে অনুনয় করেছিলাম, 'অনির্বাণ দরজা খোল, ও আমাকে তাড়া করছে!' তুই ফোনটা কেটে দিয়েছিলিস!",
+        "en": "Yes Anirban! While sinking into the river current, I begged you, 'Anirban unlock your doors, it is pursuing me!' And you hung up the call!",
+        "emotion": "angry",
+        "delivery": "booming aristocratic roar overlaid with Suman's faint watery wheeze",
+        "voice_text": "হ্যাঁ অনির্বাণ! জোয়ারের টানে তলিয়ে যাওয়ার সময় আমি তোকে অনুনয় করেছিলাম, 'অনির্বাণ দরজা খোল, ও আমাকে তাড়া করছে!' তুই ফোনটা কেটে দিয়েছিলিস!",
+        "sfx": [
+         {
+          "sound": "deep thunder roll shaking the house",
+          "word": "অনুনয়",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Suman Majumdar head cocked sideways at forty-five degrees, river weed clinging to his hair, chest soaked in black river silt",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "standing",
+           "doing": "leaning forward unnaturally",
+           "where": "center doorway",
+           "feeling": "rage and agonizing stiffness"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "সুমনের গলার চামড়া কুঁচকে গিয়ে যে শব্দটা বেরোল, তা কোনো জীবিত মানুষের ফুসফুস থেকে বেরোতে পারে না। অনির্বাণ শিউরে উঠে বুঝল—তার স্কুলের সহপাঠী সুমন মজুমদার বাহাত্তর ঘণ্টা আগেই নিমতলার কালচে জলে ডুবে মারা গেছে!",
+        "en": "The sound issuing from Suman's puckered throat could never arise from living lungs. Anirban shuddered in realization—his schoolmate Suman Majumdar had drowned in the dark waters of Nimtala seventy-two hours earlier!",
+        "emotion": "creepy",
+        "delivery": "grave, ominous Kolkata radio delivery",
+        "voice_text": "সুমনের গলার চামড়া কুঁচকে গিয়ে যে শব্দটা বেরোল, তা কোনো জীবিত মানুষের ফুসফুস থেকে বেরোতে পারে না। অনির্বাণ শিউরে উঠে বুঝল—তার স্কুলের সহপাঠী সুমন মজুমদার বাহাত্তর ঘণ্টা আগেই নিমতলার কালচে জলে ডুবে মারা গেছে!",
+        "sfx": [
+         {
+          "sound": "eerie low metallic hum in the room",
+          "word": "ফুসফুস",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Medium shot of Suman's distorted face under flickering hurricane light, faint translucent outline of an aristocratic specter overlapping his shoulders",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "standing",
+           "doing": "staring with dead eyes",
+           "where": "center",
+           "feeling": "possessed malevolence"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "তুই সুমন নোস... তুই প্রমথ রায়! কিন্তু এই পুরোনো ফটোগ্রাফিক অ্যালবাম নিয়ে তুই আমার কাছে কেন এলি?",
+        "en": "You aren't Suman... you are Pramatha Roy! But why did you bring this antique photographic album to me?",
+        "emotion": "scared",
+        "delivery": "trembling voice struggling to maintain scholarly composure",
+        "voice_text": "তুই সুমন নোস... তুই প্রমথ রায়! কিন্তু এই পুরোনো ফটোগ্রাফিক অ্যালবাম নিয়ে তুই আমার কাছে কেন এলি?",
+        "sfx": [
+         {
+          "sound": "gust of wind rattling window bolts",
+          "word": "রায়!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban clutching the edge of a book cabinet, facing both Suman and the shadowy mass beneath the desk",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "holding onto cabinet ledge",
+           "where": "left side",
+           "feeling": "paralyzing fear"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "প্রেতের দাবি",
+      "follows_from": "Anirban confronts the ghost by its real historical identity.",
+      "characters": [
+       "Anirban Sen",
+       "Suman Majumdar"
+      ],
+      "action": "Suman points a rigid, grey finger toward the silver-clasped photo album on the desk.",
+      "place": "study, desk surface soaked in spreading murky water",
+      "mood": "creepy",
+      "ambience": [
+       "torrential downpour outside",
+       "creaking timber roof"
+      ],
+      "lines": [
+       {
+        "speaker": "Suman Majumdar",
+        "text": "ষষ্ঠ প্লেটটা দেখ অনির্বাণ! কাচের শেষ নেগেটিভটা না দেখলে বদল পূর্ণ হবে না! সুমনের মৃত মাংস পচে যাচ্ছে, আমার এখন তোর তরতাজা রক্তের শরীর চাই!",
+        "en": "Look at the sixth plate, Anirban! The exchange will not be complete until you view the final glass negative! Suman's dead flesh is decomposing; I now need your fresh-blooded vessel!",
+        "emotion": "eerie",
+        "delivery": "grating, harsh commands, slow cadence without blinking",
+        "voice_text": "ষষ্ঠ প্লেটটা দেখ অনির্বাণ! কাচের শেষ নেগেটিভটা না দেখলে বদল পূর্ণ হবে না! সুমনের মৃত মাংস পচে যাচ্ছে, আমার এখন তোর তরতাজা রক্তের শরীর চাই!",
+        "sfx": [
+         {
+          "sound": "heavy wet squelch of footsteps",
+          "word": "প্লেটটা",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Suman's dripping arm extended forward, rigid finger pointing at the velvet-bound album lying open on the mahogany desk",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "standing",
+           "doing": "pointing rigid finger",
+           "where": "doorway facing desk",
+           "feeling": "compelling malice"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "কখনও না! পাঁচটা পাতায় তুই এগিয়ে এসেছিস... ষষ্ঠ পাতায় চোখ রাখলেই আমার চৈতন্য কেড়ে নিবি! আমি তোর ফাঁদে পা দেব না প্রমথ রায়!",
+        "en": "Never! Across five plates you advanced closer... gazing into the sixth will rob me of my consciousness! I will not step into your snare, Pramatha Roy!",
+        "emotion": "shout",
+        "delivery": "sharp, desperate refusal, realization turning into resistance",
+        "voice_text": "কখনও না! পাঁচটা পাতায় তুই এগিয়ে এসেছিস... ষষ্ঠ পাতায় চোখ রাখলেই আমার চৈতন্য কেড়ে নিবি! আমি তোর ফাঁদে পা দেব না প্রমথ রায়!",
+        "sfx": [
+         {
+          "sound": "glass rattling on chemical tray",
+          "word": "কখনও",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban turning toward the restoration bottles, eyes frantic behind wireframe glasses, refusing to look at the album",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "clasping a brown chemical solvent bottle",
+           "where": "left side",
+           "feeling": "panicked defiance"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "আর্কাইভিস্ট অনির্বাণ সেনের হাত চলে গেল পেছনের তাকে রাখা রাসায়নিক কাচের বয়ামে। পুরোনো কাগজ সংরক্ষণের জন্য রাখা কড়া কার্পূরিক অ্যালকোহল আর অ্যাসিটোন—যা প্রাচীন সিলভার ইমালশন পুড়িয়ে নষ্ট করতে পারে!",
+        "en": "Archivist Anirban Sen's trembling hand slid toward the chemical jars on the rear shelf. Pure camphorated alcohol and acetone used for antique manuscript conservation—solvents capable of stripping vintage silver emulsion!",
+        "emotion": "normal",
+        "delivery": "tense, swift Kolkata radio narrator style",
+        "voice_text": "আর্কাইভিস্ট অনির্বাণ সেনের হাত চলে গেল পেছনের তাকে রাখা রাসায়নিক কাচের বয়ামে। পুরোনো কাগজ সংরক্ষণের জন্য রাখা কড়া কার্পূরিক অ্যালকোহল আর অ্যাসিটোন—যা প্রাচীন সিলভার ইমালশন পুড়িয়ে নষ্ট করতে পারে!",
+        "sfx": [
+         {
+          "sound": "glass bottle clinking against tray",
+          "word": "বয়ামে",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Close-up of Anirban's pale hands grasping an amber solvent bottle with handwritten label in Bengali script",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "gripping chemical bottle",
+           "where": "foreground",
+           "feeling": "desperation"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Suman Majumdar",
+        "text": "তোর কেমিক্যাল তোর জীবন বাঁচাতে পারবে না অনির্বাণ! তোর পূর্বপুরুষ আমার বাবার থেকে এই ভিটে কেড়ে নিয়েছিল, আজ তোর রক্ত দিয়ে তার ঋণ শোধ হবে!",
+        "en": "Your chemicals cannot save your life, Anirban! Your ancestors wrested this mansion from my father, and today that debt will be paid in your living blood!",
+        "emotion": "eerie",
+        "delivery": "spiteful, sneering raspy voice, echoing off damp walls",
+        "voice_text": "তোর কেমিক্যাল তোর জীবন বাঁচাতে পারবে না অনির্বাণ! তোর পূর্বপুরুষ আমার বাবার থেকে এই ভিটে কেড়ে নিয়েছিল, আজ তোর রক্ত দিয়ে তার ঋণ শোধ হবে!",
+        "sfx": [
+         {
+          "sound": "evil raspy chuckle vibrating in empty room",
+          "word": "ঋণ",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "Pramatha Roy",
+        "image": {
+         "prompt": "Suman Majumdar stepping across the threshold, river silt trailing behind his soaked shoes on the patterned floor",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "walking",
+           "doing": "shuffling forward mechanically",
+           "where": "center",
+           "feeling": "deadly pursuit"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "টেবিলের তলা থেকে উত্থান",
+      "follows_from": "Suman steps forward into the study as the spirit below rises.",
+      "characters": [
+       "Anirban Sen",
+       "Pramatha Roy"
+      ],
+      "action": "From under the mahogany desk, a tall, skeletal figure in zamindari clothes drags itself upward; Anirban clutches his solvent bottle.",
+      "place": "study, near mahogany desk, casting long monstrous shadows under lightning",
+      "mood": "scare",
+      "ambience": [
+       "gusting wind slamming shutters",
+       "guttural wet gasps"
+      ],
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "ভারী মেহগনি টেবিলটা মটমট শব্দে কেঁপে উঠল। সেই নিশ্ছিদ্র কালচে গহ্বর ফুঁড়ে উঠে এল এক বীভৎস দীর্ঘকায় কঙ্কালসার প্রেতমূর্তি—প্রমথ রায়! পরনে শতাব্দীর পুরোনো কোঁচকানো জমিনদারি ধুতি, আর লক-জ-এর যন্ত্রণায় তার চোয়ালটা সম্পূর্ণ উল্টোদিকে মোচড়ানো!",
+        "en": "The heavy mahogany desk groaned and shuddered. Rising from that abyssal darkness stood a monstrous, skeletal specter—Pramatha Roy! Clad in a century-old crumpled zamindari dhoti, his locked jaw wrenched entirely backward in tetanus agony!",
+        "emotion": "scared",
+        "delivery": "urgent, breathless Kolkata storyteller tone building dread",
+        "voice_text": "ভারী মেহগনি টেবিলটা মটমট শব্দে কেঁপে উঠল। সেই নিশ্ছিদ্র কালচে গহ্বর ফুঁড়ে উঠে এল এক বীভৎস দীর্ঘকায় কঙ্কালসার প্রেতমূর্তি—প্রমথ রায়! পরনে শতাব্দীর পুরোনো কোঁচকানো জমিনদারি ধুতি, আর লক-জ-এর যন্ত্রণায় তার চোয়ালটা সম্পূর্ণ উল্টোদিকে মোচড়ানো!",
+        "sfx": [
+         {
+          "sound": "heavy wooden furniture cracking under supernatural pressure",
+          "word": "কেঁপে",
+          "when": ""
+         }
+        ],
+        "jump_scare": true,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Pramatha Roy rising from behind the desk, emaciated torso, locked dislocated jaw, hollow sockets glowing dull yellow, wet unbleached dhoti",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "looming over desk with twisted jaw",
+           "where": "behind desk center",
+           "feeling": "agony and terrifying rage"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       },
+       {
+        "speaker": "Pramatha Roy",
+        "text": "একশো বছর ধরে এই ঘরের মাটিতে আমার আত্মা ছটফট করছে... জল চেয়েছিলাম... ওরা আমাকে ধনুষ্টঙ্কারের রোগী বলে তক্তপোশে পেরেক ঠুকে রেখে দিয়েছিল!",
+        "en": "For a hundred years my soul has thrashed within the floorboards of this room... I begged for water... they deemed me a contagiously rabid tetanus wretch and nailed me to the planks!",
+        "emotion": "eerie",
+        "delivery": "horrifying locked-jaw hiss, syllables forced through clenched teeth",
+        "voice_text": "<growl> একশো বছর ধরে এই ঘরের মাটিতে আমার আত্মা ছটফট করছে... জল চেয়েছিলাম... ওরা আমাকে ধনুষ্টঙ্কারের রোগী বলে তক্তপোশে পেরেক ঠুকে রেখে দিয়েছিল!",
+        "sfx": [
+         {
+          "sound": "teeth grinding harshly together",
+          "word": "পেরেক",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Extreme close-up of Pramatha Roy's contorted, locked jaw, river algae on pale skin, dead dull eyes staring unblinkingly forward",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "leaning over table with clawed hands",
+           "where": "center close-up",
+           "feeling": "tormented hatred"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "প্রমথ রায়! আমি তোমার অপরাধী নই! তোমার মৃত্যু হয়েছিল ১৯২৩ সালে... আমার জন্মেরও আগে! সুমনের শরীর ছেড়ে দাও!",
+        "en": "Pramatha Roy! I am not your tormentor! You died in 1923... before I was even born! Leave Suman's vessel alone!",
+        "emotion": "shout",
+        "delivery": "shouting through gritted teeth, holding the solvent flask ready",
+        "voice_text": "প্রমথ রায়! আমি তোমার অপরাধী নই! তোমার মৃত্যু হয়েছিল ১৯২৩ সালে... আমার জন্মেরও আগে! সুমনের শরীর ছেড়ে দাও!",
+        "sfx": [
+         {
+          "sound": "cork popping off glass bottle",
+          "word": "ছেড়ে",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban popping the stopper off an amber glass bottle, chemical vapors rising, backing toward the room's open side",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "uncorking chemical bottle",
+           "where": "left",
+           "feeling": "furious desperation"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "প্রমথর কোটরহীন চোখের গভীর থেকে এক অস্বাভাবিক হলুদ আলো বিচ্ছুরিত হচ্ছিল। ঘরের তামমাত্রা এক মুহূর্তে শূন্যের নিচে নেমে গেল—অনির্বাণের মুখের গরম নিঃশ্বাস সাদা বাষ্পের মতো জমে উঠতে লাগল!",
+        "en": "From the hollow depths of Pramatha's sockets radiated an unnatural sickly yellow luminescence. The room temperature plummeted below freezing—Anirban's warm breath congealed into thick white frost!",
+        "emotion": "creepy",
+        "delivery": "low, haunting radio narration",
+        "voice_text": "প্রমথর কোটরহীন চোখের গভীর থেকে এক অস্বাভাবিক হলুদ আলো বিচ্ছুরিত হচ্ছিল। ঘরের তামমাত্রা এক মুহূর্তে শূন্যের নিচে নেমে গেল—অনির্বাণের মুখের গরম নিঃশ্বাস সাদা বাষ্পের মতো জমে উঠতে লাগল!",
+        "sfx": [
+         {
+          "sound": "faint wet squelching and gasping sound",
+          "word": "হলুদ",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Pramatha Roy's yellow-lit eye sockets peering in the darkness of the study, fingers reaching like gnarled branches",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "reaching outward",
+           "where": "center right",
+           "feeling": "insatiable greed"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "ছাদের আকাশ প্রদীপ",
+      "follows_from": "Pramatha's specter lunges forward over the desk.",
+      "characters": [
+       "Anirban Sen",
+       "Suman Majumdar"
+      ],
+      "action": "Suman steps between Anirban and the window, his head jerking toward the ceiling rafters.",
+      "place": "study, walls vibrating from the river storm outside",
+      "mood": "tense",
+      "ambience": [
+       "wind whistling through timber cracks",
+       "rain pelting window shutters"
+      ],
+      "lines": [
+       {
+        "speaker": "Suman Majumdar",
+        "text": "ছাদের বাঁশের খাঁচায় যে প্রদীপটা জ্বলছে অনির্বাণ, ওটা কার্তিকের সাধারণ আকাশ প্রদীপ নয়! ওতে গঙ্গার শ্মশানের চিতার তেল ঢালা আছে! ওই শিখা জ্বললে প্রমথ রায়ের মুক্তি হবে তোর শরীরে!",
+        "en": "The lamp burning in the wicker cage on the roof, Anirban, is no ordinary Kartik sky lamp! It is fed with pyre oil from the riverside cremation ghat! As long as that wick burns, Pramatha Roy will cross over into your body!",
+        "emotion": "eerie",
+        "delivery": "mocking, rhythmic sing-song whisper with dead eyes",
+        "voice_text": "ছাদের বাঁশের খাঁচায় যে প্রদীপটা জ্বলছে অনির্বাণ, ওটা কার্তিকের সাধারণ আকাশ প্রদীপ নয়! ওতে গঙ্গার শ্মশানের চিতার তেল ঢালা আছে! ওই শিখা জ্বললে প্রমথ রায়ের মুক্তি হবে তোর শরীরে!",
+        "sfx": [
+         {
+          "sound": "wind howling down through roof ventilator",
+          "word": "প্রদীপটা",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Suman Majumdar pointing upward toward the ceiling, lightning flashing through Venetian shutters illuminating his soaked navy clothes",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "standing",
+           "doing": "pointing upward stiffly",
+           "where": "center doorway",
+           "feeling": "fanatical trance"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "আকাশ প্রদীপ... তুই আসার আগেই ছাদে উঠে ওটা টাঙিয়ে দিয়েছিলিস! কার্তিক মাসের অভিশপ্ত রীতি... অপঘাতের আত্মাকে নিচে টেনে আনার বাতি!",
+        "en": "The sky lamp... you climbed to the terrace and hoisted it before knocking on my door! The cursed ritual of Kartik... the beacon that reels unhallowed souls downward!",
+        "emotion": "scared",
+        "delivery": "rapid realization, horrified revelation connecting the clues",
+        "voice_text": "<gasp> আকাশ প্রদীপ... তুই আসার আগেই ছাদে উঠে ওটা টাঙিয়ে দিয়েছিলিস! কার্তিক মাসের অভিশপ্ত রীতি... অপঘাতের আত্মাকে নিচে টেনে আনার বাতি!",
+        "sfx": [
+         {
+          "sound": "lightning strike nearby with sudden boom",
+          "word": "টাঙিয়ে",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban staring up in realization, round glasses reflecting a flash of blue lightning from the window slats",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "looking upward with parted lips",
+           "where": "left foreground",
+           "feeling": "shocked understanding"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "লোকবিশ্বাস বলে, কার্তিকের ঝড়ে কোনো অতৃপ্ত আত্মার আকাশ প্রদীপ যদি একবার প্রজ্বলিত হয়, তবে সেই আলো কোনো জীবিত মানুষের প্রাণের বিনিময়েই শুধু শান্ত হয়। প্রমথ রায় সেই আদিম অন্ধকারকেই টেনে এনেছে!",
+        "en": "Folk lore dictates that if an unquiet soul's Kartik sky beacon is ignited in a storm, that flame can only be appeased by consuming a living human soul. Pramatha Roy had summoned that very primordial dark!",
+        "emotion": "normal",
+        "delivery": "serious, explanatory, eerie folklore recitation",
+        "voice_text": "লোকবিশ্বাস বলে, কার্তিকের ঝড়ে কোনো অতৃপ্ত আত্মার আকাশ প্রদীপ যদি একবার প্রজ্বলিত হয়, তবে সেই আলো কোনো জীবিত মানুষের প্রাণের বিনিময়েই শুধু শান্ত হয়। প্রমথ রায় সেই আদিম অন্ধকারকেই টেনে এনেছে!",
+        "sfx": [
+         {
+          "sound": "distant temple bell tolling through storm",
+          "word": "আকাশ",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Exterior shot through rain of an antique brick river mansion terrace, a solitary brass lamp in a wicker cage burning bright against the stormy sky",
+         "people": [],
+         "characters": []
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "আমাকে ছাদে পৌঁছাতেই হবে! যে আগুন আকাশ থেকে প্রেতকে টেনে আনছে, সেই আগুনকে আমি নিভিয়ে ছাই করব!",
+        "en": "I must reach the terrace! The flame drawing the specter from the heavens will be crushed and extinguished by my own hands!",
+        "emotion": "whisper",
+        "delivery": "determined mutter through trembling lips",
+        "voice_text": "আমাকে ছাদে পৌঁছাতেই হবে! যে আগুন আকাশ থেকে প্রেতকে টেনে আনছে, সেই আগুনকে আমি নিভিয়ে ছাই করব!",
+        "sfx": [
+         {
+          "sound": "footstep shifting firmly on wooden floorboards",
+          "word": "পৌঁছাতেই",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban Sen tightening his grip on the solvent vial, eyes locked onto the doorway where Suman stands",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "tucking solvent bottle into waist",
+           "where": "left",
+           "feeling": "firm resolve masked by terror"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "দরজার যুদ্ধ",
+      "follows_from": "Anirban resolves to break past Suman to reach the terrace.",
+      "characters": [
+       "Anirban Sen",
+       "Suman Majumdar",
+       "Pramatha Roy"
+      ],
+      "action": "Anirban throws restorative acetone and camphor onto Suman's outstretched possessed arms; Pramatha howls behind.",
+      "place": "study threshold, flickering shadows of the lantern",
+      "mood": "scare",
+      "ambience": [
+       "storm gusts hammering shutters",
+       "hissing chemical vapors"
+      ],
+      "lines": [
+       {
+        "speaker": "Pramatha Roy",
+        "text": "আটকা ওকে সুমন! অনির্বাণকে ঘরের বাইরে এক পা-ও ফেলতে দিবি না! ওর বুকের রক্তে আমার তৃষ্ণা মিটবে!",
+        "en": "Stop him Suman! Do not let Anirban take a single step past this room! My thirst shall be quenched in his living heart's blood!",
+        "emotion": "shout",
+        "delivery": "screeching locked-jaw command, vibrating the floorboards",
+        "voice_text": "আটকা ওকে সুমন! অনির্বাণকে ঘরের বাইরে এক পা-ও ফেলতে দিবি না! ওর বুকের রক্তে আমার তৃষ্ণা মিটবে!",
+        "sfx": [
+         {
+          "sound": "ferocious shriek of wind tearing a shutter latch",
+          "word": "আটকা",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "Pramatha Roy",
+        "image": {
+         "prompt": "Pramatha Roy leaning completely across the desk, bony fingers splayed, howling with dislocated locked jaw",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "reaching violently over desk",
+           "where": "center behind desk",
+           "feeling": "demonic fury"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "সুমনের নিথর নীলচে শরীরটা ঝড়ের বেগে অনির্বাণের দিকে ঝাঁপিয়ে পড়ল। তার দশটা নখ অনির্বাণের গলার শ্বাসনালী লক্ষ্য করে এগিয়ে এল। ঠিক তখনই অনির্বাণ হাতের রিস্টোরেশন সলভেন্টের পুরো কাচের শিশিটা সুমনের মুখের ওপর ছুড়ে মারল!",
+        "en": "Suman's lifeless blue vessel lunged toward Anirban with tempestuous fury. Ten rigid fingernails aimed straight for Anirban's windpipe. Right then, Anirban hurled the entire glass vial of restoration solvent straight into Suman's face!",
+        "emotion": "scared",
+        "delivery": "fast, dramatic, high adrenaline pacing",
+        "voice_text": "সুমনের নিথর নীলচে শরীরটা ঝড়ের বেগে অনির্বাণের দিকে ঝাঁপিয়ে পড়ল। তার দশটা নখ অনির্বাণের গলার শ্বাসনালী লক্ষ্য করে এগিয়ে এল। ঠিক তখনই অনির্বাণ হাতের রিস্টোরেশন সলভেন্টের পুরো কাচের শিশিটা সুমনের মুখের ওপর ছুড়ে মারল!",
+        "sfx": [
+         {
+          "sound": "liquid splash followed by sharp sizzling sound",
+          "word": "ছুড়ে",
+          "when": ""
+         }
+        ],
+        "jump_scare": true,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Mid-action shot of clear chemical solvent splashing across Suman Majumdar's pale face, Suman reeling backward in agony",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "flinging liquid from open bottle",
+           "where": "left",
+           "feeling": "grim adrenaline"
+          },
+          {
+           "name": "Suman Majumdar",
+           "pose": "frozen",
+           "doing": "head thrown back, arms thrashing",
+           "where": "doorway right",
+           "feeling": "burning shock"
+          }
+         ],
+         "characters": [
+          "Anirban Sen",
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "Suman Majumdar",
+        "text": "আহ্! কড়া কর্পূর... অ্যালকোহলের বিষাক্ত ধোঁয়া! অনির্বাণ... আমার চামড়া জ্বলে খাক হয়ে গেল রে!",
+        "en": "Aah! Potent camphor... toxic alcohol vapors! Anirban... my skin is charring to cinder!",
+        "emotion": "crying",
+        "delivery": "agonized screech, a blend of Suman's weeping and the ghost's fury",
+        "voice_text": "<scream> আহ্! কড়া কর্পূর... অ্যালকোহলের বিষাক্ত ধোঁয়া! অনির্বাণ... আমার চামড়া জ্বলে খাক হয়ে গেল রে!",
+        "sfx": [
+         {
+          "sound": "body staggering against wooden doorframe",
+          "word": "আহ্!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Suman clutching his burning face with grey water-dripping hands, stumbling into the hallway doorframe",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "frozen",
+           "doing": "covering face with shaking wet palms",
+           "where": "doorframe",
+           "feeling": "extreme physical torment"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "পবিত্র কার্পূরিক অ্যালকোহলের ঝাঁজে প্রেতের নিয়ন্ত্রণ এক মুহূর্তের জন্য শিথিল হয়ে গেল। সুমন চোখ চেপে ধরে দরজার ফ্রেম ঘেঁষে টলে পড়তেই অনির্বাণ ক্ষিপ্র চিতার মতো পাশ কাটিয়ে খোলা করিডোরে ছিটকে বেরিয়ে এল!",
+        "en": "Under the stinging fury of pure camphorated spirit, the phantom's grip loosened for a split second. As Suman stumbled against the doorframe clutching his face, Anirban darted past like a leopard into the open corridor!",
+        "emotion": "tense",
+        "delivery": "sharp, breathless radio delivery",
+        "voice_text": "পবিত্র কার্পূরিক অ্যালকোহলের ঝাঁজে প্রেতের নিয়ন্ত্রণ এক মুহূর্তের জন্য শিথিল হয়ে গেল। সুমন চোখ চেপে ধরে দরজার ফ্রেম ঘেঁষে টলে পড়তেই অনির্বাণ ক্ষিপ্র চিতার মতো পাশ কাটিয়ে খোলা করিডোরে ছিটকে বেরিয়ে এল!",
+        "sfx": [
+         {
+          "sound": "hurried footsteps splashing on flooded corridor tiles",
+          "word": "ছিটকে",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban dashing out of the study door into the dark, shadowy corridor, clutching an antique brass lantern",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "running",
+           "doing": "sprinting past doorway with lantern",
+           "where": "moving into corridor",
+           "feeling": "frantic escape"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "অন্ধকার সিঁড়ি",
+      "follows_from": "Anirban escapes into the dark mansion corridor.",
+      "characters": [
+       "Anirban Sen"
+      ],
+      "action": "Anirban runs along the arched corridor toward the winding roof stairs, rain spraying through open balcony arches.",
+      "place": "first-floor corridor, shadows dance in lightning flashes",
+      "mood": "tense",
+      "ambience": [
+       "howling wind whistling through colonial arches",
+       "rain drumming on marble tiles"
+      ],
+      "lines": [
+       {
+        "speaker": "Anirban Sen",
+        "text": "ছাদের সিঁড়ির মরচে ধরা লোহার গেটটা... আমায় পৌঁছাতেই হবে! প্রদীপ না নিভালে সুমন কোনোদিন মুক্তি পাবে না, আর আমিও বাঁচব না!",
+        "en": "The rusted iron terrace gate... I must reach it! If the beacon isn't put out, Suman will never find peace, and I will not survive!",
+        "emotion": "whisper",
+        "delivery": "gasping, rapid internal panic voiced out loud",
+        "voice_text": "<breath> ছাদের সিঁড়ির মরচে ধরা লোহার গেটটা... আমায় পৌঁছাতেই হবে! প্রদীপ না নিভালে সুমন কোনোদিন মুক্তি পাবে না, আর আমিও বাঁচব না!",
+        "sfx": [
+         {
+          "sound": "rapid barefoot sloshing on wet floor",
+          "word": "গেটটা...",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban holding the brass lantern low, sprinting down a long colonial hallway with high brick arches, rain blowing sideways",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "running",
+           "doing": "running while shielding the lantern flame",
+           "where": "center hallway",
+           "feeling": "desperate hurry"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "বরানগরের এই অন্ধকার দালানে ঝড়ের গোঙানি যেন কোনো মৃত পিশাচের কান্না। দেওয়ালে টাঙানো সেন বংশের পূর্বপুরুষদের তেলচিত্রগুলো থেকে চোখগুলো যেন অনির্বাণের চলার পথে চেয়ে রইল।",
+        "en": "Inside the pitch-black corridor of this Baranagar estate, the tempest's groans sounded like the wailing of a demon. From the oil portraits of the Sen ancestors hung along the lime walls, eyes seemed to watch Anirban's desperate dash.",
+        "emotion": "creepy",
+        "delivery": "atmospheric, rich descriptive prose",
+        "voice_text": "বরানগরের এই অন্ধকার দালানে ঝড়ের গোঙানি যেন কোনো মৃত পিশাচের কান্না। দেওয়ালে টাঙানো সেন বংশের পূর্বপুরুষদের তেলচিত্রগুলো থেকে চোখগুলো যেন অনির্বাণের চলার পথে চেয়ে রইল।",
+        "sfx": [
+         {
+          "sound": "groaning creak of antique floorboards",
+          "word": "তেলচিত্রগুলো",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Wide shot of decaying colonial corridor, peeling yellow paint on Corinthian pillars, shadows stretching under lantern light",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "running",
+           "doing": "illuminating dark passage",
+           "where": "mid-ground",
+           "feeling": "overwhelmed fear"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "এ কী! সিঁড়ির বাঁকে এই ভেজা কাদার ছাপ কার? পায়ের পাতাগুলো পেছনে উল্টোদিকে ঘোরানো!",
+        "en": "What is this! Whose wet muddy footprints are these on the staircase bend? The footprints are turned completely backward!",
+        "emotion": "scared",
+        "delivery": "choked whisper, stopping dead in tracks",
+        "voice_text": "<gasp> এ কী! সিঁড়ির বাঁকে এই ভেজা কাদার ছাপ কার? পায়ের পাতাগুলো পেছনে উল্টোদিকে ঘোরানো!",
+        "sfx": [
+         {
+          "sound": "sudden stop of running footsteps",
+          "word": "ঘোরানো!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Close-up of spiraling stone stairs lit by lantern; fresh wet footprints of backward-turned muddy bare feet leading upward",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "pointing lantern downward at the steps",
+           "where": "bottom of stairs",
+           "feeling": "dread"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "সিঁড়ির পাথরে লেগে থাকা গঙ্গার কালো শ্যাওলা মাখা একজোড়া উল্টো পায়ের ছাপ স্পষ্ট নির্দেশ করছে—প্রমথ রায় আগেই অনির্বাণের পথ রোধ করতে সিঁড়ি বেয়ে ছাদের চিলেকোঠায় উঠে গেছে!",
+        "en": "The backward, algae-encrusted river prints pressed into the stone steps made it horrifyingly plain—Pramatha Roy had already ascended to the terrace attic ahead of Anirban to bar his escape!",
+        "emotion": "scared",
+        "delivery": "harrowing whisper, lingering on the eerie footprints",
+        "voice_text": "সিঁড়ির পাথরে লেগে থাকা গঙ্গার কালো শ্যাওলা মাখা একজোড়া উল্টো পায়ের ছাপ স্পষ্ট নির্দেশ করছে—প্রমথ রায় আগেই অনির্বাণের পথ রোধ করতে সিঁড়ি বেয়ে ছাদের চিলেকোঠায় উঠে গেছে!",
+        "sfx": [
+         {
+          "sound": "low sinister rumble of thunder",
+          "word": "চিলেকোঠায়",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Low angle view of curving stone stairs leading up into total darkness, marked by dark river sludge prints",
+         "people": [],
+         "characters": []
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "ছাদের প্রমত্ত ঝড়",
+      "follows_from": "Anirban follows the muddy prints up to the roof.",
+      "characters": [
+       "Anirban Sen"
+      ],
+      "action": "Anirban pushes open the heavy teak terrace door into the raging Kartik thunderstorm.",
+      "place": "open roof terrace overlooking the violent Hooghly river, pitch black with lightning bursts",
+      "mood": "scare",
+      "ambience": [
+       "howling cyclonic wind roar",
+       "sheets of rain smashing into masonry"
+      ],
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "চিলেকোঠার কপাটে সর্বশক্তি দিয়ে ধাক্কা দিতেই ছাদের খোলা প্রাঙ্গণ উন্মুক্ত হয়ে গেল অনির্বাণের সামনে। গঙ্গার প্রমত্ত উত্তাল ঢেউয়ের গর্জন আর আশ্বিন-কার্তিকের বিধ্বংসী কালবৈশাখীর মতো ঝড়বৃষ্টি এক নিমেষে তাকে ভিজিয়ে দিল।",
+        "en": "Slamming his full weight against the heavy attic door, the vast rain-swept terrace opened before Anirban. The deafening roar of the swollen Hooghly and the savage Kartik storm drenched him in an instant.",
+        "emotion": "tense",
+        "delivery": "dramatic, roaring energy in narration",
+        "voice_text": "চিলেকোঠার কপাটে সর্বশক্তি দিয়ে ধাক্কা দিতেই ছাদের খোলা প্রাঙ্গণ উন্মুক্ত হয়ে গেল অনির্বাণের সামনে। গঙ্গার প্রমত্ত উত্তাল ঢেউয়ের গর্জন আর আশ্বিন-কার্তিকের বিধ্বংসী কালবৈশাখীর মতো ঝড়বৃষ্টি এক নিমেষে তাকে ভিজিয়ে দিল।",
+        "sfx": [
+         {
+          "sound": "heavy wooden terrace door slamming back against wall",
+          "word": "উন্মুক্ত",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban emerging onto rain-lashed terrace roof, khadi kurta soaked to his skin, spectacles covered in raindrops, Hooghly river thrashing below",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "struggling against the ferocious wind",
+           "where": "terrace doorway",
+           "feeling": "blinded by storm"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "কোথায়... ওই তো! কার্নিশের কোণে বাঁশের ডগায় দুলছে সেই বাঁশের খাঁচাটা! আকাশ প্রদীপ জ্বলছে!",
+        "en": "Where is it... there! Swaying at the tip of the bamboo pole on the parapet corner—the wicker cage! The sky lamp is blazing!",
+        "emotion": "scared",
+        "delivery": "shouting through the howling wind to hear himself",
+        "voice_text": "কোথায়... ওই তো! কার্নিশের কোণে বাঁশের ডগায় দুলছে সেই বাঁশের খাঁচাটা! আকাশ প্রদীপ জ্বলছে!",
+        "sfx": [
+         {
+          "sound": "rattling bamboo poles in gale wind",
+          "word": "দুলছে",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "A tall bamboo pole tied to a mossy brick parapet, a small wicker lantern hanging with an unnatural yellow flame burning fiercely",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "running",
+           "doing": "pointing into the sheets of rain",
+           "where": "left",
+           "feeling": "urgent panic"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "শত ধারায় নামা বৃষ্টি আর সাইক্লোনের দমকা হাওয়ার মাঝেও মাটির সেই প্রদীপের শিখাটা এক ফোঁটাও কাঁপছিল না। সাপের উদ্ধত ফণার মতো স্থির হয়ে জ্বলছিল এক অপার্থিব নীলাভ-হলুদ আগুন।",
+        "en": "Despite torrential downpours and cyclonic squalls, that terracotta lamp's wick did not waver for an instant. It burned rigid and upright like an uncoiling cobra hood, emanating an eerie bluish-yellow unearthly fire.",
+        "emotion": "creepy",
+        "delivery": "chilling, eerie Kolkata radio timbre",
+        "voice_text": "শত ধারায় নামা বৃষ্টি আর সাইক্লোনের দমকা হাওয়ার মাঝেও মাটির সেই প্রদীপের শিখাটা এক ফোঁটাও কাঁপছিল না। সাপের উদ্ধত ফণার মতো স্থির হয়ে জ্বলছিল এক অপার্থিব নীলাভ-হলুদ আগুন।",
+        "sfx": [
+         {
+          "sound": "eerie unearthly hiss of a supernatural flame",
+          "word": "নীলাভ-হলুদ",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Extreme close-up of the antique terracotta diya inside a woven wicker cage, the flame burning bright blue and gold despite torrents of rain",
+         "people": [],
+         "characters": []
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "যে করেই হোক ওটা কার্নিশ থেকে ভেঙে ফেলতে হবে! গঙ্গার জলে ভাসিয়ে দিতে হবে এই নরক-শিখা!",
+        "en": "I must smash it off the parapet at all costs! That hellish flame must be drowned in the raging river below!",
+        "emotion": "shout",
+        "delivery": "strained yell, slipping on wet terrace tiles",
+        "voice_text": "যে করেই হোক ওটা কার্নিশ থেকে ভেঙে ফেলতে হবে! গঙ্গার জলে ভাসিয়ে দিতে হবে এই নরক-শিখা!",
+        "sfx": [
+         {
+          "sound": "wet slip and stumble on mossy bricks",
+          "word": "ভেঙে",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban lurching across the flooded terrace floor, arms flailing to maintain balance against brick parapet",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "running",
+           "doing": "dashing toward the bamboo pole",
+           "where": "center terrace",
+           "feeling": "reckless haste"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "কার্নিশের প্রহরী",
+      "follows_from": "Anirban races toward the terrace lamp.",
+      "characters": [
+       "Anirban Sen",
+       "Pramatha Roy"
+      ],
+      "action": "As Anirban reaches for the bamboo rope, Pramatha Roy's emaciated form materializes on the balustrade.",
+      "place": "mossy terrace edge overlooking the black boiling river",
+      "mood": "scare",
+      "ambience": [
+       "continuous storm gale",
+       "thunder cracking directly overhead"
+      ],
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "অনির্বাণের ভেজা হাত যখন বাঁশের রশিটা ছুঁতে গেল, তখনই এক ঝলক অন্ধকারী বিদ্যুৎ চিরে ফেলল আকাশ। কার্নিশের আলসের ওপর শূন্যে দাঁড়িয়ে আছে প্রমথ রায়! তার কুঁচকানো ধুতির প্রান্ত উড়ছে ঝড়ে, আর বাঁকানো বিকৃত মুখটা অনির্বাণের চোখের ঠিক দশ ইঞ্চি দূরে!",
+        "en": "Just as Anirban's drenched fingers reached for the bamboo cord, a blinding flash of lightning split the firmament. Standing poised upon the parapet edge was Pramatha Roy! The tattered fringes of his dhoti whipped in the gale, his wrenched, distorted jaw mere inches from Anirban's eyes!",
+        "emotion": "scared",
+        "delivery": "explosive tension, dramatic crescendo",
+        "voice_text": "অনির্বাণের ভেজা হাত যখন বাঁশের রশিটা ছুঁতে গেল, তখনই এক ঝলক অন্ধকারী বিদ্যুৎ চিরে ফেলল আকাশ। কার্নিশের আলসের ওপর শূন্যে দাঁড়িয়ে আছে প্রমথ রায়! তার কুঁচকানো ধুতির প্রান্ত উড়ছে ঝড়ে, আর বাঁকানো বিকৃত মুখটা অনির্বাণের চোখের ঠিক দশ ইঞ্চি দূরে!",
+        "sfx": [
+         {
+          "sound": "blinding thunder strike deafening roar",
+          "word": "বিদ্যুৎ",
+          "when": ""
+         }
+        ],
+        "jump_scare": true,
+        "ghost_laugh": "Pramatha Roy",
+        "image": {
+         "prompt": "Terrifying silhouette of Pramatha Roy standing high on the wet terrace parapet against lightning, staring down with locked jaw and clawed hands",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "recoiling in sheer shock",
+           "where": "lower left",
+           "feeling": "paralyzed horror"
+          },
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "towering on parapet edge",
+           "where": "upper right",
+           "feeling": "malevolent dominance"
+          }
+         ],
+         "characters": [
+          "Anirban Sen",
+          "Pramatha Roy"
+         ]
+        }
+       },
+       {
+        "speaker": "Pramatha Roy",
+        "text": "পারবি না অনির্বাণ! ধনুষ্টঙ্কারের বিষে আমার যে জিভ এক শতাব্দী আগে বন্ধ হয়েছিল, তোর জীবিত শরীরের ভেতরে ঢুকে সেই জিভ আজ রক্ত চাটবে!",
+        "en": "You cannot, Anirban! The tongue silenced a century ago by tetanus convulsions will enter your living flesh tonight and feast on blood!",
+        "emotion": "shout",
+        "delivery": "grating, unnatural aristocratic cackle through clenched jaw",
+        "voice_text": "পারবি না অনির্বাণ! ধনুষ্টঙ্কারের বিষে আমার যে জিভ এক শতাব্দী আগে বন্ধ হয়েছিল, তোর জীবিত শরীরের ভেতরে ঢুকে সেই জিভ আজ রক্ত চাটবে!",
+        "sfx": [
+         {
+          "sound": "maniacal supernatural laugh blending with storm wind",
+          "word": "ধনুষ্টঙ্কারের",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "Pramatha Roy",
+        "image": {
+         "prompt": "Extreme close-up of Pramatha Roy's face, yellow dull glow in sockets, jagged locked teeth bared in an unnatural grin",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "screaming with locked jaw",
+           "where": "center close-up",
+           "feeling": "triumphant madness"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "তুই এক শতাব্দী আগে মরেছিস প্রমথ রায়! মরা মানুষকে গঙ্গার শ্মশানেই ফিরতে হয়!",
+        "en": "You died a century ago, Pramatha Roy! Dead men belong in the riverside cremation sands!",
+        "emotion": "shout",
+        "delivery": "screaming back over the thunder, refusing to surrender",
+        "voice_text": "তুই এক শতাব্দী আগে মরেছিস প্রমথ রায়! মরা মানুষকে গঙ্গার শ্মশানেই ফিরতে হয়!",
+        "sfx": [
+         {
+          "sound": "rain slashing violently against stone tiles",
+          "word": "শ্মশানেই",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban leaning against the brick rail, rain streaming down his face, raising both hands to defend himself",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "clutching parapet",
+           "where": "left",
+           "feeling": "fierce defiance"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "বিদ্যুতের নীল আলোয় প্রমথর হাতটা নেমে এল বিদ্যুতের গতিতে। পাথরের চেয়েও শক্ত, বরফের চেয়েও ঠান্ডা পাঁচটা বাঁকানো আঙুল সজোরে চেপে বসল অনির্বাণের গলার টুঁটিতে!",
+        "en": "Under the blue lightning flash, Pramatha's arm descended with electric speed. Five rigid curved fingers, harder than granite and colder than glacial ice, seized Anirban's throat with crushing force!",
+        "emotion": "scared",
+        "delivery": "chilling, graphic narration of freezing terror",
+        "voice_text": "বিদ্যুতের নীল আলোয় প্রমথর হাতটা নেমে এল বিদ্যুতের গতিতে। পাথরের চেয়েও শক্ত, বরফের চেয়েও ঠান্ডা পাঁচটা বাঁকানো আঙুল সজোরে চেপে বসল অনির্বাণের গলার টুঁটিতে!",
+        "sfx": [
+         {
+          "sound": "fabric tearing under violent grip",
+          "word": "টোঁটিতে!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Clawed, blue-grey hand with curled nails clutching the collar of Anirban's cream khadi kurta, lightning illuminating the frost on his skin",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "neck pulled backward",
+           "where": "left",
+           "feeling": "choking agony"
+          },
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "grabbing Anirban's kurta collar",
+           "where": "right",
+           "feeling": "cruel power"
+          }
+         ],
+         "characters": [
+          "Anirban Sen",
+          "Pramatha Roy"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "ধনুষ্টঙ্কারের বাঁধন",
+      "follows_from": "Pramatha's ghost grabs Anirban by the collar.",
+      "characters": [
+       "Anirban Sen",
+       "Pramatha Roy",
+       "Suman Majumdar"
+      ],
+      "action": "Anirban suffocates in the grip; Suman's dripping shell emerges onto the terrace behind him.",
+      "place": "terrace near the parapet edge, rain beating down mercilessly",
+      "mood": "scare",
+      "ambience": [
+       "relentless rain",
+       "river surges crashing against mansion foundation"
+      ],
+      "lines": [
+       {
+        "speaker": "Anirban Sen",
+        "text": "আহ্... ছাড়... আমার দম আটকে আসছে... সুমন! তুই কি আমাকে সত্যি মেরে ফেলবি ভাই?",
+        "en": "Aah... let go... I can't breathe... Suman! Will you truly murder me, my friend?",
+        "emotion": "crying",
+        "delivery": "strangled choke, voice cut off by the iron grip",
+        "voice_text": "<sob> আহ্... ছাড়... আমার দম আটকে আসছে... সুমন! তুই কি আমাকে সত্যি মেরে ফেলবি ভাই?",
+        "sfx": [
+         {
+          "sound": "choked wheezing sound of strangled breathing",
+          "word": "আহ্...",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban clawing at the rigid dead fingers around his neck, veins standing out on his temples under rain",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "struggling to pull dead hands off his throat",
+           "where": "center",
+           "feeling": "asphyxiation"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "ছাদের দরজায় আবার ছায়া পড়ল। সুমনের ভেজা দেহটা সিঁড়ি ভেঙে উঠে আসছে। কেমিক্যালের পোড়া ক্ষত নিয়ে তার মুখটা বীভৎস দেখাচ্ছে, কিন্তু তার চোখের গভীরে যেন এক মুহূর্তের জন্য ফিরে এল তার হারানো স্কুলের বন্ধুর যন্ত্রণা!",
+        "en": "A shadow loomed once more in the doorway. Suman's waterlogged shell limped out onto the terrace. His face looked gruesome with the chemical scorch marks, yet within the depths of his pupils returned the agonizing consciousness of the lost school friend!",
+        "emotion": "tense",
+        "delivery": "grim, somber Kolkata radio tone",
+        "voice_text": "ছাদের দরজায় আবার ছায়া পড়ল। সুমনের ভেজা দেহটা সিঁড়ি ভেঙে উঠে আসছে। কেমিক্যালের পোড়া ক্ষত নিয়ে তার মুখটা বীভৎস দেখাচ্ছে, কিন্তু তার চোখের গভীরে যেন এক মুহূর্তের জন্য ফিরে এল তার হারানো স্কুলের বন্ধুর যন্ত্রণা!",
+        "sfx": [
+         {
+          "sound": "limping, dragging footsteps across flooded terrace tiles",
+          "word": "যন্ত্রণা!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Suman Majumdar staggering out onto the stormy terrace, navy clothes torn, face burned by solvent, dragging one leg unnaturally",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "walking",
+           "doing": "dragging leg through rain puddles",
+           "where": "terrace doorway background",
+           "feeling": "puppet-like horror"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "Suman Majumdar",
+        "text": "অনির্বাণ... ও তোকে ফাঁদে ফেলেছে... তোর কুর্তার ভেতরের পকেটে... ষষ্ঠ প্লেটের আসল কাচের নেগেটিভটা ঘরেই তোর পকেটে গুঁজে দিয়েছিল ও!",
+        "en": "Anirban... he trapped you... in the inside pocket of your kurta... he slipped the true glass negative of the sixth plate downstairs!",
+        "emotion": "whisper",
+        "delivery": "faint, broken human voice breaking through the possession",
+        "voice_text": "<whispers> অনির্বাণ... ও তোকে ফাঁদে ফেলেছে... তোর কুর্তার ভেতরের পকেটে... ষষ্ঠ প্লেটের আসল কাচের নেগেটিভটা ঘরেই তোর পকেটে গুঁজে দিয়েছিল ও!",
+        "sfx": [
+         {
+          "sound": "faint tremble in human vocal tone",
+          "word": "নেগেটিভটা",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Suman's mouth trembling, eyes showing a momentary flicker of human consciousness through the dilated black pupils",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "standing",
+           "doing": "clasping his own temples with hands",
+           "where": "mid-ground",
+           "feeling": "inner struggle"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "Pramatha Roy",
+        "text": "মুখ সামলা নিমতলার মড়া! তোর মাংসপেশি আমি এখনই টুকরো টুকরো করে নদীতে ফেলে দেব!",
+        "en": "Hold your tongue, corpse of Nimtala! I will shred your sinews this instant and cast them into the river!",
+        "emotion": "angry",
+        "delivery": "vicious roar, turning toward Suman while still throttling Anirban",
+        "voice_text": "<growl> মুখ সামলা নিমতলার মড়া! তোর মাংসপেশি আমি এখনই টুকরো টুকরো করে নদীতে ফেলে দেব!",
+        "sfx": [
+         {
+          "sound": "gust of wind slamming iron terrace lantern cage",
+          "word": "টুকরো",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Pramatha Roy turning his twisted neck toward Suman while keeping one claw planted on Anirban's chest",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "pinned against parapet",
+           "where": "left",
+           "feeling": "suffocation"
+          },
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "glaring at Suman",
+           "where": "center",
+           "feeling": "rage"
+          },
+          {
+           "name": "Suman Majumdar",
+           "pose": "standing",
+           "doing": "struggling against himself",
+           "where": "right",
+           "feeling": "desperation"
+          }
+         ],
+         "characters": [
+          "Anirban Sen",
+          "Pramatha Roy",
+          "Suman Majumdar"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "লুকানো কাচের নেগেটিভ",
+      "follows_from": "Suman's faint human voice reveals the secret in Anirban's pocket.",
+      "characters": [
+       "Anirban Sen"
+      ],
+      "action": "Anirban slips his hand inside his kurta pocket and finds an antique glass plate wrapped in velvet.",
+      "place": "terrace parapet, rain pouring into Anirban's eyes",
+      "mood": "tense",
+      "ambience": [
+       "roaring wind",
+       "thunder rumbling across the river"
+      ],
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "সুমনের আর্তনাদ অনির্বাণের বিভ্রান্ত মাথায় তীব্র বিদ্যুৎ ঝলকের মতো কাজ করল। কাঁপতে কাঁপতে সে হাত ঢোকাল কুর্তার ভেতরের পকেটে। সত্যিই তো! একটা ভারী, ধারালো চারকোনা কাচের প্লেট! ঘরে যখন সুমন তাকে জাপটে ধরেছিল, তখনই নিঃশব্দে গুঁজে দিয়েছিল এই মারণফাঁদ!",
+        "en": "Suman's desperate cry struck Anirban's dazed mind like an electric spark. Trembling, he thrust his hand into the inner breast pocket of his kurta. It was true! A heavy, sharp rectangular plate of glass! When Suman had clutched him in the study, this fatal snare had been slipped into his garment!",
+        "emotion": "tense",
+        "delivery": "sharp, breathless narration detailing the hidden trap",
+        "voice_text": "সুমনের আর্তনাদ অনির্বাণের বিভ্রান্ত মাথায় তীব্র বিদ্যুৎ ঝলকের মতো কাজ করল। কাঁপতে কাঁপতে সে হাত ঢোকাল কুর্তার ভেতরের পকেটে। সত্যিই তো! একটা ভারী, ধারালো চারকোনা কাচের প্লেট! ঘরে যখন সুমন তাকে জাপটে ধরেছিল, তখনই নিঃশব্দে গুঁজে দিয়েছিল এই মারণফাঁদ!",
+        "sfx": [
+         {
+          "sound": "glass plate clinking inside cloth pocket",
+          "word": "কাচের",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Close-up of Anirban's trembling fingers pulling an antique silver-gelatin glass plate negative from his drenched kurta pocket",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "pulling out glass photographic plate",
+           "where": "center",
+           "feeling": "shock and revelation"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "সিলভার-হ্যালাইড কাচের নেগেটিভ... ১৯২৩ সালের মূল মাস্টার প্লেট! এতেই তোর আত্মার সংযোগ গাঁথা আছে!",
+        "en": "A silver-halide glass negative... the 1923 master plate! In this emulsion your spirit's conduit is anchored!",
+        "emotion": "scared",
+        "delivery": "gasping realization, holding the plate between shaking fingers",
+        "voice_text": "<breath> সিলভার-হ্যালাইড কাচের নেগেটিভ... ১৯২৩ সালের মূল মাস্টার প্লেট! এতেই তোর আত্মার সংযোগ গাঁথা আছে!",
+        "sfx": [
+         {
+          "sound": "lightning strike revealing the etched glass silhouette",
+          "word": "নেগেটিভ...",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "The glass plate illuminated by a burst of lightning, showing the inverted negative face of Pramatha Roy screaming in locked-jaw agony",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "holding glass plate up",
+           "where": "foreground",
+           "feeling": "awe and dread"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "বিদ্যুৎ চমকে উঠতেই কাচের প্লেটটায় আলো ঠিকরে পড়ল। অনির্বাণ দেখল, নেগেটিভের কালো ছায়ার ভেতর প্রমথ রায়ের শতবর্ষের বিকৃত মুখটা ফুটে উঠছে—যেন প্লেটের কাচ থেকে বেরিয়ে এখনই তার নাকে-মুখে সেঁধিয়ে যাবে!",
+        "en": "As lightning cracked, light exploded across the glass plate. Anirban witnessed Pramatha Roy's century-old distorted visage taking form within the dark negative shadows—poised to erupt from the emulsion and invade his own sensory organs!",
+        "emotion": "scared",
+        "delivery": "horrifying discovery delivered with chills",
+        "voice_text": "বিদ্যুৎ চমকে উঠতেই কাচের প্লেটটায় আলো ঠিকরে পড়ল। অনির্বাণ দেখল, নেগেটিভের কালো ছায়ার ভেতর প্রমথ রায়ের শতবর্ষের বিকৃত মুখটা ফুটে উঠছে—যেন প্লেটের কাচ থেকে বেরিয়ে এখনই তার নাকে-মুখে সেঁধিয়ে যাবে!",
+        "sfx": [
+         {
+          "sound": "subtle high-pitched ringing sound like tinnitus",
+          "word": "নেগেটিভের",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Extreme close-up of the glass plate, where the emulsion shows Anirban's face slowly warping into the locked jaw of Pramatha Roy",
+         "people": [],
+         "characters": []
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "তুই চেয়েছিলিস আমি এই প্লেটটা দেখি, যাতে অ্যালবামটা সম্পূর্ণ হয়! কিন্তু আমি একজন প্রফেশনাল রিস্টোরার প্রমথ রায়... সিলভার প্লেট ধ্বংস করার কায়দা আমার মুখস্থ!",
+        "en": "You wanted me to gaze upon this plate so the portfolio would conclude! But I am a professional conservator, Pramatha Roy... I know exactly how to disintegrate silver plates!",
+        "emotion": "shout",
+        "delivery": "furious accusation, pushing back with all his remaining strength",
+        "voice_text": "তুই চেয়েছিলিস আমি এই প্লেটটা দেখি, যাতে অ্যালবামটা সম্পূর্ণ হয়! কিন্তু আমি একজন প্রফেশনাল রিস্টোরার প্রমথ রায়... সিলভার প্লেট ধ্বংস করার কায়দা আমার মুখস্থ!",
+        "sfx": [
+         {
+          "sound": "heavy wind whistling violently",
+          "word": "রিস্টোরার",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban holding the glass negative high above the terrace floor, staring Pramatha straight into his yellow glowing sockets",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "holding glass plate ready to smash",
+           "where": "left",
+           "feeling": "unyielding fury"
+          },
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "recoiling slightly from the negative",
+           "where": "right",
+           "feeling": "alarm"
+          }
+         ],
+         "characters": [
+          "Anirban Sen",
+          "Pramatha Roy"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "রাসায়নিক আগুন",
+      "follows_from": "Anirban discovers the cursed glass negative in his pocket.",
+      "characters": [
+       "Anirban Sen",
+       "Pramatha Roy"
+      ],
+      "action": "Anirban pulls his vintage brass lighter and douses the glass negative with the remaining restoration solvent.",
+      "place": "open roof terrace, wet brick tiles, rain swirling in sheets",
+      "mood": "scare",
+      "ambience": [
+       "gale wind whipping rain",
+       "distant river boat horn"
+      ],
+      "lines": [
+       {
+        "speaker": "Pramatha Roy",
+        "text": "না! ওই নেগেটিভে হাত দিবি না! ওটা আমার মুক্তির এক শতাব্দীর দলীল!",
+        "en": "No! Do not touch that negative! That is my century-old deed to release!",
+        "emotion": "shout",
+        "delivery": "panicked, raspy howl through dislocated jaws",
+        "voice_text": "<scream> না! ওই নেগেটিভে হাত দিবি না! ওটা আমার মুক্তির এক শতাব্দীর দলীল!",
+        "sfx": [
+         {
+          "sound": "harsh supernatural shriek shaking rain drops",
+          "word": "দলীল!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Pramatha Roy reaching both clawed hands frantically toward the glass plate, facial features twisting in genuine terror",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "standing",
+           "doing": "reaching outward desperately",
+           "where": "center right",
+           "feeling": "desperate panic"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "তোর দলীল আমি পুড়িয়ে ছাই করব! আমার পকেটে থাকা অ্যালকোহলের স্পিরিট আর আমার উইন্ডপ্রুফ লাইটার... তুই শেষ প্রমথ রায়!",
+        "en": "I will incinerate your deed to ash! The spirit in my flask and my windproof lighter... you are finished, Pramatha Roy!",
+        "emotion": "shout",
+        "delivery": "fierce scholar declaring victory through his own trade",
+        "voice_text": "তোর দলীল আমি পুড়িয়ে ছাই করব! আমার পকেটে থাকা অ্যালকোহলের স্পিরিট আর আমার উইন্ডপ্রুফ লাইটার... তুই শেষ প্রমথ রায়!",
+        "sfx": [
+         {
+          "sound": "liquid solvent pouring over glass surface",
+          "word": "ছাই",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban pouring clear chemical solvent from a cracked bottle directly over the glass photographic plate in the pouring rain",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "dousing glass plate with solvent",
+           "where": "center",
+           "feeling": "grim satisfaction"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "পকেট থেকে অনির্বাণের পিতলের গ্যাস লাইটারটা জ্বলে উঠল। রাসায়নিক স্পিরিটে ভেজা কাচের প্লেটটাতে আগুন ছোঁয়াতেই প্রবল গর্জন করে জ্বলে উঠল এক নীল অগ্নিশিখা! বৃষ্টির জলও সেই তীব্র কেমিক্যাল আগুন নেভাতে পারল না!",
+        "en": "From his pocket clicked Anirban's brass gas lighter. The moment the flame touched the solvent-soaked glass plate, a blazing blue inferno erupted with a deafening roar! Even the sheeting rain could not douse that chemical fury!",
+        "emotion": "tense",
+        "delivery": "dramatic, triumphant surge in voice",
+        "voice_text": "পকেট থেকে অনির্বাণের পিতলের গ্যাস লাইটারটা জ্বলে উঠল। রাসায়নিক স্পিরিটে ভেজা কাচের প্লেটটাতে আগুন ছোঁয়াতেই প্রবল গর্জন করে জ্বলে উঠল এক নীল অগ্নিশিখা! বৃষ্টির জলও সেই তীব্র কেমিক্যাল আগুন নেভাতে পারল না!",
+        "sfx": [
+         {
+          "sound": "metallic lighter click followed by whoosh of alcohol flame",
+          "word": "অগ্নিশিখা!",
+          "when": ""
+         }
+        ],
+        "jump_scare": true,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "A vivid blue and orange chemical fire erupting across the glass negative held in Anirban's hand, rain hissing into steam upon contact",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "holding flaming glass plate",
+           "where": "center foreground",
+           "feeling": "fierce resolve"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Pramatha Roy",
+        "text": "আহ্! আমার চোখ... সিলভার গলে যাচ্ছে... আমার শতবর্ষের প্রেতদেহ পুড়ে খাক হয়ে গেল!",
+        "en": "Aah! My eyes... the silver is liquifying... my century-old spectral vessel is scorching into embers!",
+        "emotion": "crying",
+        "delivery": "blood-curdling scream of agony as spirit burns",
+        "voice_text": "<scream> আহ্! আমার চোখ... সিলভার গলে যাচ্ছে... আমার শতবর্ষের প্রেতদেহ পুড়ে খাক হয়ে গেল!",
+        "sfx": [
+         {
+          "sound": "unearthly screech of a dying specter",
+          "word": "পুড়ে",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Pramatha Roy's emaciated body beginning to dissolve into black smoke and river mist as the emulsion bubbles and burns",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "frozen",
+           "doing": "head thrown back in screaming torment",
+           "where": "center right",
+           "feeling": "utter destruction"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "প্রদীপের বিনাশ",
+      "follows_from": "The negative plate catches fire in Anirban's hands.",
+      "characters": [
+       "Anirban Sen",
+       "Pramatha Roy"
+      ],
+      "action": "Anirban hurls the burning glass plate directly at the wicker cage containing the Akash Prodip.",
+      "place": "terrace parapet, exploding sparks against the rainy sky",
+      "mood": "scare",
+      "ambience": [
+       "crackling chemical fire amidst rain",
+       "shattering glass sound"
+      ],
+      "lines": [
+       {
+        "speaker": "Anirban Sen",
+        "text": "এই তোর আকাশ প্রদীপের শেষ! গঙ্গার অতল পাঁকে ফিরে যা তুই!",
+        "en": "Here ends your sky lamp! Plunge back into the bottomless silt of the Hooghly!",
+        "emotion": "shout",
+        "delivery": "mighty battle cry against the supernatural invader",
+        "voice_text": "এই তোর আকাশ প্রদীপের শেষ! গঙ্গার অতল পাঁকে ফিরে যা তুই!",
+        "sfx": [
+         {
+          "sound": "glass shattering against stone and iron",
+          "word": "প্রদীপের",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban hurling the blazing glass negative straight into the wicker lantern cage tied to the parapet pole",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "throwing flaming object",
+           "where": "left",
+           "feeling": "unleashed strength"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "জ্বলন্ত কাচের প্লেটটা আছড়ে পড়ল বাঁশের খাঁচায় রাখা চিতার তেলের প্রদীপের ওপর। রাসায়নিক আগুন আর অপদেবতার তেল মিশে এক বিকট বিস্ফোরণ ঘটাল। কাচ আর মাটির টুকরো চারদিকে উড়ে গেল নীল স্ফুলিঙ্গে!",
+        "en": "The blazing glass plate shattered right against the pyre-oil lamp in the wicker cage. The chemical inferno converged with the unhallowed oil, triggering a colossal blast. Shards of glass and terracotta flew wide in showers of azure sparks!",
+        "emotion": "tense",
+        "delivery": "explosive, fast radio action pacing",
+        "voice_text": "জ্বলন্ত কাচের প্লেটটা আছড়ে পড়ল বাঁশের খাঁচায় রাখা চিতার তেলের প্রদীপের ওপর। রাসায়নিক আগুন আর অপদেবতার তেল মিশে এক বিকট বিস্ফোরণ ঘটাল। কাচ আর মাটির টুকরো চারদিকে উড়ে গেল নীল স্ফুলিঙ্গে!",
+        "sfx": [
+         {
+          "sound": "loud chemical pop and fire crackle",
+          "word": "বিস্ফোরণ",
+          "when": ""
+         }
+        ],
+        "jump_scare": true,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "A spectacular burst of blue flame and flying clay fragments at the corner of the brick terrace against the dark stormy sky",
+         "people": [],
+         "characters": []
+        }
+       },
+       {
+        "speaker": "Pramatha Roy",
+        "text": "অনির্বাণ... তুই জিতলি না... কার্তিকের এই খাঁচা কোনোদিন শূন্য থাকে না...",
+        "en": "Anirban... you haven't won... this cage of Kartik is never left empty...",
+        "emotion": "whisper",
+        "delivery": "fading, hollow locked-jaw whisper dissolving into wind",
+        "voice_text": "<growl> অনির্বাণ... তুই জিতলি না... কার্তিকের এই খাঁচা কোনোদিন শূন্য থাকে না...",
+        "sfx": [
+         {
+          "sound": "long dissipating hiss like water on hot coal",
+          "word": "শূন্য",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Pramatha Roy's shadowy figure being torn apart by the tempest winds, swirling like ash over the edge into the raging river below",
+         "people": [
+          {
+           "name": "Pramatha Roy",
+           "pose": "floating",
+           "doing": "disintegrating into dark mist over river",
+           "where": "over the balustrade",
+           "feeling": "banished defeat"
+          }
+         ],
+         "characters": [
+          "Pramatha Roy"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "প্রদীপের আগুন নিভতেই প্রমথ রায়ের শতবর্ষের কঙ্কালসার প্রেতশরীরটা এক মর্মভেদী চিৎকার তুলে বাতাসে ধোঁয়ার মতো মিলিয়ে গেল। গঙ্গার বুক থেকে আসা বিধ্বংসী ঝড়ও যেন এক নিমেষে নিথর হয়ে এল।",
+        "en": "As the beacon's flame died, Pramatha Roy's century-old specter let loose a harrowing scream and dissolved like ash upon the wind. Even the savage tempest whipping from the Hooghly seemed to stall into sudden stillness.",
+        "emotion": "calm",
+        "delivery": "relief washing through grave narrator tone",
+        "voice_text": "প্রদীপের আগুন নিভতেই প্রমথ রায়ের শতবর্ষের কঙ্কালসার প্রেতশরীরটা এক মর্মভেদী চিৎকার তুলে বাতাসে ধোঁয়ার মতো মিলিয়ে গেল। গঙ্গার বুক থেকে আসা বিধ্বংসী ঝড়ও যেন এক নিমেষে নিথর হয়ে এল।",
+        "sfx": [
+         {
+          "sound": "wind dying down to steady soft rain",
+          "word": "নিথর",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "The rainy terrace falling still, black smoke drifting away, puddles reflecting the dim grey stormy twilight",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "heaving deep breaths, lowered arms",
+           "where": "center",
+           "feeling": "exhausted survival"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "বন্ধুর নিথর দেহ",
+      "follows_from": "Pramatha Roy's ghost dissolves into the river squall.",
+      "characters": [
+       "Anirban Sen",
+       "Suman Majumdar"
+      ],
+      "action": "Anirban turns back to find Suman collapsed on the flooded terrace floor.",
+      "place": "open terrace, soft rain falling, twilight grey",
+      "mood": "sad",
+      "ambience": [
+       "soft steady rain",
+       "distant river current"
+      ],
+      "lines": [
+       {
+        "speaker": "Anirban Sen",
+        "text": "সুমন! ভাই আমার... চোখ খোল সুমন! ও চলে গেছে ভাই, আর কোনো ভয় নেই!",
+        "en": "Suman! My brother... open your eyes, Suman! He is gone, there is nothing to fear!",
+        "emotion": "crying",
+        "delivery": "rushing across tiles, voice choked with sorrow and guilt",
+        "voice_text": "<sob> সুমন! ভাই আমার... চোখ খোল সুমন! ও চলে গেছে ভাই, আর কোনো ভয় নেই!",
+        "sfx": [
+         {
+          "sound": "knees dropping onto wet tiled floor",
+          "word": "সুমন!",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban kneeling in the rain beside Suman Majumdar, who lies motionless on the wet terrace floor",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "crouching",
+           "doing": "cradling Suman's head",
+           "where": "center",
+           "feeling": "heartbroken despair"
+          },
+          {
+           "name": "Suman Majumdar",
+           "pose": "lying",
+           "doing": "lying pale and limp",
+           "where": "terrace tiles",
+           "feeling": "peaceful death"
+          }
+         ],
+         "characters": [
+          "Anirban Sen",
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "অনির্বাণ সুমনের মাথায় হাত রাখল। সুমনের কপাল বরফের মতো ঠান্ডা, নাড়ির কোনো স্পন্দন নেই। তবে তার মুখের সেই বীভৎস বিকৃতি আর নেই—ঠোঁটের কোণে ফুটে উঠেছে এক চিরশান্ত মুক্তির অমলিন হাসি।",
+        "en": "Anirban laid his trembling hand on Suman's brow. Suman's forehead was ice-cold, his pulse entirely absent. Yet that gruesome tetanus contortion was gone—on his resting lips bloomed the peaceful serenity of eternal release.",
+        "emotion": "sad",
+        "delivery": "melancholy, slow, dignified radio delivery",
+        "voice_text": "অনির্বাণ সুমনের মাথায় হাত রাখল। সুমনের কপাল বরফের মতো ঠান্ডা, নাড়ির কোনো স্পন্দন নেই। তবে তার মুখের সেই বীভৎস বিকৃতি আর নেই—ঠোঁটের কোণে ফুটে উঠেছে এক চিরশান্ত মুক্তির অমলিন হাসি।",
+        "sfx": [
+         {
+          "sound": "gentle patter of raindrops on lifeless clothes",
+          "word": "শান্ত",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Close-up of Suman Majumdar's pale face, eyes now closed gently, rain washing away the river mud from his cheeks",
+         "people": [
+          {
+           "name": "Suman Majumdar",
+           "pose": "lying",
+           "doing": "lying peaceful in death",
+           "where": "foreground",
+           "feeling": "tranquil departure"
+          }
+         ],
+         "characters": [
+          "Suman Majumdar"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "আমি সেদিন যদি তোর ফোনটা তুলতাম সুমন... তবে আজ তোকে নিমতলার ঘাটে একা তলিয়ে যেতে হতো না রে ভাই... মাফ করে দিস আমায়...",
+        "en": "If only I answered your call that night Suman... you wouldn't have drowned alone at Nimtala Ghat... forgive me, brother...",
+        "emotion": "crying",
+        "delivery": "broken weeping, tears mixing with rainwater",
+        "voice_text": "<sob> আমি সেদিন যদি তোর ফোনটা তুলতাম সুমন... তবে আজ তোকে নিমতলার ঘাটে একা তলিয়ে যেতে হতো না রে ভাই... মাফ করে দিস আমায়...",
+        "sfx": [
+         {
+          "sound": "deep heavy sob amidst rain",
+          "word": "মাফ",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban bowing his head over his friend's lifeless chest, rain streaming down his glasses, background showing overcast sky",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "crouching",
+           "doing": "weeping over deceased friend",
+           "where": "center",
+           "feeling": "crushing remorse"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "অনির্বাণ বুঝতে পারল, সুমন নিজের ইচ্ছায় এই পুরোনো ভিটেতে আসেনি। প্রমথর প্রেতাত্মা সুমনের মৃত শরীরটাকে চালনা করে নিয়ে এসেছিল। কিন্তু শেষ মুহূর্তে সুমনের সুপ্ত বন্ধুত্বই অনির্বাণকে সত্য জানিয়ে বাঁচিয়ে দিয়ে গেল।",
+        "en": "Anirban recognized the truth—Suman had never come to this mansion willingly. Pramatha's entity had puppeted the waterlogged corpse. Yet in the final moment, Suman's lingering friendship broke through the dark veil to save Anirban.",
+        "emotion": "sad",
+        "delivery": "poignant, emotional radio narration",
+        "voice_text": "অনির্বাণ বুঝতে পারল, সুমন নিজের ইচ্ছায় এই পুরোনো ভিটেতে আসেনি। প্রমথর প্রেতাত্মা সুমনের মৃত শরীরটাকে চালনা করে নিয়ে এসেছিল। কিন্তু শেষ মুহূর্তে সুমনের সুপ্ত বন্ধুত্বই অনির্বাণকে সত্য জানিয়ে বাঁচিয়ে দিয়ে গেল।",
+        "sfx": [
+         {
+          "sound": "distant river launch horn mourning in mist",
+          "word": "বন্ধুত্বই",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Wide cinematic shot of the ancestral terrace in Baranagar, two friends in the rain, one kneeling in mourning, one lying still",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "crouching",
+           "doing": "holding friend's hand",
+           "where": "center",
+           "feeling": "grief"
+          },
+          {
+           "name": "Suman Majumdar",
+           "pose": "lying",
+           "doing": "resting still",
+           "where": "floor",
+           "feeling": "stillness"
+          }
+         ],
+         "characters": [
+          "Anirban Sen",
+          "Suman Majumdar"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "পরদিন ভোর",
+      "follows_from": "The storm clears overnight; dawn breaks over the Hooghly.",
+      "characters": [
+       "Anirban Sen"
+      ],
+      "action": "Anirban stands in his damp study, looking at the dried mud and the restored desk under the morning sunlight.",
+      "place": "study, soft morning light filtering through green Venetian louvers",
+      "mood": "calm",
+      "ambience": [
+       "morning birds chirping outside",
+       "quiet gentle river waves"
+      ],
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "শুক্রবার সকালবেলা বরানগরের গঙ্গার ওপর ফিকে সোনা রঙের রোদ ফুটে উঠল। মধ্যরাতে বরানগর থানার পুলিশ এসে সুমনের দেহ নিয়ে গিয়েছিল। সকালের মর্গের প্রাথমিক রিপোর্টে স্পষ্ট বলা হলো—সুমনের ফুসফুসে জমে থাকা পলিমাটি বলছে, অন্তত বাহাত্তর ঘণ্টা আগেই জলে ডুবে তার মৃত্যু হয়েছিল!",
+        "en": "On Friday morning, pale golden sunlight shimmered over the Hooghly in Baranagar. At midnight, police had retrieved Suman's remains. The morning coroner's initial report stated plainly—the silt sediment inside his lungs proved he had drowned at least seventy-two hours earlier!",
+        "emotion": "calm",
+        "delivery": "somber, steady radio narration wrapping up the official reality",
+        "voice_text": "শুক্রবার সকালবেলা বরানগরের গঙ্গার ওপর ফিকে সোনা রঙের রোদ ফুটে উঠল। মধ্যরাতে বরানগর থানার পুলিশ এসে সুমনের দেহ নিয়ে গিয়েছিল। সকালের মর্গের প্রাথমিক রিপোর্টে স্পষ্ট বলা হলো—সুমনের ফুসফুসে জমে থাকা পলিমাটি বলছে, অন্তত বাহাত্তর ঘণ্টা আগেই জলে ডুবে তার মৃত্যু হয়েছিল!",
+        "sfx": [
+         {
+          "sound": "distant morning crow call",
+          "word": "সকালবেলা",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Morning light cutting through green window louvers into the antique study, illuminating dust motes and dried mud tracks on the floorboards",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "looking at the study desk",
+           "where": "center",
+           "feeling": "dazed exhaustion"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "সব শেষ... প্রমথ রায়ের সেই অভিশপ্ত কাচের প্লেট ছাই হয়ে গেছে। দুঃস্বপ্নটা কেটে গেছে... আমি বেঁচে আছি...",
+        "en": "All over... Pramatha Roy's cursed glass plate is reduced to ash. The nightmare has passed... I have survived...",
+        "emotion": "whisper",
+        "delivery": "tired sigh of relief, trying to convince himself",
+        "voice_text": "<sigh> সব শেষ... প্রমথ রায়ের সেই অভিশপ্ত কাচের প্লেট ছাই হয়ে গেছে। দুঃস্বপ্নটা কেটে গেছে... আমি বেঁচে আছি...",
+        "sfx": [
+         {
+          "sound": "sigh of heavy breath",
+          "word": "আছি...",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban standing by his worktable, clutching a cup of hot black tea, dark circles under his spectacles",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "holding ceramic tea cup",
+           "where": "beside desk",
+           "feeling": "hollow relief"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "টেবিলের ওপর পড়ে থাকা ছেঁড়া অ্যালবামের ছাইগুলো ঝাড়ু দিয়ে পরিষ্কার করছিল অনির্বাণের হাত। বুকশেলফের পাশে টাঙানো পুরোনো শেভিং মিররে সে একবার নিজের বিধ্বস্ত ক্লান্ত মুখের দিকে তাকাল।",
+        "en": "Anirban's hand swept away the charred ashes of the torn album from the table. In the antique shaving mirror hanging beside the teak bookcase, he cast a weary look at his haggard face.",
+        "emotion": "normal",
+        "delivery": "quiet, everyday tone before the final twist",
+        "voice_text": "টেবিলের ওপর পড়ে থাকা ছেঁড়া অ্যালবামের ছাইগুলো ঝাড়ু দিয়ে পরিষ্কার করছিল অনির্বাণের হাত। বুকশেলফের পাশে টাঙানো পুরোনো শেভিং মিররে সে একবার নিজের বিধ্বস্ত ক্লান্ত মুখের দিকে তাকাল।",
+        "sfx": [
+         {
+          "sound": "glass bottle gently placed on wood",
+          "word": "আয়নায়",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban glancing at a small oval wooden mirror hanging between teak bookcases on the lime wall",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "standing",
+           "doing": "gazing into wall mirror",
+           "where": "facing wall",
+           "feeling": "uneasy curiosity"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "আমার চোয়ালটা এমন টনটন করছে কেন? কথা বলতে পারছি না কেন... মুখটা খুলছে না কেন আমার?!",
+        "en": "Why is my jaw aching so violently? Why can't I articulate words... why won't my mouth open?!",
+        "emotion": "scared",
+        "delivery": "sudden muffled stammer, jaw struggling to open",
+        "voice_text": "<gasp> আমার চোয়ালটা এমন টনটন করছে কেন? কথা বলতে পারছি না কেন... মুখটা খুলছে না কেন আমার?!",
+        "sfx": [
+         {
+          "sound": "involuntary sharp jaw click",
+          "word": "টনটন",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Close-up of Anirban's reflection in the mirror; his fingers touch his locked jaw which is beginning to tilt sideways unnaturally",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "touching his stiff jaw with trembling fingers",
+           "where": "mirror reflection",
+           "feeling": "rising dread"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "chapter": "ছায়াচিত্রের শেষ সত্য",
+      "follows_from": "Anirban notices his own jaw stiffening in the mirror.",
+      "characters": [
+       "Anirban Sen"
+      ],
+      "action": "Anirban looks closer into the mirror and sees his hands locking into rigid tetanic claws.",
+      "place": "antique study room, bright morning light outside",
+      "mood": "scare",
+      "ambience": [
+       "dead, suffocating silence inside room",
+       "faint dripping in the background"
+      ],
+      "lines": [
+       {
+        "speaker": "narrator",
+        "text": "আয়নার স্বচ্ছ কাচে অনির্বাণ দেখল এক রক্তহিম করা রূপান্তর! তার চশমার পেছনের চোখের মণি দুটো আর কালো নেই—সেখানে ফুটে উঠেছে প্রমথ রায়ের সেই কালচে হলুদ ফসফরাস দৃষ্টি! তার নিচের চোয়ালটা এক ঝটকায় বাঁকা হয়ে আটকে গেল ধনুকের টানটান ছিলার মতো!",
+        "en": "Through the clear glass of the mirror, Anirban saw a blood-curdling transformation! The pupils behind his spectacles were no longer black—in them shone Pramatha Roy's murky yellow phosphorus stare! In one violent spasm, his lower jaw wrenched sideways, locked tight like a strung bow!",
+        "emotion": "scared",
+        "delivery": "hair-raising final reveal, slow and bone-chilling",
+        "voice_text": "আয়নার স্বচ্ছ কাচে অনির্বাণ দেখল এক রক্তহিম করা রূপান্তর! তার চশমার পেছনের চোখের মণি দুটো আর কালো নেই—সেখানে ফুটে উঠেছে প্রমথ রায়ের সেই কালচে হলুদ ফসফরাস দৃষ্টি! তার নিচের চোয়ালটা এক ঝটকায় বাঁকা হয়ে আটকে গেল ধনুকের টানটান ছিলার মতো!",
+        "sfx": [
+         {
+          "sound": "sudden sharp shrill tone vibrating in ears",
+          "word": "হলুদ",
+          "when": ""
+         }
+        ],
+        "jump_scare": true,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Extreme close-up of Anirban's reflection in the antique mirror, his eyes glowing dull yellow, teeth locked tightly in tetanus spasms",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "staring at his own reflection",
+           "where": "mirror center",
+           "feeling": "horrified possession"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "Anirban Sen",
+        "text": "আ-আমি... কাচের প্লেটে আগুন দেওয়ার সময় নিজের মুখটাই তো প্রতিফলিত দেখেছিলাম... নেগেটিভটা আমার চোখে আগুন জ্বেলে দিয়েছে...",
+        "en": "I... when setting fire to that plate, it was my own living face reflected upon the glass... the negative burned its imprint into my eyes...",
+        "emotion": "scared",
+        "delivery": "choked, suffocated whisper through clenched teeth",
+        "voice_text": "আ-আমি... কাচের প্লেটে আগুন দেওয়ার সময় নিজের মুখটাই তো প্রতিফলিত দেখেছিলাম... নেগেটিভটা আমার চোখে আগুন জ্বেলে দিয়েছে...",
+        "sfx": [
+         {
+          "sound": "slow sinister locked-jaw grinding sound",
+          "word": "প্রতিফলিত",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "",
+        "image": {
+         "prompt": "Anirban's hands involuntarily curling into claw-like tetanic postures, fingernails digging into his palms",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "holding up rigid clawed hands",
+           "where": "foreground",
+           "feeling": "paralyzing doom"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       },
+       {
+        "speaker": "narrator",
+        "text": "ষষ্ঠ ছবিটা আসলে কাচের প্লেটে ছিল না। আগুনে প্লেটটা যখন পুড়ছিল, অনির্বাণ নিজের চোখে সেই রূপান্তর গেঁথে নিয়েছিল। সুমন মজুমদার নদী থেকে চিরদিনের মতো মুক্তি পেয়ে চলে গেছে, কিন্তু বরানগরের এই প্রাচীন ভিটের নতুন খাঁচায় ধনুষ্টঙ্কারের চিরকালীন প্রেত হয়ে বন্দি হয়ে রইল অনির্বাণ সেন!",
+        "en": "The sixth picture was never on the glass plate alone. As the emulsion combusted, Anirban's own gaze had sealed the transfer into his flesh. Suman Majumdar had earned eternal rest from the waters, but within this ancient mansion's cage, Anirban Sen was now locked as the new eternal specter of the tetanus curse!",
+        "emotion": "eerie",
+        "delivery": "final devastating Kolkata radio ending delivery",
+        "voice_text": "ষষ্ঠ ছবিটা আসলে কাচের প্লেটে ছিল না। আগুনে প্লেটটা যখন পুড়ছিল, অনির্বাণ নিজের চোখে সেই রূপান্তর গেঁথে নিয়েছিল। সুমন মজুমদার নদী থেকে চিরদিনের মতো মুক্তি পেয়ে চলে গেছে, কিন্তু বরানগরের এই প্রাচীন ভিটের নতুন খাঁচায় ধনুষ্টঙ্কারের চিরকালীন প্রেত হয়ে বন্দি হয়ে রইল অনির্বাণ সেন!",
+        "sfx": [
+         {
+          "sound": "distant chilling ghost laughter echoing in empty mansion",
+          "word": "বন্দি",
+          "when": ""
+         }
+        ],
+        "jump_scare": false,
+        "ghost_laugh": "Pramatha Roy",
+        "image": {
+         "prompt": "Wide shot of the study where Anirban Sen stands frozen like a statue before the mirror, jaw locked, as the room's shadows stretch unnaturally",
+         "people": [
+          {
+           "name": "Anirban Sen",
+           "pose": "frozen",
+           "doing": "standing rigid with twisted neck",
+           "where": "center",
+           "feeling": "consumed by entity"
+          }
+         ],
+         "characters": [
+          "Anirban Sen"
+         ]
+        }
+       }
+      ]
+     }
+    ],
+    "ending_line": "কার্তিকের অমাবস্যায় আকাশের প্রদীপ নেভানো যায়, কিন্তু রক্তে ঢুকে পড়া প্রেতছায়াকে কি মোছা যায়?",
+    "comment_question": "অনির্বাণ যদি সেদিন সুমনের ফোনটা ধরত, তবে কি তার এই দশা হতো? কমেন্টে জানান! 🕯️",
+    "mystery_answer": 2,
+    "teaser_scene": 10,
+    "ghost_reveal": {
+     "Suman Majumdar": 2,
+     "Pramatha Roy": 4
+    },
+    "guess": {
+     "question": "ষষ্ঠ প্লেটের গোপন ফাঁদটা আসলে কী ছিল?",
+     "options": [
+      "সুমনের বাঁধন মুক্তি",
+      "অনির্বাণের শরীর দখল",
+      "আকাশ প্রদীপের তেল"
+     ],
+     "answer": 2
+    },
+    "next_story": {
+     "title": "মধ্যরাতের শেষ ট্রাম 🚊",
+     "hook": "শ্যামবাজারের ডিপোয় শেষ ট্রামটা যখন ঢোকে, তখন চালকের সিটে কোনো মানুষ থাকে না!",
+     "idea": "An exhausted night-shift tram conductor boards the 1:00 AM return tram from Esplanade to Shyambazar during a foggy Kartik night, only to realize the passengers in the rear coach are victims of an infamous 1970s tram derailment."
+    }
+   }
+  },
+  "special": "viewer",
+  "festival": null,
+  "classic": null,
+  "fb": "2026564604724048",
+  "yt": "ZZwT63qbyA8"
  }
 }
