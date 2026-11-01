@@ -854,10 +854,8 @@ def yt_upload_captions(video_id, srt_path, language="en", name="English"):
 
 # ----------------------------------------------------------------- "coming soon" post before a video
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
-TIME_WORDS = {"bn": {8: "সকাল ৮টায়", 10: "সকাল ১০টায়", 13: "দুপুর ১টায়", 14: "দুপুর ২টায়",
-                      19: "সন্ধ্যা ৭টায়", 20: "রাত ৮টায়", 21: "রাত ৯টায়"},
-              "hi": {8: "सुबह 8 बजे", 10: "सुबह 10 बजे", 13: "दोपहर 1 बजे", 14: "दोपहर 2 बजे",
-                     19: "शाम 7 बजे", 20: "रात 8 बजे", 21: "रात 9 बजे"}}
+TIME_WORDS = {"bn": {8: "সকাল ৮টায়", 13: "দুপুর ১টায়", 19: "সন্ধ্যা ৭টায়", 21: "রাত ৯টায়"},
+              "hi": {8: "सुबह 8 बजे", 13: "दोपहर 1 बजे", 19: "शाम 7 बजे", 21: "रात 9 बजे"}}
 DAY_WORDS = {"bn": ("আজ", "কাল"), "hi": ("आज", "कल")}
 
 
@@ -1349,9 +1347,9 @@ def last_post(history, key=None, min_hours=1.5):
 
 # ----------------------------------------------------------------- which time slot is this run for?
 def current_slot(triggers, now=None):
-    """triggers: [(start_hour, start_minute, post_hour)] in India time, e.g. [(1, 30, 10), (7, 30, 14), (13, 30, 20)].
+    """triggers: [(start_hour, start_minute, post_hour)] in India time, e.g. [(11, 55, 13), (19, 55, 21)].
     A run belongs to the LAST slot that has already started (10 minutes early allowed), so a late
-    backup run still knows which slot it is for. Returns e.g. '2026-10-22@14'."""
+    backup run still knows which slot it is for. Returns e.g. '2026-10-22@13'."""
     now = now or dt.datetime.now(IST)
     best = None
     for add in (0, -1):
@@ -1375,10 +1373,30 @@ NEW_TTS = ("gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts")
 OLD_TTS = ("gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts")
 
 
-def strip_tags(text):
-    """Remove voice tags like <sigh> or <short pause> (for subtitles and the backup voice)."""
+AUTHOR_NOTE_RX = r"\s*(?:\([^()]{0,60}\)|\[[^\[\]]{0,60}\]|\{[^{}]{0,60}\}|（[^（）]{0,60}）)\s*"
+STAGE_WORDS_RX = (r"(?i)\b(?:whisper(?:s|ing)?|sigh(?:s|ing)?|gasp(?:s|ing)?|laugh(?:s|ing)?|cr(?:ies|ying)|sob(?:s|bing)?|"
+                  r"pause[sd]?|softly|slowly|angrily|loudly|quietly|sadly|nervously|shouting|screams?|smiling|"
+                  r"long pause|short pause|beat|silence)\b[:,.]?")
+
+
+def speakable(text):
+    """What a voice may read: never the writer's notes in brackets - '(ফিসফিস করে)', '(whispering)',
+    '[door creaks]' - nor loose English stage words inside a Bengali / Hindi line. Our own <sigh>-style voice
+    tags are kept (they become real sighs, not words)."""
     import re as _re
-    return _re.sub(r"\s*<[A-Za-z][A-Za-z \-]{1,24}>\s*", " ", str(text)).strip()
+    t = str(text or "")
+    t = _re.sub(AUTHOR_NOTE_RX, " ", t)
+    if _re.search(r"[\u0980-\u09FF\u0900-\u097F]", t):        # an Indian-language line: no English stage words
+        parts = _re.split(r"(<[^<>]{1,30}>)", t)
+        t = "".join(p if p.startswith("<") else _re.sub(STAGE_WORDS_RX, " ", p) for p in parts)
+    return _re.sub(r"\s{2,}", " ", t).strip(" ,")
+
+
+def strip_tags(text):
+    """Remove voice tags like <sigh> or <short pause>, and the writer's notes in brackets (for subtitles and the
+    backup voice)."""
+    import re as _re
+    return _re.sub(r"\s*<[A-Za-z][A-Za-z \-]{1,24}>\s*", " ", speakable(text)).strip()
 
 
 TAG_WORDS = {"laugh": "laughs", "laughs": "laughs", "sigh": "sighs", "gasp": "gasps", "sob": "sobs",
@@ -1389,6 +1407,7 @@ TAG_WORDS = {"laugh": "laughs", "laughs": "laughs", "sigh": "sighs", "gasp": "ga
 def tts_tags(text):
     """Voice tags for the newest Gemini voices: they understand [sighs] / [laughs] in square brackets and pauses
     as '...'. Our <sigh>-style tags would otherwise be READ OUT ('long pause' spoken aloud!)."""
+    text = speakable(text)                    # never read the writer's notes in brackets aloud
     import re as _re
 
     def one(m):
@@ -1401,7 +1420,7 @@ def tts_tags(text):
 
 
 def tts_keys():
-    keys = [k for k in (env("GEMINI_TTS_KEY" + s) for s in ("", "_2", "_3", "_4", "_5", "_6")) if k]
+    keys = [k for k in (env("GEMINI_TTS_KEY" + s) for s in ("", "_2", "_3", "_4", "_5")) if k]
     if env("TTS_PAID") == "1" and env("GEMINI_API_KEY"):
         keys.append(env("GEMINI_API_KEY"))          # your paid key, only if you switched it on
     return keys
@@ -2313,13 +2332,13 @@ def pop_subject(base_img, out, glow=(255, 255, 255), size=(1280, 720)):
 
 
 # ===================== v11: make early, publish exactly on time =====================
-# The video is made well before its slot, uploaded as a SCHEDULED post (Facebook) / scheduled premiere-free
+# The video is made about 3 hours early, uploaded as a SCHEDULED post (Facebook) / scheduled premiere-free
 # publish (YouTube publishAt), so it goes live exactly at the slot time even if making it took long.
 PUBLISH = {"at": None, "used": False}
 
 
 def plan_publish(slot):
-    """slot like '2026-10-23@14' -> publish at 14:00 India time that day."""
+    """slot like '2026-10-23@13' -> publish at 13:00 India time that day."""
     PUBLISH["at"], PUBLISH["used"] = None, False
     if not slot or env("SCHEDULE_POSTS") == "0":
         return None
@@ -2959,3 +2978,98 @@ def reply_fans(history, lang, max_n=5):
         h.setdefault("replied", []).append(cid)
     log(f"  replied to {n} viewer comments")
     return True
+
+
+# ----------------------------------------------------------------- series that continue on their category's day
+def series_all(path):
+    """{category: state} of the unfinished stories. Older files (one series, no category) are read too."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return {}
+    if isinstance(data, dict) and data.get("created"):                   # old format: a single series
+        return {str(data.get("category") or data.get("special") or "default"): data}
+    return {k: v for k, v in (data or {}).items() if isinstance(v, dict) and v.get("created")}
+
+
+def series_get(path, key, ready_only=True, max_days=21):
+    """the unfinished story of this category - only if it was NOT started today (the next part comes on the
+    category's next day) and is not too old"""
+    st = series_all(path).get(str(key))
+    if not st:
+        return None
+    try:
+        made = dt.datetime.fromisoformat(st.get("updated") or st["created"])
+        if (dt.datetime.now(dt.timezone.utc) - made).days > max_days:
+            return None
+        if ready_only and made.astimezone(IST).date() >= dt.datetime.now(IST).date():
+            return None
+    except Exception:
+        return None
+    return st
+
+
+def series_put(path, key, state):
+    data = series_all(path)
+    if state is None:
+        data.pop(str(key), None)
+    else:
+        state["updated"] = dt.datetime.now(dt.timezone.utc).isoformat()
+        data[str(key)] = state
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+
+
+# ----------------------------------------------------------------- what people are watching this week
+def trending_topics(kind, lang, cache_dir):
+    """Once a day: what Bengali / Indian viewers are watching NOW in this kind of video on YouTube and Facebook
+    (found with Google Search) - so our stories ride the trend. Cached for the day in cache_dir/trends.json.
+    Returns a short list of English topic lines ([] if unknown)."""
+    key = env("GEMINI_API_KEY")
+    if not key or env("TRENDS") == "0":
+        return []
+    today = dt.datetime.now(IST).date().isoformat()
+    path = os.path.join(cache_dir, "trends.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        data = {}
+    k = f"{kind}_{lang}"
+    if (data.get(k) or {}).get("date") == today:
+        return data[k].get("topics", [])
+    what = ("Bengali / Hindi horror audio stories (bhuter golpo, bhoot ki kahani, Sunday-suspense style radio "
+            "dramas, true ghost experiences)" if kind == "horror" else
+            "Bengali / Hindi children's cartoon and moral stories (Gopal Bhar, Thakurmar Jhuli, Panchatantra, "
+            "kids' animated stories)")
+    prompt = (f"Search YouTube and Facebook trends of the last 7 days in India for {what} in "
+              f"{'Bengali' if lang == 'bn' else 'Hindi'}. Which topics, characters, settings and story types are getting "
+              "the most views and comments right now? Answer ONLY a JSON list of 6 short English lines, each a concrete "
+              "story topic idea that rides one of these trends (no channel names, no copyrighted characters except "
+              "folk / public-domain ones).")
+    topics = []
+    for model in ("gemini-flash-latest", "gemini-2.5-flash"):
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}], "tools": [{"google_search": {}}],
+                                    "generationConfig": {"temperature": 0.4}}, timeout=120)
+            if not r.ok:
+                continue
+            text = "\n".join(p.get("text", "") for p in r.json()["candidates"][0]["content"]["parts"])
+            got = load_json_loose(text[text.find("["):text.rfind("]") + 1]) if "[" in text else []
+            topics = [str(x)[:160] for x in got if str(x).strip()][:6]
+            if topics:
+                break
+        except Exception as e:
+            log(f"  trends ({model}) failed: {str(e)[:100]}")
+    data[k] = {"date": today, "topics": topics}
+    try:
+        os.makedirs(cache_dir, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+    except Exception:
+        pass
+    if topics:
+        log("Trending now:", " | ".join(t[:60] for t in topics[:3]))
+    return topics
