@@ -2,10 +2,12 @@ name: Daily Horror Story
 
 on:
   schedule:
-    # Build early; the videos are scheduled to publish at 10:00 AM, 2:00 PM and 8:00 PM India time.
-    - cron: "0 20 * * *"    # 1:30 AM India time -> publish at 10:00 AM
-    - cron: "0 2 * * *"     # 7:30 AM India time -> publish at 2:00 PM
-    - cron: "0 8 * * *"     # 1:30 PM India time -> publish at 8:00 PM
+    # The main start comes from cron-job.org 3 hours before each video: 7:00 AM, 11:00 AM and 5:00 PM India
+    # time. The ~15-minute stories go live by themselves at 10:00 AM, 2:00 PM and 8:00 PM (scheduled posts).
+    # These GitHub times are only a backup - they do nothing if that slot's video is already done.
+    - cron: "0 2 * * *"     # backup 7:30 AM India time
+    - cron: "0 6 * * *"     # backup 11:30 AM India time
+    - cron: "0 12 * * *"    # backup 5:30 PM India time
   workflow_dispatch:        # "Run workflow" button for tests
     inputs:
       language:
@@ -21,17 +23,15 @@ permissions:
   contents: write
 
 concurrency:
-  group: horror-story-${{ github.event.schedule || github.event_name }}
+  group: horror-story
   cancel-in-progress: false
 
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 320
+    timeout-minutes: 360    # 6 hours (the most GitHub allows)
     env:
       USE_FREE_MODEL: ${{ secrets.USE_FREE_MODEL }}   # "1" = also try the slow free on-GitHub voice model
-      WAIT_FOR_LIVE: ${{ github.event_name == 'schedule' && '0' || secrets.WAIT_FOR_LIVE || '0' }} # scheduled runs save state without waiting
-      SCHEDULE: ${{ github.event.schedule }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,9 +94,6 @@ jobs:
       - name: Make the horror video and post it
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           FREEMODEL_API_KEY: ${{ secrets.FREEMODEL_API_KEY }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -117,7 +114,6 @@ jobs:
           GEMINI_TTS_KEY_3: ${{ secrets.GEMINI_TTS_KEY_3 }}
           GEMINI_TTS_KEY_4: ${{ secrets.GEMINI_TTS_KEY_4 }}
           GEMINI_TTS_KEY_5: ${{ secrets.GEMINI_TTS_KEY_5 }}
-          GEMINI_TTS_KEY_6: ${{ secrets.GEMINI_TTS_KEY_6 }}
           TTS_PAID: ${{ secrets.TTS_PAID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           LANGUAGE: ${{ github.event.inputs.language }}
@@ -135,7 +131,7 @@ jobs:
           git config user.email "story-bot@users.noreply.github.com"
           git add history.json
           git add -A next_part.json 2>/dev/null || true
-          git add -A assets/next_up.json assets/lore 2>/dev/null || true
+          git add -A assets/next_up.json assets/lore assets/trends.json 2>/dev/null || true
           git commit -m "story posted $(date -u +%F_%H%M)" || exit 0
           git pull --rebase -q || true
           git push -q
