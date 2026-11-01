@@ -558,10 +558,10 @@
   "fb_reel": "1617772283138540",
   "fb_story": "1510739027529728",
   "stats": {
-   "likes": 1,
+   "likes": 2,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-29T04:02+00:00"
+   "checked": "2026-11-01T11:31+00:00"
   }
  },
  {
@@ -593,7 +593,7 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-29T04:02+00:00"
+   "checked": "2026-11-01T11:31+00:00"
   }
  },
  {
@@ -786,7 +786,13 @@
   "youtube": "ZZwT63qbyA8",
   "fb_reel": "1090527387157102",
   "fb_story": "899330179837447",
-  "yt_short": "uBKsSJhemT4"
+  "yt_short": "uBKsSJhemT4",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 0,
+   "checked": "2026-11-01T11:31+00:00"
+  }
  },
  {
   "date": "2026-11-01T01:51+00:00",
@@ -841,5 +847,36 @@
   "fb_reel": "1631366815366121",
   "fb_story": "3482903035253146",
   "yt_short": "VQSXlBepkNc"
+ },
+ {
+  "date": "2026-11-01T12:59+00:00",
+  "lang": "bn",
+  "slot": "2026-11-01@20",
+  "pending_comments": [
+   {
+    "id": "959827033477404",
+    "text": "হারু মাঝির আসল পরিচয় কি আপনি শুরু থেকেই সন্দেহ করেছিলেন? জানান কমেন্টে! 🛶\n\n🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!\n\n🗳️ এই পর্বের শেষ ঠিক হয়েছে আপনাদের ভোটে - Daily আর DailyHorrorStoryYT, ধন্যবাদ!\n\n👇 কীভাবে অংশ নেবেন:\n✅ প্রশ্নের উত্তর এখানে কমেন্টে লিখুন - ঠিক উত্তরদাতাদের নাম পরের ভিডিওতে!\n🗳️ ভোট থাকলে ১ বা ২ লিখুন\n📝 আপনার সত্যি ভৌতিক ঘটনা #আমার_গল্প লিখে পাঠান - পরের গল্পটা আপনার হতে পারে\n🔔 ফলো করে রাখুন, পরের পর্ব যেন মিস না হয়"
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "theme": "Halloween night party in an old British bungalow",
+  "format": "classic third-person radio-drama narration",
+  "part": 2,
+  "continues": false,
+  "series_id": "2026-10-30T21:52+00:00",
+  "title": "ভ্যান্স কুঠির অভিশাপ 🎃 | পর্ব ১ | পর্ব 2",
+  "festival": "Halloween",
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 1,
+  "facebook": "959827033477404",
+  "youtube": "Bc7Aw9sNq1w",
+  "fb_reel": "1459259292798168",
+  "fb_story": "1655372142871344"
  }
 ]
