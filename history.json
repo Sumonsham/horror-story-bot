@@ -884,7 +884,13 @@
   "facebook": "959827033477404",
   "youtube": "Bc7Aw9sNq1w",
   "fb_reel": "1459259292798168",
-  "fb_story": "1655372142871344"
+  "fb_story": "1655372142871344",
+  "stats": {
+   "likes": 4,
+   "comments": 1,
+   "views": 0,
+   "checked": "2026-11-02T12:51+00:00"
+  }
  },
  {
   "date": "2026-11-02T06:00+00:00",
@@ -939,5 +945,31 @@
   "fb_reel": "1805919034069006",
   "fb_story": "1785492775993252",
   "yt_short": "MSk2A06uNyo"
+ },
+ {
+  "date": "2026-11-02T17:42+00:00",
+  "lang": "bn",
+  "slot": "2026-11-02@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "theme": "the last metro train at Tollygunge",
+  "format": "classic third-person radio-drama narration",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-11-02T13:31+00:00",
+  "title": "ভৈরব ঠাকুরের কেস #1: টালিগঞ্জের শেষ মেট্রো ও পঁয়ত্রিশ বছরের পুরোনো প্রেতযান 🚇 | পর্ব ১",
+  "festival": null,
+  "special": "bhairab",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook": "1742475984148786",
+  "youtube": "jvOZDNLGTaw",
+  "fb_reel": "30388797397386815",
+  "fb_story": "27171190925912037"
  }
 ]
