@@ -819,7 +819,13 @@
   "youtube": "LQUv-0kBvgs",
   "fb_reel": "1439561777678126",
   "fb_story": "1121420920596464",
-  "yt_short": "F4_BS7-0AwU"
+  "yt_short": "F4_BS7-0AwU",
+  "stats": {
+   "likes": 3,
+   "comments": 1,
+   "views": 1,
+   "checked": "2026-11-02T01:31+00:00"
+  }
  },
  {
   "date": "2026-11-01T04:50+00:00",
@@ -846,7 +852,13 @@
   "youtube": "gTA6UtFd7GM",
   "fb_reel": "1631366815366121",
   "fb_story": "3482903035253146",
-  "yt_short": "VQSXlBepkNc"
+  "yt_short": "VQSXlBepkNc",
+  "stats": {
+   "likes": 0,
+   "comments": 1,
+   "views": 1,
+   "checked": "2026-11-02T01:31+00:00"
+  }
  },
  {
   "date": "2026-11-01T12:59+00:00",
@@ -873,5 +885,32 @@
   "youtube": "Bc7Aw9sNq1w",
   "fb_reel": "1459259292798168",
   "fb_story": "1655372142871344"
+ },
+ {
+  "date": "2026-11-02T06:00+00:00",
+  "lang": "bn",
+  "slot": "2026-11-02@10",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "theme": "the brahmadaitya of the old bel tree",
+  "format": "a whodunit ghost mystery: midway the narrator stops and asks the listeners which of three suspects is really the ghost (telling them to comment 1, 2 or 3 and to listen till the end), and the final scene reveals the answer with a twist",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "বেলগাছের ব্রহ্মদৈত্য 🪔 | পর্ব ১",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 3,
+  "facebook": "2006344190028438",
+  "youtube": "MDSuW5JFXkU",
+  "fb_reel": "1639097700955805",
+  "fb_story": "2962895730740955",
+  "yt_short": "FdW4hKNYOh0"
  }
 ]
