@@ -1036,6 +1036,14 @@ FEMALE_WORDS = ("পিসি", "মাসি", "দিদি", "বউ", "ব�
 MALE_A_NAMES = {"bapi", "raja", "krishna", "ravi", "hari", "shibu", "sona", "bhola", "gora", "kana", "nanda", "rama",
                 "nitai", "gopi", "kali", "bhai", "dada", "kaka", "mama", "jethu", "thakurda", "dadu", "pishemoshai",
                 "ali", "babai", "tapai", "rabi", "shashi", "bishu", "montu", "pintu", "kishori", "paltu", "bapida"}
+MALE_WORDS = ("দাদু", "ঠাকুরদা", "কাকা", "মামা", "জ্যাঠা", "বাবা", "খোকা", "বুড়ো", "দাদা", "মশাই", "বাবু", "ঠাকুর",
+              "dadu", "kaka", "mama", "jethu", "babu", "moshai", "thakur", "khoka", "uncle", "grandfather",
+              "दादा", "नाना", "चाचा", "मामा", "बाबा", "बाबू")
+OLD_WORDS = ("দাদু", "ঠাকুমা", "ঠাকুরদা", "দিদিমা", "বুড়ো", "বুড়ি", "বৃদ্ধ", "বৃদ্ধা", "জ্যাঠামশাই", "dadu", "thakuma",
+             "didima", "buro", "buri", "old man", "old woman", "elderly", "grandfather", "grandmother", " aged ",
+             "दादा", "दादी", "नाना", "नानी", "बूढ़", "बुज़ुर्ग")
+CHILD_WORDS = ("খোকা", "খুকি", "বাচ্চা", "শিশু", "ছোট্ট", "khoka", "khuki", " child", " kid", "little boy", "little girl",
+               "small boy", "small girl", "baby", "बच्चा", "बच्ची", "मुन्ना", "मुन्नी")
 NARRATOR_DELIVERY = ("a deep, heavy, grave, low male voice, like a man in his fifties quietly telling a true incident "
                      "late at night: natural spoken Bengali/Hindi as in real conversation, steady and a little slow; "
                      "NOT theatrical, NOT sing-song, NOT like jatra or stage drama, no musical rise and fall, no "
@@ -1084,10 +1092,25 @@ def fix_speakers(story):
             if c["name"] != sp:
                 ln["speaker"] = c["name"]
                 fixed += 1
-    for c in chars:                                  # 'Sarala Pishi' marked male -> female
+    for c in chars:                                  # the right voice: gender AND age from the words about the person
         both = f"{c['name']} {c.get('name_local', '')}".lower()
-        if str(c.get("gender", "")).lower().startswith("m") and any(w in both for w in FEMALE_WORDS[:30]):
+        about = f"{both} {c.get('intro', '')} {c.get('intro_en', '')} {c.get('look', '')}".lower()
+        g0, a0 = str(c.get("gender", "")).lower(), str(c.get("age", "")).lower()
+        if g0.startswith("m") and any(w in both for w in FEMALE_WORDS[:30]):
             c["gender"] = "female"
+        elif g0.startswith("f") and any(w in both for w in MALE_WORDS):
+            c["gender"] = "male"
+        elif not g0:
+            c["gender"] = "female" if any(w in about for w in (" woman", " girl", " mother", " wife", " lady")) else "male"
+        if any(w in about for w in OLD_WORDS) or re.search(r"\b(?:[6-9]\d)\s*(?:years|-year)", about):
+            c["age"] = "old"
+        elif any(w in about for w in CHILD_WORDS) or re.search(r"\b(?:[2-9]|1[0-2])\s*(?:years|-year)", about):
+            c["age"] = "child"
+        elif any(w in about for w in (" student", " young", " college", "ছাত্র", "যুবক", "তরুণ", "छात्र", "नौजवान")):
+            c["age"] = "young"
+        elif a0 not in ("child", "young", "adult", "old"):
+            c["age"] = "adult"
+        if (c.get("gender"), c.get("age")) != (g0, a0):
             fixed += 1
     if fixed or added:
         log(f"  voices: {fixed} speaker name(s) matched / corrected, {added} missing speaker(s) added")
@@ -1342,6 +1365,49 @@ os.environ.setdefault("VOICE_MAX", "120")        # time for the voices of a ~15-
 os.environ.setdefault("VOICE_RESERVE", "45")     # ... and for making the video
 
 
+def continuity_bridges(story, lang):
+    """The whole joined story read once more as ONE film: a scene that seems to come from nowhere ('where did this
+    come from?') gets a short narrator bridge at its start that ties it to what came before."""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key or env("CONTINUITY") == "0":
+        return
+    rows = []
+    for i, sc in enumerate(story.get("scenes") or []):
+        ls = [ln for ln in sc.get("lines") or [] if str(ln.get("text", "")).strip()]
+        if not ls:
+            continue
+        rows.append({"n": i, "place": str(sc.get("place", ""))[:80],
+                     "starts": str(ls[0].get("en") or ls[0].get("text"))[:160],
+                     "ends": str(ls[-1].get("en") or ls[-1].get("text"))[:160]})
+    prompt = (f"These are the scenes of ONE {LANGS[lang]['name']} horror audio story, in order (how each starts and "
+              "ends). Find every scene that does NOT follow from the scene before it - a sudden new place, time, "
+              "person or event the listener cannot place. For each, write ONE short narrator bridge line in "
+              f"{LANGS[lang]['name']} (pure Kolkata cholit for Bengali, max 22 words) that ties it naturally to what "
+              "came before (time, place, why). Answer ONLY JSON: [{\"n\": scene number, \"bridge\": \"line\"}] "
+              "([] if everything flows).\n" + json.dumps(rows, ensure_ascii=False))
+    for model in gemini_models(key)[:2]:
+        r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                          json={"contents": [{"parts": [{"text": prompt}]}],
+                                "generationConfig": {"temperature": 0.4, "responseMimeType": "application/json"}},
+                          timeout=180)
+        if not r.ok:
+            log(f"  continuity check: {model} {r.status_code}")
+            continue
+        fixes = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+        n = 0
+        for fx in fixes if isinstance(fixes, list) else []:
+            try:
+                sc = story["scenes"][int(fx["n"])]
+            except Exception:
+                continue
+            b = str(fx.get("bridge", "")).strip()
+            if b and int(fx["n"]) > 0:
+                sc.setdefault("lines", []).insert(0, {"speaker": "narrator", "emotion": "eerie", "text": b, "en": ""})
+                n += 1
+        log(f"  continuity check: {n} bridge line(s) added")
+        return
+
+
 def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start"):
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
@@ -1372,7 +1438,11 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                   "that explains everything and what became of every person, then the last chilling line. ") if final else
                  "End the chapter on a strong cliffhanger that leads straight into the next chapter (never say "
                  "'next part' or 'to be continued'). Do NOT end the story yet. ")
-        rule += ("Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
+        rule += ("NO JUMPS: every scene starts where the previous one ended, or with a clear spoken bridge (time and "
+                 "place: 'সেই রাতেই...', 'পরদিন সকালে, থানায়...'); no person, place or event appears from nowhere. "
+                 + ("Use ONLY the people, places, clues and promises already in the story so far - no new characters "
+                    "or new threads now; tie every open thread. " if final else "") +
+                 "Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
                  "chapter, with names, decisions, clues and open questions.\n")
         length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, about {words_per} spoken words. Slow-burning, real "
                   "conversations, every moment lived - never rushed.")
@@ -1413,7 +1483,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     for s in chapters:
         for c in s.get("characters") or []:
             if isinstance(c, dict) and c.get("name"):
-                chars.setdefault(str(c["name"]).lower(), c)
+                chars.setdefault(str(c["name"]).split()[0].lower(), c)
         for g, n in (s.get("ghost_reveal") or {}).items():
             try:
                 reveal.setdefault(g, int(str(n)[:2].strip() or 0) + off)
@@ -1428,6 +1498,10 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         if end.get(k):
             story[k] = end[k]
     story["summary"] = summary.strip()
+    try:
+        continuity_bridges(story, lang)
+    except Exception as e:
+        log("  continuity check skipped:", str(e)[:120])
     words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc.get("lines") or [])
     log(f"LONG STORY: {len(chapters)} chapters, {len(story['scenes'])} scenes, {words} words "
         f"(~{words / 120:.0f} minutes)")
@@ -1694,6 +1768,8 @@ Story rules:
 Return ONLY JSON with exactly these keys:
 {{
  "title": "chilling {L['name']} title, max 60 characters, 1 emoji",
+ "tagline": "{L['name']} tag line for the thumbnail and Reel, max 8 words: a chilling promise or question under the title (e.g. 'সেই রাতে দরজা খুলেছিল কে?')",
+ "title_b": "a SECOND, different {L['name']} title for the same story (another hook, e.g. a question), max 60 characters, 1 emoji - used if the first title gets few clicks",
  "thumbnail_text": "2-4 BIG {L['name']} words that create an unbearable curiosity gap or warning (e.g. 'রাত ১২টায় দরজা খুলো না!', 'ও এখনো ফেরেনি...', 'কে ডাকছে?') - never just the title",
  "description": "3-4 line suspenseful {L['name']} description that makes people want to watch, ending with a question",
  "hashtags": ["10-14 popular hashtags mixing {L['name']} and English, e.g. #HorrorStory #BhootKiKahani"],
@@ -2937,6 +3013,33 @@ def get_ambience(name, n, rnd):
     return None
 
 
+MOOD_MUSIC = {"creepy": "dark ambient horror music loop", "tense": "suspense tension music loop",
+              "scare": "horror suspense music", "sad": "sad dark piano ambient", "calm": "calm dark ambient pad music"}
+
+
+def mood_music(mood, n, rnd):
+    """Background score for the scene's mood: a real CC0 recording from freesound (the same one for every scene of
+    that mood in a video, like a show's own score). None if none is found - the synthetic drone stays."""
+    if env("MOOD_MUSIC") == "0":
+        return None
+    q = MOOD_MUSIC.get(str(mood).lower(), MOOD_MUSIC["creepy"])
+    try:
+        p = freesound(q, loop=True)                   # only a real recording - never a synthetic stand-in
+        if not p:
+            return None
+        np = _np()
+        a = _decode(p, 120)
+        if len(a) < SR * 5:
+            return None
+        a = np.tile(a, int(np.ceil(n / len(a))) + 1)[:n]
+        fade = min(n // 6, int(SR * 1.5))
+        a[:fade] *= np.linspace(0, 1, fade)
+        a[-fade:] *= np.linspace(1, 0, fade)
+        return a * 0.5
+    except Exception:
+        return None
+
+
 def drone(n, rnd, mood):
     """Background horror music bed made from slow detuned tones."""
     np = _np()
@@ -3129,6 +3232,9 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
 
     # background: music + place ambience (from the story) + any old-style tags
     bed = drone(n, rnd, mood)
+    music = mood_music(mood, n, rnd)                  # a real (free CC0) score under the scene, by its mood
+    if music is not None:
+        bed = bed * 0.55 + music * 0.45
     for name in authentic_ambience(place, ambience, lines)[:2]:
         amb = get_ambience(str(name), n, rnd)
         if amb is not None:
@@ -4021,6 +4127,8 @@ def main():
     if not MOCK:
         try:
             extras.refresh_stats(history)            # learn which stories people liked
+            if extras.yt_title_test(history):        # a weak video gets its second title (once)
+                save_history(history)
         except Exception as e:
             log("  stats skipped:", str(e)[:150])
     slot_hour = int(str(SLOT).split("@")[1]) if SLOT and "@" in str(SLOT) else EVENING
@@ -4405,8 +4513,9 @@ def main():
     thumb = os.path.join(WORK, "thumbnail.jpg")
     series_bn = {"taranath": L["taranath"].split(" #")[0], "karna": L["karna"].split(" #")[0], "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "")
                  .replace(" का केस", "")}.get(special)
-    big = series_bn or str(story.get("thumbnail_text") or title).strip()
-    sub = str(story.get("episode_name") or (story.get("thumbnail_text") if series_bn else "") or "").strip()
+    big = re.sub(r"[^\w\sঀ-৿ऀ-ॿ!?,।'’-]", " ", re.sub(r"\s*\|.*$", "", title))   # the title on the thumbnail
+    big = re.sub(r"\s{2,}", " ", re.sub(r"[0-9০-৯०-९]+", " ", big)).strip()   # the poster font has no digits
+    sub = str(story.get("tagline") or story.get("thumbnail_text") or story.get("episode_name") or "").strip()   # ... + tag line
     try:
         extras.poster_thumbnail(thumb_base, big, sub, thumb, "horror", FONT)
     except Exception as e:
@@ -4433,7 +4542,8 @@ def main():
     else:
         tline = (L["title_karna"].format(title=clean_title) if special == "karna" else
                  f"{SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])}... "
-                 f"{HORROR_CATS[STATE.get('category', 'gram')][lang]}... {clean_title}।")
+                 + ("" if special in ("bhairab", "taranath") else f"{HORROR_CATS[STATE.get('category', 'gram')][lang]}... ")
+                 + f"{clean_title}।")
     parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": tline}],
               "sounds": ["wind"], "mood": "creepy", "voices": voices, "title_part": True}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
@@ -4550,6 +4660,8 @@ def main():
                     "source": STATE.get("source_name") or (prev or {}).get("source") or None,
                     "idea_used": STATE.get("idea_used"),
                     "category": STATE.get("category"),
+                    "question_post": extras.fb_question_post(history, "horror", lang) if not (MOCK or DRY_RUN) else None,
+                    "title_b": (str(story.get("title_b") or "").strip()[:85] + (f" | {L['part'].format(n=part)}" if part else "")) or None,
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "classic_id": classic[0] if special == "classic" and classic else None,
@@ -4808,6 +4920,18 @@ def _video_clip(video, st, dur, out, text=""):
     src_a = os.path.join(WORK, "full.wav") if src_v == clean_v else video
     cap = os.path.join(WORK, os.path.basename(out) + ".png")
     img = Image.new("RGBA", (VW, VH), (0, 0, 0, 0))
+    top_t, top_s = STATE.get("trailer_top") or ("", "")
+    if top_t:                                       # the story's title and tag line at the top, all through
+        d0 = ImageDraw.Draw(img)
+        y0 = 34
+        for t_, sz_, col_ in ((top_t, 56, (255, 215, 0, 255)), (top_s, 38, (255, 255, 255, 255))):
+            if not t_:
+                continue
+            rows_, f_, s_ = extras._fit_text(d0, extras.no_tofu(t_), FONT, VW - 70, sz_, lines_max=2)
+            for r_ in rows_:
+                tw = d0.textlength(r_, font=f_)
+                d0.text(((VW - tw) / 2, y0), r_, font=f_, fill=col_, stroke_width=max(3, s_ // 12), stroke_fill=(0, 0, 0, 255))
+                y0 += int(s_ * 1.3)
     if text:
         d = ImageDraw.Draw(img)
         rows, f, sz = extras._fit_text(d, text, FONT, VW - 70, 46, lines_max=3)
@@ -4828,18 +4952,28 @@ def _video_clip(video, st, dur, out, text=""):
 
 
 def make_trailer(video, story, title, lang, L, out, slot_hour, special):
+    STATE["trailer_top"] = (re.sub(r"\s*\|.*$", "", title).strip(),
+                            str(story.get("tagline") or story.get("thumbnail_text") or "").strip())
     """A cinema-trailer Reel (under a minute): a quiet cold open, title cards, quick cuts of the scariest moments
     with hits in between, a held breath ... then the ghost's face, and the show's title card with the time."""
     np = _np()
     part_times, segs = TIMELINE
     if len(part_times) < 3:
         raise RuntimeError("too short for a trailer")
-    st0, st1 = part_times[0], part_times[-1]          # the whole story (the cold open is its first scene)
+    st0, st1 = part_times[1], part_times[-1]          # the story itself (not the spoken title at the start)
     limit = st0 + (st1 - st0) * 0.78                   # never show the ending
-    cand = [(s, d, nar, tx) for s, d, nar, tx in segs if st0 <= s < limit and d > 1.0]
-    if len(cand) < 4:
+    # only WHOLE lines (never cut in the middle of a sentence), short enough to keep the trailer under a minute
+    cand = [(s, d, nar, tx) for s, d, nar, tx in segs if st0 <= s < limit and 1.2 < d <= 7.5]
+    if len(cand) < 3:
         raise RuntimeError("not enough moments")
-    score = lambda c: (0 if c[2] else 2) + (1 if any(ch in c[3] for ch in "!?") else 0) + min(c[1], 4) / 4
+    scary = {str(ln.get("text", "")).strip() for sc in story.get("scenes", []) for ln in sc.get("lines", [])
+             if ln.get("jump_scare") or ln.get("ghost_laugh") or ln.get("sfx")}
+    ghosts = {str(c.get("name", "")).lower() for c in story.get("characters", []) if str(c.get("kind", "")).startswith("ghost")}
+    ghost_lines = {str(ln.get("text", "")).strip() for sc in story.get("scenes", []) for ln in sc.get("lines", [])
+                   if str(ln.get("speaker", "")).lower() in ghosts}
+    score = lambda c: ((0 if c[2] else 2) + (1 if any(ch in c[3] for ch in "!?") else 0)
+                       + (3 if c[3].strip() in scary else 0) + (2 if c[3].strip() in ghost_lines else 0)
+                       - max(0, c[1] - 5) * 0.5)
     import bisect
     scene_of = lambda c: bisect.bisect_right(part_times, c[0])       # which scene this moment belongs to
     best = {}                                        # never the same scene (picture) or the same words twice
@@ -4849,12 +4983,14 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
             best[s] = c
     chosen = sorted(best.values(), key=score, reverse=True)
     picks, words = [], set()
+    budget = 40.0                                    # seconds of story moments (+ the cards = under a minute)
     for c in chosen:
         w = re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", c[3])[:30]
-        if w in words or any(abs(c[0] - p[0]) < 6 for p in picks):
+        if w in words or any(abs(c[0] - p[0]) < 6 for p in picks) or c[1] + 0.4 > budget:
             continue
         words.add(w)
         picks.append(c)
+        budget -= c[1] + 0.4
         if len(picks) == 6:
             break
     picks.sort(key=lambda c: c[0])
@@ -4873,20 +5009,20 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     Image.new("RGB", (720, 1280), (0, 0, 0)).save(black)
     hook = str(story.get("thumbnail_text") or "").strip()
     first = picks[0]
-    parts.append(_video_clip(video, first[0] - 0.15, min(first[1], 4.0) + 0.3, nxt("open"), first[3]))
+    parts.append(_video_clip(video, first[0] - 0.15, first[1] + 0.4, nxt("open"), first[3]))
     if hook:
         parts.append(_still_clip(_card(os.path.join(WORK, "tr_c1.jpg"), [hook], [64], [(255, 255, 255)]),
                      boom, 1.8, nxt("card")))
     for c in picks[1:4]:
         parts.append(_still_clip(black, hit, 0.3, nxt("flash")))
-        parts.append(_video_clip(video, c[0] - 0.15, min(c[1], 3.6) + 0.25, nxt("cut"), c[3]))
+        parts.append(_video_clip(video, c[0] - 0.15, c[1] + 0.4, nxt("cut"), c[3]))
     when = when_words(lang, slot_hour, 0) + (" পুরো গল্প" if lang == "bn" else " पूरी कहानी")
     if extras.PUBLISH.get("at") and extras.PUBLISH["at"] > dt.datetime.now(extras.IST):
         parts.append(_still_clip(_card(os.path.join(WORK, "tr_c2.jpg"), [when], [70], [(255, 40, 40)]),
                      boom, 1.4, nxt("when")))
     for c in picks[4:]:
         parts.append(_still_clip(black, hit, 0.25, nxt("flash")))
-        parts.append(_video_clip(video, c[0] - 0.1, min(c[1], 2.4) + 0.2, nxt("fast"), c[3]))
+        parts.append(_video_clip(video, c[0] - 0.15, c[1] + 0.4, nxt("fast"), c[3]))
     g = story.get("guess") if isinstance(story.get("guess"), dict) else {}
     opts = [str(x) for x in (g.get("options") or [])][:3]
     if g.get("question") and len(opts) == 3:      # the viewers' puzzle: they comment 1, 2 or 3
@@ -4938,7 +5074,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         except Exception as e:
             log("  trailer not made, plain teaser:", str(e)[:200])
             st, en = extras.pick_window(segs, part_times, story.get("teaser_scene") or 2)
-            extras.make_teaser(video, st, en, teaser, FONT, story.get("thumbnail_text") or title, L["cta"], WORK,
+            extras.make_teaser(video, st, en, teaser, FONT, re.sub(r"\s*\|.*$", "", title).strip(), L["cta"], WORK, tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""),
                                colors=((255, 230, 0), (200, 0, 20)))
             log(f"Teaser ready ({en - st:.0f} s, from {st:.0f} s)")
     except Exception as e:
@@ -4961,6 +5097,19 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 log("Shared to Facebook Story:", out["fb_story"])
         except Exception as e:
             log("  Facebook Story skipped:", str(e)[:200])
+        if env("SECOND_REEL") != "0":                # a second Reel from another moment, 2 hours later
+            try:
+                pt_, sg_ = TIMELINE[0], TIMELINE[1]
+                s2, e2 = extras.pick_window(sg_, pt_, max(2, (len(pt_) * 3) // 5), max_len=50.0)
+                reel2 = os.path.join(WORK, "reel2.mp4")
+                extras.make_teaser(video, s2, e2, reel2, FONT, re.sub(r"\s*\|.*$", "", title).strip(), L["cta"], WORK,
+                                   tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""))
+                base = extras.PUBLISH.get("at") or dt.datetime.now(extras.IST)
+                out["fb_reel2"] = extras.fb_post_reel(reel2, short_desc, at=max(base, dt.datetime.now(extras.IST))
+                                                      + dt.timedelta(hours=2))
+                log("Second Facebook Reel scheduled (2 hours later):", out["fb_reel2"])
+            except Exception as e:
+                log("  second Reel skipped:", str(e)[:200])
     if teaser and env("INSTAGRAM") == "1":           # only if you switch Instagram on (secret INSTAGRAM = 1)
         try:
             out["ig_reel"] = extras.ig_post_reel(teaser, short_desc)
