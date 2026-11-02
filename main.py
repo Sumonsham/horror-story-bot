@@ -4107,13 +4107,19 @@ def main():
                                     "exact real place - change those. The narrator's FIRST line thanks "
                                     f"{viewer['name'] or 'our viewer'} for sending this experience.\n")
                     log(f"Viewer's story from {viewer['name']}")
-            try:                                     # ride what people are watching this week
-                trends = extras.trending_topics("horror", lang, os.path.join(HERE, "assets")) if not MOCK else []
-            except Exception:
-                trends = []
-            if trends:
-                extra_rules += ("\nTRENDING THIS WEEK (Bengali / Indian viewers are watching these - if one fits "
-                                "today's category, build on it): " + " | ".join(trends) + "\n")
+            STATE["own_kind"] = True
+    if not MOCK:
+        try:                                         # what people watch this week (also hashtags + search words)
+            STATE["trends"] = extras.trending_topics("horror", lang, os.path.join(HERE, "assets"))
+        except Exception as e:
+            log("  trends skipped:", str(e)[:100])
+        if STATE.get("own_kind") and STATE.get("trends"):
+            extra_rules += ("\nTRENDING THIS WEEK (Bengali / Indian viewers are watching these - if one fits "
+                            "today's category, build on it): " + " | ".join(STATE["trends"]) + "\n")
+        try:                                         # what worked on our own page, and what viewers asked for
+            extra_rules += extras.lessons_rule(extras.learn_lessons(history, "horror", lang, os.path.join(HERE, "assets")))
+        except Exception as e:
+            log("  lessons skipped:", str(e)[:100])
     if special == "karna":
         extra_rules += "\n" + karna_rule(history, lang)
     elif special == "taranath":
@@ -4481,8 +4487,11 @@ def main():
     log(f"Video ready: {duration(video):.0f} seconds")
 
     own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
-    tags = []                                        # Facebook shows the first 5: 2 of this story + 3 fixed horror tags
-    for t in own[:2] + L.get("core_tags", [])[:3] + own[2:] + L.get("core_tags", [])[3:]:
+    seeds = ([HORROR_CATS[cat]["bn"], "ভূতের গল্প", "bhuter golpo"] if lang == "bn" else
+             [HORROR_CATS[cat]["hi"], "bhoot ki kahani", "डरावनी कहानी"])
+    trend_tags, seo_words = extras.seo_pack("horror", lang, os.path.join(HERE, "assets"), seeds) if not MOCK else ([], [])
+    tags = []                                        # Facebook shows the first 5: 2 of this story + 3 trending tags
+    for t in own[:2] + trend_tags[:3] + L.get("core_tags", [])[:3] + own[2:] + trend_tags[3:]:
         if t.lower() not in {x.lower() for x in tags}:
             tags.append(t)
     description = (f"{title}\n\n{story.get('description', '').strip()}\n\n" + (f"🗳️ {vote_text}\n\n" if vote_text else "")
@@ -4493,6 +4502,13 @@ def main():
     labels = ([labels[0], L["ch_intro"]] + labels[1:]) if cold else [L["ch_intro"]] + labels
     chap = extras.chapters_text(part_times, labels + [L["ch_end"]], L["chapters"])
     yt_description = description.replace(f"\n\n{L['ai_note']}", (f"\n\n{chap}" if chap else "") + f"\n\n{L['ai_note']}")
+    if seo_words:                                    # YouTube: what people type in search, first in the text
+        yt_description = "🔎 " + " · ".join(seo_words[:6]) + "\n\n" + yt_description
+    yt_title = title
+    kw = next((w for w in seo_words if w.lower() not in title.lower() and len(title) + 3 + len(w) <= 100), "")
+    if kw:
+        yt_title = f"{title} | {kw}"
+    yt_tags = [w for w in seo_words] + tags
 
     results = {}
     if DRY_RUN:
@@ -4506,7 +4522,7 @@ def main():
             results["facebook_error"] = str(e)[:200]
         if youtube_ready():
             try:
-                results["youtube"] = post_to_youtube(video, thumb, title, yt_description, tags, lang)
+                results["youtube"] = post_to_youtube(video, thumb, yt_title, yt_description, yt_tags, lang)
                 log("Posted to YouTube:", results["youtube"])
             except Exception as e:
                 log("YOUTUBE FAILED:", e)
@@ -4533,6 +4549,7 @@ def main():
                     "pending_comments": list(extras.PENDING),
                     "source": STATE.get("source_name") or (prev or {}).get("source") or None,
                     "idea_used": STATE.get("idea_used"),
+                    "category": STATE.get("category"),
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "classic_id": classic[0] if special == "classic" and classic else None,
