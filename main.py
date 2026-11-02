@@ -441,22 +441,34 @@ BHAIRAB_RULE = ("RECURRING CHARACTERS: this is a case of our own ghost-hunter du
 # later books or the web series).
 TARANATH = [
     {"name": "Taranath", "gender": "male", "age": "old", "kind": "human",
-     "look": "a lean dark-skinned Bengali tantrik of about sixty-five, long half-grey hair falling to the shoulders, "
-             "short grey beard, deep piercing eyes, a red sindoor line on the forehead, bare chest with thick "
-             "rudraksha malas, saffron-red dhoti and a faded black shawl, sitting with a hookah in a dim old room"},
+     "look": "a lean dark-skinned Bengali man of about sixty-five, once a wandering tantrik, now a poor astrologer: "
+             "half-grey hair, short grey beard, deep piercing eyes, a faded vermilion mark on the forehead, one old "
+             "rudraksha mala, a worn white dhoti and an old brown shawl, sitting by a hurricane lamp in a damp room"},
     {"name": "Kishori", "gender": "male", "age": "young", "kind": "human",
      "look": "a curious young Bengali man of about twenty-five in a white kurta and dhoti, neat side-parted black "
              "hair, thin moustache, sitting cross-legged and listening with wide eyes, 1940s Kolkata"},
 ]
 TARANATH_RULE = (
-    "TARANATH TANTRIK SERIES: on a rainy evening in his old house in a Kolkata lane, the old tantrik TARANATH tells "
-    "young KISHORI a terrifying experience from his wandering years (cremation grounds, lonely villages, forests of "
-    "Birbhum and Bengal's rivers, 1920s-1940s). Write it as Taranath telling his OWN experience in first person "
-    "(his voice is the main narrator inside the story; Kishori interrupts 2-3 times with a scared question). "
-    "Taranath is brave, earthy, honest about his fear, never a cheap magician; real dark forces, ancient spirits, "
-    "a dangerous ritual gone wrong, a terrible price. No real ritual instructions, no harm to children, no gore. "
-    "Use exactly these looks: {looks}. Open with Taranath's chilling first sentence; end with Kishori shivering and "
-    "Taranath hinting at another, even more dangerous experience 'next time'.")
+    "TARANATH TANTRIK - in the spirit of Bibhutibhushan Bandyopadhyay's Taranath (the classic Bengali radio-drama "
+    "favourite). Write a NEW story of our own - never retell or copy any published Taranath story or any radio "
+    "script; use only the classic FORM below.\n"
+    "THE FRAME (the present, 1940s Kolkata): KISHORI, a young man, and his friend visit old TARANATH in his "
+    "damp, poor little house in a north Kolkata lane on a rainy evening - load-shedding, a hurricane lamp, rain on "
+    "the tin shade, tea in chipped cups. Taranath once wandered as a tantrik; now he is a poor astrologer who has "
+    "left that life and does not boast. At first he does not want to talk; a remark, an old object or the rain "
+    "brings back a memory, and he begins: 'সে অনেক দিন আগের কথা...'. Kishori introduces the frame in a few calm "
+    "lines (he is the narrator of the frame).\n"
+    "THE TALE (the past, young Taranath's wandering years in the villages, cremation grounds, rivers and forests "
+    "of Birbhum and rural Bengal, 1910s-1930s): Taranath tells it in FIRST PERSON, and the people of the tale speak "
+    "in their own voices as he remembers them - a lonely village, a strange sadhak or a mysterious woman sadhika, a "
+    "cremation ground at night, an old temple, a forbidden ritual someone else performs. The fear grows slowly, in "
+    "real everyday detail (hunger, the long walk, a borrowed lantern, a village that will not speak); the "
+    "supernatural is awesome and terrible, never cheap; Taranath is brave but honest about his fear and his "
+    "mistakes; something in the end is NOT fully explained - it stays in the mind.\n"
+    "Kishori interrupts only 2-3 times at tense moments with a hushed question; the tale goes back to the frame at "
+    "the end: the rain has stopped or the lamp burns low, Taranath falls silent, and the friends walk home through "
+    "the dark wet lanes carrying one small unexplained detail with them.\n"
+    "No real mantra or ritual steps, no gore, no harm to children. Use exactly these looks: {looks}.")
 
 
 # ----------------------------------------------------------------- our own series: Karna Pishachini
@@ -4152,7 +4164,7 @@ def main():
     global VHS
     L = LANGS[lang]
     FONT = find_font(lang)
-    VHS = "first person" in str(fmt)               # found-footage camera look for "I lived it" stories
+    VHS = "first person" in str(fmt) and special not in ("taranath", "classic")   # found-footage look for modern "I lived it" stories
     log(f"Language: {L['name']} | Idea: {theme} | Style: {fmt}" + (f" | SERIES part {part}" if part else ""))
 
     if special != "classic":
