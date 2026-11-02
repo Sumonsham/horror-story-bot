@@ -722,7 +722,7 @@ Return ONLY JSON (ENGLISH):
  "beats": [{{"n": 1, "what_happens": "", "decision": "who decides what, and WHY (or '')", "follow_up": "how and in which beat this decision is carried out or why it fails - shown, not skipped", "new_fear": "the new, fresh frightening detail of this beat (never a stock phrase)"}}],
  "clues": ["clue - beat where planted - beat where it pays off"],
  "twist": "", "resolution": "what really happened, why, and what became of every character", "last_line": ""}}
-Make {max(14, int(LONG_MIN * 1.2 * parts))} beats{f" for a story told in {parts} parts of about {int(LONG_MIN)} minutes each (add the key part to every beat: 1 or 2...; part 1 ends on a big cliffhanger, only the last part solves everything)" if parts > 1 else ""}: beginning (who/where/when/why/how they came), a full middle with at least three escalating
+Make {max(14, int(LONG_MIN * 1.25 * parts))} beats{f" for a story told in {parts} parts of about {int(LONG_MIN)} minutes each (add the key part to every beat: 1 or 2...; part 1 ends on a big cliffhanger, only the last part solves everything)" if parts > 1 else ""}: beginning (who/where/when/why/how they came), a full middle with at least three escalating
 events, a midpoint discovery and a false lead, then climax, twist and a clear resolution."""
     ask2 = """You are a strict script doctor. Here is a horror story plan as JSON. Find EVERY problem: a decision
 that is not followed up (someone decides to leave - why couldn't he? show it), a person acting unrealistically,
@@ -1220,7 +1220,7 @@ end is thin or abrupt), and correct,
 natural {L['name']} ({'pure Kolkata cholit Bengali, correct spelling' if lang == 'bn' else 'natural correct Hindi'}).
 Then REWRITE every weak line and scene to make it a 10. {rule}
 Keep EXACTLY the same JSON structure and ALL keys (every scene, line, sfx, image, people, ghost_reveal, guess,
-next_story...), the same characters with the same names and looks, and at least the same length (more is fine).
+next_story...), the same characters with the same names and looks, and about the same length (no more than 10% longer - our videos have a fixed length).
 Add one key "editor_scores": {{"fear": n, "twist": n, "logic": n, "flow": n, "structure": n, "names": n, "belief": n, "dialogue": n, "language": n}} with the
 scores of YOUR improved version. Return ONLY the complete improved JSON.
 
@@ -1360,7 +1360,8 @@ MASTER_STYLE = (
     "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
 
 
-LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 17)     # every horror video: AT LEAST 15 minutes
+LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 16)     # set per slot below: 10 AM ~16 min, 2 PM / 8 PM ~23 min
+SLOT_MINUTES = {10: 16.0, 14: 23.0, 20: 23.0}      # how long each time slot's story is (the morning one is shorter)
 os.environ.setdefault("VOICE_MAX", "120")        # time for the voices of a ~15-minute story
 os.environ.setdefault("VOICE_RESERVE", "45")     # ... and for making the video
 
@@ -1413,7 +1414,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
     n_ch = max(2, round(LONG_MIN / 6))               # ~6 chapters of ~6 minutes (what one Gemini answer holds)
     words_per = int(LONG_MIN * 120 / n_ch)            # ~120 spoken words a minute (slow, grave telling)
-    need = int(float(env("MIN_LONG_MINUTES") or 15) * 120)   # never under 15 minutes
+    need = int(float(env("MIN_LONG_MINUTES") or max(15.0, LONG_MIN - 2)) * 120)   # 10 AM >= 15 min, 2 PM / 8 PM >= 21 min
     max_ch = n_ch + 3
     chapters, summary, last, total, k, force_final, final_tries = [], "", "", 0, 0, False, 0
     while k < max_ch:
@@ -1445,7 +1446,9 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                  "Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
                  "chapter, with names, decisions, clues and open questions.\n")
         length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, about {words_per} spoken words. Slow-burning, real "
-                  "conversations, every moment lived - never rushed.")
+                  "conversations, every moment lived - never rushed. The length comes from living the planned beats "
+                  "fully (talk, doubt, small real details) - NEVER from extra events, repeated scenes or changing "
+                  "the planned order.")
         try:                                         # a shorter chapter is kept (no costly rewrite) -
             s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules + rule,
                            length=length, min_w=int(words_per * 0.7))   # ... more chapters make up the length
@@ -3772,14 +3775,45 @@ def hook_png(text, path):
     return path
 
 
+def _clip_job(job):
+    return scene_clip(*job)
+
+
+def render_clips(jobs):
+    """All scene pictures moved into film clips - several at once (GitHub's machine has several processor cores):
+    about 3x faster than one after the other. If the video is running late, the simpler (faster) motion is used."""
+    at = extras.PUBLISH.get("at")
+    left = (at - dt.datetime.now(extras.IST)).total_seconds() / 60 if at else 999
+    if left < 25 + len(jobs) * 0.8 and env("SIMPLE_MOTION") != "1":
+        log(f"  only {left:.0f} minutes left - simpler picture motion today, so the video is on time")
+        os.environ["SIMPLE_MOTION"] = "1"
+    workers = max(1, min(int(env("CLIP_WORKERS") or 4), os.cpu_count() or 2))
+    t0 = time.time()
+    if workers > 1 and len(jobs) > 1:
+        try:
+            import multiprocessing as mp
+            from concurrent.futures import ProcessPoolExecutor
+            with ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("fork")) as pool:
+                for k, _ in enumerate(pool.map(_clip_job, jobs)):
+                    if (k + 1) % 5 == 0 or k + 1 == len(jobs):
+                        log(f"  clips: {k + 1}/{len(jobs)} ({(time.time() - t0) / 60:.1f} min, {workers} at once)")
+            return
+        except Exception as e:
+            log("  parallel clips failed - one by one:", str(e)[:150])
+    for k, job in enumerate(jobs):
+        if not os.path.exists(job[2]) or os.path.getsize(job[2]) < 1000:
+            scene_clip(*job)
+        log(f"  clip {k + 1}/{len(jobs)}")
+
+
 def build_video(scene_parts, lang, out):
     """scene_parts: list of dict(image, lines, sounds, mood). Returns mp4 path."""
     global TIMELINE
-    clips, segs, t, wavs, part_times = [], [], 0.0, [], []
+    clips, segs, t, wavs, part_times, jobs = [], [], 0.0, [], [], []
     voices = scene_parts[0]["voices"]
     prepare_gemini_voices(scene_parts, voices, lang)       # all lines (intro + story + ending) or none
     for i, sp in enumerate(scene_parts):
-        log(f"Voices + sound + clip {i + 1}/{len(scene_parts)}")
+        log(f"Voices + sound {i + 1}/{len(scene_parts)}")
         part_times.append(t)
         a = os.path.join(WORK, f"audio_{i:02d}.wav")
         wavs.append(a)
@@ -3796,10 +3830,11 @@ def build_video(scene_parts, lang, out):
         spoken = [ln for ln in sp["lines"] if str(ln.get("text", "")).strip()]
         talk = [(st, st + du, nar, (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx)
                 for k, (st, du, nar, tx) in enumerate(subs)]
-        d = scene_clip(segments, a, c, i, sp.get("mood", "creepy"), talk)
+        jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk))
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
-        t += d
+        t += duration(a)
+    render_clips(jobs)
     lst = os.path.join(WORK, "clips.txt")
     with open(lst, "w") as f:
         f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
@@ -4114,7 +4149,7 @@ def main():
     if env("MODE") == "amavasya" and not extras.is_amavasya_night():
         log("Not an Amavasya night - nothing to do.")
         return
-    if env("MODE") != "amavasya" and (env("EVENT") == "schedule" or env("MODE") == "auto") and (extras.slot_done(history, SLOT) or recently_posted(history, hours=2)):
+    if env("MODE") != "amavasya" and (env("EVENT") == "schedule" or env("MODE") == "auto") and (extras.slot_done(history, SLOT) or (not SLOT and recently_posted(history, hours=2))):
         log("A video for this time slot was already posted - this backup run has nothing to do.")
         return
     if (env("EVENT") == "schedule" or env("MODE") == "auto") and SLOT and "@" in str(SLOT):
@@ -4133,6 +4168,10 @@ def main():
             log("  stats skipped:", str(e)[:150])
     slot_hour = int(str(SLOT).split("@")[1]) if SLOT and "@" in str(SLOT) else EVENING
     STATE["slot_hour"] = slot_hour
+    global LONG_MIN
+    if not os.environ.get("HORROR_MINUTES"):
+        LONG_MIN = SLOT_MINUTES.get(slot_hour, LONG_MIN)
+    log(f"Story length for this time: about {LONG_MIN:.0f} minutes")
     cat = category_of(slot_hour)
     festival, special, extra_rules, viewer = None, "", "", None
     classic, plain_rules = None, ""
