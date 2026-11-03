@@ -272,10 +272,7 @@ HORROR_CATS = {
                         "the old zamindar's pond where no one bathes after dusk",
                         "a village wedding night and the bride who was not the bride"]},
     "shohor": {"bn": "শহরের আতঙ্ক", "hi": "शहर का डर", "about": "an URBAN horror in Kolkata / a big Indian city today "
-               "(phones, metro, flats, hostels, night shifts) - the supernatural inside very modern ordinary life. "
-               "Viewers love places they know and use every day: set it at a familiar, NAMED Kolkata spot (a metro "
-               "station, a Howrah/Sealdah local train, a ghat, an old north-Kolkata para, a hospital, a flyover, a mall "
-               "basement) and make the place itself part of the fear",
+               "(phones, metro, flats, hostels, night shifts) - the supernatural inside very modern ordinary life",
                "themes": ["a boys' hostel room in north Kolkata that is always cheap", "the last metro train at Tollygunge",
                           "a night shift in an old government hospital", "a rented flat in Salt Lake with one locked room",
                           "an app cab ride at 2 AM on the EM Bypass", "a call-centre night shift on the 14th floor",
@@ -3139,7 +3136,6 @@ def word_time(a, text, word):
 
 
 SHOW_STING = True
-STORY_PART = [1]             # where the story itself starts in the video (after the hook and the title)
 STING_AT = [0]               # which part of the video gets the opening sound (the title, after the cold open)
 HOOK_TEXT = [""]             # big words on screen in the first seconds (the thumbnail's hook)
 
@@ -4621,24 +4617,19 @@ def main():
         tline = L["title_classic"].format(writer=bn_of(classic[1][0]) if lang == "bn" else classic[1][1],
                                           title=classic[3][kk])
     else:
-        # short: the show's name and category are written at the top of the screen - no slow spoken intro
-        tline = (L["title_karna"].format(title=clean_title) if special == "karna" else f"{clean_title}।")
+        tline = (L["title_karna"].format(title=clean_title) if special == "karna" else
+                 f"{SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])}... "
+                 + ("" if special in ("bhairab", "taranath") else f"{HORROR_CATS[STATE.get('category', 'gram')][lang]}... ")
+                 + f"{clean_title}।")
     parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": tline}],
               "sounds": ["wind"], "mood": "creepy", "voices": voices, "title_part": True}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
-    hk = None if env("HOOK_OPEN") == "0" else pick_hook(scenes, story)
-    cold = False
-    if hk:                                         # 1) the gripping moment, 2) the title, 3) the story from its start
-        hi, hlines = hk
-        himg = (shots_per_scene[hi][0] if shots_per_scene[hi] else imgs[hi])
-        parts.insert(0, {"image": himg, "lines": hlines, "sounds": [], "mood": "scary", "voices": voices,
-                         "hook_part": True})
-        cold = True
-        log(f"Hook at the start (from scene {hi + 1}): {str(hlines[0].get('text', ''))[:80]}")
-    STORY_PART[0] = 2 if cold else 1
+    cold = env("COLD_OPEN") == "1" and len(parts) > 2   # off: the story is told from its beginning
+    if cold:
+        parts[0], parts[1] = parts[1], parts[0]       # first scene, then the title
     end_lines = []
     choice = story.get("choice") if continues and isinstance(story.get("choice"), dict) else None
     vote_text = ""
@@ -4673,7 +4664,7 @@ def main():
                             {"speaker": "narrator", "text": L["outro"].format(page=page)}]
     parts.append({"image": last_img, "lines": rest, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
-    STING_AT[0] = 1 if cold else 0      # the show's sound with the title, right after the hook
+    STING_AT[0] = 1 if cold else 0
     HOOK_TEXT[0] = str(story.get("thumbnail_text") or "").strip()
     video = os.path.join(WORK, "final.mp4")
     show_top = (L["karna"].split(" #")[0] if special == "karna" else
@@ -5037,43 +5028,6 @@ def _video_clip(video, st, dur, out, text=""):
     return out
 
 
-def pick_hook(scenes, story):
-    """The first 5-8 seconds decide everything (Facebook: most viewers leave in 2-3 seconds). So the video
-    opens with ONE gripping moment from the middle of the story - a scream, the ghost's line, a terrified
-    question - never the ending (no spoiler). Returns (scene index, [1-2 lines]) or None."""
-    n = len(scenes)
-    if n < 4:
-        return None
-    ghosts = {str(c.get("name", "")).lower() for c in story.get("characters", [])
-              if str(c.get("kind", "")).startswith("ghost")}
-    best, bs = None, -9
-    for i in range(max(1, n // 4), max(2, int(n * 0.7))):
-        lines = scenes[i].get("lines") or []
-        for j, ln in enumerate(lines):
-            tx = extras.strip_tags(str(ln.get("text", ""))).strip()
-            if not 12 <= len(tx) <= 110:
-                continue
-            spk = str(ln.get("speaker", "narrator")).lower()
-            sc = ((3 if ln.get("jump_scare") or ln.get("ghost_laugh") else 0) + (2 if spk in ghosts else 0)
-                  + (0 if spk.startswith("narrat") else 2) + (1 if any(ch in tx for ch in "!?") else 0)
-                  + (1 if str(ln.get("emotion", "")).lower() in ("terrified", "scream", "fear", "panic", "whisper",
-                                                                    "eerie", "shocked") else 0))
-            if sc > bs:
-                best, bs = (i, j), sc
-    if not best or bs < 3:
-        return None
-    i, j = best
-    lines = scenes[i]["lines"]
-    take = [dict(lines[j])]
-    if j + 1 < len(lines) and len(str(lines[j + 1].get("text", ""))) <= 70 and \
-            not str(lines[j + 1].get("speaker", "narrator")).lower().startswith("narrat"):
-        take.append(dict(lines[j + 1]))                 # the answer / scream that follows it
-    for ln in take:                                    # straight in: no held silence before the first words
-        for k in ("guess", "jump_scare", "_revealed"):
-            ln.pop(k, None)
-    return i, take
-
-
 def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     STATE["trailer_top"] = (re.sub(r"\s*\|.*$", "", title).strip(),
                             str(story.get("tagline") or story.get("thumbnail_text") or "").strip())
@@ -5083,7 +5037,7 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     part_times, segs = TIMELINE
     if len(part_times) < 3:
         raise RuntimeError("too short for a trailer")
-    st0, st1 = part_times[min(STORY_PART[0], len(part_times) - 2)], part_times[-1]   # the story (not hook/title)
+    st0, st1 = part_times[1], part_times[-1]          # the story itself (not the spoken title at the start)
     limit = st0 + (st1 - st0) * 0.78                   # never show the ending
     # only WHOLE lines (never cut in the middle of a sentence), short enough to keep the trailer under a minute
     cand = [(s, d, nar, tx) for s, d, nar, tx in segs if st0 <= s < limit and 1.2 < d <= 7.5]
