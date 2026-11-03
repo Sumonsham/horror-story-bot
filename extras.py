@@ -893,8 +893,8 @@ def yt_upload_captions(video_id, srt_path, language="en", name="English"):
 
 # ----------------------------------------------------------------- "coming soon" post before a video
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
-TIME_WORDS = {"bn": {8: "সকাল ৮টায়", 13: "দুপুর ১টায়", 19: "সন্ধ্যা ৭টায়", 21: "রাত ৯টায়"},
-              "hi": {8: "सुबह 8 बजे", 13: "दोपहर 1 बजे", 19: "शाम 7 बजे", 21: "रात 9 बजे"}}
+TIME_WORDS = {"bn": {8: "সকালে", 13: "দুপুরে", 19: "সন্ধ্যায়", 21: "রাতে", 14: "দুপুরে", 20: "রাতে", 10: "সকালে"},
+              "hi": {8: "सुबह", 13: "दोपहर", 19: "शाम", 21: "रात", 14: "दोपहर", 20: "रात", 10: "सुबह"}}
 DAY_WORDS = {"bn": ("আজ", "কাল"), "hi": ("आज", "कल")}
 
 
@@ -1460,7 +1460,9 @@ def tts_tags(text):
 
 
 def tts_keys():
-    keys = [k for k in (env("GEMINI_TTS_KEY" + s) for s in ("", "_2", "_3", "_4", "_5")) if k]
+    # ONE free key only (Google's free limit is meant per person / project - using extra keys to get round it
+    # breaks Google's rules and can get the accounts blocked)
+    keys = [k for k in (env("GEMINI_TTS_KEY"),) if k]
     if env("TTS_PAID") == "1" and env("GEMINI_API_KEY"):
         keys.append(env("GEMINI_API_KEY"))          # your paid key, only if you switched it on
     return keys
@@ -1974,7 +1976,8 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
     groups, cur = [], []
     for it in items:
         spk = {x["spk"] for x in cur} | {it["spk"]}
-        if cur and (len(spk) > 2 or len(cur) >= 8 or sum(len(x["plain"]) for x in cur) + len(it["plain"]) > 900):
+        if cur and (len(spk) > 2 or len(cur) >= int(env("TTS_BATCH_LINES") or 12)
+                    or sum(len(x["plain"]) for x in cur) + len(it["plain"]) > int(env("TTS_BATCH_CHARS") or 1400)):
             groups.append(cur)
             cur = []
         cur.append(it)
@@ -2177,7 +2180,8 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45):
     groups, cur = [], []
     for it in items:
         spk = {x["spk"] for x in cur} | {it["spk"]}
-        if cur and (len(spk) > 2 or len(cur) >= 8 or sum(len(x["plain"]) for x in cur) + len(it["plain"]) > 900):
+        if cur and (len(spk) > 2 or len(cur) >= int(env("TTS_BATCH_LINES") or 12)
+                    or sum(len(x["plain"]) for x in cur) + len(it["plain"]) > int(env("TTS_BATCH_CHARS") or 1400)):
             groups.append(cur)
             cur = []
         cur.append(it)
@@ -2299,7 +2303,7 @@ def hq_image(prompt, out, seed=0, w=1280, h=720):
     import base64 as _b64
     if env("HQ_THUMB") == "0":
         return False
-    accounts = [(env("CF_ACCOUNT_ID" + s), env("CF_API_TOKEN" + s)) for s in ("", "_2", "_3", "_4")]
+    accounts = [(env("CF_ACCOUNT_ID"), env("CF_API_TOKEN"))]
     for acc, tok in [a for a in accounts if a[0] and a[1]]:
         try:
             r = requests.post(f"https://api.cloudflare.com/client/v4/accounts/{acc}/ai/run/{HQ_THUMB_MODEL}",
@@ -3382,3 +3386,112 @@ def fb_question_post(history, kind, lang, page_name=""):
         return today
     log("  daily question skipped:", str(r)[:160])
     return None
+
+
+# ===================== v28: YOUR OWN stories sent on Telegram (horror + cartoon) =====================
+TRUE_LABEL = {"bn": "সত্য ঘটনা অবলম্বনে", "hi": "सच्ची घटना पर आधारित"}
+CARTOON_WORDS = ("কার্টুন", "cartoon", "कार्टून")
+FICTION_WORDS = ("কাল্পনিক", "kalponik", "काल्पनिक")
+
+
+def _jl(path, default):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return default
+
+
+def _js(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False)
+
+
+def creator_inbox(path, kind="horror"):
+    """Stories YOU paste to the Telegram bot (one or more messages sent within 20 minutes = one story).
+    Only YOUR chat (TELEGRAM_CHAT_ID) is read. A story that starts with the word 'কার্টুন' goes to the cartoon
+    bot, every other story to the horror bot. Starting with 'কাল্পনিক' = no 'based on true events' label."""
+    data = _jl(path, {"queue": [], "seen": []})
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    if env("MOCK") == "1" or not tok:
+        return data
+    if not chat:
+        log("  your Telegram stories: add the TELEGRAM_CHAT_ID secret first (only your own chat is accepted)")
+        return data
+    try:
+        r = requests.get(f"https://api.telegram.org/bot{tok}/getUpdates",
+                         params={"allowed_updates": json.dumps(["message"])}, timeout=30).json()
+    except Exception as e:
+        log("  your Telegram stories: could not read -", str(e)[:100])
+        return data
+    seen, msgs = set(data.get("seen") or []), []
+    for u in r.get("result", []):
+        uid = u.get("update_id")
+        if uid in seen:
+            continue
+        seen.add(uid)
+        msg = u.get("message") or {}
+        if str((msg.get("chat") or {}).get("id")) != str(chat):
+            continue                                  # never anyone else's messages
+        t = str(msg.get("text") or "").strip()
+        if len(t) >= 150:                             # a story (short messages are just chat)
+            msgs.append((int(msg.get("date") or 0), uid, t))
+    groups = []
+    for d, uid, t in sorted(msgs):
+        if groups and d - groups[-1]["last"] <= 1200:
+            groups[-1]["text"] += "\n" + t
+            groups[-1]["last"] = d
+        else:
+            groups.append({"id": uid, "text": t, "last": d})
+    for g in groups:
+        text = g["text"].strip()
+        head = text[:40].lower()
+        is_cartoon = any(head.startswith(w) for w in CARTOON_WORDS)
+        if is_cartoon != (kind == "cartoon"):
+            continue                                  # the other bot's story
+        for w in CARTOON_WORDS:
+            if text.lower().startswith(w):
+                text = text[len(w):].lstrip(" :-—\n")
+        true = True
+        for w in FICTION_WORDS:
+            if text.lower().startswith(w):
+                text, true = text[len(w):].lstrip(" :-—\n"), False
+        data.setdefault("queue", []).append({"id": g["id"], "text": text[:15000], "true": true,
+                                             "got": dt.datetime.now(IST).isoformat(timespec="minutes")})
+        when = "দুপুরে বা রাতে" if kind == "horror" else "সকালে বা সন্ধ্যায়"
+        telegram(f"✅ আপনার {'কার্টুন ' if kind == 'cartoon' else 'ভূতের '}গল্পটা পেয়েছি ({len(text)} অক্ষর)। "
+                 f"পরের ফাঁকা সময়ে ({when}) এই গল্প দিয়েই পুরো ভিডিও হবে"
+                 + (" - 'সত্য ঘটনা অবলম্বনে' লেখা থাকবে।" if true else " (কাল্পনিক গল্প হিসেবে)।")
+                 + f" লাইনে আছে: {len(data['queue'])}টা গল্প।")
+        log(f"Your own story received on Telegram ({len(text)} characters)")
+    data["seen"] = sorted(seen)[-400:]
+    _js(path, data)
+    return data
+
+
+def take_creator_story(path, kind="horror"):
+    if env("MY_STORIES") == "0":
+        return None
+    data = creator_inbox(path, kind)
+    if not data.get("queue"):
+        return None
+    s = data["queue"].pop(0)
+    data["used"] = (data.get("used") or [])[-49:] + [{"id": s["id"], "used": dt.datetime.now(IST).isoformat(
+        timespec="minutes")}]
+    _js(path, data)
+    return s
+
+
+def mark_true_story(story, lang):
+    """'Based on true events' on the title, the thumbnail, the teasers and in the narrator's words."""
+    lab = TRUE_LABEL.get(lang, TRUE_LABEL["bn"])
+    old = str(story.get("tagline") or "").strip()
+    story["true_label"] = True
+    story["tagline"] = lab + (f" · {old}" if old and len(old) <= 26 and lab not in old else "")
+    story["thumbnail_text"] = story.get("thumbnail_text") or lab
+
+
+def true_title(title, lang):
+    lab = TRUE_LABEL.get(lang, TRUE_LABEL["bn"])
+    return title if lab in title else f"{title} | {lab}"[:100]
