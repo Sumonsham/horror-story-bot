@@ -10,7 +10,10 @@
    "likes": 0,
    "comments": 0,
    "views": 1,
-   "checked": "2026-10-30T18:45+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 12,
+   "yt_avg_pct": 4.3,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -24,7 +27,11 @@
    "likes": 2,
    "comments": 0,
    "views": 33,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 287,
+   "yt_views": 33,
+   "yt_avg_s": 13,
+   "yt_avg_pct": 4.6,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -38,7 +45,11 @@
    "likes": 1,
    "comments": 0,
    "views": 22,
-   "checked": "2026-10-30T18:45+00:00"
+   "yt_views": 22,
+   "yt_avg_s": 43,
+   "yt_avg_pct": 14.6,
+   "yt_drop_at": 3,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -52,7 +63,12 @@
    "likes": 5,
    "comments": 2,
    "views": 59,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 536,
+   "yt_views": 59,
+   "yt_avg_s": 75,
+   "yt_avg_pct": 14.1,
+   "yt_drop_at": 4,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -66,7 +82,11 @@
    "likes": 1,
    "comments": 2,
    "views": 9,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 213,
+   "yt_views": 9,
+   "yt_avg_s": 36,
+   "yt_avg_pct": 17.2,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -80,7 +100,11 @@
    "likes": 1,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 201,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -235,7 +259,11 @@
    "likes": 0,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 615,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -259,7 +287,11 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 463,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -451,7 +483,11 @@
    "likes": 0,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 581,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -477,7 +513,11 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-30T18:45+00:00"
+   "length_s": 552,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -503,7 +543,11 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-31T07:39+00:00"
+   "length_s": 558,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -691,8 +735,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 1,
-   "checked": "2026-10-31T07:39+00:00"
+   "views": 2,
+   "length_s": 763,
+   "yt_views": 1,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
   }
  },
  {
@@ -917,7 +965,17 @@
   "youtube": "MDSuW5JFXkU",
   "fb_reel": "1639097700955805",
   "fb_story": "2962895730740955",
-  "yt_short": "FdW4hKNYOh0"
+  "yt_short": "FdW4hKNYOh0",
+  "stats": {
+   "likes": 7,
+   "comments": 2,
+   "views": 0,
+   "length_s": 2215,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
+  }
  },
  {
   "date": "2026-11-02T11:08+00:00",
@@ -944,7 +1002,17 @@
   "youtube": "nCbXlr5ET1o",
   "fb_reel": "1805919034069006",
   "fb_story": "1785492775993252",
-  "yt_short": "MSk2A06uNyo"
+  "yt_short": "MSk2A06uNyo",
+  "stats": {
+   "likes": 4,
+   "comments": 2,
+   "views": 3,
+   "length_s": 2416,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-03T11:27+00:00"
+  }
  },
  {
   "date": "2026-11-02T17:42+00:00",
@@ -971,5 +1039,36 @@
   "youtube": "jvOZDNLGTaw",
   "fb_reel": "30388797397386815",
   "fb_story": "27171190925912037"
+ },
+ {
+  "date": "2026-11-03T16:50+00:00",
+  "lang": "bn",
+  "slot": "2026-11-03@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "karna",
+  "question_post": "2026-11-03",
+  "title_b": "বাঁধের ধারের সেই অচেনা ডাক 🌑 | পর্ব 1",
+  "theme": "a new Karna Pishachini case",
+  "format": "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-11-03T11:52+00:00",
+  "title": "কর্ণপিশাচিনী #2: এবং নদিয়ার সেই গোপন সাধনা 🕯️ | পর্ব ১",
+  "festival": null,
+  "special": "karna",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": "",
+  "karna_origin": true,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1012867561069595",
+  "youtube": "mfTWF03Nzb8",
+  "fb_reel": "962205869903169",
+  "fb_story": "2015100545846766",
+  "fb_reel2": "1558766926056934",
+  "yt_short": "NQPqwoKTKuw"
  }
 ]
