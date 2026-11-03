@@ -92,8 +92,6 @@ jobs:
           FREEMODEL_API_KEY: ${{ secrets.FREEMODEL_API_KEY }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID_2: ${{ secrets.CF_ACCOUNT_ID_2 }}
-          CF_API_TOKEN_2: ${{ secrets.CF_API_TOKEN_2 }}
           AGNES_API_KEY: ${{ secrets.AGNES_API_KEY }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
@@ -105,10 +103,6 @@ jobs:
           YT_EXTRA: ${{ secrets.YT_EXTRA }}
           FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
           GEMINI_TTS_KEY: ${{ secrets.GEMINI_TTS_KEY }}
-          GEMINI_TTS_KEY_2: ${{ secrets.GEMINI_TTS_KEY_2 }}
-          GEMINI_TTS_KEY_3: ${{ secrets.GEMINI_TTS_KEY_3 }}
-          GEMINI_TTS_KEY_4: ${{ secrets.GEMINI_TTS_KEY_4 }}
-          GEMINI_TTS_KEY_5: ${{ secrets.GEMINI_TTS_KEY_5 }}
           TTS_PAID: ${{ secrets.TTS_PAID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           LANGUAGE: ${{ github.event.inputs.language }}
@@ -126,7 +120,7 @@ jobs:
           git config user.email "story-bot@users.noreply.github.com"
           git add history.json
           git add -A next_part.json 2>/dev/null || true
-          git add -A assets/next_up.json assets/lore assets/trends.json assets/lessons.json 2>/dev/null || true
+          git add -A assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json 2>/dev/null || true
           git commit -m "story posted $(date -u +%F_%H%M)" || exit 0
           git pull --rebase -q || true
           git push -q
