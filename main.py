@@ -1315,6 +1315,29 @@ STORY JSON:
     return story
 
 
+TEXT_DAY_OUT = set()          # writing models whose free DAILY limit is used up (not tried again this run)
+_post = requests.post
+
+
+def _post_watch(url, *a, **k):
+    """Every Gemini writing request: a model that answers 'daily limit reached' is skipped for the rest of the
+    run - no more wasted requests (each refused one also counts) and no long waits on it."""
+    r = _post(url, *a, **k)
+    try:
+        if r.status_code == 429 and ":generateContent" in str(url) and "tts" not in str(url):
+            if re.search(r"PerDay|per_day|daily", r.text, re.I):
+                mdl = str(url).split("/models/")[1].split(":")[0]
+                if mdl not in TEXT_DAY_OUT:
+                    TEXT_DAY_OUT.add(mdl)
+                    log(f"  {mdl}: today's free limit is used up - the next model writes")
+    except Exception:
+        pass
+    return r
+
+
+requests.post = _post_watch
+
+
 def gemini_models(key):
     tries = [env("GEMINI_MODEL")] if env("GEMINI_MODEL") else []
     tries.append("gemini-flash-latest")
@@ -1337,9 +1360,9 @@ def gemini_models(key):
     tries += ["gemini-2.5-flash"]
     out = []
     for t in tries:
-        if t and t not in out:
+        if t and t not in out and t not in TEXT_DAY_OUT:
             out.append(t)
-    return out
+    return out or tries[-1:]
 
 
 # ----------------------------------------------------------------- famous writers' ghost stories (public domain)
@@ -1971,10 +1994,15 @@ Every scene object also has "chapter": "2-4 word {L['name']} chapter name for Yo
                 raise
             except Exception as e:
                 log("  backup writer failed:", (str(e) or type(e).__name__)[:150])
+        if models and all(x in TEXT_DAY_OUT for x in models):
+            log("  every Gemini writing model has used today's free limit - no point waiting")
+            break
         if wait:
             log(f"All Gemini models busy - waiting {wait} s (round {round_no + 1}/{len(waits)})")
             time.sleep(wait)
         for model in list(models):
+            if model in TEXT_DAY_OUT:
+                continue                              # its free limit is over for today
             try:
                 log(f"Writing story with {model} ...")
                 r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent",
