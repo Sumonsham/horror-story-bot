@@ -1362,8 +1362,13 @@ MASTER_STYLE = (
 
 LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 16)     # set per slot below: 10 AM ~16 min, 2 PM / 8 PM ~23 min
 SLOT_MINUTES = {10: 16.0, 14: 23.0, 20: 23.0}      # how long each time slot's story is (the morning one is shorter)
-os.environ.setdefault("VOICE_MAX", "120")        # time for the voices of a ~15-minute story
-os.environ.setdefault("VOICE_RESERVE", "45")     # ... and for making the video
+os.environ.setdefault("VOICE_MAX", "240")        # Gemini may take its time for a long story (it is the best voice)
+os.environ.setdefault("VOICE_RESERVE", "60")     # ... but leaves an hour for making and posting the video
+JOB_START = time.time()                          # GitHub stops a job after 6 hours - we must finish well before
+
+
+def job_minutes_left():
+    return (float(env("JOB_LIMIT_MINUTES") or 350) * 60 - (time.time() - JOB_START)) / 60
 
 
 def continuity_bridges(story, lang):
@@ -2338,14 +2343,17 @@ def parler_persona(voices, speaker, lang):
     return voices.parler_map.get(c["name"].lower(), ("Arjun", "a moderate-pitched", "moderate"))
 
 
-def prepare_free_voices(todo, voices, lang, max_minutes=None):
+def prepare_free_voices(todo, voices, lang, max_minutes=None, keep=False):
     """Whole story with the free voice model (runs on GitHub, no daily limit). All lines or none."""
     global GEMINI_READY
     if MOCK:
         return False
     if not (extras.parler_ok() and extras.ensure_parler()):
+        if keep:
+            log("  free voice model not available - the last lines get the plain Google backup voice")
+            return False
         return no_voice()
-    max_minutes = max_minutes or int(env("FREE_VOICE_MINUTES") or 200)
+    max_minutes = min(max_minutes or int(env("FREE_VOICE_MINUTES") or 200), max(10, job_minutes_left() - 75))
     log(f"Free voice model for all {len(todo)} lines (slow - the post may be a little late)")
     t0 = time.time()
     for k, (i, j, ln) in enumerate(todo):
@@ -2364,6 +2372,10 @@ def prepare_free_voices(todo, voices, lang, max_minutes=None):
         GEMINI_READY = True
         log(f"  all lines voiced by the free model in {(time.time() - t0) / 60:.1f} min")
         return True
+    if keep and env("ALLOW_MICROSOFT") != "1":
+        # some lines are still without a good voice: rather post on time with the plain backup voice for those
+        log("  the last lines get the plain Google backup voice so the video is not lost (no Microsoft)")
+        return False
     GEMINI_CACHE.clear()
     return no_voice()
 
@@ -2382,8 +2394,7 @@ def no_voice():
 
 def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     """Voice the WHOLE story with Gemini before the video is made. If Gemini cannot finish every line
-    (limit reached), none of it is used - the whole video then uses Microsoft voices, so a character's
-    voice never changes and the sound never breaks in the middle of the video."""
+    (time or daily limit), the lines it made are kept and only the rest get a backup voice."""
     global GEMINI_READY
     if MOCK:
         return False
@@ -2401,15 +2412,30 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         items.append({"text": extras.performed(ln), "plain": extras.strip_tags(str(ln["text"])), "voice": voice,
                       "who": who, "feel": feel, "spk": voice, "out": os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav"),
                       "lang": lang})
-    if extras.tts_gemini_batch(items, LANGS[lang]["name"], SR, extras.voice_minutes(max_minutes)):
+    # a little after the post time is fine (the post just waits) - running out of the 6 GitHub hours is not
+    budget = min(max(extras.voice_minutes(max_minutes), 90), max(20, job_minutes_left() - 90))
+    log(f"  voice time allowed: {budget:.0f} min (job time left {job_minutes_left():.0f} min)")
+    if extras.tts_gemini_batch(items, LANGS[lang]["name"], SR, budget):
         for (i, j, ln), it in zip(todo, items):
             GEMINI_CACHE[(i, j)] = it["out"]
         GEMINI_READY = True
         log("  all lines voiced by Gemini")
         return True
-    GEMINI_CACHE.clear()
+    # Gemini stopped part-way (time or daily limit): KEEP every line it already made - never throw that away
+    # (that sent the whole story to the slow free model and the job ran out of time) - only the rest is
+    # voiced by the backup voice.
+    rest = []
+    for (i, j, ln), it in zip(todo, items):
+        if os.path.exists(it["out"]) and os.path.getsize(it["out"]) > 2000:
+            GEMINI_CACHE[(i, j)] = it["out"]
+        else:
+            rest.append((i, j, ln))
+    log(f"  Gemini made {len(todo) - len(rest)} of {len(todo)} lines - the other {len(rest)} with the backup voice")
     extras.TTS_STATE["off"] = True
-    return prepare_free_voices(todo, voices, lang)
+    if not rest:
+        GEMINI_READY = True
+        return True
+    return prepare_free_voices(rest, voices, lang, keep=True)
 
 
 async def _edge(text, voice, rate, pitch, out, volume="+0%"):
@@ -2499,6 +2525,8 @@ def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
     post_pitch, post_tempo = 1.0, 1.0
     tries = [(rate, pitch, volume, False), (rate, "+0Hz", volume, True), ("+0%", "+0Hz", "+0%", True),
              ("+0%", "+0Hz", "+0%", True)]
+    if env("ALLOW_MICROSOFT") != "1":
+        tries = []                      # Microsoft voices are switched off: straight to the Google backup
     for attempt, (r_, p_, v_, manual) in enumerate(tries):
         try:
             asyncio.run(_edge(text, voice, r_, p_, mp3, v_))
@@ -3784,7 +3812,7 @@ def render_clips(jobs):
     about 3x faster than one after the other. If the video is running late, the simpler (faster) motion is used."""
     at = extras.PUBLISH.get("at")
     left = (at - dt.datetime.now(extras.IST)).total_seconds() / 60 if at else 999
-    if left < 25 + len(jobs) * 0.8 and env("SIMPLE_MOTION") != "1":
+    if (left < 25 + len(jobs) * 0.8 or job_minutes_left() < 40 + len(jobs) * 0.6) and env("SIMPLE_MOTION") != "1":
         log(f"  only {left:.0f} minutes left - simpler picture motion today, so the video is on time")
         os.environ["SIMPLE_MOTION"] = "1"
     workers = max(1, min(int(env("CLIP_WORKERS") or 4), os.cpu_count() or 2))
@@ -3793,13 +3821,23 @@ def render_clips(jobs):
         try:
             import multiprocessing as mp
             from concurrent.futures import ProcessPoolExecutor
-            with ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("fork")) as pool:
-                for k, _ in enumerate(pool.map(_clip_job, jobs)):
-                    if (k + 1) % 5 == 0 or k + 1 == len(jobs):
-                        log(f"  clips: {k + 1}/{len(jobs)} ({(time.time() - t0) / 60:.1f} min, {workers} at once)")
+            pool = ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("fork"))
+            futs = [pool.submit(_clip_job, j) for j in jobs]
+            for k, f in enumerate(futs):
+                f.result(timeout=900)                 # one clip never takes 15 minutes - if it does, it is stuck
+                if (k + 1) % 5 == 0 or k + 1 == len(jobs):
+                    log(f"  clips: {k + 1}/{len(jobs)} ({(time.time() - t0) / 60:.1f} min, {workers} at once)")
+            pool.shutdown(wait=True)
             return
         except Exception as e:
-            log("  parallel clips failed - one by one:", str(e)[:150])
+            log("  parallel clips failed - the rest one by one with simple motion:", str(e)[:150] or type(e).__name__)
+            try:
+                for pr in list(getattr(pool, "_processes", {}).values()):
+                    pr.kill()
+                pool.shutdown(wait=False, cancel_futures=True)
+            except Exception:
+                pass
+            os.environ["SIMPLE_MOTION"] = "1"
     for k, job in enumerate(jobs):
         if not os.path.exists(job[2]) or os.path.getsize(job[2]) < 1000:
             scene_clip(*job)
