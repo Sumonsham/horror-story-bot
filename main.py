@@ -2577,33 +2577,52 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         items.append({"text": extras.performed(ln), "plain": extras.strip_tags(str(ln["text"])), "voice": voice,
                       "who": who, "feel": feel, "spk": voice, "out": os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav"),
                       "lang": lang})
-    # a little after the post time is fine (the post just waits) - running out of the 6 GitHub hours is not
-    budget = min(max(extras.voice_minutes(max_minutes), 90), max(20, job_minutes_left() - 90))
-    log(f"  voice time allowed: {budget:.0f} min (job time left {job_minutes_left():.0f} min)")
-    if extras.tts_gemini_batch(items, LANGS[lang]["name"], SR, budget):
-        for (i, j, ln), it in zip(todo, items):
-            GEMINI_CACHE[(i, j)] = it["out"]
-        GEMINI_READY = True
-        log("  all lines voiced by Gemini")
-        return True
-    # Gemini stopped part-way (time or daily limit): KEEP every line it already made - never throw that away
-    # (that sent the whole story to the slow free model and the job ran out of time) - only the rest is
-    # voiced by the backup voice.
+    # PLAN BY TODAY'S FREE LIMIT (about 10 requests a day per voice model): the storyteller first, then the people
+    # with the most lines - as many WHOLE characters as fit go to Gemini; all the others go to the free voice model
+    # RIGHT AWAY (it runs at the same time, so nothing waits for hours).
+    left = extras.tts_budget_left(TTS_USAGE)
+    need = {s: len(extras.tts_groups([it for (_i, _j, ln), it in zip(todo, items) if _who(ln) == s])) for s in order}
+    gem, acc = [], 0
+    for s in order:
+        if acc + need[s] <= left:
+            gem.append(s)
+            acc += need[s]
+    log(f"  today's free voice requests left: {left} -> Gemini for: {', '.join(gem) or '-'} ({acc} requests); "
+        f"free voice model for: {', '.join(s for s in order if s not in gem) or '-'}")
+    free_todo = [(i, j, ln) for (i, j, ln) in todo if _who(ln) not in gem]
+    import threading
+    free_res = {}
+    th = None
+    if free_todo:                                     # the free model works in parallel with Gemini
+        th = threading.Thread(target=lambda: free_res.setdefault(
+            "ok", prepare_free_voices(free_todo, voices, lang, keep=True)), daemon=True)
+        th.start()
+    gem_pairs = [((i, j, ln), it) for (i, j, ln), it in zip(todo, items) if _who(ln) in gem]
+    if gem_pairs:
+        extras.tts_gemini_batch([it for _t, it in gem_pairs], LANGS[lang]["name"], SR, max_requests=acc + 2)
+    try:
+        extras.tts_budget_use(TTS_USAGE)
+        push_now([TTS_USAGE], "voice limit used today")
+    except Exception as e:
+        log("  voice usage not saved:", str(e)[:100])
     made = lambda it: os.path.exists(it["out"]) and os.path.getsize(it["out"]) > 2000
-    full = {s for s in order if all(made(it) for (_i, _j, ln), it in zip(todo, items) if _who(ln) == s)}
+    full = {s for s in gem if all(made(it) for (_i, _j, ln), it in gem_pairs if _who(ln) == s)}
     rest = []
-    for (i, j, ln), it in zip(todo, items):
+    for (i, j, ln), it in gem_pairs:
         if _who(ln) in full:
             GEMINI_CACHE[(i, j)] = it["out"]
         else:
             rest.append((i, j, ln))
-    log(f"  Gemini voiced {len(full)} characters completely ({', '.join(sorted(full)) or '-'}); "
-        f"{len(rest)} lines of the others get the backup voice for ALL their lines (no voice change mid-story)")
+    log(f"  Gemini voiced {len(full)} characters completely ({', '.join(sorted(full)) or '-'})"
+        + (f"; {len(rest)} lines of {', '.join(sorted({_who(t[2]) for t in rest}))} go to the free voice model"
+           if rest else ""))
     extras.TTS_STATE["off"] = True
-    if not rest:
-        GEMINI_READY = True
-        return True
-    return prepare_free_voices(rest, voices, lang, keep=True)
+    if th:
+        th.join()
+    if rest:
+        prepare_free_voices(rest, voices, lang, keep=True)
+    GEMINI_READY = all((i, j) in GEMINI_CACHE for (i, j, _ln) in todo)
+    return GEMINI_READY
 
 
 async def _edge(text, voice, rate, pitch, out, volume="+0%"):
@@ -2719,7 +2738,9 @@ def tts_line(text, voice_spec, gtts_lang, out_wav, emotion="normal"):
         hz = int(pitch.replace("Hz", "")) if pitch.replace("Hz", "").lstrip("+-").isdigit() else 0
         male = voice in LANGS["hi"]["male"] + LANGS["bn"]["male"]
         f = max(0.72, min(1.3, (0.80 if male else 1.0) * (1 + hz / 160)))
-        af = f"asetrate=44100*{f:.3f},aresample=44100,atempo={min(2.0, max(0.5, 1 / f)):.3f}"
+        # (the Google voice comes at 24000 Hz: first make it 44100 Hz, THEN change its pitch - without this every
+        # line came out ~1.8x too high and too fast, like a cartoon child)
+        af = f"aresample=44100,asetrate=44100*{f:.3f},aresample=44100,atempo={min(2.0, max(0.5, 1 / f)):.3f}"
     if efx:
         af += "," + efx
     if ghost:
@@ -4580,6 +4601,7 @@ def morning_teasers(history):
 
 
 MY_STORIES = os.path.join(HERE, "assets", "my_stories.json")      # stories YOU send on Telegram
+TTS_USAGE = os.path.join(HERE, "assets", "tts_usage.json")        # free voice requests used today
 
 
 def creator_inbox():
