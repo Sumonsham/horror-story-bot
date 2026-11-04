@@ -118,7 +118,8 @@
    "likes": 2,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 257,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -131,8 +132,13 @@
   "stats": {
    "likes": 2,
    "comments": 0,
-   "views": 48,
-   "checked": "2026-10-31T23:09+00:00"
+   "views": 49,
+   "length_s": 82,
+   "yt_views": 48,
+   "yt_avg_s": 25,
+   "yt_avg_pct": 31.0,
+   "yt_drop_at": 10,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -146,7 +152,8 @@
    "likes": 1,
    "comments": 0,
    "views": 0,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 781,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -164,7 +171,11 @@
    "likes": 5,
    "comments": 3,
    "views": 3,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 657,
+   "yt_views": 3,
+   "yt_avg_s": 14,
+   "yt_avg_pct": 2.3,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -315,7 +326,11 @@
    "likes": 3,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 562,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -339,7 +354,11 @@
    "likes": 2,
    "comments": 2,
    "views": 1,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 669,
+   "yt_views": 1,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -363,7 +382,11 @@
    "likes": 4,
    "comments": 2,
    "views": 4,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 859,
+   "yt_views": 4,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -575,7 +598,11 @@
    "likes": 0,
    "comments": 2,
    "views": 1,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 559,
+   "yt_views": 1,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -773,7 +800,11 @@
    "likes": 3,
    "comments": 2,
    "views": 0,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 1123,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -806,7 +837,11 @@
    "likes": 2,
    "comments": 4,
    "views": 0,
-   "checked": "2026-10-31T23:09+00:00"
+   "length_s": 1034,
+   "yt_views": 1,
+   "yt_avg_s": 70,
+   "yt_avg_pct": 6.8,
+   "checked": "2026-11-04T04:31+00:00"
   }
  },
  {
@@ -1038,7 +1073,17 @@
   "facebook": "1742475984148786",
   "youtube": "jvOZDNLGTaw",
   "fb_reel": "30388797397386815",
-  "fb_story": "27171190925912037"
+  "fb_story": "27171190925912037",
+  "stats": {
+   "likes": 0,
+   "comments": 2,
+   "views": 0,
+   "length_s": 1856,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T04:31+00:00"
+  }
  },
  {
   "date": "2026-11-03T16:50+00:00",
@@ -1070,5 +1115,36 @@
   "fb_story": "2015100545846766",
   "fb_reel2": "1558766926056934",
   "yt_short": "NQPqwoKTKuw"
+ },
+ {
+  "date": "2026-11-04T09:57+00:00",
+  "lang": "bn",
+  "slot": "2026-11-04@14",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "sotti",
+  "question_post": "2026-11-04",
+  "title_b": "কামালপুর জমিদার বাড়ির অলৌকিক সত্য 🌑",
+  "theme": "the creator's own story",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "অভিশপ্ত কামালপুর জমিদার বাড়ি 🏚️ | পর্ব ১ | সত্য ঘটনা অবলম্বনে",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 1,
+  "mystery_answer": 2,
+  "facebook": "1158770953151392",
+  "youtube": "nOc672TcXW8",
+  "fb_reel": "1466929088915463",
+  "fb_story": "2480980205766407",
+  "fb_reel2": "1723234899373823",
+  "yt_short": "725TC3tpEzk"
  }
 ]
