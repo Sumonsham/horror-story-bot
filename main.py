@@ -782,7 +782,18 @@ Return ONLY JSON (ENGLISH):
  "clues": ["clue - beat where planted - beat where it pays off"],
  "twist": "", "resolution": "what really happened, why, and what became of every character", "last_line": ""}}
 Make {max(14, int(LONG_MIN * 1.25 * parts))} beats{f" for a story told in {parts} parts of about {int(LONG_MIN)} minutes each (add the key part to every beat: 1 or 2...; part 1 ends on a big cliffhanger, only the last part solves everything)" if parts > 1 else ""}: beginning (who/where/when/why/how they came), a full middle with at least three escalating
-events, a midpoint discovery and a false lead, then climax, twist and a clear resolution."""
+events, a midpoint discovery and a false lead, then climax, twist and a clear resolution.
+THE CLASSIC BENGALI RADIO-THRILLER SHAPE (the style of the great Kolkata radio suspense plays - style only):
+- a SMALL cast (3-5 people, each with a clear voice: age, temper, way of speaking) and ONE main place;
+- ACT 1 (first quarter): a calm, real, ordinary situation; the people and why they are there; the first small
+  wrong note that nobody can explain;
+- ACT 2 (middle half): the dread grows step by step - every beat is a scene of real conversation in which
+  something new is noticed, argued about, tested; the midpoint reveals a piece of the past; a false
+  explanation is believed for a while;
+- ACT 3 (last quarter): the night of the climax, the truth comes out in dialogue (a confession, a letter, an
+  old servant who finally speaks), the twist, and a calm explanation of everything - then ONE last chilling line;
+- every beat follows from the one before (cause -> effect); nothing important happens off-stage; no beat
+  repeats an earlier scare; the listener can always follow who is where and why."""
     ask2 = """You are a strict script doctor. Here is a horror story plan as JSON. Find EVERY problem: a decision
 that is not followed up (someone decides to leave - why couldn't he? show it), a person acting unrealistically,
 a coincidence, an unexplained event, a jump in time or place without a bridge, a clue with no payoff, a scare
@@ -1473,15 +1484,19 @@ def continuity_bridges(story, lang):
               "ends). Find every scene that does NOT follow from the scene before it - a sudden new place, time, "
               "person or event the listener cannot place. For each, write ONE short narrator bridge line in "
               f"{LANGS[lang]['name']} (pure Kolkata cholit for Bengali, max 22 words) that ties it naturally to what "
-              "came before (time, place, why). Answer ONLY JSON: [{\"n\": scene number, \"bridge\": \"line\"}] "
-              "([] if everything flows).\n" + json.dumps(rows, ensure_ascii=False))
-    for model in gemini_models(key)[:2]:
+              "came before (time, place, why). ALSO find every scene whose LAST line stops in the middle (an unfinished "
+              "sentence, thought or action) and write ONE short closing line for it (same speaker or the narrator). "
+              "Answer ONLY JSON: [{\"n\": scene number, \"bridge\": \"line\"} or {\"n\": scene number, "
+              "\"close\": \"line\", \"speaker\": \"name or narrator\"}] ([] if everything flows).\n" + json.dumps(rows, ensure_ascii=False))
+    for model in (gemini_models(key)[:3] * 2):
         r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
                           json={"contents": [{"parts": [{"text": prompt}]}],
                                 "generationConfig": {"temperature": 0.4, "responseMimeType": "application/json"}},
                           timeout=180)
         if not r.ok:
             log(f"  continuity check: {model} {r.status_code}")
+            if r.status_code == 503:
+                time.sleep(30)                         # Google busy: a short wait, the check matters
             continue
         fixes = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
         n = 0
@@ -1490,6 +1505,11 @@ def continuity_bridges(story, lang):
                 sc = story["scenes"][int(fx["n"])]
             except Exception:
                 continue
+            cl = str(fx.get("close", "")).strip()
+            if cl:
+                sc.setdefault("lines", []).append({"speaker": str(fx.get("speaker") or "narrator"), "emotion": "eerie",
+                                                   "text": cl, "en": ""})
+                n += 1
             b = str(fx.get("bridge", "")).strip()
             if b and int(fx["n"]) > 0:
                 sc.setdefault("lines", []).insert(0, {"speaker": "narrator", "emotion": "eerie", "text": b, "en": ""})
@@ -1516,7 +1536,8 @@ def ensure_ending(story, lang, cut_short=False):
               + ("The writing STOPPED before the ending. " if cut_short else "")
               + "Does the story END completely - the mystery explained, the ghost's reason clear, what became of every "
               "main person told, a final chilling line - with nothing left hanging? If YES answer {\"complete\": true}. "
-              "If NOT, write the missing ending as a continuation of exactly these last lines: 8-16 lines, mostly "
+              "If NOT, write ONLY the missing closing as a continuation of exactly these last lines (never retell, repeat "
+              "or add any earlier event or scene): 6-12 lines, mostly "
               f"dialogue, the same people ({', '.join(names[:8])}) and ONLY threads that already exist - no new "
               "person, no new event. Then the narrator's resolution and one last chilling line. "
               f"Lines in {LANGS[lang]['name']} (Bengali: pure Kolkata cholit). Answer ONLY JSON: "
@@ -1552,20 +1573,58 @@ def ensure_ending(story, lang, cut_short=False):
         return
 
 
-def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start"):
+def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start", part=0):
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
     n_ch = max(2, round(LONG_MIN / 6))               # ~6 chapters of ~6 minutes (what one Gemini answer holds)
     words_per = int(LONG_MIN * 120 / n_ch)            # ~120 spoken words a minute (slow, grave telling)
     need = int(float(env("MIN_LONG_MINUTES") or max(15.0, LONG_MIN - 2)) * 120)   # 10 AM >= 15 min, 2 PM / 8 PM >= 21 min
     max_ch = n_ch + 3
+    # THE PLAN DECIDES THE ORDER: the outline's beats are shared out between the chapters in advance - chapter 1
+    # tells beats 1-5, chapter 2 beats 6-10 ... - so nothing is told too early, nothing is skipped and nothing is
+    # pushed to the end. (Without this, a weak model 'forgot' beats and they were crammed into the last chapter.)
+    try:
+        allb = json.loads(STATE.get("outline") or "{}").get("beats") or []
+        if part and any(isinstance(b, dict) and b.get("part") for b in allb):     # a series: only THIS part's beats
+            allb = [b for b in allb if not isinstance(b, dict) or str(b.get("part", part)) == str(part)]
+        beats = []
+        for b in allb:
+            if isinstance(b, dict):
+                t = str(b.get("what_happens") or b.get("beat") or b.get("text") or "").strip()
+                if b.get("decision"):
+                    t += f" (decision: {b['decision']}; follow-up: {b.get('follow_up', '')})"
+                if b.get("new_fear"):
+                    t += f" (new fear: {b['new_fear']})"
+                beats.append(t[:400])
+            else:
+                beats.append(str(b)[:400])
+    except Exception:
+        beats = []
+    if len(beats) >= n_ch * 2:
+        max_ch = n_ch
+        share = [beats[round(i * len(beats) / n_ch):round((i + 1) * len(beats) / n_ch)] for i in range(n_ch)]
+        starts = [round(i * len(beats) / n_ch) for i in range(n_ch)]
+        log(f"  the plan's {len(beats)} beats shared out over {n_ch} chapters")
+    else:
+        share, starts = [], []
     chapters, summary, last, total, k, force_final, final_tries = [], "", "", 0, 0, False, 0
+    carry = []                                        # beats of a chapter that failed go to the next one
     while k < max_ch:
         k += 1
-        final = force_final or k == max_ch or (k >= 3 and total + words_per >= need)
-        rule = (f"\nLONG STORY - CHAPTER {k} (of about {n_ch}): today's video is ONE long story of at least "
-                f"{int(LONG_MIN)} minutes, written chapter by chapter. Write ONLY chapter {k}, telling the NEXT beats "
-                f"of the MASTER OUTLINE in order (continue from where the story so far stopped). ")
+        final = force_final or k == max_ch or (not share and k >= 3 and total + words_per >= need)
+        mine = (carry + share[k - 1]) if share and k - 1 < len(share) else []
+        if share and final and k - 1 < len(share):
+            mine = carry + [b for s in share[k - 1:] for b in s]
+        rule = (f"\nLONG STORY - CHAPTER {k} (of {n_ch if share else f'about {n_ch}'}): today's video is ONE long "
+                f"story of about {int(LONG_MIN)} minutes, written chapter by chapter. Write ONLY chapter {k}. ")
+        if mine:
+            first_no = (starts[k - 1] + 1 - len(carry)) if k - 1 < len(starts) else 1
+            rule += ("THIS CHAPTER TELLS EXACTLY THESE BEATS OF THE MASTER OUTLINE, IN THIS ORDER - nothing from the "
+                     "beats before them (already told), nothing from the beats after them (later chapters): "
+                     + " | ".join(f"beat {first_no + i}: {b}" for i, b in enumerate(mine)) + ". Every beat becomes "
+                     "one or more full scenes, lived in dialogue. ")
+        else:
+            rule += "Tell the NEXT beats of the MASTER OUTLINE in order (continue from where the story so far stopped). "
         if k == 1 and opening == "recap":
             rule += ("It opens THIS PART of the series: first the narrator's short recap of where the last part ended "
                      "(3-4 lines), then the story goes on from that exact moment - no new beginning. ")
@@ -1582,7 +1641,10 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                   "that explains everything and what became of every person, then the last chilling line. ") if final else
                  "End the chapter on a strong cliffhanger that leads straight into the next chapter (never say "
                  "'next part' or 'to be continued'). Do NOT end the story yet. ")
-        rule += ("NO JUMPS: every scene starts where the previous one ended, or with a clear spoken bridge (time and "
+        rule += ("EVERY SCENE ENDS COMPLETE: its last line is a finished sentence and its moment is over (an action done, "
+                 "a question asked, a shock seen) - never stop a scene in the middle of a thought, a sentence or an "
+                 "action; the NEXT scene picks up from exactly that point. "
+                 "NO JUMPS: every scene starts where the previous one ended, or with a clear spoken bridge (time and "
                  "place: 'সেই রাতেই...', 'পরদিন সকালে, থানায়...'); no person, place or event appears from nowhere. "
                  + ("Use ONLY the people, places, clues and promises already in the story so far - no new characters "
                     "or new threads now; tie every open thread. " if final else "") +
@@ -1608,10 +1670,20 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                     break
                 k -= 1                               # try the ending again
                 continue
+            if share:                                # same beats once more, then they go with the next chapter
+                if STATE.get("ch_retry") != k:
+                    STATE["ch_retry"] = k
+                    log(f"  chapter {k} failed ({str(e)[:100]}) - trying it once more")
+                    k -= 1
+                else:
+                    log(f"  chapter {k} failed again - its beats go into chapter {k + 1}")
+                    carry = mine
+                continue
             log(f"  chapter {k} failed ({str(e)[:100]}) - the next chapter will end the story")
             force_final = True
             k -= 1
             continue
+        carry = []
         s = edit_story(s, lang, classic=classic, brief=STATE.get("brief", ""), outline=STATE.get("outline", ""))
         chapters.append(s)
         summary += f"\nChapter {k}: {s.get('chapter_summary') or s.get('episode_summary') or ''}"
@@ -2602,7 +2674,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     gem_pairs = [((i, j, ln), it) for (i, j, ln), it in zip(todo, items) if _who(ln) in gem]
     if gem_pairs:
         try:
-            extras.tts_gemini_batch([it for _t, it in gem_pairs], LANGS[lang]["name"], SR, max_requests=acc + 2)
+            extras.tts_gemini_batch([it for _t, it in gem_pairs], LANGS[lang]["name"], SR, max_requests=min(left, acc + 6))
         except Exception as e:                        # never lose the video over the voices
             log("  expressive voices stopped:", str(e)[:150])
     made = lambda it: os.path.exists(it["out"]) and os.path.getsize(it["out"]) > 2000
@@ -4406,7 +4478,7 @@ def push_now(paths, why):
                        capture_output=True)
         c = subprocess.run(g + ["commit", "-m", why], cwd=HERE, capture_output=True, text=True)
         if c.returncode == 0:
-            subprocess.run(["git", "pull", "--rebase", "-q"], cwd=HERE, capture_output=True)
+            subprocess.run(["git", "pull", "--rebase", "--autostash", "-q"], cwd=HERE, capture_output=True)
             p_ = subprocess.run(["git", "push", "-q"], cwd=HERE, capture_output=True, text=True)
             log("  saved to GitHub:", why if p_.returncode == 0 else f"push failed {p_.stderr[:150]}")
     except Exception as e:
@@ -4860,7 +4932,7 @@ def choose_and_write(slot_hour, history):
             raise _Saved()
         story = write_long_story(lang, theme, history, fmt, extra_rules, classic=special == "classic",
                                  ending="cliffhanger" if part and part < total else "resolve",
-                                 opening="recap" if part >= 2 else "start")
+                                 opening="recap" if part >= 2 else "start", part=part)
         saved = story                                # already checked chapter by chapter by the editor
     except _Saved:
         story = saved
