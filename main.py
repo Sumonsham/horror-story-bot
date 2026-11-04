@@ -253,7 +253,7 @@ def load_history():
 
 # cron-job.org starts each video about 1 hour before it should be online (India time):
 # (start hour, start minute, the hour the video should be out)
-MORNING, NOON, EVENING = 10, 14, 20     # 2 PM and 8 PM stories; the morning run (10) makes their 2 teasers
+MORNING, NOON, EVENING = 10, 14, 20     # three ~15-minute stories a day: 10 AM, 2 PM, 8 PM
 TRIGGERS = [(6, 0, MORNING), (10, 0, NOON), (16, 0, EVENING)]   # earliest start for each (cron-job.org: 3-4 h before)
 SLOTS = (MORNING, NOON, EVENING)
 
@@ -339,7 +339,7 @@ def next_time_of(cat, slot_hour):
     for d in range(0, 8):
         day = now + dt.timedelta(days=d)
         for k in range(start if d == 0 else 0, 3):
-            if SLOTS[k] == MORNING and env("MORNING_STORY") != "1":
+            if SLOTS[k] == MORNING and env("MORNING_TEASERS") == "1":
                 continue                              # no morning story any more (the morning has teasers)
             if HORROR_GRID[day.weekday()][k] == cat:
                 return d, SLOTS[k]
@@ -350,7 +350,7 @@ def next_slot_of(slot_hour):
     """the very next video: (days_ahead, slot, category)"""
     now = dt.datetime.now(extras.IST)
     k = SLOTS.index(slot_hour) if slot_hour in SLOTS else 2
-    k0 = 0 if env("MORNING_STORY") == "1" else 1      # the first story of a day: 2 PM (no morning story)
+    k0 = 1 if env("MORNING_TEASERS") == "1" else 0    # the first story of a day: 10 AM (or 2 PM in teaser mode)
     if k < 2:
         k = max(k + 1, k0)
         return 0, SLOTS[k], HORROR_GRID[now.weekday()][k]
@@ -1455,8 +1455,8 @@ MASTER_STYLE = (
     "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
 
 
-LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 16)     # set per slot below: 10 AM ~16 min, 2 PM / 8 PM ~23 min
-SLOT_MINUTES = {10: 16.0, 14: 23.0, 20: 23.0}      # how long each time slot's story is (the morning one is shorter)
+LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 15)     # three ~15-minute stories a day
+SLOT_MINUTES = {10: 15.0, 14: 15.0, 20: 15.0}      # 15 minutes: tight, well-joined stories that fit the free limits
 os.environ.setdefault("VOICE_MAX", "240")        # Gemini may take its time for a long story (it is the best voice)
 os.environ.setdefault("VOICE_RESERVE", "60")     # ... but leaves an hour for making and posting the video
 JOB_START = time.time()                          # GitHub stops a job after 6 hours - we must finish well before
@@ -1576,9 +1576,9 @@ def ensure_ending(story, lang, cut_short=False):
 def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start", part=0):
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
-    n_ch = max(2, round(LONG_MIN / 6))               # ~6 chapters of ~6 minutes (what one Gemini answer holds)
+    n_ch = max(2, round(LONG_MIN / 5))               # chapters of ~5 minutes (15 min = 3 chapters)
     words_per = int(LONG_MIN * 120 / n_ch)            # ~120 spoken words a minute (slow, grave telling)
-    need = int(float(env("MIN_LONG_MINUTES") or max(15.0, LONG_MIN - 2)) * 120)   # 10 AM >= 15 min, 2 PM / 8 PM >= 21 min
+    need = int(float(env("MIN_LONG_MINUTES") or max(12.0, LONG_MIN - 2)) * 120)   # a 15-minute story: at least ~13 minutes
     max_ch = n_ch + 3
     # THE PLAN DECIDES THE ORDER: the outline's beats are shared out between the chapters in advance - chapter 1
     # tells beats 1-5, chapter 2 beats 6-10 ... - so nothing is told too early, nothing is skipped and nothing is
@@ -4995,7 +4995,7 @@ def main():
         except Exception as e:
             log("  stats skipped:", str(e)[:150])
     slot_hour = int(str(SLOT).split("@")[1]) if SLOT and "@" in str(SLOT) else EVENING
-    if slot_hour == MORNING and env("MODE") != "amavasya" and env("MORNING_STORY") != "1":
+    if slot_hour == MORNING and env("MODE") != "amavasya" and env("MORNING_TEASERS") == "1":
         return morning_teasers(history)              # no morning story: the morning makes the day's two teasers
     STATE["slot_hour"] = slot_hour
     global LONG_MIN
