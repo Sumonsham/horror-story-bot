@@ -115,5 +115,72 @@
   "setting": "ENGLISH: A dimly lit traditional Bengali room in Nadia in the 1980s, filled with brass lamps, old astrological charts, a ticking wooden wall clock, heavy wooden doors, misty rainy night outside, smelling of damp earth and burnt camphor.",
   "source": "",
   "updated": "2026-11-03T16:51:02.337220+00:00"
+ },
+ "tantrik": {
+  "created": "2026-11-04T14:31:23.804365+00:00",
+  "category": "tantrik",
+  "lang": "bn",
+  "theme": "madhusundari",
+  "fmt": "Taranath Tantrik telling his own true experience to Kishori, in first person",
+  "special": "taranath",
+  "title": "তারানাথ তান্ত্রিক #2: মধুসুন্দরী দেবীর আবির্ভাব 🕯️",
+  "done": 1,
+  "total": 2,
+  "series_id": "2026-11-04T12:42+00:00",
+  "case_no": 2,
+  "summary": "\nPart 1: Chapter 1: \nChapter 2: Young Taranath travels to Birbhum where he is warned by the mad Matu Pagli about a beautiful danger in the forest. He eventually finds a powerful Sadhu living near a ruined temple and becomes his disciple. There, he first encounters the mesmerizing Yogini Madhusundari, who visits the Sadhu at night, bringing a scent of musk. Driven by curiosity, Taranath sits on the Sadhu's skull-seat and is confronted by the Yogini, leading to a near-fatal fever. The Sadhu warns him to view her only as a mother or sister, never with desire. Taranath eventually leaves to practice her sadhana alone, and after months, she finally appears in his hut on a dark night.\nChapter 3: In this chapter, young Taranath recounts his three months of nightly visits from the yogini Madhusundari Devi. He grows proud of his supernatural powers and gains fame among the villagers. However, a poor Santhal woman arrives seeking help for her dying children, sparking Madhusundari's intense jealousy. The yogini reveals a terrifying, possessive side, threatening to kill the woman. Taranath finally realizes the danger he is in and chooses to protect the innocent mother, leading to a direct confrontation with the supernatural entity as the chapter ends on a high-tension cliffhanger.\nChapter 4: In this first chapter, a young Taranath wanders through Birbhum and is warned by Matu Pagli about a dangerous 'honey'. He finds a tall Sadhu in a forest near the Barakar river who meditates on human skulls. Taranath becomes his disciple and observes the mysterious Yogini Madhusundari visiting the Sadhu at night, accompanied by a strong musk scent. Driven by curiosity, Taranath sits on the forbidden skull-seat and is confronted by Madhusundari, leading to a near-fatal fever. The Sadhu reveals she is a Yogini and warns him to never desire her. Taranath leaves to practice her sadhana alone and, after months of failure, she finally appears in his hut on a dark night.\nChapter 5: In this chapter, young Taranath confronts the terrifying possessive nature of the yogini Madhusundari in his Birbhum hut after refusing to ignore a weeping Santhal mother. As tensions reach a boiling point, Madhusundari’s beauty turns into icy fury, warning him of a deadly price for defiance. The story returns to the dark Kolkata room where the hurricane lamp suddenly goes out, and the musky fragrance returns alongside a chilling laugh, leaving both Taranath and Kishori trapped in terror.\nChapter 6: In this final chapter of Part 1, young Taranath's past in Birbhum catches up with him as his refusal to abandon a weeping Santhal mother triggers Madhusundari Devi's deadly jealousy. In the present Kolkata room, Kishori and Taranath face the terrifying return of the yogini's musky scent and wet barefoot prints on the floor. Taranath desperately warns Kishori not to look back as a chilling sigh breathes down their necks. The chapter ends on a gripping cliffhanger, leaving the ultimate fate of the two men shrouded in supernatural dread.",
+  "last_lines": "বাইরের ঝড়ের শব্দ ছাপিয়ে তখন স্পষ্ট শোনা যাচ্ছে একটা দীর্ঘশ্বাসের শব্দ— ঠিক ঘাড়ের কাছে। / মধুসুন্দরী দেবী কি সত্যিই চলে গেছেন, নাকি তিনি আজও ঘুরে বেড়ান অন্ধকারের গভীরে?",
+  "outline": "",
+  "characters": [
+   {
+    "name": "Taranath",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "a lean dark-skinned Bengali man of about sixty-five, once a wandering tantrik, now a poor astrologer: half-grey hair, short grey beard, deep piercing eyes, a faded vermilion mark on the forehead, one old rudraksha mala, a worn white dhoti and an old brown shawl, sitting by a hurricane lamp in a damp room"
+   },
+   {
+    "name": "Kishori",
+    "gender": "male",
+    "age": "young",
+    "kind": "human",
+    "look": "a curious young Bengali man of about twenty-five in a white kurta and dhoti, neat side-parted black hair, thin moustache, sitting cross-legged and listening with wide eyes, 1940s Kolkata"
+   },
+   {
+    "name": "Madhusundari",
+    "name_local": "মধুসুন্দরী",
+    "gender": "female",
+    "age": "young",
+    "kind": "ghost",
+    "look": "Madhusundari Devi, a yogini (not a human being) in the form of a breathtakingly beautiful young woman of about twenty: fair glowing skin, very large calm dark eyes that seem to know everything, long open black hair to the waist, an unfamiliar ancient-looking dress unlike any Bengali saree (deep red and black cloth with old heavy gold ornaments), bare feet that make no sound, a faint silver mist around her; her presence always brings a strong musky fragrance"
+   },
+   {
+    "name": "Sadhu",
+    "name_local": "সাধুবাবা",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "a very tall, very dark-skinned old sadhu with long matted grey hair tied on top, a long grey beard, bloodshot calm eyes, ash on his body, a red loincloth and a rudraksha mala, sitting on a seat of five skulls under a huge chhatim tree beside a ruined temple in a sal forest"
+   },
+   {
+    "name": "Matu Pagli",
+    "name_local": "মাতু পাগলি",
+    "gender": "female",
+    "age": "old",
+    "kind": "human",
+    "look": "Matu Pagli, a wild-eyed cremation-ground madwoman of about fifty, thin and dark, tangled grey-black hair, a torn dirty red saree, iron and conch bangles, a cracked laugh, who knows far more than she says"
+   },
+   {
+    "name": "Santhal woman",
+    "name_local": "সাঁওতাল মেয়েটি",
+    "gender": "female",
+    "age": "adult",
+    "kind": "human",
+    "look": "a poor Santhal village woman of about thirty, dark skin, hair in a bun with a red flower, a simple white-and-red saree worn Santhal style, silver anklets, desperate tearful eyes"
+   }
+  ],
+  "setting": "ENGLISH: A damp, dark room in 1940s Kolkata with peeling mustard-yellow walls, lit by a single flickering hurricane lamp casting long shadows, old wooden shelves piled with manuscripts, a small wooden cot where Kishori sits listening intently to old Taranath.",
+  "source": "",
+  "updated": "2026-11-04T14:31:23.804604+00:00"
  }
 }

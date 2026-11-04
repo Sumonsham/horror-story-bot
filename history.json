@@ -632,7 +632,11 @@
    "likes": 2,
    "comments": 2,
    "views": 0,
-   "checked": "2026-11-01T11:31+00:00"
+   "length_s": 611,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T11:43+00:00"
   }
  },
  {
@@ -664,7 +668,11 @@
    "likes": 1,
    "comments": 2,
    "views": 0,
-   "checked": "2026-11-01T11:31+00:00"
+   "length_s": 744,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T11:43+00:00"
   }
  },
  {
@@ -874,7 +882,11 @@
    "likes": 2,
    "comments": 2,
    "views": 0,
-   "checked": "2026-11-01T11:31+00:00"
+   "length_s": 956,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-04T11:43+00:00"
   }
  },
  {
@@ -1146,5 +1158,36 @@
   "fb_story": "2480980205766407",
   "fb_reel2": "1723234899373823",
   "yt_short": "725TC3tpEzk"
+ },
+ {
+  "date": "2026-11-04T14:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-04@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "tantrik",
+  "question_post": null,
+  "title_b": "যোগিনীর অভিশপ্ত রাত 🌑 | তারানাথ তান্ত্রিক | পর্ব 1",
+  "theme": "madhusundari",
+  "format": "Taranath Tantrik telling his own true experience to Kishori, in first person",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-11-04T12:42+00:00",
+  "title": "তারানাথ তান্ত্রিক #2: মধুসুন্দরী দেবীর আবির্ভাব 🕯️ | পর্ব ১",
+  "festival": null,
+  "special": "taranath",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1011887015297227",
+  "youtube": "SylYfIkIUIM",
+  "fb_reel": "1645829723570163",
+  "fb_story": "2603964453415645",
+  "fb_reel2": "1140631125382675",
+  "yt_short": "VjKjBVwJKlQ"
  }
 ]
