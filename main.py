@@ -1187,6 +1187,8 @@ def no_series_name(title, special):
     if not rx:
         return title
     t = re.sub(rf"^\s*{rx}\s*(?:#?\s*[\d০-৯०-९]+)?\s*[:：।|\-–—]*\s*", "", str(title), flags=re.I).strip()
+    t = re.sub(rf"\s*\|\s*[^|]*{rx}[^|]*", "", t, flags=re.I).strip()     # '... | তারানাথ তান্ত্রিক #2' in the middle too
+    t = re.sub(r"\s*\|\s*", " | ", t)
     return t if len(t) >= 3 else title
 
 
@@ -2599,14 +2601,25 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         th.start()
     gem_pairs = [((i, j, ln), it) for (i, j, ln), it in zip(todo, items) if _who(ln) in gem]
     if gem_pairs:
-        extras.tts_gemini_batch([it for _t, it in gem_pairs], LANGS[lang]["name"], SR, max_requests=acc + 2)
+        try:
+            extras.tts_gemini_batch([it for _t, it in gem_pairs], LANGS[lang]["name"], SR, max_requests=acc + 2)
+        except Exception as e:                        # never lose the video over the voices
+            log("  expressive voices stopped:", str(e)[:150])
+    made = lambda it: os.path.exists(it["out"]) and os.path.getsize(it["out"]) > 2000
+    for s in gem:                                     # 1-3 lines of a character came out empty: those lines
+        miss = [it for (_i, _j, ln), it in gem_pairs if _who(ln) == s and not made(it)]   # alone, same voice
+        mine = [it for (_i, _j, ln), it in gem_pairs if _who(ln) == s]
+        if miss and len(miss) <= 3 and len(miss) < len(mine) and extras.gemini_quota_left():
+            for it in miss:
+                extras.TTS_USED[0] += 1
+                extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. " + extras.PRONOUNCE.get(lang, ""),
+                                  LANGS[lang]["name"], it["out"], SR)
+    full = {s for s in gem if all(made(it) for (_i, _j, ln), it in gem_pairs if _who(ln) == s)}
     try:
         extras.tts_budget_use(TTS_USAGE)
         push_now([TTS_USAGE], "voice limit used today")
     except Exception as e:
         log("  voice usage not saved:", str(e)[:100])
-    made = lambda it: os.path.exists(it["out"]) and os.path.getsize(it["out"]) > 2000
-    full = {s for s in gem if all(made(it) for (_i, _j, ln), it in gem_pairs if _who(ln) == s)}
     rest = []
     for (i, j, ln), it in gem_pairs:
         if _who(ln) in full:
@@ -4926,6 +4939,12 @@ def main():
         plan["shout_names"], plan["shout_ids"] = right_answers(history)
     else:
         plan = choose_and_write(slot_hour, history)
+        if SLOT and not MOCK:                          # a re-run after a failure uses this story, no new writing
+            try:
+                save_plan(SLOT, json.loads(json.dumps(plan, ensure_ascii=False, default=list)))
+                push_now([PLANS_FILE, MY_STORIES], f"story written for {SLOT}")
+            except Exception as e:
+                log("  story not saved for a re-run:", str(e)[:120])
     (cat, classic, festival, fmt, lang, outline, part, prev, shout_ids, shout_names, special, story, theme, total, viewer) = (plan.get(k) for k in ('cat', 'classic', 'festival', 'fmt', 'lang', 'outline', 'part', 'prev', 'shout_ids', 'shout_names', 'special', 'story', 'theme', 'total', 'viewer'))
     classic = tuple(classic) if classic else None
     L = LANGS[lang]
