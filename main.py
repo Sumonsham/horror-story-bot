@@ -4361,6 +4361,24 @@ def _jsave(path, data):
         json.dump(data, f, ensure_ascii=False)
 
 
+def push_now(paths, why):
+    """Saves files to GitHub RIGHT AWAY (not only at the end of the run), so the later runs surely find them -
+    e.g. this morning's stories for the afternoon and night videos."""
+    if MOCK or DRY_RUN or env("GITHUB_ACTIONS") != "true":
+        return
+    try:
+        g = ["git", "-c", "user.name=story-bot", "-c", "user.email=story-bot@users.noreply.github.com"]
+        subprocess.run(["git", "add", "-f"] + [p for p in paths if os.path.exists(p)], cwd=HERE, check=True,
+                       capture_output=True)
+        c = subprocess.run(g + ["commit", "-m", why], cwd=HERE, capture_output=True, text=True)
+        if c.returncode == 0:
+            subprocess.run(["git", "pull", "--rebase", "-q"], cwd=HERE, capture_output=True)
+            p_ = subprocess.run(["git", "push", "-q"], cwd=HERE, capture_output=True, text=True)
+            log("  saved to GitHub:", why if p_.returncode == 0 else f"push failed {p_.stderr[:150]}")
+    except Exception as e:
+        log("  could not save to GitHub now:", str(e)[:150])
+
+
 def load_plan(slot):
     """The story the morning run already wrote for this time slot (and promised in its teaser)."""
     if not slot or env("USE_MORNING_SCRIPT") == "0":
@@ -4516,6 +4534,7 @@ def morning_teasers(history):
                 plan = choose_and_write(h, hist2)
                 plan = json.loads(json.dumps(plan, ensure_ascii=False, default=list))
                 save_plan(key, plan)
+                push_now([PLANS_FILE, MY_STORIES], f"story written for {key}")
             except Exception as e:
                 log(f"  the story for {key} could not be written now ({str(e)[:200]}) - its own run will write it")
                 continue
@@ -4556,6 +4575,7 @@ def morning_teasers(history):
             WORK = base_work
     done[str(SLOT)] = dt.datetime.now(extras.IST).isoformat(timespec="minutes")
     _jsave(TEASERS_FILE, {k: v for k, v in done.items() if k >= (dt.date.today() - dt.timedelta(days=7)).isoformat()})
+    push_now([PLANS_FILE, TEASERS_FILE, MY_STORIES], "morning teasers posted")
     log(f"Morning done: {len(out)} teaser(s); the afternoon and night videos will use these stories")
 
 
