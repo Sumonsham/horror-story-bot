@@ -3077,11 +3077,19 @@ def freesound(query, loop):
                     return w[:-len(suf)]
             return w
 
+        def want_of(q):
+            return [stem(w) for w in (q.split() if q == g else keyw)]
+
+        def name_hits(x, q):
+            nm = str(x.get("name", "")).lower()
+            return sum(1 for w in want_of(q) if w in nm)
+
         def relevant(x, q):
             hay = (str(x.get("name", "")) + " " + " ".join(x.get("tags") or [])).lower()
-            want = [stem(w) for w in (q.split() if q == g else keyw)]
+            want = want_of(q)
             hits = sum(1 for w in want if w in hay)
-            return hits >= max(1, min(2, (len(want) + 1) // 2))
+            # the recording's own NAME must say what it is (tags alone brought 'heavy swallow' for rushing water)
+            return name_hits(x, q) >= 1 and hits >= max(1, min(2, len(want)))
         res = []
         for q in dict.fromkeys(t for t in tries if t):
             r = requests.get("https://freesound.org/apiv2/search/", timeout=30, params={
@@ -3090,8 +3098,8 @@ def freesound(query, loop):
             res = [x for x in (r.json().get("results", []) if r.ok else []) if relevant(x, q)]
             if res:
                 # among the most relevant, prefer well-liked, much-used recordings (better quality)
-                res = sorted(res[:5], key=lambda x: (x.get("avg_rating") or 0) * 10 + min(x.get("num_downloads") or 0, 5000) / 500,
-                             reverse=True)
+                res = sorted(res[:6], key=lambda x: (name_hits(x, q), (x.get("avg_rating") or 0) * 10
+                                                     + min(x.get("num_downloads") or 0, 5000) / 500), reverse=True)
                 break
         if res:
             pick = res[0]
@@ -5091,7 +5099,7 @@ def main():
         log("  no cast picture - using text descriptions only")
 
     # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
-    budget = int(env("MAX_IMAGES") or (90 if LONG_MIN > 15 else 48))
+    budget = int(env("MAX_IMAGES") or (90 if LONG_MIN > 16 else 36))   # 3 videos a day must fit the free picture limit
     scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
     total_lines = sum(len(x) for x in scene_lines) or 1
     imgs, shots_per_scene, last_ok, count = [], [], None, 0
