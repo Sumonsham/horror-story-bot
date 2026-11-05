@@ -253,7 +253,7 @@ def load_history():
 
 # cron-job.org starts each video about 1 hour before it should be online (India time):
 # (start hour, start minute, the hour the video should be out)
-MORNING, NOON, EVENING = 10, 14, 20     # three ~15-minute stories a day: 10 AM, 2 PM, 8 PM
+MORNING, NOON, EVENING = 10, 14, 20     # 2 PM and 8 PM ~22-minute stories; the morning run makes their teasers
 TRIGGERS = [(6, 0, MORNING), (10, 0, NOON), (16, 0, EVENING)]   # earliest start for each (cron-job.org: 3-4 h before)
 SLOTS = (MORNING, NOON, EVENING)
 
@@ -339,7 +339,7 @@ def next_time_of(cat, slot_hour):
     for d in range(0, 8):
         day = now + dt.timedelta(days=d)
         for k in range(start if d == 0 else 0, 3):
-            if SLOTS[k] == MORNING and env("MORNING_TEASERS") == "1":
+            if SLOTS[k] == MORNING and env("MORNING_TEASERS") != "0":
                 continue                              # no morning story any more (the morning has teasers)
             if HORROR_GRID[day.weekday()][k] == cat:
                 return d, SLOTS[k]
@@ -350,7 +350,7 @@ def next_slot_of(slot_hour):
     """the very next video: (days_ahead, slot, category)"""
     now = dt.datetime.now(extras.IST)
     k = SLOTS.index(slot_hour) if slot_hour in SLOTS else 2
-    k0 = 1 if env("MORNING_TEASERS") == "1" else 0    # the first story of a day: 10 AM (or 2 PM in teaser mode)
+    k0 = 1 if env("MORNING_TEASERS") != "0" else 0    # the first story of a day: 2 PM (the morning has the teasers)
     if k < 2:
         k = max(k + 1, k0)
         return 0, SLOTS[k], HORROR_GRID[now.weekday()][k]
@@ -1455,8 +1455,8 @@ MASTER_STYLE = (
     "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
 
 
-LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 15)     # three ~15-minute stories a day
-SLOT_MINUTES = {10: 15.0, 14: 15.0, 20: 15.0}      # 15 minutes: tight, well-joined stories that fit the free limits
+LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 22)     # two ~22-minute stories a day (2 PM, 8 PM)
+SLOT_MINUTES = {10: 15.0, 14: 22.0, 20: 22.0}      # every character in the Gemini voice fits the free limit
 os.environ.setdefault("VOICE_MAX", "240")        # Gemini may take its time for a long story (it is the best voice)
 os.environ.setdefault("VOICE_RESERVE", "60")     # ... but leaves an hour for making and posting the video
 JOB_START = time.time()                          # GitHub stops a job after 6 hours - we must finish well before
@@ -2651,60 +2651,69 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         items.append({"text": extras.performed(ln), "plain": extras.strip_tags(str(ln["text"])), "voice": voice,
                       "who": who, "feel": feel, "spk": voice, "out": os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav"),
                       "lang": lang})
-    # PLAN BY TODAY'S FREE LIMIT (about 10 requests a day per voice model): the storyteller first, then the people
-    # with the most lines - as many WHOLE characters as fit go to Gemini; all the others go to the free voice model
-    # RIGHT AWAY (it runs at the same time, so nothing waits for hours).
-    left = extras.tts_budget_left(TTS_USAGE)
-    need = {s: len(extras.tts_groups([it for (_i, _j, ln), it in zip(todo, items) if _who(ln) == s])) for s in order}
-    gem, acc = [], 0
-    for s in order:
-        if acc + need[s] <= left:
-            gem.append(s)
-            acc += need[s]
-    log(f"  today's free voice requests left: {left} -> Gemini for: {', '.join(gem) or '-'} ({acc} requests); "
-        f"free voice model for: {', '.join(s for s in order if s not in gem) or '-'}")
-    free_todo = [(i, j, ln) for (i, j, ln) in todo if _who(ln) not in gem]
-    import threading
-    free_res = {}
-    th = None
-    if free_todo:                                     # the free model works in parallel with Gemini
-        th = threading.Thread(target=lambda: free_res.setdefault(
-            "ok", prepare_free_voices(free_todo, voices, lang, keep=True)), daemon=True)
-        th.start()
-    gem_pairs = [((i, j, ln), it) for (i, j, ln), it in zip(todo, items) if _who(ln) in gem]
-    if gem_pairs:
-        try:
-            extras.tts_gemini_batch([it for _t, it in gem_pairs], LANGS[lang]["name"], SR, max_requests=min(left, acc + 6))
-        except Exception as e:                        # never lose the video over the voices
-            log("  expressive voices stopped:", str(e)[:150])
+    # ONLY GEMINI VOICES IN HORROR (no free / backup voice - it kills the feel). Planned by today's free limit:
+    # as many WHOLE characters as fit go now (storyteller first); if some do not fit, the run waits for Google's
+    # daily reset (about 1:30 PM India time) when that is near, and voices them then.
     made = lambda it: os.path.exists(it["out"]) and os.path.getsize(it["out"]) > 2000
-    for s in gem:                                     # 1-3 lines of a character came out empty: those lines
-        miss = [it for (_i, _j, ln), it in gem_pairs if _who(ln) == s and not made(it)]   # alone, same voice
-        mine = [it for (_i, _j, ln), it in gem_pairs if _who(ln) == s]
-        if miss and len(miss) <= 3 and len(miss) < len(mine) and extras.gemini_quota_left():
-            for it in miss:
-                extras.TTS_USED[0] += 1
-                extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. " + extras.PRONOUNCE.get(lang, ""),
-                                  LANGS[lang]["name"], it["out"], SR)
-    full = {s for s in gem if all(made(it) for (_i, _j, ln), it in gem_pairs if _who(ln) == s)}
-    try:
-        extras.tts_budget_use(TTS_USAGE)
-        push_now([TTS_USAGE], "voice limit used today")
-    except Exception as e:
-        log("  voice usage not saved:", str(e)[:100])
-    rest = []
-    for (i, j, ln), it in gem_pairs:
-        if _who(ln) in full:
+    pairs_of = lambda chars: [((i, j, ln), it) for (i, j, ln), it in zip(todo, items) if _who(ln) in chars]
+    done_chars = set()
+
+    def gemini_round(chars):
+        left = extras.tts_budget_left(TTS_USAGE)
+        need = {s: len(extras.tts_groups([it for _t, it in pairs_of({s})])) for s in chars}
+        gem, acc = [], 0
+        for s in [x for x in order if x in chars]:
+            if acc + need[s] <= left:
+                gem.append(s)
+                acc += need[s]
+        log(f"  today's free voice requests left: {left} -> Gemini now for: {', '.join(gem) or '-'} ({acc} requests)"
+            + (f"; waiting: {', '.join(s for s in order if s in chars and s not in gem)}" if len(gem) < len(chars) else ""))
+        gp = pairs_of(set(gem))
+        if gp:
+            try:
+                extras.tts_gemini_batch([it for _t, it in gp], LANGS[lang]["name"], SR, max_requests=min(left, acc + 6))
+            except Exception as e:                    # never lose the video over the voices
+                log("  expressive voices stopped:", str(e)[:150])
+        for s in gem:                                 # 1-3 lines of a character came out empty: those lines alone
+            mine = [it for _t, it in pairs_of({s})]
+            miss = [it for it in mine if not made(it)]
+            if miss and len(miss) <= 3 and len(miss) < len(mine) and extras.gemini_quota_left():
+                for it in miss:
+                    extras.TTS_USED[0] += 1
+                    extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
+                                      + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], it["out"], SR)
+        try:
+            extras.tts_budget_use(TTS_USAGE)
+            push_now([TTS_USAGE], "voice limit used today")
+        except Exception as e:
+            log("  voice usage not saved:", str(e)[:100])
+        full = {s for s in gem if all(made(it) for _t, it in pairs_of({s}))}
+        for (i, j, ln), it in pairs_of(full):
             GEMINI_CACHE[(i, j)] = it["out"]
-        else:
-            rest.append((i, j, ln))
-    log(f"  Gemini voiced {len(full)} characters completely ({', '.join(sorted(full)) or '-'})"
-        + (f"; {len(rest)} lines of {', '.join(sorted({_who(t[2]) for t in rest}))} go to the free voice model"
-           if rest else ""))
+        return full
+
+    done_chars |= gemini_round(set(order))
+    waiting = [s for s in order if s not in done_chars]
+    if waiting:
+        wait_s = extras.seconds_until_reset()
+        room = job_minutes_left() * 60 - 75 * 60      # time still needed after the voices for the video itself
+        if 0 < wait_s <= min(room, float(env("RESET_WAIT_MAX_MIN") or 240) * 60):
+            log(f"  {', '.join(waiting)}: no free Gemini voice left today - waiting {wait_s / 60:.0f} min for Google's "
+                "daily reset, so EVERY character gets the Gemini voice (the post may be a little late)")
+            time.sleep(wait_s + 120)
+            extras.DAY_OUT.clear()
+            extras.HITS.clear()
+            extras.TTS_STATE["off"] = False
+            done_chars |= gemini_round(set(waiting))
+            waiting = [s for s in order if s not in done_chars]
     extras.TTS_STATE["off"] = True
-    if th:
-        th.join()
-    if rest:
+    log(f"  Gemini voiced {len(done_chars)} characters completely ({', '.join(sorted(done_chars)) or '-'})")
+    if waiting:
+        rest = [(i, j, ln) for (i, j, ln) in todo if _who(ln) in waiting]
+        log(f"  EMERGENCY: {', '.join(waiting)} could not get a Gemini voice today - the free voice for them, so the "
+            "video is not lost")
+        extras.telegram(f"⚠️ Daily Horror Story: Gemini's free voice limit was not enough today - {', '.join(waiting)} "
+                        "got the free voice in this video.")
         prepare_free_voices(rest, voices, lang, keep=True)
     GEMINI_READY = all((i, j) in GEMINI_CACHE for (i, j, _ln) in todo)
     return GEMINI_READY
@@ -4619,7 +4628,11 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
     cat = plan.get("cat") or category_of(slot_hour)
     STATE["top_text"] = (f"{SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])} · {HORROR_CATS[cat][lang]}", title)
     wide = os.path.join(WORK, "teaser_wide.mp4")
-    build_video(parts, lang, wide)
+    os.environ["TTS_SPEAKERS_PER_REQUEST"] = "2"      # a teaser has only a few short lines: fewer voice requests
+    try:
+        build_video(parts, lang, wide)
+    finally:
+        os.environ.pop("TTS_SPEAKERS_PER_REQUEST", None)
     extras.make_teaser(wide, 0.0, duration(wide), out_portrait, FONT, title, when, WORK,
                        tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""),
                        colors=((255, 230, 0), (200, 0, 20)))
@@ -5003,7 +5016,7 @@ def main():
         except Exception as e:
             log("  stats skipped:", str(e)[:150])
     slot_hour = int(str(SLOT).split("@")[1]) if SLOT and "@" in str(SLOT) else EVENING
-    if slot_hour == MORNING and env("MODE") != "amavasya" and env("MORNING_TEASERS") == "1":
+    if slot_hour == MORNING and env("MODE") != "amavasya" and env("MORNING_TEASERS") != "0":
         return morning_teasers(history)              # no morning story: the morning makes the day's two teasers
     STATE["slot_hour"] = slot_hour
     global LONG_MIN
@@ -5099,7 +5112,7 @@ def main():
         log("  no cast picture - using text descriptions only")
 
     # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
-    budget = int(env("MAX_IMAGES") or (90 if LONG_MIN > 16 else 36))   # 3 videos a day must fit the free picture limit
+    budget = int(env("MAX_IMAGES") or (56 if LONG_MIN > 16 else 36))   # 2 videos + teasers fit the free picture limit
     scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
     total_lines = sum(len(x) for x in scene_lines) or 1
     imgs, shots_per_scene, last_ok, count = [], [], None, 0
