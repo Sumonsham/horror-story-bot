@@ -918,8 +918,12 @@
   "stats": {
    "likes": 3,
    "comments": 1,
-   "views": 1,
-   "checked": "2026-11-02T01:31+00:00"
+   "views": 0,
+   "length_s": 1152,
+   "yt_views": 1,
+   "yt_avg_s": 1151,
+   "yt_avg_pct": 100.0,
+   "checked": "2026-11-05T06:06+00:00"
   }
  },
  {
@@ -951,8 +955,12 @@
   "stats": {
    "likes": 0,
    "comments": 1,
-   "views": 1,
-   "checked": "2026-11-02T01:31+00:00"
+   "views": 0,
+   "length_s": 1186,
+   "yt_views": 1,
+   "yt_avg_s": 1189,
+   "yt_avg_pct": 100.2,
+   "checked": "2026-11-05T06:06+00:00"
   }
  },
  {
@@ -1126,7 +1134,21 @@
   "fb_reel": "962205869903169",
   "fb_story": "2015100545846766",
   "fb_reel2": "1558766926056934",
-  "yt_short": "NQPqwoKTKuw"
+  "yt_short": "NQPqwoKTKuw",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 2,
+   "length_s": 1635,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T06:06+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 2
+  }
  },
  {
   "date": "2026-11-04T09:57+00:00",
@@ -1157,7 +1179,16 @@
   "fb_reel": "1466929088915463",
   "fb_story": "2480980205766407",
   "fb_reel2": "1723234899373823",
-  "yt_short": "725TC3tpEzk"
+  "yt_short": "725TC3tpEzk",
+  "stats": {
+   "likes": 0,
+   "comments": 1,
+   "views": 4,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T06:06+00:00"
+  }
  },
  {
   "date": "2026-11-04T14:31+00:00",
@@ -1189,5 +1220,36 @@
   "fb_story": "2603964453415645",
   "fb_reel2": "1140631125382675",
   "yt_short": "VjKjBVwJKlQ"
+ },
+ {
+  "date": "2026-11-05T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-05@14",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "jayga",
+  "question_post": "2026-11-05",
+  "title_b": "অহিরীটোলার অভিশপ্ত গুমঘর 🏺",
+  "theme": "Putulbari in north Kolkata",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "পুতুলবাড়ির সেই অন্ধ কুঠুরি 🕯️",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 2,
+  "facebook": "1145879657813789",
+  "youtube": "s45RAbxkH70",
+  "fb_reel": "1388187186722936",
+  "fb_story": "29471482715803845",
+  "fb_reel2": "2020926095265701",
+  "yt_short": "yeP9EOQE5TY"
  }
 ]
