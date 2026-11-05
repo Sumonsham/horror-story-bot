@@ -199,7 +199,8 @@
    "likes": 1,
    "comments": 1,
    "views": 0,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 599,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -223,7 +224,11 @@
    "likes": 1,
    "comments": 2,
    "views": 2,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 496,
+   "yt_views": 2,
+   "yt_avg_s": 76,
+   "yt_avg_pct": 15.4,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -246,7 +251,10 @@
    "likes": 0,
    "comments": 1,
    "views": 0,
-   "checked": "2026-11-02T08:31+00:00"
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -400,7 +408,11 @@
    "likes": 1,
    "comments": 0,
    "views": 2,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 5428,
+   "yt_views": 2,
+   "yt_avg_s": 12,
+   "yt_avg_pct": 0.2,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -425,7 +437,11 @@
    "likes": 3,
    "comments": 2,
    "views": 0,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 691,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -440,7 +456,11 @@
    "likes": 0,
    "comments": 0,
    "views": 1,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 1078,
+   "yt_views": 1,
+   "yt_avg_s": 22,
+   "yt_avg_pct": 2.1,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -454,7 +474,11 @@
    "likes": 2,
    "comments": 0,
    "views": 0,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 6119,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -479,8 +503,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 0,
-   "checked": "2026-11-02T08:31+00:00"
+   "views": 1,
+   "length_s": 356,
+   "yt_views": 1,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -705,7 +733,11 @@
    "likes": 4,
    "comments": 2,
    "views": 2,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 565,
+   "yt_views": 2,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -738,7 +770,11 @@
    "likes": 4,
    "comments": 3,
    "views": 2,
-   "checked": "2026-11-02T08:31+00:00"
+   "length_s": 811,
+   "yt_views": 2,
+   "yt_avg_s": 280,
+   "yt_avg_pct": 34.6,
+   "checked": "2026-11-05T11:31+00:00"
   }
  },
  {
@@ -1188,6 +1224,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-05T06:06+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 5
   }
  },
  {
@@ -1219,7 +1259,17 @@
   "fb_reel": "1645829723570163",
   "fb_story": "2603964453415645",
   "fb_reel2": "1140631125382675",
-  "yt_short": "VjKjBVwJKlQ"
+  "yt_short": "VjKjBVwJKlQ",
+  "stats": {
+   "likes": 3,
+   "comments": 3,
+   "views": 3,
+   "length_s": 1912,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-05T11:31+00:00"
+  }
  },
  {
   "date": "2026-11-05T08:31+00:00",
@@ -1251,5 +1301,36 @@
   "fb_story": "29471482715803845",
   "fb_reel2": "2020926095265701",
   "yt_short": "yeP9EOQE5TY"
+ },
+ {
+  "date": "2026-11-05T14:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-05@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "rohoshyo",
+  "question_post": null,
+  "title_b": "আদি গঙ্গার নিচে লুকানো সেই বিভীষিকা 🌊 | পর্ব 2",
+  "theme": "the last metro train at Tollygunge",
+  "format": "classic third-person radio-drama narration",
+  "part": 2,
+  "continues": false,
+  "series_id": "2026-11-02T13:31+00:00",
+  "title": "ভৈরব ঠাকুরের কেস #1: টালিগঞ্জের শেষ মেট্রো ও পঁয়ত্রিশ বছরের পুরোনো প্রেতযান 🚇 | পর্ব ২",
+  "festival": null,
+  "special": "bhairab",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 2,
+  "facebook": "4451911141687704",
+  "youtube": "q6Bq3qO-VkQ",
+  "fb_reel": "2109216609700368",
+  "fb_story": "2616767118770671",
+  "fb_reel2": "1654528942863608",
+  "yt_short": "AupUhcx4TaQ"
  }
 ]
