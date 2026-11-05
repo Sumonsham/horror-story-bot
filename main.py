@@ -254,7 +254,7 @@ def load_history():
 # cron-job.org starts each video about 1 hour before it should be online (India time):
 # (start hour, start minute, the hour the video should be out)
 MORNING, NOON, EVENING = 10, 14, 20     # 2 PM and 8 PM ~22-minute stories; the morning run makes their teasers
-TRIGGERS = [(6, 0, MORNING), (10, 0, NOON), (16, 0, EVENING)]   # earliest start for each (cron-job.org: 3-4 h before)
+TRIGGERS = [(6, 0, MORNING), (10, 0, NOON), (15, 30, EVENING)]   # earliest start for each (cron-job.org: 3-4 h before)
 SLOTS = (MORNING, NOON, EVENING)
 
 # ---- the weekly programme: every day and time has its own kind of story (like a TV channel)
@@ -1603,10 +1603,33 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     if len(beats) >= n_ch * 2:
         max_ch = n_ch
         share = [beats[round(i * len(beats) / n_ch):round((i + 1) * len(beats) / n_ch)] for i in range(n_ch)]
+        ends = [round((i + 1) * len(beats) / n_ch) for i in range(n_ch)]
         starts = [round(i * len(beats) / n_ch) for i in range(n_ch)]
         log(f"  the plan's {len(beats)} beats shared out over {n_ch} chapters")
     else:
-        share, starts = [], []
+        share, starts, ends = [], [], []
+    full_outline = STATE.get("outline") or ""
+
+    def outline_for(k, final):
+        """What a chapter may SEE of the plan: never the twist, the solution or the beats of later chapters
+        before the last chapter - a writer who knows the ending tends to tell it at once (part 2 'ended' in
+        its first 5 minutes and then started again)."""
+        if final or not full_outline:
+            return full_outline
+        try:
+            pl = json.loads(full_outline)
+        except Exception:
+            return full_outline
+        for key_ in ("twist", "resolution", "last_line"):
+            pl.pop(key_, None)
+        bl = pl.get("beats") or []
+        if part and any(isinstance(b, dict) and b.get("part") for b in bl):
+            bl = [b for b in bl if not isinstance(b, dict) or str(b.get("part", part)) == str(part)]
+        if ends and k - 1 < len(ends):
+            bl = bl[:ends[k - 1]]
+        pl["beats"] = bl
+        pl["note"] = "the rest of the plan (and the solution) is told only in the later chapters"
+        return json.dumps(pl, ensure_ascii=False)
     chapters, summary, last, total, k, force_final, final_tries = [], "", "", 0, 0, False, 0
     carry = []                                        # beats of a chapter that failed go to the next one
     while k < max_ch:
@@ -1655,7 +1678,14 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                   "fully (talk, doubt, small real details) - NEVER from extra events, repeated scenes or changing "
                   "the planned order.")
         try:                                         # a shorter chapter is kept (no costly rewrite) -
-            s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules + rule,
+            er = extra_rules
+            if full_outline and full_outline in er:
+                er = er.replace(full_outline, outline_for(k, final))
+            if not final:
+                er = er.replace("This is the FINAL part: solve the mystery completely.", "")
+                rule += ("NOT THE END YET: in this chapter do NOT solve the mystery, do NOT reveal the twist and do "
+                         "NOT wrap up the story - that happens only in the last chapter. ")
+            s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=er + rule,
                            length=length, min_w=int(words_per * 0.7))   # ... more chapters make up the length
         except ClassicUnknown:
             raise
@@ -1684,7 +1714,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
             k -= 1
             continue
         carry = []
-        s = edit_story(s, lang, classic=classic, brief=STATE.get("brief", ""), outline=STATE.get("outline", ""))
+        s = edit_story(s, lang, classic=classic, brief=STATE.get("brief", ""), outline=outline_for(k, final))
         chapters.append(s)
         summary += f"\nChapter {k}: {s.get('chapter_summary') or s.get('episode_summary') or ''}"
         tail = [str(ln.get("text", "")) for ln in (s["scenes"][-1].get("lines") or [])][-3:]
@@ -4872,7 +4902,9 @@ def choose_and_write(slot_hour, history):
                             f"The last lines of part {part - 1} were: {prev.get('last_lines', '')}\n"
                             f"Use EXACTLY these people (names, looks): {json.dumps(prev.get('characters'), ensure_ascii=False)[:3000]} "
                             f"and this place: {prev.get('setting', '')}. Keep every clue, promise and fact consistent. "
-                            + ("This is the FINAL part: solve the mystery completely.\n" if part >= total else
+                            + ("This is the FINAL part: the mystery is solved completely - but ONLY in its last "
+                               "chapter (the climax and the explanation come at the end, never at the start).\n"
+                               if part >= total else
                                "End again on a cliffhanger.\n"))
     if prev and prev.get("outline"):
         STATE["outline_saved"] = prev["outline"]
@@ -4912,7 +4944,8 @@ def choose_and_write(slot_hour, history):
     if theme == "madhusundari":
         subject, ck = ("the yogini (যোগিনী) in Bengali tantric belief: what yoginis are, how they are said to appear to a "
                        "sadhak, their nature, their dangers and the old warnings about them"), "yogini"
-    has_script = bool(((prev or {}).get("scripts") or {}).get(str(part)))
+    # (old versions saved part 2 pre-written in ONE go - it did not follow the chapter plan: never used now)
+    has_script = env("USE_SAVED_PARTS") == "1" and bool(((prev or {}).get("scripts") or {}).get(str(part)))
     brief = ""
     if not has_script and part <= 1 and special in ("", "taranath", "bhairab", "amavasya", None) and not viewer \
             and theme != "madhusundari" and not STATE.get("creator_story"):
@@ -4931,7 +4964,7 @@ def choose_and_write(slot_hour, history):
     if brief and not STATE.get("source_name"):
         extra_rules += ("\nRESEARCH BRIEF (true facts we looked up before writing - FOLLOW THEM EXACTLY; never "
                         "contradict them):\n" + brief + "\n")
-    saved = ((prev or {}).get("scripts") or {}).get(str(part)) if part >= 2 else None
+    saved = ((prev or {}).get("scripts") or {}).get(str(part)) if part >= 2 and has_script else None
     if saved:                                        # this part was written together with part 1: use it as is
         SCRIPTS.update({k: v for k, v in (prev.get("scripts") or {}).items() if int(k) > part})
         log(f"Series part {part}: using the script written with part 1")
@@ -5112,7 +5145,7 @@ def main():
         log("  no cast picture - using text descriptions only")
 
     # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
-    budget = int(env("MAX_IMAGES") or (56 if LONG_MIN > 16 else 36))   # 2 videos + teasers fit the free picture limit
+    budget = int(env("MAX_IMAGES") or (50 if LONG_MIN > 16 else 36))   # 2 videos + teasers fit the free picture limit
     scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
     total_lines = sum(len(x) for x in scene_lines) or 1
     imgs, shots_per_scene, last_ok, count = [], [], None, 0
