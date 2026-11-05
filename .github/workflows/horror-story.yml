@@ -120,7 +120,7 @@ jobs:
           git config user.email "story-bot@users.noreply.github.com"
           git add history.json
           git add -A next_part.json 2>/dev/null || true
-          git add -A assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json 2>/dev/null || true
+          git add -A assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json 2>/dev/null || true
           git commit -m "story posted $(date -u +%F_%H%M)" || exit 0
           git pull --rebase -q || true
           git push -q
@@ -150,4 +150,3 @@ jobs:
             work/voice_demo_*.mp3
           retention-days: 3
           if-no-files-found: ignore
-          
