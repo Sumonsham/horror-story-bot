@@ -1262,7 +1262,7 @@ def ensure_intros(story, cold=False):
         log(f"  introduced {added} character(s) where they first enter")
 
 
-def edit_story(story, lang, classic=False, brief="", outline=""):
+def edit_story(story, lang, classic=False, brief="", outline="", chapter=None):
     """A second pass by a 'chief editor' (like a publisher's editor): scores the story and rewrites the weak parts
     - more fear, a fairer and bigger twist, logic, scenes flowing into each other, natural dialogue, correct
     language. Returns the better story, or the original if anything goes wrong."""
@@ -1276,6 +1276,16 @@ def edit_story(story, lang, classic=False, brief="", outline=""):
     rule = ("This is a retelling of a famous classic: do NOT change its events, characters or ending - improve only "
             "the telling (suspense, dialogue, sound, pictures, language)." if classic else
             "Improve the plot too where it is weak: a bigger, fairer twist, a cleverer ghost, a stronger ending.")
+    chapter_note = ""
+    if chapter:                                       # (k, n, final): this is ONE chapter of a long story
+        k_, n_, fin_ = chapter
+        chapter_note = (f"\nIMPORTANT - THIS IS CHAPTER {k_} OF {n_} OF ONE LONG STORY, NOT A WHOLE STORY: judge the "
+                        "STRUCTURE only inside this chapter. "
+                        + ("" if k_ == 1 else "Do NOT add a hook line, a new beginning or a new introduction of known "
+                                              "people - it continues from the previous chapter. ")
+                        + ("" if fin_ else "Do NOT add a climax, a twist, an explanation or an ending - the story goes on "
+                                           "in the next chapter; it must end on a cliffhanger. ")
+                        + "Never add scenes from earlier or later in the story; time only moves forward.")
     prompt = f"""You are the chief editor of India's most successful horror audio-drama channel.
 Here is a {L['name']} horror story script as JSON. First judge it honestly (1-10) on: real fear and dread, the twist
 (surprising but fair), logic and consistency (names, time, place, who knows what), each scene flowing into the next,
@@ -1295,7 +1305,7 @@ escalating events, a clue, a false lead and a discovery; a clear end with climax
 that explains the whole mystery and what became of everyone - ADD the missing scenes if the beginning, middle or
 end is thin or abrupt), and correct,
 natural {L['name']} ({'pure Kolkata cholit Bengali, correct spelling' if lang == 'bn' else 'natural correct Hindi'}).
-Then REWRITE every weak line and scene to make it a 10. {rule}
+Then REWRITE every weak line and scene to make it a 10. {rule}{chapter_note}
 Keep EXACTLY the same JSON structure and ALL keys (every scene, line, sfx, image, people, ghost_reveal, guess,
 next_story...), the same characters with the same names and looks, and about the same length (no more than 10% longer - our videos have a fixed length).
 Add one key "editor_scores": {{"fear": n, "twist": n, "logic": n, "flow": n, "structure": n, "names": n, "belief": n, "dialogue": n, "language": n}} with the
@@ -1307,6 +1317,10 @@ scores of YOUR improved version. Return ONLY the complete improved JSON.
 Add also the key "plot_holes_fixed": ["ENGLISH: each hole you found and how you fixed it"].
 STORY JSON:
 {json.dumps(story, ensure_ascii=False)}"""
+    if chapter:                                       # a chapter: no 'whole story' structure demands at all
+        prompt = re.sub(r"a hook in the first lines, ", "", prompt)
+        prompt = re.sub(r"STRUCTURE \(a clear beginning:.*?end is thin or abrupt\)", "STRUCTURE (inside this chapter only: "
+                        "its planned beats in order, each fully lived in scenes)", prompt, flags=re.S)
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.8, "responseMimeType": "application/json", "maxOutputTokens": 60000}}
     for model in gemini_models(key)[:4]:
@@ -1481,7 +1495,7 @@ def fix_language(story, lang):
             t = str(ln.get("text", "")).strip()
             lat = len(re.findall(r"[A-Za-z]", t))
             loc = len(re.findall(script, t))
-            if t and lat > 6 and lat > loc:
+            if t and ((lat > 6 and lat > loc) or re.search(r"[A-Za-z]{2,}(?:[\s,.'-]+[A-Za-z]{2,}){2,}", t)):
                 bad.append((i, j, t))
     if not bad:
         return
@@ -1796,7 +1810,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
             k -= 1
             continue
         carry = []
-        s = edit_story(s, lang, classic=classic, brief=STATE.get("brief", ""), outline=outline_for(k, final))
+        s = edit_story(s, lang, classic=classic, brief=STATE.get("brief", ""), outline=outline_for(k, final),
+                       chapter=(k, n_ch, final))
         chapters.append(s)
         summary += f"\nChapter {k}: {s.get('chapter_summary') or s.get('episode_summary') or ''}"
         tail = [str(ln.get("text", "")) for ln in (s["scenes"][-1].get("lines") or [])][-3:]
@@ -1936,6 +1951,42 @@ def classic_rule(c, lang):
     else:
         intro = (f"'आज की कहानी {writer} की लिखी " + (f"\"{book}\" से " if book else "") + f"कहानी \"{title}\" है।'")
     return CLASSIC_RULE.format(en=c[4], lang=LANGS[lang]["name"], intro=intro)
+
+
+CHAPTER_CRAFT = """
+CHAPTER CRAFT (you write ONE CHAPTER of a longer story - NOT a whole story):
+- Tell ONLY this chapter's beats, in order, fully lived in scenes and dialogue; the story goes on after it.
+- Do NOT open with a hook line, a flash-forward or a scene from later; do NOT introduce again the people the
+  listeners already know; do NOT sum up or end the story - unless the rules below say this is the first / last
+  chapter.
+- SHOW, don't tell; every scene has concrete detail of sight, sound, smell, touch; each person keeps their own
+  way of talking; real, natural dialogue.
+- Scenes flow into each other like a film, time only moves forward, details stay consistent.
+"""
+
+
+def chapter_prompt(prompt, extra_rules):
+    """The main story prompt is written for a WHOLE story (a hook first, a full plot, a satisfying ending). For a
+    chapter of a long story that made each chapter a little story of its own - it 'ended', and the next chapter
+    began again with a hook and an introduction. So for chapters those parts are replaced."""
+    mt = re.search(r"LONG STORY - CHAPTER (\d+)", extra_rules or "")
+    if not mt:
+        return prompt
+    k = int(mt.group(1))
+    last = "This is the FINAL chapter" in extra_rules or "LAST chapter of THIS PART" in extra_rules
+    p = prompt.replace("Write ONE brand-new horror story in", "Write ONE CHAPTER (one part, NOT a whole story) of a "
+                       "long brand-new horror story in")
+    p = p.replace(extras.STORY_CRAFT, CHAPTER_CRAFT)
+    p = p.replace("- Before writing, plan the whole plot (beginning - rising dread - trap - face-to-face - twist), then "
+                  "write it\n  scene by scene without shortcuts.", "- Follow the master outline's beats for THIS chapter only.")
+    if k > 1:
+        p = p.replace(HORROR_HOOK, "")
+        p = p.replace("  * the FIRST line is a chilling hook (a strange fact, a warning, or a scream) - no slow introduction;",
+                      "  * the FIRST line continues EXACTLY from the previous chapter's last moment - no hook, no new start;")
+        p = p.replace("(for scene 1: 'cold open')", "(for scene 1: how it continues from the previous chapter's last moment)")
+    if not last:
+        p = p.replace("a satisfying ending", "a strong cliffhanger at the end of the chapter")
+    return p
 
 
 def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2, length=None, min_w=None):
@@ -2154,6 +2205,7 @@ Return ONLY JSON with exactly these keys:
 }}
 Every scene object also has "chapter": "2-4 word {L['name']} chapter name for YouTube chapters".
 """
+    prompt = chapter_prompt(prompt, extra_rules)      # a chapter of a long story is NOT a whole story
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json",
                                  "maxOutputTokens": 60000}}
@@ -2806,7 +2858,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         for s in gem:                                 # 1-3 lines of a character came out empty: those lines alone
             mine = [it for _t, it in pairs_of({s})]
             miss = [it for it in mine if not made(it)]
-            if miss and len(miss) <= 3 and len(miss) < len(mine) and extras.gemini_quota_left():
+            if miss and len(miss) <= max(3, len(mine) // 8) and len(miss) < len(mine) and extras.gemini_quota_left():
                 for it in miss:
                     extras.TTS_USED[0] += 1
                     extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
