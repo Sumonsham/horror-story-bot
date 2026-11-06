@@ -1308,7 +1308,22 @@
   "fb_reel": "1388187186722936",
   "fb_story": "29471482715803845",
   "fb_reel2": "2020926095265701",
-  "yt_short": "yeP9EOQE5TY"
+  "yt_short": "yeP9EOQE5TY",
+  "stats": {
+   "likes": 0,
+   "comments": 2,
+   "views": 0,
+   "length_s": 1661,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-06T10:03+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 0,
+   "at": "2026-11-06T10:03+00:00"
+  }
  },
  {
   "date": "2026-11-05T14:31+00:00",
@@ -1371,5 +1386,36 @@
   "fb_story": "4650921681720864",
   "fb_reel2": "2187071102246353",
   "yt_short": "Ynq7aQmOWxA"
+ },
+ {
+  "date": "2026-11-06T14:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-06@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "karna",
+  "question_post": null,
+  "title_b": "নদীয়ার সেই জ্যান্ত সিন্দুক: এক ভয়ঙ্কর রাত 🌑 | পর্ব 2",
+  "theme": "a new Karna Pishachini case",
+  "format": "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters",
+  "part": 2,
+  "continues": false,
+  "series_id": "2026-11-03T11:52+00:00",
+  "title": "কর্ণপিশাচিনী #2: এবং নদিয়ার সেই গোপন সাধনা 🕯️ | পর্ব ২",
+  "festival": null,
+  "special": "karna",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": "Nilkantha Acharya faces the ultimate test as his nephew Bapi is possessed by the spirit of Rudraksha, a guardian of the Jalangi river. Having lost his voice to the Karna Pishachini, Nilkantha must find a way to communicate and stop the ancient entity from dragging Bapi into the watery depths forever.",
+  "karna_origin": true,
+  "hidden": 0,
+  "mystery_answer": 2,
+  "facebook": "1455220516714961",
+  "youtube": "DO4nU-Mw8CM",
+  "fb_reel": "1197321806323481",
+  "fb_story": "1989717161999302",
+  "fb_reel2": "29121517204148478",
+  "yt_short": "nWKfqFP_e_E"
  }
 ]
