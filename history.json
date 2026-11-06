@@ -1025,10 +1025,14 @@
   "fb_reel": "1459259292798168",
   "fb_story": "1655372142871344",
   "stats": {
-   "likes": 4,
+   "likes": 5,
    "comments": 1,
    "views": 0,
-   "checked": "2026-11-02T12:51+00:00"
+   "length_s": 1040,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-06T01:01+00:00"
   }
  },
  {
@@ -1269,6 +1273,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-05T11:31+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 2
   }
  },
  {
