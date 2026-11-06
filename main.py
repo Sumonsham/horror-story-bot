@@ -793,7 +793,10 @@ THE CLASSIC BENGALI RADIO-THRILLER SHAPE (the style of the great Kolkata radio s
 - ACT 3 (last quarter): the night of the climax, the truth comes out in dialogue (a confession, a letter, an
   old servant who finally speaks), the twist, and a calm explanation of everything - then ONE last chilling line;
 - every beat follows from the one before (cause -> effect); nothing important happens off-stage; no beat
-  repeats an earlier scare; the listener can always follow who is where and why."""
+  repeats an earlier scare; the listener can always follow who is where and why;
+- TIME ONLY MOVES FORWARD, beat after beat: never 'a month later' in the middle and then back to the same
+  night; no flash-forwards; the past appears ONLY when a character tells it or reads it (clearly as a memory).
+  A big time jump is allowed only once, at the very end (an epilogue), with a clear spoken bridge."""
     ask2 = """You are a strict script doctor. Here is a horror story plan as JSON. Find EVERY problem: a decision
 that is not followed up (someone decides to leave - why couldn't he? show it), a person acting unrealistically,
 a coincidence, an unexplained event, a jump in time or place without a bridge, a clue with no payoff, a scare
@@ -1468,6 +1471,58 @@ def job_minutes_left():
     return (float(env("JOB_LIMIT_MINUTES") or 350) * 60 - (time.time() - JOB_START)) / 60
 
 
+def fix_language(story, lang):
+    """Every spoken line must be in the story's language: a line the writer left in English (or mostly Latin
+    letters) is translated - a Bengali radio drama that suddenly speaks English breaks the spell."""
+    script = r"[\u0980-\u09FF]" if lang == "bn" else r"[\u0900-\u097F]"
+    bad = []
+    for i, sc in enumerate(story.get("scenes") or []):
+        for j, ln in enumerate(sc.get("lines") or []):
+            t = str(ln.get("text", "")).strip()
+            lat = len(re.findall(r"[A-Za-z]", t))
+            loc = len(re.findall(script, t))
+            if t and lat > 6 and lat > loc:
+                bad.append((i, j, t))
+    if not bad:
+        return
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return
+    rows = [{"k": k, "text": t[:400]} for k, (_i, _j, t) in enumerate(bad[:80])]
+    prompt = (f"Translate each line into natural spoken {LANGS[lang]['name']} for a radio drama"
+              + (" (pure Kolkata cholit bhasha)" if lang == "bn" else "") + ". Keep names. Answer ONLY JSON: "
+              "[{\"k\": number, \"text\": \"translated line\"}]\n" + json.dumps(rows, ensure_ascii=False))
+    for model in gemini_models(key):
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}],
+                                    "generationConfig": {"temperature": 0.3, "responseMimeType": "application/json"}},
+                              timeout=180)
+            if not r.ok:
+                continue
+            out = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+            n = 0
+            for o in out if isinstance(out, list) else []:
+                try:
+                    i, j, old = bad[int(o["k"])]
+                except Exception:
+                    continue
+                t = str(o.get("text", "")).strip()
+                if t and re.search(script, t):
+                    ln = story["scenes"][i]["lines"][j]
+                    ln.setdefault("en", old)
+                    ln["text"] = t
+                    n += 1
+            log(f"  language check: {n} of {len(bad)} English line(s) put into {LANGS[lang]['name']}")
+            return
+        except Exception as e:
+            log("  language check:", str(e)[:100])
+    # no model answered: an English line is better left out than read out in English
+    for i, j, _t in sorted(bad, reverse=True):
+        del story["scenes"][i]["lines"][j]
+    log(f"  language check: {len(bad)} English line(s) left out")
+
+
 def continuity_bridges(story, lang):
     """The whole joined story read once more as ONE film: a scene that seems to come from nowhere ('where did this
     come from?') gets a short narrator bridge at its start that ties it to what came before."""
@@ -1488,6 +1543,8 @@ def continuity_bridges(story, lang):
               f"{LANGS[lang]['name']} (pure Kolkata cholit for Bengali, max 22 words) that ties it naturally to what "
               "came before (time, place, why). ALSO find every scene whose LAST line stops in the middle (an unfinished "
               "sentence, thought or action) and write ONE short closing line for it (same speaker or the narrator). "
+              "ALSO find every scene whose TIME does not follow (it jumps ahead, or goes back before the scene "
+              "before it): give it a bridge line that makes the time clear and natural. "
               "Answer ONLY JSON: [{\"n\": scene number, \"bridge\": \"line\"} or {\"n\": scene number, "
               "\"close\": \"line\", \"speaker\": \"name or narrator\"}] ([] if everything flows).\n" + json.dumps(rows, ensure_ascii=False))
     for model in (gemini_models(key)[:3] * 2):
@@ -1609,7 +1666,12 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         starts = [round(i * len(beats) / n_ch) for i in range(n_ch)]
         log(f"  the plan's {len(beats)} beats shared out over {n_ch} chapters")
     else:
+        # no plan at all (Google refused every model): only TWO chapters - a shorter story that holds together
+        # is far better than a long one whose chapters wander off on their own
         share, starts, ends = [], [], []
+        n_ch = max_ch = 2
+        words_per = int(LONG_MIN * 120 / 2)
+        log("  no story plan today - writing a shorter story in 2 chapters so it stays in one piece")
     full_outline = STATE.get("outline") or ""
 
     def outline_for(k, final):
@@ -1666,7 +1728,12 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                   "that explains everything and what became of every person, then the last chilling line. ") if final else
                  "End the chapter on a strong cliffhanger that leads straight into the next chapter (never say "
                  "'next part' or 'to be continued'). Do NOT end the story yet. ")
-        rule += ("EVERY SCENE ENDS COMPLETE: its last line is a finished sentence and its moment is over (an action done, "
+        rule += ("TIME ONLY MOVES FORWARD: this chapter starts at the moment the last one ended and goes on in order - "
+                 "never jump ahead ('a month later', 'next year') and never go back to an earlier night; the past "
+                 "comes in ONLY as a character's spoken memory. "
+                 "LANGUAGE: every spoken line ONLY in " + LANGS[lang]["name"] + " (pure Kolkata cholit for Bengali) - "
+                 "never an English sentence in the text (English only in the 'en' field). "
+                 "EVERY SCENE ENDS COMPLETE: its last line is a finished sentence and its moment is over (an action done, "
                  "a question asked, a shock seen) - never stop a scene in the middle of a thought, a sentence or an "
                  "action; the NEXT scene picks up from exactly that point. "
                  "NO JUMPS: every scene starts where the previous one ended, or with a clear spoken bridge (time and "
@@ -1749,6 +1816,10 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         if end.get(k):
             story[k] = end[k]
     story["summary"] = summary.strip()
+    try:
+        fix_language(story, lang)
+    except Exception as e:
+        log("  language check skipped:", str(e)[:120])
     try:
         continuity_bridges(story, lang)
     except Exception as e:
@@ -4322,6 +4393,9 @@ def portrait_thumb(thumb):
     """9:16 thumbnail: the whole poster in the middle, a blurred copy behind"""
     from PIL import ImageEnhance, ImageFilter
     VW, VH = 1080, 1920
+    own = os.path.join(WORK, "thumbnail_portrait.jpg")
+    if os.path.exists(own):                          # the poster made for phones (words on top, ghost below)
+        return own
     t = Image.open(thumb).convert("RGB")
     s = max(VW / t.width, VH / t.height)
     bg = t.resize((int(t.width * s) + 1, int(t.height * s) + 1))
@@ -5253,11 +5327,30 @@ def main():
     big = re.sub(r"[^\w\sঀ-৿ऀ-ॿ!?,।'’-]", " ", re.sub(r"\s*\|.*$", "", title))   # the title on the thumbnail
     big = re.sub(r"\s{2,}", " ", re.sub(r"[0-9০-৯०-९]+", " ", big)).strip()   # the poster font has no digits
     sub = str(story.get("tagline") or story.get("thumbnail_text") or story.get("episode_name") or "").strip()   # ... + tag line
-    try:
-        extras.poster_thumbnail(thumb_base, big, sub, thumb, "horror", FONT)
+    try:                                             # the channel's own poster style (see extras.horror_poster)
+        if env("POSTER_STYLE") == "old":
+            raise RuntimeError("old style asked")
+        gname_ = next((c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")), "")
+        words = extras.poster_words(title, ti.get("place") or story.get("setting", ""), gname_, lang,
+                                    env("GEMINI_API_KEY"), gemini_models(env("GEMINI_API_KEY")) if env("GEMINI_API_KEY") else None)
+        if story.get("true_label"):
+            banner = extras.TRUE_LABEL.get(lang, extras.TRUE_LABEL["bn"])
+        elif part:
+            banner = (f"{series_bn} · " if series_bn else "") + L["part"].format(
+                n=str(part).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else part)
+        else:
+            banner = re.sub(r"\s+", " ", sub)[:28]
+        extras.horror_poster(thumb_base, words, banner, thumb, FONT)
+        extras.horror_poster(thumb_base, words, banner, os.path.join(WORK, "thumbnail_portrait.jpg"), FONT,
+                             portrait=True)
+        log(f"Poster: {' / '.join(v for v in words.values() if v)} | {banner}")
     except Exception as e:
-        log("  poster thumbnail failed, simple one:", str(e)[:120])
-        make_thumbnail(thumb_base, story.get("thumbnail_text") or title, thumb, L["label"])
+        log("  channel poster failed, the older poster:", str(e)[:120])
+        try:
+            extras.poster_thumbnail(thumb_base, big, sub, thumb, "horror", FONT)
+        except Exception as e2:
+            log("  poster thumbnail failed, simple one:", str(e2)[:120])
+            make_thumbnail(thumb_base, story.get("thumbnail_text") or title, thumb, L["label"])
 
     clean_title = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?-]", "", title).strip()
     page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or L["page_default"]
