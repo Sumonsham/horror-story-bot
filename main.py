@@ -802,7 +802,9 @@ Fix all of them. Return ONLY the corrected plan as JSON with the same keys plus 
 PLAN:
 """
     plan = None
-    for model in (gemini_models(key)[:3] + ["WAIT"] + gemini_models(key)[:3]):   # the plan is too important to skip
+    # the plan is too important to skip: the best models first, then (after a wait) EVERY model, the light ones
+    # too - without a plan the chapters cannot be given their own beats and the story falls apart
+    for model in (gemini_models(key)[:3] + ["WAIT"] + gemini_models(key)):
         if model == "WAIT":
             if plan:
                 break
