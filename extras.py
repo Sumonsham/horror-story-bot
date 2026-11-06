@@ -3955,3 +3955,68 @@ def mark_true_story(story, lang):
 def true_title(title, lang):
     lab = TRUE_LABEL.get(lang, TRUE_LABEL["bn"])
     return title if lab in title else f"{title} | {lab}"[:100]
+
+
+# ===================== v51: the same loudness as big channels (-14 LUFS, true peak -1.5 dB) =====================
+def normalize_loudness(wav, target=-14.0):
+    """Two-pass, LINEAR loudness correction: the whole sound track is made exactly as loud as YouTube / Facebook
+    expect, without squashing the quiet moments (the silence before a scare stays a silence)."""
+    if env("LOUDNORM") == "0" or env("MOCK") == "1":
+        return wav
+    try:
+        r = subprocess.run(["ffmpeg", "-hide_banner", "-i", wav, "-af",
+                            f"loudnorm=I={target}:TP=-1.5:LRA=20:print_format=json", "-f", "null", "-"],
+                           capture_output=True, text=True, timeout=900)
+        js = r.stderr[r.stderr.rfind("{"):r.stderr.rfind("}") + 1]
+        mv = json.loads(js)
+        out = wav.replace(".wav", "_ln.wav")
+        flt = (f"loudnorm=I={target}:TP=-1.5:LRA=20:measured_I={mv['input_i']}:measured_TP={mv['input_tp']}:"
+               f"measured_LRA={mv['input_lra']}:measured_thresh={mv['input_thresh']}:offset={mv['target_offset']}:"
+               "linear=true")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-af", flt, "-ar", "44100", "-c:a",
+                        "pcm_s16le", out], check=True, timeout=900)
+        os.replace(out, wav)
+        log(f"  loudness: {float(mv['input_i']):.1f} -> {target:.0f} LUFS")
+    except Exception as e:
+        log("  loudness step skipped:", str(e)[:120])
+    return wav
+
+
+# ===================== v51: a short daily report on Telegram (no need to open the logs) =====================
+DAY_NOTES = []          # things worth telling the owner from this run (backups used etc.)
+
+
+def note(text):
+    if text not in DAY_NOTES:
+        DAY_NOTES.append(text)
+
+
+def daily_report(history, bot_label, extra=""):
+    """After the day's last video: what went out today, how the last days' videos are doing, anything unusual."""
+    import re
+    if env("MOCK") == "1" or env("DAILY_REPORT") == "0" or not env("TELEGRAM_BOT_TOKEN"):
+        return
+    today = dt.datetime.now(IST).date()
+    rows, olds = [], []
+    for h in history[-40:]:
+        try:
+            t = dt.datetime.fromisoformat(str(h.get("date"))).astimezone(IST)
+        except Exception:
+            continue
+        name = re.sub(r"\s*\|.*$", "", str(h.get("title", "")))[:60]
+        if t.date() == today and h.get("kind") not in ("compilation",):
+            links = " ".join(x for x in (f"YT youtu.be/{h['youtube']}" if h.get("youtube") else "",
+                                         "FB ✓" if h.get("facebook") else "") if x)
+            rows.append(f"• {name} {links}".strip())
+        elif 1 <= (today - t.date()).days <= 3 and h.get("stats"):
+            st = h["stats"]
+            olds.append((st.get("views", 0), f"• {name}: 👁 {st.get('views', 0)} · 👍 {st.get('likes', 0)} · "
+                                                f"💬 {st.get('comments', 0)}"))
+    olds = [r for _v, r in sorted(olds, reverse=True)[:5]]
+    msg = (f"📊 {bot_label} - আজকের হিসেব ({today.strftime('%d %b')})\n\n"
+           + ("আজ যা গেছে:\n" + "\n".join(rows) if rows else "আজ কোনো ভিডিও যায়নি ⚠️")
+           + ("\n\nগত ৩ দিনের ভিডিও:\n" + "\n".join(olds) if olds else "")
+           + (f"\n\n{extra}" if extra else "")
+           + ("\n\nলক্ষ্য করুন:\n" + "\n".join(f"• {n}" for n in DAY_NOTES) if DAY_NOTES else "\n\nসব ঠিকঠাক চলেছে ✅"))
+    if telegram(msg):
+        log("Daily report sent on Telegram")
