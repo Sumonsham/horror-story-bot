@@ -103,6 +103,7 @@ jobs:
           YT_EXTRA: ${{ secrets.YT_EXTRA }}
           FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
           GEMINI_TTS_KEY: ${{ secrets.GEMINI_TTS_KEY }}
+          GOOGLE_TTS_KEY: ${{ secrets.GOOGLE_TTS_KEY }}
           MAX_IMAGES: ${{ secrets.MAX_IMAGES }}
           TTS_DAY_BUDGET: ${{ secrets.TTS_DAY_BUDGET }}
           TTS_PAID: ${{ secrets.TTS_PAID }}
