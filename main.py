@@ -4885,6 +4885,13 @@ def morning_teasers(history):
             if env("FB_REELS") != "0":
                 try:
                     log("Facebook teaser Reel:", extras.fb_post_reel(reel, desc, at=at))
+                    if env("MORNING_STORY") != "0":   # and on the page Story (24 hours at the top of the feed)
+                        try:
+                            sid = extras.fb_post_story(reel)
+                            if sid:
+                                log("  teaser on the Facebook Story:", sid)
+                        except Exception as e:
+                            log("  Facebook Story skipped:", str(e)[:150])
                 except Exception as e:
                     log("  teaser Reel skipped:", str(e)[:200])
             if extras.yt_extra_ok() and env("YT_SHORTS") != "0":
@@ -4950,8 +4957,36 @@ MY_STORIES = os.path.join(HERE, "assets", "my_stories.json")      # stories YOU 
 TTS_USAGE = os.path.join(HERE, "assets", "tts_usage.json")        # free voice requests used today
 
 
-def creator_inbox():
-    return extras.creator_inbox(MY_STORIES, "horror")
+def creator_inbox(status=None):
+    return extras.creator_inbox(MY_STORIES, "horror", status)
+
+
+THUMB_B = os.path.join(HERE, "assets", "thumb_b")                   # second thumbnails (for weak videos)
+
+
+def bot_status():
+    """What 'অবস্থা' on Telegram answers for this bot."""
+    hist = load_history()
+    lines = []
+    last = next((h for h in reversed(hist) if h.get("facebook") or h.get("youtube")), None)
+    if last:
+        try:
+            when = dt.datetime.fromisoformat(str(last.get("date"))).astimezone(extras.IST).strftime("%d %b %I:%M %p")
+        except Exception:
+            when = ""
+        lines.append(f"শেষ ভিডিও: {re.sub(r'[|].*$', '', str(last.get('title', '')))[:50].strip()} ({when}) "
+                     + " ".join(x for x in ("FB ✓" if last.get("facebook") else "FB ✗",
+                                            "YT ✓" if last.get("youtube") else "YT ✗")))
+    u = _jload(TTS_USAGE, {})
+    if isinstance(u, dict):
+        used = u.get("used", 0) if u.get("day") == extras._pacific_day() else 0
+        lines.append(f"Gemini গলা আজ: {used} / {env('TTS_DAY_BUDGET') or 36} request খরচ (দুপুর দেড়টায় নতুন করে শুরু)")
+    plans = _jload(PLANS_FILE, {})
+    today = dt.datetime.now(extras.IST).date().isoformat()
+    ready = [k.split("@")[1] for k in (plans or {}) if str(k).startswith(today)]
+    if ready:
+        lines.append("আজকের লেখা গল্প তৈরি: " + ", ".join({"14": "দুপুর", "20": "রাত"}.get(h, h) for h in sorted(ready)))
+    return lines
 
 
 def take_creator_story():
@@ -5278,9 +5313,12 @@ def main():
             log("  earlier comments skipped:", str(e)[:120])
     if not MOCK and not DRY_RUN and env("MY_STORIES") != "0":
         try:                                         # every run collects the stories you sent on Telegram
-            creator_inbox()             # (Telegram keeps a message only 24 hours)
+            creator_inbox(bot_status)   # (Telegram keeps a message only 24 hours) + your commands
         except Exception as e:
             log("  Telegram stories not read:", str(e)[:120])
+    if extras.bot_paused(MY_STORIES) and not MOCK:
+        log("PAUSED from Telegram ('বন্ধ') - no video this time. Send 'চালু' to start again.")
+        return
     global SLOT
     SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
@@ -5303,7 +5341,7 @@ def main():
     if not MOCK:
         try:
             extras.refresh_stats(history)            # learn which stories people liked
-            if extras.yt_title_test(history):        # a weak video gets its second title (once)
+            if extras.yt_title_test(history, thumb_dir=THUMB_B):   # a weak video: 2nd title + thumbnail (once)
                 save_history(history)
         except Exception as e:
             log("  stats skipped:", str(e)[:150])
@@ -5502,6 +5540,14 @@ def main():
             return f"{ghost or c['look']} ghost"
         return f"{c['name']} ({c['look']})" if c else n
     t_prompt = extras.poster_prompt("horror", {**ti, "hero": hero, "second": gname}, describe, "", cast.setting)
+    tkind = extras.thumb_kind("horror", special if special in ("karna",) else cat, bool(story.get("true_label")))
+    if env("POSTER_STYLE") not in ("old", "words"):   # YOUR thumbnail formula (7 Nov 2026)
+        subj = describe(gname) if gname else (ghost or "a terrifying ghost")
+        if tkind == "h_closeup":
+            subj = f"the face of {subj}"
+        t_prompt = extras.user_thumb_prompt(tkind, subj, ti.get("place") or cast.setting,
+                                            ti.get("moment") or ti.get("action") or "")
+        log(f"Thumbnail formula: {tkind}")
     if not extras.hq_image(t_prompt, thumb_base, seed):
         if not make_image(cast, t_prompt, "", [n for n in (hero, gname) if n], thumb_base, seed):
             gf_ = os.path.join(WORK, "ghost_face.jpg")
@@ -5512,7 +5558,35 @@ def main():
     big = re.sub(r"[^\w\sঀ-৿ऀ-ॿ!?,।'’-]", " ", re.sub(r"\s*\|.*$", "", title))   # the title on the thumbnail
     big = re.sub(r"\s{2,}", " ", re.sub(r"[0-9০-৯०-९]+", " ", big)).strip()   # the poster font has no digits
     sub = str(story.get("tagline") or story.get("thumbnail_text") or story.get("episode_name") or "").strip()   # ... + tag line
+    # ONLY the Bengali title on the picture (your formula); a small line only for the part number / true story
+    own = re.sub(r"\s*\|.*$", "", title).strip()
+    if ":" in own:                                   # 'কর্ণপিশাচিনী #2: নিশির ডাক' -> the story's own name
+        own = own.split(":", 1)[1].strip() or own
+    bn_part = (str(part).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else str(part))
+    small = " · ".join(x for x in (
+        extras.TRUE_LABEL.get(lang, extras.TRUE_LABEL["bn"]) if story.get("true_label") else "",
+        series_bn or "", L["part"].format(n=bn_part) if part else "") if x)
+    title_done = False
+    if env("POSTER_STYLE") not in ("old", "words"):
+        try:
+            extras.title_poster(thumb_base, own, thumb, tkind, small=small, fallback_font=FONT)
+            extras.title_poster(thumb_base, own, os.path.join(WORK, "thumbnail_portrait.jpg"), tkind, small=small,
+                                portrait=True, fallback_font=FONT)
+            try:                                     # a SECOND thumbnail (used only if the video gets few views):
+                mir = os.path.join(WORK, "thumb_base_b.jpg")   # the picture mirrored, the second title
+                Image.open(thumb_base).convert("RGB").transpose(Image.FLIP_LEFT_RIGHT).save(mir, quality=92)
+                tb_title = re.sub(r"\s*\|.*$", "", str(story.get("title_b") or "")).strip() or own
+                extras.title_poster(mir, tb_title, os.path.join(WORK, "thumbnail_b.jpg"),
+                                    "h_closeup" if tkind != "h_closeup" else "h_cinematic", small=small, fallback_font=FONT)
+            except Exception as e:
+                log("  second thumbnail skipped:", str(e)[:100])
+            title_done = True
+            log(f"Thumbnail: '{own}'" + (f" + '{small}'" if small else ""))
+        except Exception as e:
+            log("  thumbnail title failed, the older poster:", str(e)[:120])
     try:                                             # the channel's own poster style (see extras.horror_poster)
+        if title_done:
+            raise _Saved()
         if env("POSTER_STYLE") == "old":
             raise RuntimeError("old style asked")
         gname_ = next((c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")), "")
@@ -5529,6 +5603,16 @@ def main():
         extras.horror_poster(thumb_base, words, banner, os.path.join(WORK, "thumbnail_portrait.jpg"), FONT,
                              portrait=True)
         log(f"Poster: {' / '.join(v for v in words.values() if v)} | {banner}")
+        try:                                         # a SECOND thumbnail (used only if the video gets few views)
+            mir = os.path.join(WORK, "thumb_base_b.jpg")
+            Image.open(thumb_base).convert("RGB").transpose(Image.FLIP_LEFT_RIGHT).save(mir, quality=92)
+            words_b = extras.poster_words(story.get("title_b") or title, ti.get("place") or story.get("setting", ""),
+                                          gname_, lang)            # no extra Gemini call: cut from the 2nd title
+            extras.horror_poster(mir, words_b, banner, os.path.join(WORK, "thumbnail_b.jpg"), FONT)
+        except Exception as e:
+            log("  second thumbnail skipped:", str(e)[:100])
+    except _Saved:
+        pass
     except Exception as e:
         log("  channel poster failed, the older poster:", str(e)[:120])
         try:
@@ -5675,8 +5759,16 @@ def main():
                 results["youtube_error"] = str(e)[:200]
         else:
             log("YouTube secrets not set - skipping YouTube")
+        extras.alert_post_errors(results, "ভূতের bot", title)
         if not results.get("facebook") and not results.get("youtube"):
             raise SystemExit("Posting failed everywhere - see messages above.")
+        if results.get("youtube"):                   # the second thumbnail, kept for the weak-video test
+            try:
+                tb = os.path.join(WORK, "thumbnail_b.jpg")
+                if os.path.exists(tb):
+                    extras.keep_thumb_b(THUMB_B, results["youtube"], tb)
+            except Exception as e:
+                log("  second thumbnail not kept:", str(e)[:100])
 
     first = [vote_text or str(story.get("comment_question", "")).strip()]
     if hidden:
@@ -6318,12 +6410,23 @@ def day_report():
     try:
         if str(SLOT or "").endswith(f"@{EVENING}") and STATE.get("posted_now"):
             u = _jload(TTS_USAGE, {})
-            extras.daily_report(load_history(), "Daily Horror Story",
-                                f"Gemini গলা: আজ {u.get('used', 0)} / {env('TTS_DAY_BUDGET') or 36} request খরচ")
+            hist = load_history()
+            kinds = extras.best_kinds(hist, {k: v.get("bn", k) for k, v in HORROR_CATS.items()})
+            extras.daily_report(hist, "Daily Horror Story",
+                                f"Gemini গলা: আজ {u.get('used', 0)} / {env('TTS_DAY_BUDGET') or 36} request খরচ"
+                                + (f"\n{kinds}" if kinds else ""))
     except Exception as e:
         log("  daily report skipped:", str(e)[:120])
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit as e:                          # a stop with a reason -> the reason in Bengali on Telegram
+        if e.code not in (None, 0):
+            extras.fail_note(HERE, str(e.code), "ভূতের bot")
+        raise
+    except BaseException as e:
+        extras.fail_note(HERE, f"{type(e).__name__}: {e}", "ভূতের bot")
+        raise
     day_report()
