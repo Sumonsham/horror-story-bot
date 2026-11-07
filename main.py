@@ -61,10 +61,11 @@ LANGS = {
         "intro": "आज की डरावनी कहानी है... {title}।",
         "outro": "कहानी कैसी लगी, कमेंट में ज़रूर बताइए। और ऐसी ही डरावनी कहानियों के लिए {page} को फॉलो कीजिए।",
         "page_default": "हमारे पेज",
-        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात नई डरावनी कहानी।",
-        "share_cta": "🔁 पसंद आए तो दोस्तों को शेयर करें और पेज फ़ॉलो करें - हर रात नई डरावनी कहानी।",
+        "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
+        "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
         "ai_note": "🎨 यह कहानी और तस्वीरें AI की मदद से बनाई गई हैं। सब काल्पनिक है।",
-        "badge": "लाइक • शेयर • फॉलो", "part": "भाग {n}",
+        "ai_true": "🎨 यह कहानी हमें भेजी गई एक सच्ची घटना पर आधारित है (नाम और कुछ बातें बदली गई हैं); आवाज़ें और तस्वीरें AI की मदद से बनी हैं।",
+        "badge": "रोज़ नई कहानी • फॉलो", "part": "भाग {n}",
         "outro_part1": "कहानी का अगला भाग जल्द ही आएगा... उसे मिस मत कीजिए, अभी {page} को फॉलो कीजिए।",
         "ch_intro": "शुरुआत", "ch_end": "अंत", "chapters": "⏱️ अध्याय",
         "cta": "पूरी कहानी का लिंक नीचे लिखा है 👇", "link_below": "पूरी कहानी का लिंक नीचे लिखा है", "follow": "फ़ॉलो कीजिए - हर रात नई डरावनी कहानी",
@@ -115,9 +116,10 @@ LANGS = {
         "intro": "আজকের ভৌতিক গল্প... {title}।",
         "outro": "গল্পটা কেমন লাগল কমেন্টে জানাবেন। আর এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করুন।",
         "page_default": "আমাদের পেজ",
-        "share_cta": "🔁 ভালো লাগলে বন্ধুদের শেয়ার করুন আর পেজটা ফলো করুন - রোজ রাতে নতুন ভূতের গল্প।",
+        "share_cta": "📌 রোজ দুপুরে আর রাতে নতুন ভূতের গল্প - পেজটা ফলো করে রাখুন।",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
-        "badge": "লাইক • শেয়ার • ফলো", "part": "পর্ব {n}",
+        "ai_true": "🎨 আমাদের কাছে আসা একটি সত্যি ঘটনা অবলম্বনে (নাম ও কিছু খুঁটিনাটি বদলানো); গলা ও ছবি AI-এর সাহায্যে তৈরি।",
+        "badge": "রোজ নতুন গল্প • ফলো", "part": "পর্ব {n}",
         "outro_part1": "গল্পের পরের পর্ব আসছে কাল... আর রবিবার আসবে পুরো গল্পটা একসাথে। মিস করতে না চাইলে এখনই {page} ফলো করে রাখুন।",
         "ch_intro": "শুরু", "ch_end": "শেষ", "chapters": "⏱️ অধ্যায়",
         "cta": "পুরো গল্পের লিংক নিচের লেখায় 👇", "link_below": "পুরো গল্পের লিংক নিচের লেখায়", "follow": "ফলো করুন — রোজ রাতে নতুন ভূতের গল্প",
@@ -781,7 +783,7 @@ Return ONLY JSON (ENGLISH):
  "beats": [{{"n": 1, "what_happens": "", "decision": "who decides what, and WHY (or '')", "follow_up": "how and in which beat this decision is carried out or why it fails - shown, not skipped", "new_fear": "the new, fresh frightening detail of this beat (never a stock phrase)"}}],
  "clues": ["clue - beat where planted - beat where it pays off"],
  "twist": "", "resolution": "what really happened, why, and what became of every character", "last_line": ""}}
-Make {max(14, int(LONG_MIN * 1.25 * parts))} beats{f" for a story told in {parts} parts of about {int(LONG_MIN)} minutes each (add the key part to every beat: 1 or 2...; part 1 ends on a big cliffhanger, only the last part solves everything)" if parts > 1 else ""}: beginning (who/where/when/why/how they came), a full middle with at least three escalating
+Make {max(12, int(LONG_MIN * 1.25 * parts * max(0.7, length_scale())))} beats{f" for a story told in {parts} parts of about {int(LONG_MIN)} minutes each (add the key part to every beat: 1 or 2...; part 1 ends on a big cliffhanger, only the last part solves everything)" if parts > 1 else ""}: beginning (who/where/when/why/how they came), a full middle with at least three escalating
 events, a midpoint discovery and a false lead, then climax, twist and a clear resolution.
 THE CLASSIC BENGALI RADIO-THRILLER SHAPE (the style of the great Kolkata radio suspense plays - style only):
 - a SMALL cast (3-5 people, each with a clear voice: age, temper, way of speaking) and ONE main place;
@@ -1663,8 +1665,13 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
     n_ch = max(2, round(LONG_MIN / 5))               # chapters of ~5 minutes (15 min = 3 chapters)
-    words_per = int(LONG_MIN * 120 / n_ch)            # ~120 spoken words a minute (slow, grave telling)
-    need = int(float(env("MIN_LONG_MINUTES") or max(12.0, LONG_MIN - 2)) * 120)   # a 15-minute story: at least ~13 minutes
+    sc = length_scale()                               # learned from OUR real videos (see learn_length)
+    STATE["len_scale"] = sc
+    STATE.pop("short_plan", None)
+    wpm = 120 * sc                                    # script words that make one minute of the finished video
+    words_per = int(LONG_MIN * wpm / n_ch)
+    need = int(float(env("MIN_LONG_MINUTES") or max(12.0, LONG_MIN - 2)) * wpm)
+    sc_lo, sc_hi = max(5, round(10 * sc)), max(7, round(13 * sc))   # scenes per chapter, by the same measure
     max_ch = n_ch + 3
     # THE PLAN DECIDES THE ORDER: the outline's beats are shared out between the chapters in advance - chapter 1
     # tells beats 1-5, chapter 2 beats 6-10 ... - so nothing is told too early, nothing is skipped and nothing is
@@ -1697,7 +1704,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         # is far better than a long one whose chapters wander off on their own
         share, starts, ends = [], [], []
         n_ch = max_ch = 2
-        words_per = int(LONG_MIN * 120 / 2)
+        words_per = int(LONG_MIN * wpm / 2)
+        STATE["short_plan"] = True                    # not a normal-length story: nothing to learn from it
         log("  no story plan today - writing a shorter story in 2 chapters so it stays in one piece")
     full_outline = STATE.get("outline") or ""
 
@@ -1769,7 +1777,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                     "or new threads now; tie every open thread. " if final else "") +
                  "Also add the key \"chapter_summary\": ENGLISH, 5-7 sentences - exactly what happened in this "
                  "chapter, with names, decisions, clues and open questions.\n")
-        length = (f"- LENGTH OF THIS CHAPTER: 10 to 13 scenes, about {words_per} spoken words. Slow-burning, real "
+        length = (f"- LENGTH OF THIS CHAPTER: {sc_lo} to {sc_hi} scenes, about {words_per} spoken words (never much more). Slow-burning, real "
                   "conversations, every moment lived - never rushed. The length comes from living the planned beats "
                   "fully (talk, doubt, small real details) - NEVER from extra events, repeated scenes or changing "
                   "the planned order.")
@@ -1793,6 +1801,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                 if final_tries >= 2:
                     log(f"  the last chapter failed twice ({str(e)[:100]}) - a closing passage will be written")
                     STATE["ending_cut"] = True
+                    STATE["short_plan"] = True
                     break
                 k -= 1                               # try the ending again
                 continue
@@ -1819,7 +1828,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         words = sum(len(str(ln.get("text", "")).split()) for sc in s["scenes"] for ln in sc.get("lines") or [])
         total += words
         log(f"Chapter {k} written: {len(s['scenes'])} scenes, {words} words (story so far {total} words, "
-            f"~{total / 120:.0f} min)" + (" - the ending" if final else ""))
+            f"~{total / wpm:.0f} min)" + (" - the ending" if final else ""))
         if final:
             break
     if not chapters:
@@ -1859,7 +1868,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
             log("  ending check skipped:", str(e)[:120])
     words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc.get("lines") or [])
     log(f"LONG STORY: {len(chapters)} chapters, {len(story['scenes'])} scenes, {words} words "
-        f"(~{words / 120:.0f} minutes)")
+        f"(~{words / wpm:.0f} minutes of video)")
     return story
 
 
@@ -2898,6 +2907,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                         "got the free voice in this video.")
         prepare_free_voices(rest, voices, lang, keep=True)
     GEMINI_READY = all((i, j) in GEMINI_CACHE for (i, j, _ln) in todo)
+    STATE["all_gemini"] = GEMINI_READY and not waiting    # every line in the Gemini voice (the length can be learned)
     return GEMINI_READY
 
 
@@ -4748,7 +4758,8 @@ def pick_moments(scenes, story, n=4):
                 best, bs = j, sc
         if best is not None:
             cand.append((bs, i, best))
-    pick = sorted(sorted(cand, reverse=True)[:n], key=lambda c: c[1])
+    top = sorted(cand, reverse=True)[:n]
+    pick = top[:1] + sorted(top[1:], key=lambda c: c[1])    # the scariest moment opens the teaser
     out = []
     for _s, i, j in pick:
         ln = dict(scenes[i]["lines"][j])
@@ -4777,7 +4788,7 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
                  "karna": KARNA}[special]
         have = {str(c.get("name", "")).lower() for c in story.get("characters", [])}
         story["characters"] += [b for b in fixed if b["name"].lower() not in have]
-    moments = pick_moments(story["scenes"], story)
+    moments = pick_moments(story["scenes"], story, n=3)   # short and sharp: ~25-35 seconds
     if len(moments) < 2:
         raise RuntimeError("not enough gripping moments for a teaser")
     cast = Cast(story)
@@ -4958,7 +4969,48 @@ CREATOR_RULE = (
 
 
 PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
-              "case_no", "creator_story", "creator_true")
+              "case_no", "creator_story", "creator_true", "len_scale", "short_plan")
+
+
+def length_scale():
+    """How many words to write for one minute of video - MEASURED on our own finished videos, not guessed.
+    (With a fixed guess of 120 words a minute the slow, grave Gemini storyteller and the long chapters turned a
+    22-minute plan into a ~40-minute video - twice the voice limit and far too long.) 1.0 = 120 words a minute."""
+    try:
+        if env("LENGTH_SCALE"):
+            return max(0.3, min(1.3, float(env("LENGTH_SCALE"))))
+        s = float(_jload(TTS_USAGE, {}).get("len_scale") or 0)
+    except (TypeError, ValueError, AttributeError):
+        s = 0
+    return s if 0.3 <= s <= 1.3 else 0.6               # first guess from the ~40-minute episode
+
+
+def learn_length(video_sec):
+    """After a normal story fully in the Gemini voice: compare the real video length with the planned minutes
+    and correct the words asked for next time - so the videos really are about LONG_MIN minutes long."""
+    try:
+        used = float(STATE.get("len_scale") or 0)
+        if (not used or MOCK or not STATE.get("all_gemini") or STATE.get("creator_story") or STATE.get("short_plan")
+                or video_sec < 300 or LONG_MIN < 8):
+            return
+        ratio = (video_sec / 60.0) / LONG_MIN          # 1.0 = exactly the planned length
+        ideal = used / ratio
+        d = _jload(TTS_USAGE, {})
+        if not isinstance(d, dict):
+            d = {}
+        try:
+            old = float(d.get("len_scale") or used)
+        except (TypeError, ValueError):
+            old = used
+        new = round(max(0.3, min(1.3, old + 0.7 * (ideal - old))), 3)
+        d["len_scale"] = new
+        d["len_seen"] = (list(d.get("len_seen") or []) + [round(ratio, 2)])[-8:]
+        _jsave(TTS_USAGE, d)
+        log(f"  video length {video_sec / 60:.1f} min for a {LONG_MIN:.0f}-minute plan -> next stories are written "
+            f"with length factor {new} (was {old})")
+        push_now([TTS_USAGE], "story length learned")
+    except Exception as e:
+        log("  length not learned:", str(e)[:100])
 
 
 def choose_and_write(slot_hour, history):
@@ -5224,6 +5276,11 @@ def main():
                 save_history(history)
         except Exception as e:
             log("  earlier comments skipped:", str(e)[:120])
+    if not MOCK and not DRY_RUN and env("MY_STORIES") != "0":
+        try:                                         # every run collects the stories you sent on Telegram
+            creator_inbox()             # (Telegram keeps a message only 24 hours)
+        except Exception as e:
+            log("  Telegram stories not read:", str(e)[:120])
     global SLOT
     SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
@@ -5562,6 +5619,7 @@ def main():
     STATE["top_text"] = (show_top, re.sub(r"\s*\|.*$", "", title).strip())
     build_video(parts, lang, video)
     log(f"Video ready: {duration(video):.0f} seconds")
+    learn_length(duration(video))
 
     own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
     seeds = ([HORROR_CATS[cat]["bn"], "ভূতের গল্প", "bhuter golpo"] if lang == "bn" else
@@ -5572,6 +5630,8 @@ def main():
         if t.lower() not in {x.lower() for x in tags}:
             tags.append(t)
     prev_link = ""
+    # never 'everything is fictional' under a 'based on true events' story - the two would contradict each other
+    ai_note = (L.get("ai_true") or L["ai_note"]) if story.get("true_label") else L["ai_note"]
     if part >= 2:                                     # part 2: the link to part 1 right at the top
         p1 = next((h for h in reversed(history) if h.get("series_id") and h.get("series_id") == series_id
                    and int(h.get("part") or 0) == part - 1), None)
@@ -5581,13 +5641,13 @@ def main():
             prev_link = ("⏮️ আগের পর্ব আগে শুনে নিন: " if lang == "bn" else "⏮️ पिछला भाग पहले सुनिए: ") + lnk + "\n\n"
     description = (f"{title}\n\n{prev_link}{story.get('description', '').strip()}\n\n" + (f"🗳️ {vote_text}\n\n" if vote_text else "")
                    + (f"{L['find_ghost']}\n\n" if hidden else "") + f"{L['your_story']}\n\n{L['share_cta']}\n\n"
-                   + f"{L['ai_note']}\n\n{' '.join(tags)}")
+                   + f"{ai_note}\n\n{' '.join(tags)}")
     part_times, segs = TIMELINE
     labels = [sc.get("chapter") or f"{k + 1}" for k, sc in enumerate(scenes)]
     labels = (["⚡ " + ("ঝলক" if lang == "bn" else "झलक"), L["ch_intro"]] + labels) if STORY_PART[0] == 2 else \
         ([labels[0], L["ch_intro"]] + labels[1:]) if cold else [L["ch_intro"]] + labels
     chap = extras.chapters_text(part_times, labels + [L["ch_end"]], L["chapters"])
-    yt_description = description.replace(f"\n\n{L['ai_note']}", (f"\n\n{chap}" if chap else "") + f"\n\n{L['ai_note']}")
+    yt_description = description.replace(f"\n\n{ai_note}", (f"\n\n{chap}" if chap else "") + f"\n\n{ai_note}")
     if seo_words:                                    # YouTube: what people type in search, first in the text
         yt_description = "🔎 " + " · ".join(seo_words[:6]) + "\n\n" + yt_description
     yt_title = title
