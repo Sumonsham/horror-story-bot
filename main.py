@@ -780,11 +780,35 @@ Return ONLY JSON (ENGLISH):
 {{"premise": "2 sentences",
  "when_where": "month, weekday, time of day it begins; the exact town/village and place",
  "characters": [{{"name": "", "gender": "male/female", "age": "", "kind": "human/ghost", "who": "relation/job/home", "wants": "", "fears": "", "secret": ""}}],
- "beats": [{{"n": 1, "what_happens": "", "decision": "who decides what, and WHY (or '')", "follow_up": "how and in which beat this decision is carried out or why it fails - shown, not skipped", "new_fear": "the new, fresh frightening detail of this beat (never a stock phrase)"}}],
+ "beats": [{{"n": 1, "step": 1, "what_happens": "", "because": "what in the previous beat causes this one", "decision": "who decides what, and WHY (or '')", "follow_up": "how and in which beat this decision is carried out or why it fails - shown, not skipped", "new_fear": "the new, fresh frightening detail of this beat (never a stock phrase)"}}],
  "clues": ["clue - beat where planted - beat where it pays off"],
  "twist": "", "resolution": "what really happened, why, and what became of every character", "last_line": ""}}
-Make {max(12, int(LONG_MIN * 1.25 * parts * max(0.7, length_scale())))} beats{f" for a story told in {parts} parts of about {int(LONG_MIN)} minutes each (add the key part to every beat: 1 or 2...; part 1 ends on a big cliffhanger, only the last part solves everything)" if parts > 1 else ""}: beginning (who/where/when/why/how they came), a full middle with at least three escalating
-events, a midpoint discovery and a false lead, then climax, twist and a clear resolution.
+Make {max(14, int(16 * parts))} beats{f" for a story told in {parts} parts of about {int(LONG_MIN)} minutes each (add the key part to every beat: 1 or 2...; part 1 = steps 1-9 and ends on a big cliffhanger, the last part = steps 9-14 and solves everything)" if parts > 1 else ""} that follow THE SHAPE below EXACTLY, step by step,
+in this order (a step may take 2 beats; add the key "step": 1-14 to every beat, and "because": what in the
+previous beat causes this one).
+THE SHAPE (the classic Bengali radio-thriller plot, as in the great Sunday-evening suspense plays - the SHAPE
+only, never their stories, names or lines):
+ 1 HOOK - the most frightening sound or line from later in the story, heard for a moment, not explained.
+ 2 THE STORYTELLER'S DOOR - the narrator sets the year, season, place and why this story is being told.
+ 3 ARRIVAL - who comes where, when and WHY (a believable reason: a job, a transfer, an inheritance, a wedding,
+   a shortcut, a holiday); the 3-5 people, how they are related, a little warmth and a little friction.
+ 4 THE FIRST WRONG NOTE - one small, specific strange detail; someone explains it away.
+ 5 THE WARNING - a local (old servant, caretaker, villager, priest) warns or tells the rule of the place
+   ('never answer if someone calls your name three times after midnight'); the hero half-ignores it.
+ 6 FIRST FRIGHT - the rule is broken or the sign comes back, closer and personal; the first real fear.
+ 7 THE SEARCH - they look for an explanation (a locked room, an old register, a photograph, a grave); a human,
+   rational explanation is believed for a while (the false lead).
+ 8 MIDPOINT REVEAL - a piece of the past comes out IN DIALOGUE (a death, an injustice, a broken promise); it
+   changes how we see the ghost.
+ 9 THE GHOST COMES CLOSER - it turns on someone close (a voice of the dead mother, a companion who vanishes or
+   changes); they are cut off (power cut, storm, last train gone, door locked from outside).
+10 ALL IS LOST - the night of the climax; the false lead collapses; there is no way out.
+11 FACE TO FACE - the confrontation, told slowly, sound by sound, line by line.
+12 THE TWIST - the truth everyone missed; it was PLANTED earlier (a clue from steps 4-8) - fair, never random.
+13 RESOLUTION - calm, in dialogue: what really happened, why, and what became of EVERY person.
+14 THE LAST LINE - one quiet, chilling line from the narrator that keeps the listener awake.
+THE FEAR LADDER: every beat is more frightening than the one before (only one short calm moment, just before
+step 9, to make the next fall harder). Every scare is NEW, specific and sensory - never a stock phrase.
 THE CLASSIC BENGALI RADIO-THRILLER SHAPE (the style of the great Kolkata radio suspense plays - style only):
 - a SMALL cast (3-5 people, each with a clear voice: age, temper, way of speaking) and ONE main place;
 - ACT 1 (first quarter): a calm, real, ordinary situation; the people and why they are there; the first small
@@ -799,7 +823,12 @@ THE CLASSIC BENGALI RADIO-THRILLER SHAPE (the style of the great Kolkata radio s
 - TIME ONLY MOVES FORWARD, beat after beat: never 'a month later' in the middle and then back to the same
   night; no flash-forwards; the past appears ONLY when a character tells it or reads it (clearly as a memory).
   A big time jump is allowed only once, at the very end (an epilogue), with a clear spoken bridge."""
-    ask2 = """You are a strict script doctor. Here is a horror story plan as JSON. Find EVERY problem: a decision
+    ask2 = """You are a strict script doctor. Here is a horror story plan as JSON. FIRST check THE SHAPE: the
+beats must follow the 14 steps in order (hook, storyteller, arrival, first wrong note, warning, first fright, the
+search with a false lead, midpoint reveal, the ghost comes closer, all is lost, face to face, twist, resolution,
+last line) - add any missing step, move any step that is out of order. Every beat must be CAUSED by the beat
+before it ("because"); the fear must rise beat by beat; the twist's clue must be planted in steps 4-8.
+Then find EVERY other problem: a decision
 that is not followed up (someone decides to leave - why couldn't he? show it), a person acting unrealistically,
 a coincidence, an unexplained event, a jump in time or place without a bridge, a clue with no payoff, a scare
 that repeats an earlier one, a weak or unfair twist, an unclear ending, anything that breaks the belief/facts.
@@ -1664,14 +1693,16 @@ def ensure_ending(story, lang, cut_short=False):
 def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start", part=0):
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
     continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
-    n_ch = max(2, round(LONG_MIN / 5))               # chapters of ~5 minutes (15 min = 3 chapters)
+    # TWO halves (not 4-5 small chapters): every join is a place where a story can lose its thread, so a ~22-minute
+    # story is written as two big halves - the first ends on the midpoint cliffhanger, the second finishes it
+    n_ch = 2 if LONG_MIN <= 26 else max(2, round(LONG_MIN / 11))
     sc = length_scale()                               # learned from OUR real videos (see learn_length)
     STATE["len_scale"] = sc
     STATE.pop("short_plan", None)
     wpm = 120 * sc                                    # script words that make one minute of the finished video
     words_per = int(LONG_MIN * wpm / n_ch)
     need = int(float(env("MIN_LONG_MINUTES") or max(12.0, LONG_MIN - 2)) * wpm)
-    sc_lo, sc_hi = max(5, round(10 * sc)), max(7, round(13 * sc))   # scenes per chapter, by the same measure
+    sc_lo, sc_hi = max(6, round(words_per / 70)), max(8, round(words_per / 48))   # scenes per chapter
     max_ch = n_ch + 3
     # THE PLAN DECIDES THE ORDER: the outline's beats are shared out between the chapters in advance - chapter 1
     # tells beats 1-5, chapter 2 beats 6-10 ... - so nothing is told too early, nothing is skipped and nothing is
@@ -1684,13 +1715,15 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         for b in allb:
             if isinstance(b, dict):
                 t = str(b.get("what_happens") or b.get("beat") or b.get("text") or "").strip()
+                if b.get("because"):                  # the cause keeps every beat tied to the one before
+                    t += f" (because: {str(b['because'])[:160]})"
                 if b.get("decision"):
                     t += f" (decision: {b['decision']}; follow-up: {b.get('follow_up', '')})"
                 if b.get("new_fear"):
                     t += f" (new fear: {b['new_fear']})"
-                beats.append(t[:400])
+                beats.append(t[:600])
             else:
-                beats.append(str(b)[:400])
+                beats.append(str(b)[:600])
     except Exception:
         beats = []
     if len(beats) >= n_ch * 2:
