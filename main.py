@@ -2841,6 +2841,14 @@ def no_voice():
     sys.exit(0)
 
 
+class NoGoodVoice(Exception):
+    """A teaser / the Amavasya special could not get a good voice for every character: it is skipped - a horror
+    story is never told in the robotic free voice."""
+
+
+VOICE_CONTEXT = ["main"]      # "main" (the 2 PM / 8 PM story), "teaser" or "amavasya"
+
+
 def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     """Voice the WHOLE story with Gemini before the video is made. If Gemini cannot finish every line
     (time or daily limit), the lines it made are kept and only the rest get a backup voice."""
@@ -2931,6 +2939,33 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
             waiting = [s for s in order if s not in done_chars]
     extras.TTS_STATE["off"] = True
     log(f"  Gemini voiced {len(done_chars)} characters completely ({', '.join(sorted(done_chars)) or '-'})")
+    if waiting and extras.chirp_ok(TTS_USAGE):         # Google's Chirp 3 HD voice of the SAME name (1 line = 1 request)
+        used0 = extras.chirp_used(TTS_USAGE)
+        for s in [x for x in order if x in waiting]:
+            mine = pairs_of({s})
+            ok = all(extras.chirp_tts(it["plain"], it["voice"], it["out"], SR, TTS_USAGE, lang) for _t, it in mine)
+            if ok:                                     # the whole character, so one person keeps one voice
+                for (i, j, _ln), it in mine:
+                    GEMINI_CACHE[(i, j)] = it["out"]
+                done_chars.add(s)
+                log(f"  {s}: all {len(mine)} lines in the Chirp voice ({mine[0][1]['voice']})")
+            else:
+                for _t, it in mine:
+                    if os.path.exists(it["out"]):
+                        os.remove(it["out"])
+                break                                  # Chirp stopped: the rest is decided below
+        waiting = [s for s in order if s not in done_chars]
+        spent = extras.chirp_used(TTS_USAGE) - used0
+        if spent:
+            STATE["chirp_used"] = True                 # (the length is learned from Gemini-only videos)
+            extras.note(f"Gemini-র দিনের গলা শেষ হওয়ায় Chirp গলা নিল: {spent} অক্ষর "
+                        f"(এই মাসে মোট {extras.chirp_used(TTS_USAGE)} / {env('CHIRP_MONTH_CAP') or 900000})")
+            try:
+                push_now([TTS_USAGE], "chirp voice used")
+            except Exception:
+                pass
+    if waiting and VOICE_CONTEXT[0] in ("teaser", "amavasya"):
+        raise NoGoodVoice(", ".join(waiting))         # never the robotic free voice in a teaser / special
     if waiting:
         rest = [(i, j, ln) for (i, j, ln) in todo if _who(ln) in waiting]
         extras.note(f"Gemini গলা না পাওয়ায় ফ্রি গলা পেয়েছে: {', '.join(waiting)}")
@@ -4860,10 +4895,12 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
     STATE["top_text"] = (f"{SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])} · {HORROR_CATS[cat][lang]}", title)
     wide = os.path.join(WORK, "teaser_wide.mp4")
     os.environ["TTS_SPEAKERS_PER_REQUEST"] = "2"      # a teaser has only a few short lines: fewer voice requests
+    VOICE_CONTEXT[0] = "teaser"
     try:
         build_video(parts, lang, wide)
     finally:
         os.environ.pop("TTS_SPEAKERS_PER_REQUEST", None)
+        VOICE_CONTEXT[0] = "main"
     extras.make_teaser(wide, 0.0, duration(wide), out_portrait, FONT, title, when, WORK,
                        tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""),
                        colors=((255, 230, 0), (200, 0, 20)))
@@ -5014,6 +5051,8 @@ def bot_status():
     if isinstance(u, dict):
         used = u.get("used", 0) if u.get("day") == extras._pacific_day() else 0
         lines.append(f"Gemini গলা আজ: {used} / {env('TTS_DAY_BUDGET') or 36} request খরচ (দুপুর দেড়টায় নতুন করে শুরু)")
+        if env("GOOGLE_TTS_KEY"):
+            lines.append(f"Chirp গলা এই মাসে: {extras.chirp_used(TTS_USAGE)} / {env('CHIRP_MONTH_CAP') or 900000} অক্ষর")
     plans = _jload(PLANS_FILE, {})
     today = dt.datetime.now(extras.IST).date().isoformat()
     ready = [k.split("@")[1] for k in (plans or {}) if str(k).startswith(today)]
@@ -5058,7 +5097,8 @@ def learn_length(video_sec):
     and correct the words asked for next time - so the videos really are about LONG_MIN minutes long."""
     try:
         used = float(STATE.get("len_scale") or 0)
-        if (not used or MOCK or not STATE.get("all_gemini") or STATE.get("creator_story") or STATE.get("short_plan")
+        if (not used or MOCK or not STATE.get("all_gemini") or STATE.get("chirp_used") or STATE.get("creator_story")
+                or STATE.get("short_plan")
                 or video_sec < 300 or LONG_MIN < 8):
             return
         ratio = (video_sec / 60.0) / LONG_MIN          # 1.0 = exactly the planned length
@@ -5734,7 +5774,14 @@ def main():
     show_top = (L["karna"].split(" #")[0] if special == "karna" else
                 f"{SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])} · {HORROR_CATS[cat][lang]}")
     STATE["top_text"] = (show_top, re.sub(r"\s*\|.*$", "", title).strip())
-    build_video(parts, lang, video)
+    VOICE_CONTEXT[0] = "amavasya" if env("MODE") == "amavasya" else "main"
+    try:
+        build_video(parts, lang, video)
+    except NoGoodVoice as e:
+        log(f"Amavasya special skipped: no good voice left today for {e} (never the free voice in horror)")
+        extras.telegram("🌑 আজ অমাবস্যার স্পেশাল বাদ গেল: Gemini-র আজকের গলা শেষ, আর ভূতের গল্প আমরা ফ্রি "
+                        "গলায় দিই না। দুপুর ২টো আর রাত ৮টার গল্প আগের মতোই আসবে।")
+        return
     log(f"Video ready: {duration(video):.0f} seconds")
     learn_length(duration(video))
 
@@ -6445,9 +6492,11 @@ def day_report():
             u = _jload(TTS_USAGE, {})
             hist = load_history()
             kinds = extras.best_kinds(hist, {k: v.get("bn", k) for k, v in HORROR_CATS.items()})
+            chirp = (f"\nChirp গলা এই মাসে: {extras.chirp_used(TTS_USAGE)} / {env('CHIRP_MONTH_CAP') or 900000} অক্ষর"
+                     if env("GOOGLE_TTS_KEY") else "")
             extras.daily_report(hist, "Daily Horror Story",
                                 f"Gemini গলা: আজ {u.get('used', 0)} / {env('TTS_DAY_BUDGET') or 36} request খরচ"
-                                + (f"\n{kinds}" if kinds else ""))
+                                + chirp + (f"\n{kinds}" if kinds else ""))
     except Exception as e:
         log("  daily report skipped:", str(e)[:120])
 
