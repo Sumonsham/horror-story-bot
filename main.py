@@ -2847,6 +2847,37 @@ class NoGoodVoice(Exception):
 
 
 VOICE_CONTEXT = ["main"]      # "main" (the 2 PM / 8 PM story), "teaser" or "amavasya"
+NOON_NEED = [0]               # Gemini voice requests today's 2 PM story will need (known once it is written)
+
+
+def estimate_requests(story):
+    """About how many Gemini voice requests a written story needs: one character per request, up to 16 lines /
+    1900 letters each (+1 for the opening and ending lines)."""
+    per = {}
+    for sc in story.get("scenes") or []:
+        for ln in sc.get("lines") or []:
+            s = str(ln.get("speaker", "narrator")).lower()
+            s = "narrator" if s.startswith("narrat") else s
+            c, n = per.get(s, (0, 0))
+            per[s] = (c + len(extras.strip_tags(str(ln.get("text", "")))), n + 1)
+    return sum(max(-(-c // 1900), -(-n // 16), 1) for c, n in per.values()) + 1
+
+
+def voice_reserve():
+    """Gemini's free day starts again at about 1:30 PM. The MAIN stories come first: a teaser or the Amavasya
+    special may only use what is left after the share kept for the next 2 PM story (the rest of a teaser /
+    special then gets the Chirp voice) - so the 2 PM story is not late every day."""
+    ctx = VOICE_CONTEXT[0]
+    if ctx not in ("teaser", "amavasya"):
+        return 0
+    if env("TTS_RESERVE"):
+        try:
+            return int(env("TTS_RESERVE"))
+        except ValueError:
+            pass
+    if ctx == "teaser" and NOON_NEED[0]:
+        return NOON_NEED[0] + 1
+    return 18                                         # the next 2 PM story (~14) + its morning teasers
 
 
 def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
@@ -2890,7 +2921,10 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     done_chars = set()
 
     def gemini_round(chars):
-        left = extras.tts_budget_left(TTS_USAGE)
+        keep = voice_reserve()
+        left = max(0, extras.tts_budget_left(TTS_USAGE) - keep)
+        if keep:
+            log(f"  {keep} voice requests are kept for the next 2 PM story - a {VOICE_CONTEXT[0]} uses only the rest")
         need = {s: len(extras.tts_groups([it for _t, it in pairs_of({s})])) for s in chars}
         gem, acc = [], 0
         for s in [x for x in order if x in chars]:
@@ -4934,6 +4968,12 @@ def morning_teasers(history):
             except Exception as e:
                 log(f"  the story for {key} could not be written now ({str(e)[:200]}) - its own run will write it")
                 continue
+        if h == NOON:                                # how much of Gemini's day the 2 PM story will need
+            try:
+                NOON_NEED[0] = estimate_requests(plan["story"])
+                log(f"  the 2 PM story will need about {NOON_NEED[0]} voice requests - kept for it")
+            except Exception:
+                NOON_NEED[0] = 0
         hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
                       "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")})
         try:
@@ -5150,7 +5190,16 @@ def choose_and_write(slot_hour, history):
                     (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(h["date"])).total_seconds() < 20 * 3600
                     for h in history[-4:] if h.get("date")):
         fest = None
-    prev = None if (env("MODE") == "amavasya" or fest) else extras.series_get(NEXT_PART, cat)
+    # THE AMAVASYA SPECIAL IS THE 8 PM STORY of the new-moon night (no separate midnight video any more - your
+    # wish of 8 Nov 2026: nobody needs it that late, and Gemini's voice is enough for the whole day)
+    amavasya_tonight = False
+    if slot_hour == EVENING and env("MODE") != "amavasya" and env("AMAVASYA_AT_8") != "0":
+        try:
+            amavasya_tonight = extras.is_amavasya_night(
+                dt.datetime.now(extras.IST).replace(hour=23, minute=59, second=0, microsecond=0))
+        except Exception:
+            amavasya_tonight = False
+    prev = None if (env("MODE") == "amavasya" or fest or amavasya_tonight) else extras.series_get(NEXT_PART, cat)
     info = HORROR_CATS[cat]
     lang = prev["lang"] if prev else pick_language(history)
     fmt = (prev or {}).get("fmt") or extras.weighted_choice(FORMATS, extras.weights(history, "format", FORMATS))
@@ -5164,13 +5213,17 @@ def choose_and_write(slot_hour, history):
     elif fest:
         festival, theme = fest[0], fest[1]
         log(f"Festival special: {festival}")
-    elif env("MODE") == "amavasya":
+        if amavasya_tonight:                          # (Kali Puja falls on the Amavasya night itself)
+            extra_rules += ("\nTONIGHT IS ALSO THE AMAVASYA (new-moon) NIGHT - the darkest night of the month: the "
+                            "story happens on it.\n")
+    elif env("MODE") == "amavasya" or amavasya_tonight:
         special = "amavasya"
         theme = random.choice(["the darkest Amavasya night in a village where no lamp may be lit",
                                "an Amavasya midnight ritual at the cremation ground that goes wrong",
                                "the Amavasya night when the dead come back to their old house",
                                "a lonely road on Amavasya night and the woman with a lantern"])
-        extra_rules += ("\nSPECIAL: this is our AMAVASYA MIDNIGHT SPECIAL - tonight is the new-moon night. The story "
+        log("Tonight is Amavasya: the 8 PM story is the Amavasya special")
+        extra_rules += ("\nSPECIAL: this is our AMAVASYA NIGHT SPECIAL - tonight is the new-moon night. The story "
                         "happens on an Amavasya night and must be the scariest of the month.\n")
     else:
         special = info.get("special", "")
@@ -5399,6 +5452,10 @@ def main():
     if env("MODE") == "compilation":
         return make_compilation(history)
     # automatic runs (GitHub's clock or the cron-job.org clock) must not post twice for one time slot
+    if env("MODE") == "amavasya" and env("AMAVASYA_MIDNIGHT") != "1":
+        log("The Amavasya special now comes at 8 PM on the Amavasya night - nothing to do at midnight. "
+            "(The 23:55 job on cron-job.org can be deleted.)")
+        return
     if env("MODE") == "amavasya" and not extras.is_amavasya_night():
         log("Not an Amavasya night - nothing to do.")
         return
