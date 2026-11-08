@@ -2889,6 +2889,7 @@ class NoGoodVoice(Exception):
 
 
 VOICE_CONTEXT = ["main"]      # "main" (the 2 PM / 8 PM story), "teaser" or "amavasya"
+HIDDEN_PICS = []              # pictures of this story with its ghost hidden in them (weekly 'spot the ghost')
 NOON_NEED = [0]               # Gemini voice requests today's 2 PM story will need (known once it is written)
 
 
@@ -2903,6 +2904,25 @@ def estimate_requests(story):
             c, n = per.get(s, (0, 0))
             per[s] = (c + len(extras.strip_tags(str(ln.get("text", "")))), n + 1)
     return sum(max(-(-c // 1900), -(-n // 16), 1) for c, n in per.values()) + 1
+
+
+THEME_PL_EN = {"gram": "Village Ghost Stories", "shohor": "City Horror Stories", "jayga": "Haunted Places",
+               "sotti": "Horror Experiences", "classic": "Classic Horror Stories"}
+
+
+def theme_playlist(lang, cat, special, festival, true_story):
+    """YouTube: stories grouped by theme, so people play one after another (a binge, not one video)."""
+    if true_story:
+        return ("আপনাদের পাঠানো সত্য ঘটনা | True Stories from Viewers" if lang == "bn"
+                else "आपकी भेजी सच्ची घटनाएँ | True Stories from Viewers")
+    if special == "amavasya":
+        return "অমাবস্যার রাতের গল্প | Amavasya Night Horror" if lang == "bn" else "अमावस्या की रात | Amavasya Night Horror"
+    if festival:
+        return "উৎসবের রাতের ভূতের গল্প | Festival Horror Specials" if lang == "bn" else "त्योहार स्पेशल | Festival Horror"
+    if special in ("taranath", "bhairab", "karna") or cat not in THEME_PL_EN:
+        return ""                                     # (these series already have their own playlist)
+    name = HORROR_CATS.get(cat, {}).get(lang, "")
+    return f"{name} | {THEME_PL_EN[cat]}" if name else ""
 
 
 def voice_reserve():
@@ -3851,8 +3871,8 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     gap, lead, tail = 0.35, 0.5, 1.0
     pieces, subs, cues, silences, t = [], [], [], [], lead
     if idx == STING_AT[0] and SHOW_STING:             # our show's own opening sound - the same every day
-        cues.append((0.05, signature_sting(), 0.9, "sting"))
-        t += 2.2
+        cues.append((0.05, signature_sting(), 0.7, "sting"))
+        t += 0.9                                      # the voice comes in over the sound (no silent gap)
     for j, ln in enumerate(lines):
         text = str(ln.get("text", "")).strip()
         if not text:
@@ -4781,7 +4801,7 @@ def youtube_ready():
     return all(env(k) for k in ("YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN"))
 
 
-def post_to_youtube(video, thumb, title, description, tags, lang):
+def post_to_youtube(video, thumb, title, description, tags, lang, localizations=None):
     r = requests.post("https://oauth2.googleapis.com/token", data={
         "client_id": env("YT_CLIENT_ID"), "client_secret": env("YT_CLIENT_SECRET"),
         "refresh_token": env("YT_REFRESH_TOKEN"), "grant_type": "refresh_token"}, timeout=60)
@@ -4801,10 +4821,18 @@ def post_to_youtube(video, thumb, title, description, tags, lang):
         meta["status"]["publishAt"] = at.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         log(f"  YouTube: scheduled for {at.strftime('%H:%M')} India time")
     size = os.path.getsize(video)
-    r = requests.post("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
-                      headers={**hdr, "Content-Type": "application/json; charset=UTF-8",
-                               "X-Upload-Content-Type": "video/mp4", "X-Upload-Content-Length": str(size)},
-                      data=json.dumps(meta), timeout=60)
+    if localizations:                                 # the title and summary in English / Hindi too (search reach)
+        meta["localizations"] = localizations
+    for attempt in range(2):
+        parts = "snippet,status" + (",localizations" if meta.get("localizations") else "")
+        r = requests.post("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=" + parts,
+                          headers={**hdr, "Content-Type": "application/json; charset=UTF-8",
+                                   "X-Upload-Content-Type": "video/mp4", "X-Upload-Content-Length": str(size)},
+                          data=json.dumps(meta), timeout=60)
+        if r.ok or not meta.get("localizations"):
+            break
+        log("  YouTube did not take the translated titles - uploading without them:", r.text[:150])
+        meta.pop("localizations", None)
     if not r.ok:
         raise RuntimeError("YouTube start failed: " + r.text[:400])
     with open(video, "rb") as f:
@@ -5107,8 +5135,11 @@ def morning_teasers(history):
             if extras.yt_extra_ok() and env("YT_SHORTS") != "0":
                 try:
                     extras.PUBLISH["at"], extras.PUBLISH["used"] = at, False
+                    loc = extras.shorts_localizations(
+                        extras.yt_localizations(title, story.get("description") or desc, plan["lang"],
+                                                env("GEMINI_API_KEY")), desc)
                     log("YouTube teaser Short:", post_to_youtube(reel, None, f"{title[:80]} #Shorts", desc, tags,
-                                                                 plan["lang"]))
+                                                                 plan["lang"], loc))
                 except Exception as e:
                     log("  teaser Short skipped:", str(e)[:200])
         except Exception as e:
@@ -5656,6 +5687,7 @@ def main():
     elif special == "classic" and classic:
         k = 0 if lang == "bn" else 1
         title = f"{classic[3][k]} | {classic[1][k]}"[:95]
+    story["_theme_pl"] = theme_playlist(lang, cat, special, festival, bool(story.get("true_label")))
     if story.get("true_label"):
         title = extras.true_title(title, lang)
     log("Title:", title)
@@ -5750,6 +5782,7 @@ def main():
                 extras.hide_ghost(p, gface, hp, rnd_h)
                 shots_per_scene = [[hp if x == p else x for x in sh] for sh in shots_per_scene]
                 hidden += 1
+                HIDDEN_PICS.append(hp)
             except Exception as e:
                 log("  hide ghost:", str(e)[:100])
         log(f"Ghost face ready; hidden in {hidden} pictures")
@@ -5797,21 +5830,24 @@ def main():
         extras.TRUE_LABEL.get(lang, extras.TRUE_LABEL["bn"]) if story.get("true_label") else "",
         series_bn or "", L["part"].format(n=bn_part) if part else "") if x)
     title_done = False
+    # YouTube's advice (8 Nov 2026): 2-4 BIG words that ADD to the title (a question, a warning) - not the title again
+    tw = own if env("THUMB_WORDS") == "title" else extras.thumb_words(story, title)
     if env("POSTER_STYLE") not in ("old", "words"):
         try:
-            extras.title_poster(thumb_base, own, thumb, tkind, small=small, fallback_font=FONT)
-            extras.title_poster(thumb_base, own, os.path.join(WORK, "thumbnail_portrait.jpg"), tkind, small=small,
+            extras.title_poster(thumb_base, tw, thumb, tkind, small=small, fallback_font=FONT)
+            extras.title_poster(thumb_base, tw, os.path.join(WORK, "thumbnail_portrait.jpg"), tkind, small=small,
                                 portrait=True, fallback_font=FONT)
             try:                                     # a SECOND thumbnail (used only if the video gets few views):
-                mir = os.path.join(WORK, "thumb_base_b.jpg")   # the picture mirrored, the second title
+                mir = os.path.join(WORK, "thumb_base_b.jpg")   # the picture mirrored, the title's own words
                 Image.open(thumb_base).convert("RGB").transpose(Image.FLIP_LEFT_RIGHT).save(mir, quality=92)
                 tb_title = re.sub(r"\s*\|.*$", "", str(story.get("title_b") or "")).strip() or own
+                tb_title = tb_title if tb_title != tw else own
                 extras.title_poster(mir, tb_title, os.path.join(WORK, "thumbnail_b.jpg"),
                                     "h_closeup" if tkind != "h_closeup" else "h_cinematic", small=small, fallback_font=FONT)
             except Exception as e:
                 log("  second thumbnail skipped:", str(e)[:100])
             title_done = True
-            log(f"Thumbnail: '{own}'" + (f" + '{small}'" if small else ""))
+            log(f"Thumbnail words: '{tw}'" + (f" + '{small}'" if small else ""))
         except Exception as e:
             log("  thumbnail title failed, the older poster:", str(e)[:120])
     try:                                             # the channel's own poster style (see extras.horror_poster)
@@ -5890,6 +5926,16 @@ def main():
                          "hook_part": True})
         cold = True
         log(f"Hook at the start (from scene {hi + 1}): {str(hlines[0].get('text', ''))[:80]}")
+        if env("TENSION_BRIDGE") != "0":
+            bridges = (["কিন্তু কীভাবে শুরু হয়েছিল এই সব? ফিরে যেতে হবে প্রথম দিনে...",
+                        "কে সে? কেন এসেছিল? উত্তর লুকিয়ে আছে প্রথম রাতে...",
+                        "অথচ শুরুটা ছিল একেবারে সাধারণ একটা দিন... তারপর?"] if lang == "bn" else
+                       ["लेकिन ये सब शुरू कैसे हुआ? लौटते हैं पहले दिन पर...",
+                        "वो कौन थी? क्यों आई थी? जवाब छिपा है पहली रात में...",
+                        "जबकि शुरुआत एक बिल्कुल आम दिन से हुई थी... फिर?"])
+            tl = parts[1]["lines"][0]
+            tl["text"] = f"{str(tl['text']).rstrip()} {random.choice(bridges)}"
+            log(f"  tension bridge after the hook: {tl['text'][-60:]}")
     STORY_PART[0] = 2 if cold else 1
     end_lines = []
     choice = story.get("choice") if continues and isinstance(story.get("choice"), dict) else None
@@ -5921,8 +5967,9 @@ def main():
         card = next_card(nxt, last_img)
         parts.append({"image": card or last_img, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": nxt}],
                       "sounds": ["wind"], "mood": "creepy", "voices": voices})
-    rest = end_lines[1:] + [{"speaker": "narrator", "text": L["how_to_join"]},
-                            {"speaker": "narrator", "text": L["outro"].format(page=page)}]
+    # A SHORT ENDING (YouTube: people leave when the story is over - a long goodbye lowers how much of the video
+    # is watched): the 'how to join' talk is in the description and the first comment, not spoken any more
+    rest = end_lines[1:] + [{"speaker": "narrator", "text": L["outro"].format(page=page)}]
     parts.append({"image": last_img, "lines": rest, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
     STING_AT[0] = 1 if cold else 0      # the show's sound with the title, right after the hook
@@ -5969,8 +6016,9 @@ def main():
         ([labels[0], L["ch_intro"]] + labels[1:]) if cold else [L["ch_intro"]] + labels
     chap = extras.chapters_text(part_times, labels + [L["ch_end"]], L["chapters"])
     yt_description = description.replace(f"\n\n{ai_note}", (f"\n\n{chap}" if chap else "") + f"\n\n{ai_note}")
-    if seo_words:                                    # YouTube: what people type in search, first in the text
-        yt_description = "🔎 " + " · ".join(seo_words[:6]) + "\n\n" + yt_description
+    # YouTube: the first lines are what search shows - a 2-3 sentence summary and the words people search for
+    yt_description = extras.search_head("horror", lang, story.get("description", ""), seo_words[:4]) + "\n\n" + \
+        yt_description.replace(f"\n\n{story.get('description', '').strip()}\n\n", "\n\n", 1)
     yt_title = title
     kw = next((w for w in seo_words if w.lower() not in title.lower() and len(title) + 3 + len(w) <= 100), "")
     if kw:
@@ -5989,7 +6037,8 @@ def main():
             results["facebook_error"] = str(e)[:200]
         if youtube_ready():
             try:
-                results["youtube"] = post_to_youtube(video, thumb, yt_title, yt_description, yt_tags, lang)
+                loc = extras.yt_localizations(yt_title, yt_description, lang, env("GEMINI_API_KEY"))
+                results["youtube"] = post_to_youtube(video, thumb, yt_title, yt_description, yt_tags, lang, loc)
                 log("Posted to YouTube:", results["youtube"])
             except Exception as e:
                 log("YOUTUBE FAILED:", e)
@@ -6025,7 +6074,10 @@ def main():
                     "source": STATE.get("source_name") or (prev or {}).get("source") or None,
                     "idea_used": STATE.get("idea_used"),
                     "category": STATE.get("category"),
-                    "question_post": extras.fb_question_post(history, "horror", lang) if not (MOCK or DRY_RUN) else None,
+                    "question_post": extras.fb_question_post(
+                        history, "horror", lang, photo=(HIDDEN_PICS[0] if HIDDEN_PICS else None),
+                        link=(f"https://www.facebook.com/watch/?v={results['facebook']}" if results.get("facebook") else "")
+                    ) if not (MOCK or DRY_RUN) else None,
                     "title_b": (str(story.get("title_b") or "").strip()[:85] + (f" | {L['part'].format(n=part)}" if part else "")) or None,
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
@@ -6508,7 +6560,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         if env("SECOND_REEL") != "0":                # a second Reel from another moment, 2 hours later
             try:
                 pt_, sg_ = TIMELINE[0], TIMELINE[1]
-                s2, e2 = extras.pick_window(sg_, pt_, max(2, (len(pt_) * 3) // 5), max_len=50.0)
+                s2, e2 = extras.pick_window(sg_, pt_, max(2, (len(pt_) * 3) // 5))
                 reel2 = os.path.join(WORK, "reel2.mp4")
                 extras.make_teaser(video, s2, e2, reel2, FONT, re.sub(r"\s*\|.*$", "", title).strip(), L["cta"], WORK,
                                    tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""))
@@ -6528,13 +6580,18 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         try:
             extras.yt_add_to_playlist(results["youtube"], story.get("_playlist") or L["playlist"], lang)
             log("  added to YouTube playlist")
+            if story.get("_theme_pl") and story.get("_theme_pl") != story.get("_playlist"):
+                extras.yt_add_to_playlist(results["youtube"], story["_theme_pl"], lang)
+                log(f"  added to the themed playlist: {story['_theme_pl']}")
         except Exception as e:
             log("  playlist skipped:", str(e)[:200])
         if (teaser and extras.yt_extra_ok() and env("YT_SHORTS") != "0"
                 and extras.shorts_today(history) < int(env("YT_SHORTS_PER_DAY") or 2)):
             try:
                 desc = f"{L['full_link']} https://youtu.be/{results['youtube']}\n\n{title}\n{' '.join(tags[:5])}"
-                out["yt_short"] = post_to_youtube(teaser, None, f"{title[:80]} #Shorts", desc, tags, lang)
+                loc = extras.shorts_localizations(extras.yt_localizations(title, desc, lang, env("GEMINI_API_KEY")),
+                                                  desc)
+                out["yt_short"] = post_to_youtube(teaser, None, f"{title[:80]} #Shorts", desc, tags, lang, loc)
                 log("Posted YouTube Short:", out["yt_short"])
             except Exception as e:
                 log("  YouTube Short skipped:", str(e)[:200])
