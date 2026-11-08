@@ -1420,7 +1420,7 @@ def gemini_models(key):
         tries += sorted(names, key=ver, reverse=True)
     except Exception as e:
         log("Could not list Gemini models:", e)
-    tries += ["gemini-2.5-flash"]
+    tries += ["gemini-flash-lite-latest"]           # ('gemini-2.5-flash' was retired by Google: 404)
     out = []
     for t in tries:
         if t and t not in out and t not in TEXT_DAY_OUT:
@@ -4413,8 +4413,9 @@ def build_video(scene_parts, lang, out):
     clips, segs, t, wavs, part_times, jobs = [], [], 0.0, [], [], []
     voices = scene_parts[0]["voices"]
     prepare_gemini_voices(scene_parts, voices, lang)       # all lines (intro + story + ending) or none
+    extras.parler_unload()                           # (frees ~4 GB before the video is put together)
     for i, sp in enumerate(scene_parts):
-        log(f"Voices + sound {i + 1}/{len(scene_parts)}")
+        log(f"Voices + sound {i + 1}/{len(scene_parts)}" + extras.machine_room())
         part_times.append(t)
         a = os.path.join(WORK, f"audio_{i:02d}.wav")
         wavs.append(a)
