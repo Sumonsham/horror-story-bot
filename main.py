@@ -1071,6 +1071,41 @@ def sync_sounds(story):
         log(f"  sounds in sync with the words: {added} added, {tied} tied to their word")
 
 
+def dedupe_story(story, window=10):
+    """THE SAME THING NEVER SAID TWICE (8 Nov 2026): a sentence that repeats (or almost repeats) one of the last few
+    sentences is taken out - also when the storyteller just repeats what a character has said ('she said she would
+    not go' + 'I will not go'). Only that sentence goes; the rest of the line stays."""
+    from difflib import SequenceMatcher
+    key = lambda s: re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", extras.strip_tags(s))
+    recent, removed = [], 0                           # (key, speaker) of the last sentences, scenes included
+    lines = [(sc, ln) for sc in story.get("scenes") or [] for ln in sc.get("lines") or []]
+    for idx, (sc, ln) in enumerate(lines):
+        spk = str(ln.get("speaker", "narrator")).lower()
+        nar = spk.startswith("narrat")
+        neigh = [key(lines[q][1].get("text", "")) for q in (idx - 1, idx + 1)
+                 if 0 <= q < len(lines) and not str(lines[q][1].get("speaker", "narrator")).lower().startswith("narrat")]
+        sents = split_sentences(str(ln.get("text", "")))
+        keep = []
+        for s in sents:
+            k = key(s)
+            dup = len(k) >= 14 and any(SequenceMatcher(None, k, r).ratio() >= 0.8 for r, _sp in recent[-window:])
+            echo = nar and len(k) >= 14 and any(len(nk) >= 10 and (nk in k or SequenceMatcher(None, k, nk).ratio() >= 0.75)
+                                                 for nk in neigh)
+            if dup or echo:
+                removed += 1
+                continue
+            keep.append(s)
+            recent.append((k, spk))
+        if len(keep) != len(sents):
+            ln["text"] = " ".join(keep)
+            ln.pop("voice_text", None)
+    for sc in story.get("scenes") or []:
+        sc["lines"] = [ln for ln in sc.get("lines") or [] if str(ln.get("text", "")).strip()]
+    story["scenes"] = [sc for sc in story.get("scenes") or [] if sc.get("lines")]
+    if removed:
+        log(f"  removed {removed} repeated sentence(s) (the same thing is never said twice)")
+
+
 def clean_story_text(story):
     """Only the spoken words go into "text" (= subtitles + voice): stage directions like (long pause), [sighs],
     <short pause> are removed; a line that repeats an earlier one is dropped."""
@@ -1108,6 +1143,10 @@ def clean_story_text(story):
     story["scenes"] = [sc for sc in story.get("scenes") or [] if sc.get("lines")]
     if removed:
         log(f"  removed {removed} repeated / empty line(s)")
+    try:
+        dedupe_story(story)
+    except Exception as e:
+        log("  repeat check skipped:", str(e)[:100])
 
 
 CLICHES = {
@@ -1788,7 +1827,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                      "the people, ordinary life and the first strange signs. ")
         else:
             rule += (f"Continue EXACTLY from where chapter {k - 1} stopped - same people, names, place and time; no "
-                     f"recap, no new introduction, no hook line. Story so far:{summary}\nThe last lines were: {last}\n")
+                     f"recap, no new introduction, no hook line. Story so far:{summary}\nThe last lines were (ALREADY "
+                     f"SPOKEN - never repeat or re-tell them, start with what happens NEXT): {last}\n")
         rule += (("This is the LAST chapter of THIS PART of a series: tell this part's remaining beats and STOP at its "
                   "big turning point on a strong cliffhanger - the mystery is NOT solved yet, the next part continues "
                   "it. " if ending == "cliffhanger" else
@@ -1804,6 +1844,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                  "EVERY SCENE ENDS COMPLETE: its last line is a finished sentence and its moment is over (an action done, "
                  "a question asked, a shock seen) - never stop a scene in the middle of a thought, a sentence or an "
                  "action; the NEXT scene picks up from exactly that point. "
+                 "NEVER SAY A THING TWICE: no sentence, fact or event is repeated; the storyteller never repeats what a "
+                 "character has just said (no 'she said she would not go' next to 'I will not go'). "
                  "NO JUMPS: every scene starts where the previous one ended, or with a clear spoken bridge (time and "
                  "place: 'সেই রাতেই...', 'পরদিন সকালে, থানায়...'); no person, place or event appears from nowhere. "
                  + ("Use ONLY the people, places, clues and promises already in the story so far - no new characters "
@@ -2880,6 +2922,61 @@ def voice_reserve():
     return 18                                         # the next 2 PM story (~14) + its morning teasers
 
 
+def split_sentences(text):
+    """'আমি জানি। তুমি যাও!' -> ['আমি জানি।', 'তুমি যাও!'] (very short pieces stay with their neighbour)."""
+    parts = [x.strip() for x in re.split(r"(?<=[।!?])\s+(?=\S)", str(text).strip()) if x.strip()]
+    out = []
+    for x in parts:
+        if out and (len(extras.strip_tags(x)) < 8 or len(extras.strip_tags(out[-1])) < 8):
+            out[-1] = out[-1] + " " + x
+        else:
+            out.append(x)
+    return out or [str(text)]
+
+
+def sentence_items(items):
+    """EVERY SENTENCE IS ITS OWN TURN in a multi-line recording (8 Nov 2026): the pause between two sentences of
+    one line was as long as the pause between two lines, so a cut could land between them - the line ended
+    half-way and its last sentence was heard in the next scene. Now every long pause in a recording is a real
+    turn end; the sentences of a line are joined again afterwards. Returns (turn items, {line out: its turns})."""
+    out, parts = [], {}
+    for it in items:
+        sents = split_sentences(it["text"])
+        if len(sents) <= 1:
+            out.append(it)
+            continue
+        subs = []
+        for k, s in enumerate(sents):
+            sub = dict(it)
+            sub.update(text=s, plain=extras.strip_tags(s), out=f"{it['out']}.s{k}.wav")
+            subs.append(sub)
+        parts[it["out"]] = subs
+        out += subs
+    return out, parts
+
+
+def join_sentences(parts, gap=0.22):
+    """The sentences of a line back into the line's own voice file (a short natural breath between them)."""
+    np = _np()
+    for line_out, subs in parts.items():
+        if os.path.exists(line_out) and os.path.getsize(line_out) > 2000:
+            continue
+        if not all(os.path.exists(s["out"]) and os.path.getsize(s["out"]) > 2000 for s in subs):
+            continue
+        try:
+            waves = [read_wav(s["out"]) for s in subs]
+            pause = np.zeros(int(SR * gap), dtype=waves[0].dtype)
+            whole = waves[0]
+            for w in waves[1:]:
+                whole = np.concatenate([whole, pause, w])
+            write_wav(line_out, whole)
+        except Exception as e:
+            log("    a line could not be joined:", str(e)[:100])
+        for s in subs:
+            if os.path.exists(s["out"]):
+                os.remove(s["out"])
+
+
 def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     """Voice the WHOLE story with Gemini before the video is made. If Gemini cannot finish every line
     (time or daily limit), the lines it made are kept and only the rest get a backup voice."""
@@ -2925,7 +3022,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         left = max(0, extras.tts_budget_left(TTS_USAGE) - keep)
         if keep:
             log(f"  {keep} voice requests are kept for the next 2 PM story - a {VOICE_CONTEXT[0]} uses only the rest")
-        need = {s: len(extras.tts_groups([it for _t, it in pairs_of({s})])) for s in chars}
+        need = {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
         gem, acc = [], 0
         for s in [x for x in order if x in chars]:
             if acc + need[s] <= left:
@@ -2935,10 +3032,12 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
             + (f"; waiting: {', '.join(s for s in order if s in chars and s not in gem)}" if len(gem) < len(chars) else ""))
         gp = pairs_of(set(gem))
         if gp:
+            turns, parts = sentence_items([it for _t, it in gp])
             try:
-                extras.tts_gemini_batch([it for _t, it in gp], LANGS[lang]["name"], SR, max_requests=min(left, acc + 6))
+                extras.tts_gemini_batch(turns, LANGS[lang]["name"], SR, max_requests=min(left, acc + 6))
             except Exception as e:                    # never lose the video over the voices
                 log("  expressive voices stopped:", str(e)[:150])
+            join_sentences(parts)
         for s in gem:                                 # 1-3 lines of a character came out empty: those lines alone
             mine = [it for _t, it in pairs_of({s})]
             miss = [it for it in mine if not made(it)]
