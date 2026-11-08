@@ -953,10 +953,10 @@
    "comments": 1,
    "views": 0,
    "length_s": 1152,
-   "yt_views": 1,
-   "yt_avg_s": 1151,
-   "yt_avg_pct": 100.0,
-   "checked": "2026-11-05T06:06+00:00"
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-08T07:35+00:00"
   }
  },
  {
@@ -990,10 +990,10 @@
    "comments": 1,
    "views": 0,
    "length_s": 1186,
-   "yt_views": 1,
-   "yt_avg_s": 1189,
-   "yt_avg_pct": 100.2,
-   "checked": "2026-11-05T06:06+00:00"
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-08T07:35+00:00"
   }
  },
  {
@@ -1175,12 +1175,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 2,
+   "views": 3,
    "length_s": 1635,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-05T06:06+00:00"
+   "yt_views": 2,
+   "yt_avg_s": 823,
+   "yt_avg_pct": 50.3,
+   "checked": "2026-11-08T07:35+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1220,11 +1220,11 @@
   "stats": {
    "likes": 0,
    "comments": 1,
-   "views": 4,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-05T06:06+00:00"
+   "views": 8,
+   "yt_views": 6,
+   "yt_avg_s": 9,
+   "yt_avg_pct": 0.9,
+   "checked": "2026-11-08T07:35+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1491,18 +1491,23 @@
   "fb_reel": "1698227145061812",
   "fb_story": "1142905141461811",
   "fb_reel2": "4663531203967200",
-  "yt_short": "z1mJtul9XSY"
+  "yt_short": "z1mJtul9XSY",
+  "stats": {
+   "likes": 0,
+   "comments": 1,
+   "views": 3,
+   "length_s": 1191,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-08T07:35+00:00"
+  }
  },
  {
   "date": "2026-11-08T04:02+00:00",
   "lang": "bn",
   "slot": "2026-11-08@14",
-  "pending_comments": [
-   {
-    "id": "4411615319092114",
-    "text": "আপনি যদি ওই খড়ের গাদায় কাদের মোড়লের জায়গায় থাকতেন, তবে কী করতেন? কমেন্টে জানান! 🌾\n\n🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!\n\n👇 কীভাবে অংশ নেবেন:\n✅ প্রশ্নের উত্তর এখানে কমেন্টে লিখুন - ঠিক উত্তরদাতাদের নাম পরের ভিডিওতে!\n🗳️ ভোট থাকলে ১ বা ২ লিখুন\n📝 আপনার সত্যি ভৌতিক ঘটনা #আমার_গল্প লিখে পাঠান - পরের গল্পটা আপনার হতে পারে\n🔔 ফলো করে রাখুন, পরের পর্ব যেন মিস না হয়"
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "category": "sotti",
@@ -1528,5 +1533,36 @@
   "fb_story": "1651291859779313",
   "fb_reel2": "2368206043930957",
   "yt_short": "o7LItiseJt0"
+ },
+ {
+  "date": "2026-11-08T08:43+00:00",
+  "lang": "bn",
+  "slot": "2026-11-08@14",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "sotti",
+  "question_post": null,
+  "title_b": "ভাটির বিলের মাথাকাটা পাহারাদার 🌾",
+  "theme": "the creator's own story",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "বরিশালের অভিশপ্ত ধানক্ষেত 🌾 | সত্য ঘটনা অবলম্বনে",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 1,
+  "facebook": "1108084012033392",
+  "youtube": "CxV3FSaveP8",
+  "fb_reel": "1670850974423916",
+  "fb_story": "1789185342314833",
+  "fb_reel2": "2149828538948449",
+  "yt_short": "H4hjRAzRweo"
  }
 ]
