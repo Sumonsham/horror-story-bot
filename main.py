@@ -2931,6 +2931,19 @@ def voice_reserve():
     special then gets the Chirp voice) - so the 2 PM story is not late every day."""
     ctx = VOICE_CONTEXT[0]
     if ctx not in ("teaser", "amavasya"):
+        # THE 8 PM STORY (10 Nov 2026): Gemini's day runs from 1:30 PM to 1:30 PM - the same day must still voice
+        # tomorrow morning's teasers and tomorrow's 2 PM story (made in the morning, before the next reset). So the
+        # night story keeps an explicit share for them instead of a guess.
+        try:
+            night = (ctx == "main" and STATE.get("slot_hour") == EVENING and env("MODE") != "amavasya"
+                     and extras.seconds_until_reset() > 12 * 3600)
+        except Exception:
+            night = False
+        if night:
+            try:
+                return max(0, int(env("TTS_KEEP_FOR_NOON") or 18))
+            except ValueError:
+                return 18
         return 0
     if env("TTS_RESERVE"):
         try:
@@ -3041,7 +3054,8 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         keep = voice_reserve()
         left = max(0, extras.tts_budget_left(TTS_USAGE) - keep)
         if keep:
-            log(f"  {keep} voice requests are kept for the next 2 PM story - a {VOICE_CONTEXT[0]} uses only the rest")
+            log(f"  {keep} voice requests are kept for the next 2 PM story (and its teasers) - this "
+                f"{'story' if VOICE_CONTEXT[0] == 'main' else VOICE_CONTEXT[0]} uses only the rest")
         need = {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
         gem, acc = [], 0
         for s in [x for x in order if x in chars]:
@@ -3054,7 +3068,8 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         if gp:
             turns, parts = sentence_items([it for _t, it in gp])
             try:
-                extras.tts_gemini_batch(turns, LANGS[lang]["name"], SR, max_requests=min(left, acc + 6))
+                # (the whole share may be used: retries for lines that could not be cut cleanly come out of it)
+                extras.tts_gemini_batch(turns, LANGS[lang]["name"], SR, max_requests=left)
             except Exception as e:                    # never lose the video over the voices
                 log("  expressive voices stopped:", str(e)[:150])
             join_sentences(parts)

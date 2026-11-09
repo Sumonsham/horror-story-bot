@@ -2308,14 +2308,16 @@ def tts_gemini(voice_text, voice, style, lang_label, out_wav, sr=44100, max_trie
 
 
 def tts_groups(items):
-    """How the lines are sent: up to 12 lines / 1400 characters and max 2 speakers per request."""
+    """How the lines are sent: up to 12 sentences / 1100 characters of ONE speaker per request."""
     groups, cur = [], []
     for it in items:
         spk = {x["spk"] for x in cur} | {it["spk"]}
         # ONE character per request: a cut that lands a little off can then never put one person's words into
         # another person's voice
-        if cur and (len(spk) > int(env("TTS_SPEAKERS_PER_REQUEST") or 1) or len(cur) >= int(env("TTS_BATCH_LINES") or 24)
-                    or sum(len(x["plain"]) for x in cur) + len(it["plain"]) > int(env("TTS_BATCH_CHARS") or 1900)):
+        # (9 Nov 2026: a recording of 24 sentences was NEVER cut cleanly - 0 of 3 - and each failure cost extra
+        # requests; 12 sentences mostly were: smaller first groups waste far fewer of the day's few requests)
+        if cur and (len(spk) > int(env("TTS_SPEAKERS_PER_REQUEST") or 1) or len(cur) >= int(env("TTS_BATCH_LINES") or 12)
+                    or sum(len(x["plain"]) for x in cur) + len(it["plain"]) > int(env("TTS_BATCH_CHARS") or 1100)):
             groups.append(cur)
             cur = []
         cur.append(it)
@@ -2400,6 +2402,39 @@ def _align_split(wav, plains):
         picks.append(c)
     segs = pieces([cand[c][0] for c in reversed(picks)])
     return (segs, sr) if segs else None
+
+
+def _pause_note(wav, n):
+    """Why a recording of n sentences could not be cut - for the log: how many clear pauses Gemini made and how
+    long the deciding ones are."""
+    try:
+        import numpy as np
+        from scipy.io import wavfile
+        sr, a = wavfile.read(wav)
+        a = a.astype("float32")
+        hop = int(sr * 0.02)
+        rms = np.array([np.sqrt((a[i:i + hop] ** 2).mean()) for i in range(0, len(a) - hop, hop)])
+        quiet = rms < max(np.percentile(rms, 95) * 0.03, 1e-6)
+        runs, i = [], 0
+        while i < len(quiet):
+            if quiet[i]:
+                j = i
+                while j < len(quiet) and quiet[j]:
+                    j += 1
+                if (j - i) * 0.02 >= 0.2 and i > 0 and j < len(quiet):
+                    runs.append((j - i) * 0.02)
+                i = j
+            else:
+                i += 1
+        runs.sort(reverse=True)
+        if len(runs) < n - 1:
+            return f"only {len(runs)} pauses for {n} sentences"
+        if len(runs) == n - 1:
+            return f"{len(runs)} pauses as needed, but a piece did not fit its sentence's length"
+        return (f"{len(runs)} pauses for {n} sentences; the {n - 1}th longest {runs[n - 2]:.2f} s, the next "
+                f"{runs[n - 1]:.2f} s - too alike or a piece did not fit")
+    except Exception:
+        return "?"
 
 
 def _soft_split(wav, plains):
@@ -2501,14 +2536,16 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45, max_requests=None)
                 half = max(1, len(g) // 2)
                 groups[gi + 1:gi + 1] = [g[:half], g[half:]]
             continue
-        cut = _align_split(tmp, plains) if len(g) > 1 else None
-        if not cut and len(g) > 2 and (max_requests is None or TTS_USED[0] + 2 <= max_requests):
+        # (a single sentence needs no cutting at all - before 10 Nov 2026 its recording was thrown away by mistake)
+        cut = _align_split(tmp, plains)
+        if not cut and len(g) >= 2 and (max_requests is None or TTS_USED[0] + 2 <= max_requests):
             # not sure where one line ends and the next begins: ask again as two smaller groups - a line is
             # NEVER cut in the middle of a sentence
+            why = _pause_note(tmp, len(g))
             os.remove(tmp)
             half = len(g) // 2
             groups[gi + 1:gi + 1] = [g[:half], g[half:]]
-            log(f"  voices: {len(g)} lines - not sure where each line ends, asking again in two smaller groups")
+            log(f"  voices: {len(g)} lines - not sure where each line ends ({why}), asking again in two smaller groups")
             continue
         if not cut:
             os.remove(tmp)
