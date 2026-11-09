@@ -13,16 +13,23 @@ on:
         description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special."
         required: false
         default: ""
+  push:                     # ONLY the website (privacy page + ghost map) is updated on a push - never a video
+    branches: [main]
+    paths:
+      - "index.html"
+      - "docs/**"
+      - ".github/workflows/horror-story.yml"
 
 permissions:
   contents: write
 
-concurrency:
-  group: horror-story
+concurrency:                # (a website update never waits for or cancels a video run)
+  group: ${{ github.event_name == 'push' && 'horror-website' || 'horror-story' }}
   cancel-in-progress: false
 
 jobs:
   post:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 360    # 6 hours (the most GitHub allows)
     env:
@@ -168,3 +175,39 @@ jobs:
             work/voice_demo_*.mp3
           retention-days: 3
           if-no-files-found: ignore
+
+  # The website on GitHub Pages: the privacy page (index.html, needed for the YouTube permission) stays at the
+  # main address, the ghost map (docs folder) is at .../map/. Settings > Pages > Source must be "GitHub Actions".
+  # (GitHub never rebuilds a "Deploy from a branch" site for the bot's own commits - so the map is published here.)
+  site:
+    needs: post
+    if: always() && github.event.inputs.mode != 'voice_demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}   # with the map the bot has just saved
+
+      - name: Put the website together (privacy page + ghost map)
+        run: |
+          mkdir -p _site/map
+          if [ -f index.html ]; then cp index.html _site/index.html; else echo "no privacy page (index.html)"; fi
+          if [ -d docs ]; then cp -r docs/. _site/map/; else echo "no map yet - the bot makes it on its next run"; fi
+          ls -la _site _site/map
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Publish the website
+        id: deployment
+        uses: actions/deploy-pages@v4
