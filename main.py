@@ -60,6 +60,7 @@ LANGS = {
         "label": "भूतिया कहानी",
         "intro": "आज की डरावनी कहानी है... {title}।",
         "outro": "ऐसी और डरावनी कहानियों के लिए {page} को फ़ॉलो कर लीजिए। आज रात बत्ती बुझाकर मत सोइएगा... फिर मिलेंगे, अंधेरे में।",
+        "outro_short": "आज रात बत्ती बुझाकर मत सोइएगा... फिर मिलेंगे, अंधेरे में।",
         "page_default": "हमारे पेज",
         "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
         "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
@@ -115,6 +116,7 @@ LANGS = {
         "label": "ভৌতিক গল্প",
         "intro": "আজকের ভৌতিক গল্প... {title}।",
         "outro": "এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করে রাখুন। আজ রাতে আলো নিভিয়ে ঘুমোবেন না যেন... আবার দেখা হবে, অন্ধকারে।",
+        "outro_short": "আজ রাতে আলো নিভিয়ে ঘুমোবেন না যেন... আবার দেখা হবে, অন্ধকারে।",
         "page_default": "আমাদের পেজ",
         "share_cta": "📌 রোজ দুপুরে আর রাতে নতুন ভূতের গল্প - পেজটা ফলো করে রাখুন।",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
@@ -1078,6 +1080,8 @@ def dedupe_story(story, window=10):
     from difflib import SequenceMatcher
     key = lambda s: re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", extras.strip_tags(s))
     recent, removed = [], 0                           # (key, speaker) of the last sentences, scenes included
+    calls = {}                                        # short calls ('ঠাকুরমশাই!') and how often they came already
+    laugh = re.compile(r"^(?:[হহিহোখি]+|[हहिहोखि]+|ha|hi)+$", re.I)
     lines = [(sc, ln) for sc in story.get("scenes") or [] for ln in sc.get("lines") or []]
     for idx, (sc, ln) in enumerate(lines):
         spk = str(ln.get("speaker", "narrator")).lower()
@@ -1088,6 +1092,13 @@ def dedupe_story(story, window=10):
         keep = []
         for s in sents:
             k = key(s)
+            # the same short call over and over (9 Nov 2026: Paltu began 7 lines with 'ঠাকুরমশাই!') - after twice it
+            # goes, when the line has more to say (a laugh of the ghost is meant to come back)
+            if 0 < len(k) < 14 and len(sents) > 1 and not laugh.match(k):
+                calls[k] = calls.get(k, 0) + 1
+                if calls[k] > 2:
+                    removed += 1
+                    continue
             dup = len(k) >= 14 and any(SequenceMatcher(None, k, r).ratio() >= 0.8 for r, _sp in recent[-window:])
             echo = nar and len(k) >= 14 and any(len(nk) >= 10 and (nk in k or SequenceMatcher(None, k, nk).ratio() >= 0.75)
                                                  for nk in neigh)
@@ -1292,6 +1303,21 @@ def ensure_intros(story, cold=False):
         keys = [str(c.get("name_local") or "").strip(), str(c["name"]).strip()]
         return any(k and k.split()[0] in said for k in keys)
 
+    def words_of(t):
+        return {w for w in re.sub(r"[^\w\u0980-\u09ff\u0900-\u097f]", " ", str(t)).split() if len(w) > 2}
+
+    def introduced_here(c, lines, k):
+        """the story itself names / describes the person in this line or the next two (10 Nov 2026: the intro was
+        put just before 'দিব্যেন্দু সেন নামে কলকাতার এক প্রবীণ শব্দ গবেষক...' - the same thing said twice)"""
+        ahead = " ".join(str(x.get("text", "")) for x in lines[k:k + 3])
+        keys = [str(c.get("name_local") or "").strip(), str(c["name"]).strip()]
+        named = any(kk and kk.split()[0] in ahead for kk in keys)
+        iw = words_of(c.get("intro", ""))
+        same = len(iw & words_of(ahead)) / len(iw) if iw else 0.0
+        # named there AND described there (age, job, who they are) - or most of the intro's words are there anyway;
+        # a mere mention of the name ('...ভৈরব ঠাকুরের ডেরায়') keeps the intro
+        return (named and same >= 0.2) or same >= 0.35
+
     def intro_line(c):
         return {"speaker": "narrator", "emotion": "calm", "text": str(c["intro"]).strip(),
                 "en": str(c.get("intro_en", "")), "intro_of": c["name"],
@@ -1305,8 +1331,10 @@ def ensure_intros(story, cold=False):
         visible = [n for n in (sc.get("characters") or []) if isinstance(n, str)]
         for k, ln in enumerate(lines):
             if si == 1 and k == 1 and late:          # after scene 2's time-bridge: those of the cold open
-                out += [intro_line(c) for c in late if c.get("intro") and not known(c)]
-                added += len(late)
+                new_ = [intro_line(c) for c in late if c.get("intro") and not known(c)
+                        and not introduced_here(c, lines, k)]
+                out += new_
+                added += len(new_)
                 late = []
             sp = str(ln.get("speaker", ""))
             pic = ln.get("image") if isinstance(ln.get("image"), dict) else {}
@@ -1314,6 +1342,9 @@ def ensure_intros(story, cold=False):
             for c in chars:
                 if c["name"] not in here or known(c) or not c.get("intro") or c.get("kind") == "ghost" \
                         or c in late or any(x.get("intro_of") == c["name"] for x in out):
+                    continue
+                if introduced_here(c, lines, k):     # the story introduces this person itself, right here
+                    said += " " + str(c["name"]) + " " + str(c.get("name_local") or "")
                     continue
                 if si == 0 and cold and k == 0:
                     late.append(c)
@@ -1324,8 +1355,9 @@ def ensure_intros(story, cold=False):
             out.append(ln)
             said += " " + str(ln.get("text", ""))
         if si == 1 and late:                         # scene 2 had only one line
-            out[1:1] = [intro_line(c) for c in late if c.get("intro") and not known(c)]
-            added += len(late)
+            new_ = [intro_line(c) for c in late if c.get("intro") and not known(c) and not introduced_here(c, lines, 1)]
+            out[1:1] = new_
+            added += len(new_)
             late = []
         sc["lines"] = out
     if added:
@@ -1541,7 +1573,9 @@ MASTER_STYLE = (
     "Hemendra Kumar Roy, Sharadindu's Baroda and Satyajit Ray's ghost stories - a slow, REALISTIC build-up in "
     "ordinary life, exact everyday detail, every event with a believable cause, people who act like real people, "
     "logic that holds to the end, and the supernatural entering quietly. Never retell or closely follow any "
-    "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine).\n")
+    "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine). "
+    "No call, exclamation or catchphrase over and over: a name called out ('ঠাকুরমশাই!', 'মা গো!') at most twice "
+    "in the whole story - every line must say something new.\n")
 
 
 LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 22)     # two ~22-minute stories a day (2 PM, 8 PM)
@@ -4925,20 +4959,130 @@ def _jsave(path, data):
         json.dump(data, f, ensure_ascii=False)
 
 
+GIT_ME = ["-c", "user.name=story-bot", "-c", "user.email=story-bot@users.noreply.github.com"]
+
+
+def _git(*args, timeout=300):
+    """git, ALWAYS with the bot's name. 9 Nov 2026: new files had been uploaded to GitHub during the 8 PM run, so
+    'git pull --rebase' had to make a new commit - but GitHub's computer has no git name, the save stopped half-way
+    ('You are not currently on a branch') and every later save of the night failed: the history entry and the
+    series memory (part 2 on Thursday) were lost although the video was posted."""
+    return subprocess.run(["git"] + GIT_ME + [str(a) for a in args], cwd=HERE, capture_output=True, text=True,
+                          timeout=timeout)
+
+
+def _git_note(r):
+    lines = [x.strip() for x in ((r.stderr or "") + "\n" + (r.stdout or "")).splitlines()
+             if x.strip() and not x.startswith(("hint:", " ", "\t"))]
+    return (lines[-1] if lines else f"git exit {r.returncode}")[:160]
+
+
+def _git_branch():
+    r = _git("symbolic-ref", "-q", "--short", "HEAD")
+    return r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else (env("GITHUB_REF_NAME") or "main")
+
+
+def git_unstick(keep_files=True):
+    """A save that stopped half-way is put right, so the bot is never left 'not on a branch' for the rest of the run.
+    keep_files=False: straight after a failed pull (nothing was written since) - it is undone exactly.
+    keep_files=True: files may have been written since - every file stays as it is now (the newest), then what
+    waited in the stash, then the saves that had not reached GitHub yet. Returns True when something was put right."""
+    gd = os.path.join(HERE, ".git")
+    rebasing = [d for d in ("rebase-merge", "rebase-apply") if os.path.isdir(os.path.join(gd, d))]
+    merging = os.path.exists(os.path.join(gd, "MERGE_HEAD"))
+    if not rebasing and not merging and _git("symbolic-ref", "-q", "HEAD").returncode == 0:
+        return False
+    br = env("GITHUB_REF_NAME") or "main"
+    if not keep_files:
+        if rebasing and _git("rebase", "--abort").returncode == 0:
+            rebasing = []
+        if merging and _git("merge", "--abort").returncode == 0:
+            merging = False
+    if rebasing or merging or _git("symbolic-ref", "-q", "HEAD").returncode != 0:
+        oh = ""
+        for d in rebasing:
+            try:
+                with open(os.path.join(gd, d, "orig-head")) as f:
+                    oh = f.read().strip() or oh
+            except OSError:
+                pass
+        _git("rebase", "--quit")
+        _git("merge", "--quit")
+        _git("checkout", "-B", br)
+        _git("branch", f"--set-upstream-to=origin/{br}")
+        _git("reset", "-q")
+        same = lambda f: _git("diff", "--quiet", "HEAD", "--", f).returncode == 0
+        for f in _git("diff", "--name-only").stdout.split():
+            try:
+                with open(os.path.join(HERE, f), encoding="utf-8", errors="ignore") as fh:
+                    if any(ln.startswith("<<<<<<< ") for ln in fh):
+                        _git("checkout", "--", f)
+            except OSError:
+                pass
+        if _git("rev-parse", "-q", "--verify", "refs/stash").returncode == 0:
+            for f in _git("stash", "show", "--name-only", "stash@{0}").stdout.split():
+                if same(f):
+                    _git("checkout", "stash@{0}", "--", f)
+        mb = _git("merge-base", "HEAD", oh).stdout.strip() if oh else ""
+        for f in (_git("diff", "--name-only", mb, oh).stdout.split() if mb else []):
+            if same(f):
+                _git("checkout", oh, "--", f)
+            _git("add", "-A", "-f", "--", f)         # these were saved already: they go with this save again
+    log("  git: a save that had stopped half-way was put right (nothing lost)")
+    return True
+
+
+def _git_ahead():
+    r = _git("rev-list", "--count", f"origin/{_git_branch()}..HEAD")
+    return r.returncode == 0 and r.stdout.strip() not in ("", "0")
+
+
+def git_sync(tries=3):
+    """Sends this run's saved commits to GitHub - first taking in whatever else changed there meanwhile (your own
+    uploads during the run). Never stops half-way. Returns (ok, reason)."""
+    note = ""
+    for k in range(tries):
+        br = _git_branch()
+        try:
+            r = _git("pull", "--rebase", "--autostash", "-q", "origin", br)
+            if r.returncode != 0:                    # could not put our commits on top: undo, then MERGE instead
+                note = _git_note(r)
+                git_unstick(keep_files=False)
+                r = _git("pull", "--no-rebase", "--no-edit", "--autostash", "-X", "ours", "-q", "origin", br)
+                if r.returncode != 0:
+                    note = _git_note(r)
+                    git_unstick(keep_files=False)
+                    time.sleep(5 * (k + 1))
+                    continue
+            p = _git("push", "-q", "origin", f"HEAD:{br}")
+        except subprocess.TimeoutExpired:
+            note = "GitHub did not answer in time"
+            lock = os.path.join(HERE, ".git", "index.lock")
+            if os.path.exists(lock):                 # (left behind by the stopped git)
+                os.remove(lock)
+            git_unstick(keep_files=False)
+            continue
+        if p.returncode == 0:
+            return True, ""
+        note = _git_note(p)
+        time.sleep(5 * (k + 1))
+    return False, note
+
+
 def push_now(paths, why):
     """Saves files to GitHub RIGHT AWAY (not only at the end of the run), so the later runs surely find them -
     e.g. this morning's stories for the afternoon and night videos."""
     if MOCK or DRY_RUN or env("GITHUB_ACTIONS") != "true":
         return
     try:
-        g = ["git", "-c", "user.name=story-bot", "-c", "user.email=story-bot@users.noreply.github.com"]
+        git_unstick()
         subprocess.run(["git", "add", "-f"] + [p for p in paths if os.path.exists(p)], cwd=HERE, check=True,
                        capture_output=True)
-        c = subprocess.run(g + ["commit", "-m", why], cwd=HERE, capture_output=True, text=True)
-        if c.returncode == 0:
-            subprocess.run(["git", "pull", "--rebase", "--autostash", "-q"], cwd=HERE, capture_output=True)
-            p_ = subprocess.run(["git", "push", "-q"], cwd=HERE, capture_output=True, text=True)
-            log("  saved to GitHub:", why if p_.returncode == 0 else f"push failed {p_.stderr[:150]}")
+        c = _git("commit", "-q", "-m", why)
+        if c.returncode != 0 and not _git_ahead():
+            return                                   # nothing new to save
+        ok, note = git_sync()
+        log("  saved to GitHub:", why if ok else f"NOT yet - {note} (it goes with the next save)")
     except Exception as e:
         log("  could not save to GitHub now:", str(e)[:150])
 
@@ -5197,7 +5341,8 @@ BIBLE_FILE = os.path.join(HERE, "assets", "series_bible.json")    # what our ser
 SERIES_BIBLE = {   # how our recurring people speak and behave - the same in every episode
     "bhairab": ("BHAIRAB THAKUR speaks slowly, in few words, calm even in the worst moment; dry humour; calls Paltu "
                 "'ওরে পল্টু'; never shouts; explains the old beliefs simply. PALTU talks fast when scared, makes "
-                "jokes to hide his fear, loves food, calls him 'ঠাকুরমশাই'; in the end he is always brave once."),
+                "jokes to hide his fear, loves food, calls him 'ঠাকুরমশাই' (only now and then - never line after line "
+                "starting with the same call); in the end he is always brave once."),
     "taranath": ("TARANATH speaks like a tired old man who has seen too much: slow, honest about his fear and his "
                  "mistakes, never boasting, sometimes stops and stares at the rain. KISHORI is curious, polite, "
                  "asks short hushed questions, calls him 'তারানাথবাবু'."),
@@ -6497,6 +6642,254 @@ def make_marathon(history):
     return True
 
 
+# ===================== v67: a video that WAS posted, but whose saving failed (9 Nov 2026)
+# That night's log (GitHub hides every '1' in a log as '***'): the exact YouTube ids, and the Facebook id with its
+# hidden 1s - the bot finds the real Facebook id itself (by the title, or by trying what the hidden 1s can be).
+LOST_HINTS = {"2026-11-09@20": {"youtube": "TuWwZbD23Kc", "yt_short": "7hquKevToz8",
+                                "facebook_masked": "224***668***93229704"}}
+
+
+def _letters(t):
+    """only the letters of a title (no emoji, spaces, '|', ':' or '#'), to find one title inside another"""
+    return re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", str(t or "")).lower()
+
+
+def _story_keys(story):
+    out = []
+    for t in (story.get("title"), story.get("title_b")):
+        k = _letters(re.sub(r"\s*\|.*$", "", str(t or "")))
+        if len(k) >= 6 and k not in out:
+            out.append(k)
+    return out
+
+
+def _not_a_story_video(t):
+    return any(w in str(t) for w in ("সম্পূর্ণ গল্প", "पूरी कहानी", "#Shorts", "#shorts", "ম্যারাথন", "मैराथन"))
+
+
+def _fb_find_posted(keys, at, masked=""):
+    """the posted story video on the Facebook page -> (id, title): searched by its title among the page's latest
+    videos (the longest one, uploaded around that time); else every id the hidden 1s ('***') can stand for"""
+    page, token = env("FB_PAGE_ID"), env("FB_PAGE_TOKEN")
+    if not (page and token and keys):
+        return None, None
+    try:
+        r = requests.get(f"{extras.GRAPH}/{page}/videos", timeout=60, params={
+            "fields": "id,title,created_time,length", "limit": 60, "access_token": token}).json()
+        hits = []
+        for v in r.get("data") or []:
+            t = str(v.get("title") or "")
+            if not t or _not_a_story_video(t) or not any(k in _letters(t) for k in keys):
+                continue
+            try:
+                made = dt.datetime.fromisoformat(str(v.get("created_time"))[:19]).replace(tzinfo=dt.timezone.utc)
+                if not (-dt.timedelta(hours=20) <= made - at <= dt.timedelta(hours=8)):
+                    continue
+            except ValueError:
+                pass
+            hits.append((float(v.get("length") or 0), str(v["id"]), t))
+        if hits:
+            _l, vid, t = max(hits)
+            return vid, t
+        if "error" in r:
+            log("  repair: Facebook search -", str(r["error"].get("message"))[:120])
+    except Exception as e:
+        log("  repair: Facebook search skipped:", str(e)[:120])
+    if masked and "***" in masked:
+        import itertools
+        bits = masked.split("***")
+        for fill in itertools.product(("1", "11", "111"), repeat=len(bits) - 1):
+            cand = bits[0] + "".join(f + b for f, b in zip(fill, bits[1:]))
+            try:
+                v = requests.get(f"{extras.GRAPH}/{cand}", params={"fields": "id,title", "access_token": token},
+                                 timeout=30).json()
+            except Exception:
+                continue
+            if v.get("id") and any(k in _letters(v.get("title")) for k in keys):
+                return str(v["id"]), str(v.get("title") or "")
+    return None, None
+
+
+def _yt_find_posted(keys, hint):
+    """(main video id, its title, the Short's id) on our YouTube channel"""
+    if not youtube_ready():
+        return hint.get("youtube"), None, hint.get("yt_short")
+    try:
+        hdr = extras.yt_token()
+        if hint.get("youtube"):
+            r = requests.get(f"{extras.YT}/videos", headers=hdr, timeout=30,
+                             params={"part": "snippet", "id": hint["youtube"]}).json()
+            t = next((str(x["snippet"].get("title") or "") for x in r.get("items") or []), None)
+            return hint["youtube"], t, hint.get("yt_short")
+        ch = requests.get(f"{extras.YT}/channels", headers=hdr, timeout=30,
+                          params={"part": "contentDetails", "mine": "true"}).json()
+        up = ch["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+        r = requests.get(f"{extras.YT}/playlistItems", headers=hdr, timeout=30,
+                         params={"part": "snippet", "playlistId": up, "maxResults": 40}).json()
+        main_id = title = short_id = None
+        for x in r.get("items") or []:
+            sn = x.get("snippet") or {}
+            t, vid = str(sn.get("title") or ""), (sn.get("resourceId") or {}).get("videoId")
+            if not vid or not any(k in _letters(t) for k in keys):
+                continue
+            if "#shorts" in t.lower():
+                short_id = short_id or vid
+            elif not main_id and not _not_a_story_video(t):
+                main_id, title = vid, t
+        return main_id, title, short_id
+    except Exception as e:
+        log("  repair: YouTube search skipped:", str(e)[:120])
+        return hint.get("youtube"), None, hint.get("yt_short")
+
+
+def _series_cast(story, special, theme, part, prev):
+    """the same people main() keeps in the series memory (our fixed heroes; part 2+ = part 1's people + new)"""
+    chars = [dict(c) for c in story.get("characters") or [] if isinstance(c, dict)]
+    if special in ("bhairab", "taranath", "karna"):
+        fixed = {"bhairab": BHAIRAB, "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []),
+                 "karna": KARNA}[special]
+        names = {c["name"].lower(): c for c in fixed}
+        chars = [names.get(str(c.get("name", "")).lower(), c) for c in chars]
+        for b in fixed:
+            if b["name"].lower() not in [str(c.get("name", "")).lower() for c in chars]:
+                chars.append(b)
+    setting = story.get("setting", "")
+    if part >= 2 and prev:
+        old = {str(c.get("name", "")).lower() for c in prev.get("characters") or []}
+        chars = list(prev.get("characters") or []) + [c for c in chars if str(c.get("name", "")).lower() not in old]
+        setting = prev.get("setting") or setting
+    return chars, setting
+
+
+def repair_lost_posts(history, now=None):
+    """9 Nov 2026: the 8 PM video WAS posted, but saving to GitHub failed - its history entry, its map pin and its
+    series memory (part 2 promised for Thursday) were lost. Every run first checks the stories written for the last
+    days: a time that is over, with no history entry, but whose video IS on Facebook / YouTube -> its history entry
+    and its series memory are written again and saved. Returns the repaired time slots."""
+    if MOCK or DRY_RUN or env("REPAIR_LOST") == "0":
+        return []
+    plans = _jload(PLANS_FILE, {})
+    if not isinstance(plans, dict):
+        return []
+    now = now or dt.datetime.now(extras.IST)
+    saved = {h.get("slot") for h in history if h.get("slot") and not h.get("kind")}
+    fixed = []
+    for key in sorted(plans):
+        plan = plans.get(key)
+        if key in saved or "@" not in str(key) or not isinstance(plan, dict) or not isinstance(plan.get("story"), dict):
+            continue
+        try:
+            d_, h_ = str(key).split("@")
+            at = dt.datetime.fromisoformat(d_).replace(hour=int(h_), tzinfo=extras.IST)
+        except ValueError:
+            continue
+        if not dt.timedelta(minutes=40) <= now - at <= dt.timedelta(days=4):
+            continue                                 # its own run may still be going / too old
+        story, hint = plan["story"], LOST_HINTS.get(key, {})
+        keys = _story_keys(story)
+        if not keys:
+            continue
+        at_utc = at.astimezone(dt.timezone.utc)
+        fb_id, fb_title = _fb_find_posted(keys, at_utc, hint.get("facebook_masked", ""))
+        yt_id, yt_title, yt_short = _yt_find_posted(keys, hint)
+        if not fb_id and not yt_id:
+            log(f"  {key}: no history entry and no video online - that story was not posted (nothing to repair)")
+            continue
+        st = plan.get("state") or {}
+        lang = plan.get("lang") if plan.get("lang") in LANGS else "bn"
+        L = LANGS[lang]
+        part, total = int(plan.get("part") or 0), int(plan.get("total") or 0)
+        prev = plan.get("prev") if isinstance(plan.get("prev"), dict) else None
+        special, theme, fmt = plan.get("special"), plan.get("theme"), plan.get("fmt")
+        cat = st.get("category") or plan.get("cat") or "gram"
+        continues = bool(part) and part < total
+        title = fb_title or yt_title or str(story.get("title", ""))
+        when = at_utc.isoformat(timespec="minutes")
+        series_id = (((prev or {}).get("series_id") or (prev or {}).get("created")) if part >= 2 else
+                     (when if part == 1 else None))
+        pn = str(part).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else str(part)
+        tb = re.sub(r"\s*\|\s*(?:পর্ব|भाग).*$", "", str(story.get("title_b") or "")).strip()[:85]
+        ma = str(story.get("mystery_answer", 0) or 0)[:1]
+        rec = {"date": when, "lang": lang, "slot": key, "pending_comments": [],
+               "source": st.get("source_name") or (prev or {}).get("source") or None,
+               "idea_used": st.get("idea_used"), "category": cat, "question_post": None,
+               "title_b": (tb + (f" | {L['part'].format(n=pn)}" if part else "")) if tb else None,
+               "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id,
+               "title": title, "festival": plan.get("festival"), "special": special,
+               "viewer_story_id": (plan.get("viewer") or {}).get("id") if isinstance(plan.get("viewer"), dict) else None,
+               "classic_id": (plan.get("classic") or [None])[0] if special == "classic" and plan.get("classic") else None,
+               "episode_summary": str(story.get("episode_summary", ""))[:400] if special == "karna" else None,
+               "karna_origin": True if special == "karna" else None, "hidden": False,
+               "mystery_answer": int(ma) if ma.isdigit() else 0, "repaired": True}
+        for k_, v_ in (("facebook", fb_id), ("youtube", yt_id), ("yt_short", yt_short)):
+            if v_:
+                rec[k_] = v_
+        try:                                         # its pin on the ghost map
+            dk = story_district(story)
+            if dk in DISTRICT and os.path.exists(MAP_JSON) and env("GHOST_MAP") != "0":
+                items = _jload(MAP_JSON, [])
+                items = items if isinstance(items, list) else []
+                pin = _pin(title, dk, lang, fb_id, yt_id, at.date().isoformat(), HORROR_CATS.get(cat, {}).get("bn", ""))
+                if not any((pin["fb"] and x.get("fb") == pin["fb"]) or (pin["yt"] and x.get("yt") == pin["yt"])
+                           for x in items):
+                    items.append(pin)
+                    _jsave(MAP_JSON, items[-3000:])
+                rec["district"] = dk
+        except Exception as e:
+            log("  repair: map pin skipped:", str(e)[:100])
+        later = [h for h in history if str(h.get("date") or "") > when and not h.get("kind")
+                 and (h.get("category") == cat)]
+        if continues or part >= 2:                   # the series memory - unless this category has gone on since
+            cur = extras.series_all(NEXT_PART).get(str(cat))
+            if later:
+                log(f"  repair: '{cat}' has had a newer story since - its series memory is left as it is")
+            elif continues and (not cur or str(cur.get("updated") or cur.get("created") or "") < when or
+                                (cur.get("series_id") == series_id and int(cur.get("done") or 0) < part)):
+                m = re.search(r"#\s*([০-৯0-9]+)", title)
+                case_no = (int(m.group(1).translate(str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789"))) if m and special in
+                           ("bhairab", "taranath", "karna") else (prev or {}).get("case_no"))
+                chars, setting = _series_cast(story, special, theme, part, prev)
+                last_sc = story["scenes"][-1] if story.get("scenes") else {}
+                extras.series_put(NEXT_PART, cat, {
+                    "created": (prev or {}).get("created") or at_utc.isoformat(),
+                    "category": cat, "lang": lang, "theme": theme, "fmt": fmt, "special": special,
+                    "title": (prev or {}).get("title") or re.sub(r"\s*\|.*$", "", title).strip(),
+                    "done": part, "total": total, "series_id": series_id, "case_no": case_no,
+                    "summary": (((prev or {}).get("summary") or "") + f"\nPart {part}: " + str(story.get("summary", "")))[-4000:],
+                    "last_lines": " / ".join(str(ln.get("text", "")) for ln in (last_sc.get("lines") or [])[-4:]),
+                    "outline": st.get("outline") or plan.get("outline") or (prev or {}).get("outline", ""),
+                    "characters": chars, "setting": setting,
+                    "source": st.get("source_name", "") or (prev or {}).get("source", "")})
+                data = extras.series_all(NEXT_PART)  # 'updated' = when it was really posted, so the next part
+                data[str(cat)]["updated"] = at_utc.isoformat()   # comes on the category's next day as promised
+                with open(NEXT_PART, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=1)
+                log(f"  repair: series memory back - part {part + 1} of {total} comes on '{cat}' day")
+            elif not continues and cur and cur.get("series_id") == series_id:
+                extras.series_put(NEXT_PART, cat, None)
+        if not continues and special in SERIES_BIBLE:
+            try:
+                bible_add(special, title, story.get("episode_summary") or str(story.get("summary", ""))[:300])
+            except Exception as e:
+                log("  repair: series bible skipped:", str(e)[:100])
+        pos = len(history)
+        while pos > 0 and str(history[pos - 1].get("date") or "") > when:
+            pos -= 1
+        history.insert(pos, rec)
+        saved.add(key)
+        fixed.append(key)
+        log(f"REPAIRED {key}: '{title}' was posted (Facebook {fb_id or '-'}, YouTube {yt_id or '-'}) but not saved "
+            f"- its history entry is back")
+    if fixed:
+        save_history(history)
+        push_now([HISTORY, NEXT_PART, MAP_DIR, BIBLE_FILE], "lost save repaired: " + ", ".join(fixed))
+        try:
+            extras.telegram("🛠️ আগের run-এর হারানো হিসেব ঠিক করা হয়েছে: " + ", ".join(fixed) +
+                            " (ভিডিও পোস্ট হয়েছিল, শুধু GitHub-এ লেখা হয়নি)")
+        except Exception:
+            pass
+    return fixed
+
 
 def main():
     global FONT, VHS
@@ -6505,6 +6898,10 @@ def main():
     shutil.rmtree(WORK, ignore_errors=True)
     os.makedirs(WORK)
     history = load_history()
+    try:                                             # v67: a video posted earlier whose saving had failed
+        repair_lost_posts(history)
+    except Exception as e:
+        log("  lost-save check skipped:", str(e)[:150])
     if not MOCK and not DRY_RUN:
         try:
             changed = extras.flush_pending(history)    # comments of earlier videos that are live now
@@ -6612,6 +7009,9 @@ def main():
     title = story["title"].strip()[:85]
     if part >= 2 and (prev or {}).get("title"):     # every part of one story carries the same name
         title = str(prev["title"]).strip()[:85]
+    if part:                                         # (9 Nov 2026: '... | পর্ব ১ | পর্ব ১' - said twice in the video)
+        title = re.sub(r"\s*[|(\[\-–:]?\s*(?:পর্ব|भाग|part|episode)\s*[#নং]*\s*[০-৯0-9]+\s*[)\]]?\s*$", "",
+                       title, flags=re.I).strip() or title
     if part:
         pn = str(part).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else str(part)
         title = f"{title} | {L['part'].format(n=pn)}"
@@ -6924,7 +7324,8 @@ def main():
                       "sounds": ["wind"], "mood": "creepy", "voices": voices})
     # A SHORT ENDING (YouTube: people leave when the story is over - a long goodbye lowers how much of the video
     # is watched): the 'how to join' talk is in the description and the first comment, not spoken any more
-    rest = end_lines[1:] + [{"speaker": "narrator", "text": L["outro"].format(page=page)}]
+    asked = bool(nxt) and any(w in str(nxt) for w in ("ফলো", "फ़ॉलो", "फॉलो"))     # (never 'follow' twice in a row)
+    rest = end_lines[1:] + [{"speaker": "narrator", "text": (L["outro_short"] if asked else L["outro"]).format(page=page)}]
     parts.append({"image": last_img, "lines": rest, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
     STING_AT[0] = 1 if cold else 0      # the show's sound with the title, right after the hook
