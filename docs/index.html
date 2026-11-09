@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ghost-map-v1 -->
+<title>বাংলার ভূতের মানচিত্র</title>
+<meta name="description" content="বাংলার প্রতিটা জেলার ভূতের গল্প - মানচিত্রে। Bengali horror stories on a map.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#0b0b10;--card:#16161f;--text:#f2efe9;--muted:#a9a3b5;--red:#e23b3b;--gold:#ffcf4a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);
+font-family:"Noto Sans Bengali","Hind Siliguri",system-ui,sans-serif}
+header{padding:18px 16px 8px;text-align:center}h1{margin:0;font-size:1.6rem;color:var(--gold)}
+header p{margin:6px 0 0;color:var(--muted)}#map{height:60vh;margin:10px 12px;border-radius:14px;border:1px solid #2a2a38}
+main{max-width:860px;margin:0 auto;padding:6px 16px 40px}.d{margin:18px 0 6px;font-size:1.15rem;color:var(--gold)}
+.s{background:var(--card);border-radius:12px;padding:12px 14px;margin:8px 0;border-left:4px solid var(--red)}
+.s b{display:block;margin-bottom:6px}.s a{color:#ffd9d9;margin-right:14px;text-decoration:none}
+.s small{color:var(--muted)}.leaflet-popup-content a{margin-right:10px}
+footer{color:var(--muted);text-align:center;font-size:.85rem;padding:20px}
+</style></head><body>
+<header><h1>👻 বাংলার ভূতের মানচিত্র</h1><p>প্রতিটা লাল বিন্দু একটা গল্প - নিজের জেলায় চাপ দিন</p></header>
+<div id="map"></div><main id="list"><p>লোড হচ্ছে...</p></main>
+<footer>প্রতিটা নতুন গল্পের সাথে মানচিত্র নিজে থেকেই বাড়ে · গল্পগুলো লোককথা অবলম্বনে / কাল্পনিক, যদি না অন্য কিছু লেখা থাকে</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('map',{scrollWheelZoom:false});map.fitBounds([[21.6,85.8],[27.3,89.9]]);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,attribution:'&copy; OpenStreetMap'}).addTo(map);
+function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function links(x){var o='';if(x.fb)o+='<a href="'+esc(x.fb)+'" target="_blank" rel="noopener">▶ Facebook</a>';
+if(x.yt)o+='<a href="'+esc(x.yt)+'" target="_blank" rel="noopener">▶ YouTube</a>';return o}
+fetch('stories.json?'+Date.now()).then(function(r){return r.json()}).then(function(all){
+ all.sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});var by={};
+ all.forEach(function(x){if(x.lat&&x.lon){L.circleMarker([x.lat,x.lon],{radius:8,color:'#ffcf4a',weight:2,
+  fillColor:'#e23b3b',fillOpacity:.9}).addTo(map).bindPopup('<b>'+esc(x.t)+'</b><br><small>'+esc(x.dn)+' · '
+  +esc(x.date)+'</small><br>'+links(x))}(by[x.dn]=by[x.dn]||[]).push(x)});
+ var h='';Object.keys(by).sort(function(a,b){return by[b].length-by[a].length}).forEach(function(d){
+  h+='<div class="d">'+esc(d)+' ('+by[d].length+')</div>';by[d].forEach(function(x){
+  h+='<div class="s"><b>'+esc(x.t)+'</b><small>'+esc(x.date)+'</small><br>'+links(x)+'</div>'})});
+ document.getElementById('list').innerHTML=h||'<p>প্রথম গল্পের অপেক্ষা...</p>';
+}).catch(function(){document.getElementById('list').innerHTML='<p>এখনো কোনো গল্প যোগ হয়নি।</p>'});
+</script></body></html>
