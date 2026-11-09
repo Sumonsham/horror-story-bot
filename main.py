@@ -59,7 +59,7 @@ LANGS = {
         "narrator": ("hi-IN-MadhurNeural", "+2%", "-6Hz"), "gtts": "hi",
         "label": "भूतिया कहानी",
         "intro": "आज की डरावनी कहानी है... {title}।",
-        "outro": "ऐसी और डरावनी कहानियों के लिए {page} को फ़ॉलो कर लीजिए। और हाँ... बत्ती बुझाकर मत सोइएगा। फिर मिलेंगे, अंधेरे में।",
+        "outro": "ऐसी और डरावनी कहानियों के लिए {page} को फ़ॉलो कर लीजिए। आज रात बत्ती बुझाकर मत सोइएगा... फिर मिलेंगे, अंधेरे में।",
         "page_default": "हमारे पेज",
         "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
         "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
@@ -114,7 +114,7 @@ LANGS = {
         "narrator": ("bn-IN-BashkarNeural", "+2%", "-6Hz"), "gtts": "bn",
         "label": "ভৌতিক গল্প",
         "intro": "আজকের ভৌতিক গল্প... {title}।",
-        "outro": "এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করে রাখুন। আর হ্যাঁ... আলো নিভিয়ে ঘুমোবেন না যেন। আবার দেখা হবে, অন্ধকারে।",
+        "outro": "এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করে রাখুন। আজ রাতে আলো নিভিয়ে ঘুমোবেন না যেন... আবার দেখা হবে, অন্ধকারে।",
         "page_default": "আমাদের পেজ",
         "share_cta": "📌 রোজ দুপুরে আর রাতে নতুন ভূতের গল্প - পেজটা ফলো করে রাখুন।",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
@@ -5589,7 +5589,8 @@ def choose_and_write(slot_hour, history):
 # ===================== v63: SIX NEW FEATURES (9 Nov 2026) =====================
 # 1) "ভূতের অভিধান": every Thursday a short video about ONE ghost of Bengali folk belief (Reel + Short)
 # 2) "আপনাদের ভোটে এ সপ্তাহের জেলা": Tuesday's 2 PM village story happens in the district our viewers named most
-# 3) "বাংলার ভূতের মানচিত্র": every story becomes a pin on a free map website (GitHub Pages, docs/ folder)
+# 3) "বাংলার ভূতের মানচিত্র": every story becomes a pin on a free map website (docs/ folder; the workflow publishes it
+#    on GitHub Pages at .../map/ - the main address stays the privacy page)
 # 4) "রাতভর ভূতের গল্প": first Sunday of the month - the month's best stories as one 2-3 hour video
 # 5) viewers who ASK for it (#আমার_নাম) get a small, kind side character with their first name
 # 6) the storyteller's own sign-off at the end of every story (L["outro"])
@@ -5839,10 +5840,11 @@ _SCRIPT = {"bn": "ঀ-৿", "hi": "ऀ-ॿ"}
 def optin_names(history, n=2):
     """First names of viewers who ASKED to be in a story (a comment with #আমার_নাম in the last days) - never
     anyone else, and nobody twice within about two weeks. [(first name, comment id, 'fb'/'yt')]"""
-    if MOCK:
-        return [(x.strip(), "", "") for x in env("TEST_VIEWER_NAMES").split(",") if x.strip()][:n]
     used = {str(x[0] if isinstance(x, (list, tuple)) else x).lower()
             for h in history[-30:] for x in (h.get("viewer_names") or [])}
+    if MOCK:                                         # (tests: names from TEST_VIEWER_NAMES)
+        return [(x.strip(), "", "") for x in env("TEST_VIEWER_NAMES").split(",")
+                if x.strip() and x.strip().lower() not in used][:n]
     page = " ".join(env(k) for k in ("PAGE_NAME_BN", "PAGE_NAME_HI", "PAGE_NAME")).lower()
     out = []
     for h in reversed(history[-8:]):
@@ -5854,6 +5856,8 @@ def optin_names(history, n=2):
                 if not any(tg in low for tg in NAME_TAGS) or "পরের কোনো গল্পে" in low or "अगली किसी कहानी" in low:
                     continue                          # (never our own invitation text)
                 first = re.sub(r"[^A-Za-zঀ-৿ऀ-ॿ]", "", str(c.get("name") or ""))
+                if re.match(r"(?i)^user", first) and re.search(r"\d", str(c.get("name") or "")):
+                    continue                          # (YouTube's automatic '@user-1a2b3c' names)
                 if (2 <= len(first) <= 14 and first.lower() not in page and first.lower() not in used
                         and first.lower() not in {o[0].lower() for o in out}):
                     out.append((first, str(c.get("id") or ""), str(c.get("src") or "")))
@@ -5876,8 +5880,11 @@ def local_names(names, lang):
             todo.append((nm, cid, src))
     key = env("GEMINI_API_KEY")
     if todo and key and not MOCK:
-        ask = (f"Write these Indian first names in {'Bengali' if lang == 'bn' else 'Hindi (Devanagari)'} script, "
-               "exactly as they are pronounced. Answer ONLY a JSON list of strings, same order: "
+        ask = (f"These are viewers' names from YouTube / Facebook. For each one: if it is a real person's first name, "
+               f"write that first name in {'Bengali' if lang == 'bn' else 'Hindi (Devanagari)'} script exactly as it "
+               "is pronounced (a first name joined to a surname, like 'sumonkumar', gives only the first name). If it is "
+               "NOT a real first name (a nickname, a handle, a brand, a word, random letters, anything rude), give an "
+               "empty string. Answer ONLY a JSON list of strings, same order: "
                + json.dumps([t[0] for t in todo], ensure_ascii=False))
         for model in extras.text_models(key)[:2]:
             try:
@@ -5890,8 +5897,10 @@ def local_names(names, lang):
                     if isinstance(got, list) and len(got) == len(todo):
                         for (nm, cid, src), loc in zip(todo, got):
                             loc = str(loc).strip()
-                            if re.fullmatch(f"[{rng}]+", loc) and len(loc) <= 14:
+                            if loc and re.fullmatch(f"[{rng}]+", loc) and len(loc) <= 14:
                                 done.append([nm, loc, cid, src])
+                            elif not loc:
+                                log(f"  '{nm}' does not look like a first name - left out")
                         break
             except Exception:
                 continue
@@ -6022,11 +6031,11 @@ def map_url():
     if "url" in MAP_LIVE:
         return MAP_LIVE["url"]
     url = env("MAP_URL")
-    if not url:
+    if not url:                                      # (the main address keeps the privacy page; the map is /map/)
         repo = env("GITHUB_REPOSITORY")
         if "/" in repo:
             owner, name = repo.split("/", 1)
-            url = f"https://{owner.lower()}.github.io/{name}/"
+            url = f"https://{owner.lower()}.github.io/{name}/map/"
     ok = ""
     if url and not MOCK and env("GHOST_MAP") != "0":
         try:
@@ -6035,6 +6044,16 @@ def map_url():
         except Exception:
             ok = ""
     MAP_LIVE["url"] = ok
+    flag = os.path.join(MAP_DIR, "live.txt")
+    if ok and not os.path.exists(flag) and not DRY_RUN:     # the first time it works: tell you on Telegram
+        try:
+            with open(flag, "w") as f:
+                f.write(ok)
+            push_now([flag], "ghost map is live")
+            extras.telegram(f"🗺️ আপনার 'বাংলার ভূতের মানচিত্র' চালু হয়ে গেছে: {ok}\n"
+                            "এখন থেকে প্রতিটা গল্পের প্রথম comment-এ এই link যাবে।")
+        except Exception as e:
+            log("  map notice skipped:", str(e)[:100])
     return ok
 
 
