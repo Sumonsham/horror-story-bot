@@ -39,6 +39,13 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}   # newest history.json
 
+      - name: Give the bot its git name (every save during the run needs it)
+        run: |
+          # 9 Nov 2026: files were uploaded to GitHub during the 8 PM run; the bot's save then had to make a new
+          # commit, but GitHub's computer had no git name -> "not currently on a branch", the night's history lost
+          git config user.name "story-bot"
+          git config user.email "story-bot@users.noreply.github.com"
+
       - name: Make room on the GitHub computer (more disk and memory)
         continue-on-error: true
         timeout-minutes: 8
@@ -139,12 +146,44 @@ jobs:
         run: |
           git config user.name "story-bot"
           git config user.email "story-bot@users.noreply.github.com"
-          git add history.json
-          git add -A next_part.json 2>/dev/null || true
-          git add -A assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/thumb_b 2>/dev/null || true
-          git commit -m "story posted $(date -u +%F_%H%M)" || exit 0
-          git pull --rebase -q || true
-          git push -q
+          BR="${{ github.event.repository.default_branch }}"
+          # a save that stopped half-way during the run (9 Nov 2026) is put right first - every file stays as it is
+          if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ] || [ -f .git/MERGE_HEAD ] || ! git symbolic-ref -q HEAD > /dev/null; then
+            echo "an earlier save had stopped half-way - putting it right"
+            OH=""
+            for d in rebase-merge rebase-apply; do [ -f ".git/$d/orig-head" ] && OH=$(cat ".git/$d/orig-head"); done
+            git rebase --quit 2> /dev/null || true
+            git merge --quit 2> /dev/null || true
+            git checkout -B "$BR"
+            git reset -q
+            for f in $(git diff --name-only); do grep -q '^<<<<<<< ' "$f" 2> /dev/null && git checkout -- "$f"; done
+            # newest first: files written after the stop stay as they are; then what waited in the stash; then
+            # the saves that had not reached GitHub yet
+            if git rev-parse -q --verify refs/stash > /dev/null; then
+              for f in $(git stash show --name-only 'stash@{0}' 2> /dev/null); do
+                git diff --quiet HEAD -- "$f" 2> /dev/null && git checkout 'stash@{0}' -- "$f" 2> /dev/null || true
+              done
+            fi
+            MB=$( [ -n "$OH" ] && git merge-base HEAD "$OH" 2> /dev/null || true )
+            if [ -n "$MB" ]; then
+              for f in $(git diff --name-only "$MB" "$OH" 2> /dev/null); do
+                git diff --quiet HEAD -- "$f" 2> /dev/null && git checkout "$OH" -- "$f" 2> /dev/null || true
+              done
+            fi
+          fi
+          # one by one: before, ONE missing file made git skip the whole list (lessons, series memory... never saved)
+          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b; do
+            if [ -e "$p" ]; then git add -A -f -- "$p" || true; fi
+          done
+          git commit -q -m "story posted $(date -u +%F_%H%M)" || echo "nothing new to remember"
+          for i in 1 2 3; do
+            [ -z "$(git log "origin/$BR..HEAD" --oneline 2> /dev/null)" ] && exit 0
+            git pull --rebase --autostash -q origin "$BR" || { git rebase --abort 2> /dev/null || true; git pull --no-rebase --no-edit --autostash -X ours -q origin "$BR" || git merge --abort 2> /dev/null || true; }
+            git push -q origin "HEAD:$BR" && exit 0
+            sleep $((i * 10))
+          done
+          echo "could not save to GitHub"
+          exit 1
 
       - name: Tell me on Telegram if the run failed
         if: failure()
