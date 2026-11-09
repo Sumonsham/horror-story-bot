@@ -5257,6 +5257,10 @@ def morning_teasers(history):
             log(f"Today's ghost dictionary: no. {gd_due[1]} - {gd_due[0][2]} (after the teasers)")
     except Exception as e:
         log("  ghost dictionary check skipped:", str(e)[:100])
+    try:                                             # v68: stories (if last night failed), today's thumbnail
+        morning_prepare(day, history)                # pictures FIRST, the title list, your Telegram pictures
+    except Exception as e:
+        log("  morning preparation skipped:", str(e)[:150])
     for n, h in enumerate((NOON, EVENING)):
         key = f"{day}@{h}"
         plan = load_plan(key)
@@ -6891,6 +6895,823 @@ def repair_lost_posts(history, now=None):
     return fixed
 
 
+# ===================== v68: tomorrow's stories at night, YOUR thumbnail from Telegram, better thumbnails,
+# ===================== the Sunday report and the YouTube podcast (your wishes of 9 Nov 2026)
+from contextlib import contextmanager
+
+TITLE_LIST = os.path.join(HERE, "assets", "title_list.json")       # which days' titles were sent to you, when
+USER_THUMBS = os.path.join(HERE, "assets", "user_thumbs")           # the thumbnails you sent on Telegram
+UT_INDEX = os.path.join(USER_THUMBS, "index.json")
+THUMB_PRE = os.path.join(HERE, "assets", "thumb_base")              # today's thumbnail pictures, made in the morning
+WEEKLY_FILE = os.path.join(HERE, "assets", "weekly_report.json")
+PODCAST_FILE = os.path.join(HERE, "assets", "podcast.json")
+SLOT_NO = {NOON: "1", EVENING: "2"}
+SLOT_BN = {NOON: "দুপুর ২টো", EVENING: "রাত ৮টা"}
+BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
+
+@contextmanager
+def pretend_now(at):
+    """While TOMORROW's stories are written at night: every 'what day is it' in main.py and extras.py (all ask with a
+    time zone) answers as if it were `at` - so tomorrow's programme, festival, moon and series part are chosen.
+    The log clock (asked without a time zone) stays real."""
+    real = dt.datetime
+    shift = at - real.now(dt.timezone.utc)
+
+    class _Now(real):
+        @classmethod
+        def now(cls, tz=None):
+            return real.now(tz) if tz is None else real.now(tz) + shift
+
+    dt.datetime = _Now
+    try:
+        yield
+    finally:
+        dt.datetime = real
+
+
+def _slot_time(key):
+    d_, h_ = str(key).split("@")
+    return dt.datetime.fromisoformat(d_).replace(hour=int(h_), tzinfo=extras.IST)
+
+
+def _plan_title(plan):
+    """the title as you will see it (series name + part)"""
+    story = plan.get("story") or {}
+    lang = plan.get("lang") if plan.get("lang") in LANGS else "bn"
+    L = LANGS[lang]
+    t = re.sub(r"\s*\|.*$", "", str(story.get("title", ""))).strip()
+    sp = plan.get("special")
+    if sp in ("bhairab", "taranath", "karna"):     # the case number exactly as the video will count it
+        prev = plan.get("prev") if isinstance(plan.get("prev"), dict) else {}
+        try:
+            n = prev.get("case_no") or 1 + sum(1 for h in load_history() if h.get("special") == sp
+                                               and not (h.get("part") or 0) > 1
+                                               and (sp != "karna" or h.get("lang") == lang))
+            t = f"{L[sp].format(n=n)}: {no_series_name(t, sp)}"
+        except Exception:
+            t = f"{L[sp].split(' #')[0]}: {no_series_name(t, sp)}"
+    part = int(plan.get("part") or 0)
+    if part:
+        t += f" | {L['part'].format(n=str(part).translate(BN_DIGITS) if lang == 'bn' else part)}"
+    return t
+
+
+def _story_cast(plan):
+    """the people as the video will show them (our heroes always with their fixed looks)"""
+    story = dict(plan.get("story") or {})
+    chars, setting = _series_cast(story, plan.get("special"), plan.get("theme"), int(plan.get("part") or 0),
+                                  plan.get("prev") if isinstance(plan.get("prev"), dict) else None)
+    story["characters"], story["setting"] = chars, setting
+    return story
+
+
+def thumb_plan(story, cast, special, cat):
+    """The thumbnail picture of a story - YOUR formula (7 Nov 2026) filled with this story's ghost, place and
+    moment. Returns (prompt, formula, hero, ghost's name, the story's thumbnail idea)."""
+    ti = story.get("thumbnail_image") or {}
+    if isinstance(ti, str):
+        ti = {"action": ti}
+    ghost = ascii_text(ti.get("ghost", ""))
+    ghost_names = [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")]
+    hero = ti.get("hero") or next((n for n in (ti.get("characters") or []) if n not in ghost_names), "")
+    gname = ti.get("second") or (ghost_names[0] if ghost_names else "")
+
+    def describe(n):
+        c = cast.find(n) if n else None
+        if c and c["kind"].startswith("ghost"):
+            return f"{ghost or c['look']} ghost"
+        return f"{c['name']} ({c['look']})" if c else n
+    t_prompt = extras.poster_prompt("horror", {**ti, "hero": hero, "second": gname}, describe, "", cast.setting)
+    tkind = extras.thumb_kind("horror", special if special in ("karna",) else cat, bool(story.get("true_label")))
+    if env("POSTER_STYLE") not in ("old", "words"):   # YOUR thumbnail formula (7 Nov 2026)
+        subj = describe(gname) if gname else (ghost or "a terrifying ghost")
+        if tkind == "h_closeup":
+            subj = f"the face of {subj}"
+        t_prompt = extras.user_thumb_prompt(tkind, subj, ti.get("place") or cast.setting,
+                                            ti.get("moment") or ti.get("action") or "")
+    return t_prompt, tkind, hero, gname, ti
+
+
+def _thumb_small(plan_or_story, part, special, lang, true_label):
+    L = LANGS[lang]
+    series_bn = {"taranath": L["taranath"].split(" #")[0], "karna": L["karna"].split(" #")[0],
+                 "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "").replace(" का केस", "")}.get(special)
+    pn = str(part).translate(BN_DIGITS) if lang == "bn" else str(part)
+    return " · ".join(x for x in (extras.TRUE_LABEL.get(lang, extras.TRUE_LABEL["bn"]) if true_label else "",
+                                  series_bn or "", L["part"].format(n=pn) if part else "") if x)
+
+
+# ----------------------------------------------------------------- Telegram helpers
+def tg_photo(path, caption):
+    tok = env("TELEGRAM_BOT_TOKEN")
+    cid = extras.tg_chat_id(tok) if tok else None
+    if MOCK or not (tok and cid and os.path.exists(path)):
+        return False
+    try:
+        with open(path, "rb") as f:
+            r = requests.post(f"https://api.telegram.org/bot{tok}/sendPhoto", timeout=60,
+                              data={"chat_id": cid, "caption": caption[:1000]}, files={"photo": f})
+        return r.ok
+    except Exception as e:
+        log("  Telegram picture not sent:", str(e)[:100])
+        return False
+
+
+def _tg_text(text):
+    if MOCK:
+        log("  [Telegram] " + text.replace("\n", " / ")[:300])
+        return True
+    return extras.telegram(text)
+
+
+# ----------------------------------------------------------------- 1) tomorrow's stories at night + the title list
+def write_tomorrow(history):
+    """YOUR WISH (9 Nov 2026): right after the 8 PM video, TOMORROW's 2 PM and 8 PM stories are written (as if it
+    were tomorrow morning - tomorrow's programme, festival, moon and series part) and their titles come to you on
+    Telegram by 9 PM:  1 = 2 PM, 2 = 8 PM. A picture you send with '1' / '2' becomes that video's thumbnail.
+    (If this fails, the morning run writes them as before and sends the list then.)"""
+    if DRY_RUN or env("NIGHT_WRITE") == "0":
+        return []
+    now = dt.datetime.now(extras.IST)
+    day = (now + dt.timedelta(days=1)).date()
+    at = dt.datetime(day.year, day.month, day.day, 6, 30, tzinfo=extras.IST)
+    if not MOCK:
+        try:                                         # stories you sent on Telegram until now
+            creator_inbox(bot_status)
+        except Exception as e:
+            log("  Telegram stories not read:", str(e)[:120])
+    hist2, done = list(history), []
+    for h in (NOON, EVENING):
+        key = f"{day.isoformat()}@{h}"
+        plan = load_plan(key)
+        if not plan:
+            log(f"=== Writing TOMORROW's story for {SLOT_BN[h]} ({key}) ===")
+            STATE.clear()
+            SCRIPTS.clear()
+            try:
+                with pretend_now(at):
+                    plan = choose_and_write(h, hist2)
+                plan = json.loads(json.dumps(plan, ensure_ascii=False, default=list))
+                save_plan(key, plan)
+                push_now([PLANS_FILE, MY_STORIES], f"story written for {key}")
+            except Exception as e:
+                log(f"  tomorrow's story for {key} not written now ({str(e)[:200]}) - the morning run writes it")
+                continue
+        done.append(key)
+        hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
+                      "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
+                      "viewer_names": [p[0] for p in ((plan.get("state") or {}).get("viewer_names") or [])]})
+    send_title_list(day.isoformat())
+    return done
+
+
+def chatgpt_prompt(plan):
+    """what you paste into ChatGPT for this story's thumbnail picture (your formula, this story's ghost and place)"""
+    story = _story_cast(plan)
+    t_prompt = thumb_plan(story, Cast(story), plan.get("special"), plan.get("cat"))[0]
+    return (t_prompt + " Make it ONE photorealistic image in wide landscape format (16:9). Keep the faces away from "
+            "the very top and bottom edges.")
+
+
+def send_title_list(day):
+    """The day's titles on Telegram:  1 = 2 PM, 2 = 8 PM  (+ for each, what to paste into ChatGPT)."""
+    plans = _jload(PLANS_FILE, {})
+    items = [(h, plans.get(f"{day}@{h}")) for h in (NOON, EVENING)]
+    items = [(h, p) for h, p in items if isinstance(p, dict) and isinstance(p.get("story"), dict)]
+    if not items or env("TITLE_LIST") == "0":
+        return False
+    sent = _jload(TITLE_LIST, {})
+    sent = sent if isinstance(sent, dict) else {}
+    have = set(((sent.get(day) or {}).get("slots")) or [])
+    if all(str(h) in have for h, _p in items):
+        return False                                 # already sent
+    d = dt.date.fromisoformat(day)
+    today = dt.datetime.now(extras.IST).date()
+    when = "আজকের" if d == today else ("কালকের" if (d - today).days == 1 else d.strftime("%d %b"))
+    wd = BN_DAYS[d.weekday()]
+    lines = [f"🎬 {when} ভিডিও ({wd}, {str(d.day).translate(BN_DIGITS)} {BN_MONTH_NAMES[d.month - 1]}):", ""]
+    for h, p in items:
+        lines.append(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(p)}")
+    lines += ["", "নিজের thumbnail দিতে চাইলে: নিচের message-এর লেখাটা ChatGPT-তে paste করে ছবি বানান, তারপর ছবিটা "
+              "এখানে পাঠান - ছবির নিচে লিখুন 1 (দুপুরের) বা 2 (রাতের)। বাংলা লেখাটা bot নিজেই বসিয়ে দেবে।",
+              "⏰ 1-এর ছবি সকাল ৮টার মধ্যে, 2-এর ছবি বিকেল ৪টের মধ্যে (রাতেই পাঠানো সবচেয়ে ভালো)। কিছু না পাঠালে "
+              "bot নিজের thumbnail দেবে।"]
+    ok = _tg_text("\n".join(lines))
+    for h, p in items:
+        try:
+            _tg_text(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]} - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p)}")
+        except Exception as e:
+            log("  ChatGPT idea not sent:", str(e)[:100])
+    if ok:
+        sent[day] = {"slots": sorted({str(h) for h, _p in items} | have),
+                     "at": dt.datetime.now(extras.IST).isoformat(timespec="minutes")}
+        keep = (today - dt.timedelta(days=7)).isoformat()
+        _jsave(TITLE_LIST, {k: v for k, v in sent.items() if k >= keep})
+        push_now([TITLE_LIST], f"titles of {day} sent on Telegram")
+        log(f"Titles of {day} sent to you on Telegram ({len(items)})")
+    return ok
+
+
+BN_MONTH_NAMES = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর",
+                  "নভেম্বর", "ডিসেম্বর"]
+
+
+# ----------------------------------------------------------------- 2) YOUR thumbnail from Telegram
+def _ut_index():
+    idx = _jload(UT_INDEX, {})
+    idx = idx if isinstance(idx, dict) else {}
+    idx.setdefault("items", [])
+    idx.setdefault("seen", [])
+    idx.setdefault("made", {})
+    return idx
+
+
+def _ut_save(idx):
+    now = time.time()
+    keep = []
+    for it in idx["items"]:                          # pictures older than 4 days are deleted (the repo stays small)
+        if now - float(it.get("sent") or 0) > 4 * 86400:
+            try:
+                os.remove(os.path.join(USER_THUMBS, it["file"]))
+            except OSError:
+                pass
+        else:
+            keep.append(it)
+    idx["items"] = keep
+    old = (dt.datetime.now(extras.IST).date() - dt.timedelta(days=7)).isoformat()
+    idx["made"] = {k: v for k, v in idx["made"].items() if k >= old}
+    idx["seen"] = idx["seen"][-400:]
+    _jsave(UT_INDEX, idx)
+
+
+def _which_slot(text):
+    """'1' / '১' / 'দুপুর' = the 2 PM video, '2' / '২' / 'রাত' = the 8 PM video"""
+    t = str(text or "").strip().lower()
+    if not t:
+        return None
+    if any(w in t for w in ("দুপুর", "dupur", "noon")):
+        return NOON
+    if any(w in t for w in ("রাত", "raat", "night", "ratre", "rate")):
+        return EVENING
+    one = re.search(r"(?<![0-9০-৯])[1১](?![0-9০-৯])", t)
+    two = re.search(r"(?<![0-9০-৯])[2২](?![0-9০-৯])", t)
+    if one and not two:
+        return NOON
+    if two and not one:
+        return EVENING
+    return None
+
+
+def _thumb_target(h, sent_at, idx):
+    """which video a picture sent at `sent_at` is for: the next video of that time whose title you ALREADY had
+    (a picture is never put on a story you had not seen yet). None = no such video."""
+    lists = _jload(TITLE_LIST, {})
+    lists = lists if isinstance(lists, dict) else {}
+    for add in (0, 1):
+        day = (sent_at + dt.timedelta(days=add)).date().isoformat()
+        key = f"{day}@{h}"
+        if _slot_time(key) <= sent_at:
+            continue
+        ann = (lists.get(day) or {}).get("at")
+        try:
+            if ann and dt.datetime.fromisoformat(ann) <= sent_at + dt.timedelta(minutes=1):
+                return key
+        except ValueError:
+            pass
+    return None
+
+
+def _tg_download(tok, fid, path):
+    from io import BytesIO
+    try:
+        info = requests.get(f"https://api.telegram.org/bot{tok}/getFile", params={"file_id": fid}, timeout=30).json()
+        fp = (info.get("result") or {}).get("file_path")
+        if not fp:
+            return False
+        data = requests.get(f"https://api.telegram.org/file/bot{tok}/{fp}", timeout=120).content
+        img = Image.open(BytesIO(data)).convert("RGB")
+        if img.width < 480 or img.height < 270:
+            log(f"  your picture is too small ({img.width}x{img.height}) - not used")
+            return False
+        img.thumbnail((1920, 1920))
+        os.makedirs(USER_THUMBS, exist_ok=True)
+        img.save(path, quality=93)
+        return True
+    except Exception as e:
+        log("  your picture could not be downloaded:", str(e)[:120])
+        return False
+
+
+def thumb_inbox():
+    """Pictures YOU send to the bot on Telegram for a thumbnail - with '1' (2 PM video) or '2' (8 PM video) written
+    under it, or as a reply to the bot's '1️⃣ / 2️⃣' message. Each is saved in the repo and confirmed on Telegram.
+    Returns how many new pictures were taken."""
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    if MOCK or DRY_RUN or not tok or not chat or env("USER_THUMBS") == "0":
+        return 0
+    try:
+        r = requests.get(f"https://api.telegram.org/bot{tok}/getUpdates",
+                         params={"allowed_updates": json.dumps(["message"])}, timeout=30).json()
+    except Exception as e:
+        log("  your Telegram pictures: could not read -", str(e)[:100])
+        return 0
+    idx = _ut_index()
+    seen = set(idx["seen"])
+    msgs = [u for u in r.get("result") or [] if isinstance(u.get("message"), dict)]
+    groups = {}
+    for u in msgs:                                   # several pictures sent together: the caption of one counts
+        m = u["message"]
+        if m.get("media_group_id") and _which_slot(m.get("caption")):
+            groups[m["media_group_id"]] = _which_slot(m.get("caption"))
+    plans, got, changed = _jload(PLANS_FILE, {}), 0, False
+    for u in msgs:
+        uid, m = u.get("update_id"), u["message"]
+        if uid in seen or str((m.get("chat") or {}).get("id")) != str(chat):
+            continue
+        doc = m.get("document") or {}
+        if m.get("photo"):
+            fid = max(m["photo"], key=lambda p: (p.get("width", 0) * p.get("height", 0), p.get("file_size", 0)))["file_id"]
+        elif str(doc.get("mime_type", "")).startswith("image/"):
+            fid = doc["file_id"]
+        else:
+            continue
+        rep = m.get("reply_to_message") or {}
+        h = (_which_slot(m.get("caption")) or groups.get(m.get("media_group_id"))
+             or _which_slot(str(rep.get("text") or rep.get("caption") or "")[:25]))
+        seen.add(uid)
+        changed = True
+        if h is None:
+            _tg_text("🖼️ একটা ছবি পেয়েছি, কিন্তু কোন ভিডিওর জন্য বুঝতে পারিনি। ছবিটা আবার পাঠান, নিচে লিখে দিন: "
+                     "1 (দুপুর ২টো) বা 2 (রাত ৮টা)।")
+            continue
+        sent_at = dt.datetime.fromtimestamp(int(m.get("date") or time.time()), extras.IST)
+        target = _thumb_target(h, sent_at, idx)
+        if not target:
+            _tg_text(f"🖼️ ছবিটা পেয়েছি, কিন্তু {SLOT_BN[h]}-র পরের গল্পের নাম তখনও আপনাকে পাঠানো হয়নি - তাই এটা কোনো "
+                     "ভিডিওতে বসানো হলো না। রাত ৮টার পরে নতুন নামের তালিকা পেলে তবেই ছবি পাঠাবেন।")
+            continue
+        if target in idx["made"]:
+            p = plans.get(target) or {}
+            _tg_text(f"⌛ ছবিটা দেরিতে এসেছে - {SLOT_BN[h]}-র ভিডিও ('{_plan_title(p) if p.get('story') else target}')-র thumbnail "
+                     "আগেই তৈরি হয়ে গিয়েছিল, তাই এটা ব্যবহার হলো না। পরের বার একটু আগে পাঠাবেন।")
+            continue
+        path = os.path.join(USER_THUMBS, f"u{uid}_{h}.jpg")
+        if not _tg_download(tok, fid, path):
+            seen.discard(uid)                        # (tried again next time)
+            continue
+        idx["items"].append({"id": uid, "h": h, "sent": int(sent_at.timestamp()), "slot": target,
+                             "file": os.path.basename(path), "used": None})
+        p = plans.get(target) or {}
+        d = target.split("@")[0]
+        day_w = "আজ" if d == dt.datetime.now(extras.IST).date().isoformat() else "কাল"
+        _tg_text(f"✅ ছবি পেয়েছি - {day_w} {SLOT_BN[h]}-র ভিডিও" + (f" '{_plan_title(p)}'" if p.get("story") else "")
+                 + "-র thumbnail এটাই হবে। (আরেকটা পাঠালে নতুনটাই নেওয়া হবে)")
+        log(f"  your thumbnail from Telegram for {target}")
+        got += 1
+    idx["seen"] = sorted(seen)
+    if changed:
+        _ut_save(idx)
+        push_now([USER_THUMBS], "your thumbnail from Telegram")
+    return got
+
+
+def user_thumb_for(slot):
+    """your newest picture for this video (or None)"""
+    idx = _ut_index()
+    cands = [it for it in idx["items"] if it.get("slot") == slot and not it.get("used")
+             and os.path.exists(os.path.join(USER_THUMBS, str(it.get("file"))))]
+    if not cands:
+        return None
+    best = max(cands, key=lambda it: it.get("sent") or 0)
+    for it in cands:
+        it["used"] = slot if it is best else "a newer picture came"
+    _ut_save(idx)
+    return os.path.join(USER_THUMBS, best["file"])
+
+
+def mark_thumb_made(slot):
+    idx = _ut_index()
+    idx["made"][str(slot)] = dt.datetime.now(extras.IST).isoformat(timespec="minutes")
+    _ut_save(idx)
+
+
+def fit_16x9(src, out, W=1280, H=720):
+    """any picture -> 1280x720: nearly 16:9 is cut a little; square / tall is shown whole on a blurred copy"""
+    from PIL import ImageEnhance
+    img = Image.open(src).convert("RGB")
+    r = img.width / img.height
+    s = max(W / img.width, H / img.height)
+    big = img.resize((max(W, int(img.width * s + 0.5)), max(H, int(img.height * s + 0.5))), Image.LANCZOS)
+    x, y = (big.width - W) // 2, (big.height - H) // 2
+    if 1.45 <= r <= 2.0:
+        big.crop((x, y, x + W, y + H)).save(out, quality=95)
+        return out
+    bg = ImageEnhance.Brightness(big.crop((x, y, x + W, y + H)).filter(ImageFilter.GaussianBlur(28))).enhance(0.55)
+    f = min(W / img.width, H / img.height)
+    fg = img.resize((int(img.width * f), int(img.height * f)), Image.LANCZOS)
+    bg.paste(fg, ((W - fg.width) // 2, (H - fg.height) // 2))
+    bg.save(out, quality=95)
+    return out
+
+
+def _vision(prompt, images, max_side=768):
+    """Gemini (a free text model) LOOKS at pictures and answers in JSON"""
+    from io import BytesIO
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key or not images:
+        return None
+    parts = [{"text": prompt}]
+    for k, p in enumerate(images):
+        im = Image.open(p).convert("RGB")
+        im.thumbnail((max_side, max_side))
+        b = BytesIO()
+        im.save(b, "JPEG", quality=85)
+        if len(images) > 1:
+            parts.append({"text": f"Picture {k + 1}:"})
+        parts.append({"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(b.getvalue()).decode()}})
+    for model in gemini_models(key)[:3]:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": parts}],
+                                    "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}},
+                              timeout=120)
+            if not r.ok:
+                continue
+            return extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+        except Exception as e:
+            log(f"  picture check ({model}): {str(e)[:100]}")
+    return None
+
+
+def image_has_text(path):
+    js = _vision("Does this picture contain any written words, letters or numbers (in any language, Bengali too)? "
+                 'Answer ONLY JSON: {"text": true or false}', [path])
+    return bool(js.get("text")) if isinstance(js, dict) else False
+
+
+def apply_user_thumb(slot, thumb, words, small, kind):
+    """YOUR picture from Telegram becomes the video's thumbnail. Without words on it, the bot puts the Bengali words
+    on it in the channel's style; with words, it is used as it is. The bot's own thumbnail becomes the second one
+    (used only if the video gets few views)."""
+    src = user_thumb_for(slot) if slot else None
+    if not src:
+        return False
+    fitted = fit_16x9(src, os.path.join(WORK, "user_thumb_16x9.jpg"))
+    if os.path.exists(thumb):
+        shutil.copy(thumb, os.path.join(WORK, "thumbnail_b.jpg"))
+    port = os.path.join(WORK, "thumbnail_portrait.jpg")
+    if image_has_text(src):
+        shutil.copy(fitted, thumb)
+        if os.path.exists(port):
+            os.remove(port)                          # (the 9:16 one is then made from your picture)
+        log("YOUR thumbnail from Telegram (with its own words) is used")
+    else:
+        extras.title_poster(fitted, words, thumb, kind, small=small, fallback_font=FONT)
+        extras.title_poster(fitted, words, port, kind, small=small, portrait=True, fallback_font=FONT)
+        log(f"YOUR thumbnail from Telegram is used, with the words '{words}'")
+    return True
+
+
+# ----------------------------------------------------------------- 3) the bot's own thumbnail: best model, early
+JUDGE_PROMPT = (
+    "You choose the YouTube thumbnail picture for a Bengali horror story channel. Which picture would get the most "
+    "clicks on a phone screen AND has no defects? Look for: one clear, frightening focal point (a face or a "
+    "figure) that reads even when small; sharp, detailed, photorealistic; dramatic cinematic lighting and strong "
+    "contrast; the LEFT side darker and simpler (the title goes there); no deformed face, eyes or hands; no "
+    "letters, text or watermark; not gory. Answer ONLY JSON: {\"best\": <picture number>, \"why\": \"one short "
+    "sentence\"}")
+
+
+def judge_pictures(paths):
+    """the number (0-based) of the best thumbnail picture - Gemini looks at them; the first one if it cannot"""
+    if len(paths) < 2:
+        return 0
+    js = _vision(JUDGE_PROMPT, paths)
+    try:
+        k = int(js.get("best")) - 1
+        if 0 <= k < len(paths):
+            log(f"  Gemini picked thumbnail picture {k + 1} of {len(paths)}: {str(js.get('why', ''))[:100]}")
+            return k
+    except (AttributeError, TypeError, ValueError):
+        pass
+    return 0
+
+
+def premade_thumb(slot, out):
+    """the thumbnail picture made this morning for this video (best model + Gemini's pick)"""
+    p = os.path.join(THUMB_PRE, f"{str(slot).replace('@', '_')}.jpg")
+    if slot and os.path.exists(p):
+        shutil.copy(p, out)
+        log("  thumbnail picture made this morning with the high-quality model")
+        return True
+    return False
+
+
+def premake_thumbs(day):
+    """MORNING, before anything else uses pictures: the thumbnail pictures of today's 2 PM and 8 PM videos with the
+    best free model (Leonardo Lucid Origin) + 2 quick alternatives - Gemini picks the best. (Cloudflare's free
+    pictures are refilled at 5:30 AM; by evening they are used up - 9 Nov the 8 PM thumbnail had to fall back.)
+    A preview of each goes to you on Telegram."""
+    if DRY_RUN or env("PREMAKE_THUMBS") == "0":
+        return []
+    plans, made = _jload(PLANS_FILE, {}), []
+    os.makedirs(THUMB_PRE, exist_ok=True)
+    for h in (NOON, EVENING):
+        key = f"{day}@{h}"
+        plan = plans.get(key)
+        out = os.path.join(THUMB_PRE, f"{key.replace('@', '_')}.jpg")
+        if not isinstance(plan, dict) or not isinstance(plan.get("story"), dict) or os.path.exists(out):
+            continue
+        story = _story_cast(plan)
+        cast = Cast(story)
+        t_prompt, tkind, hero, gname, _ti = thumb_plan(story, cast, plan.get("special"), plan.get("cat"))
+        seed = random.randint(1, 1_000_000)
+        cands = []
+        if not MOCK:
+            p0 = os.path.join(WORK, f"tcand_{h}_0.jpg")
+            if extras.hq_image(t_prompt, p0, seed, w=int(env("HQ_W") or 1024), h=int(env("HQ_H") or 576)):
+                cands.append(p0)
+            for k in range(1, 1 + int(env("THUMB_ALTERNATIVES") or 2)):
+                pk = os.path.join(WORK, f"tcand_{h}_{k}.jpg")
+                try:
+                    save_picture(cf_request(CF_MODEL, t_prompt, None, seed=seed + 101 * k), pk)
+                    cands.append(pk)
+                except Exception as e:
+                    log(f"  thumbnail alternative {k}: {str(e)[:120]}")
+                    break
+        else:
+            pk = os.path.join(WORK, f"tcand_{h}_0.jpg")
+            Image.new("RGB", (1024, 576), (40, 10, 10)).save(pk)
+            cands.append(pk)
+        if not cands:
+            continue
+        best = cands[judge_pictures(cands)]
+        from PIL import ImageEnhance
+        im = Image.open(best).convert("RGB").resize((1280, 720), Image.LANCZOS)
+        ImageEnhance.Sharpness(im).enhance(1.25).save(out, quality=95)
+        made.append(key)
+        log(f"Thumbnail picture for {SLOT_BN[h]} made this morning ({len(cands)} tried, the best kept)")
+        try:                                         # a preview on Telegram, with the words it will carry
+            pv = os.path.join(WORK, f"preview_{h}.jpg")
+            lang = plan.get("lang") if plan.get("lang") in LANGS else "bn"
+            small = _thumb_small(plan, int(plan.get("part") or 0), plan.get("special"), lang,
+                                 bool(story.get("true_label")))
+            extras.title_poster(out, extras.thumb_words(story, _plan_title(plan)), pv, tkind, small=small,
+                                fallback_font=FONT or find_font(lang))
+            tg_photo(pv, f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(plan)}\nbot-এর thumbnail এরকম হবে। নিজেরটা দিতে "
+                         f"চাইলে ছবিটা পাঠান, নিচে {SLOT_NO[h]} লিখে।")
+        except Exception as e:
+            log("  thumbnail preview not sent:", str(e)[:120])
+    if made and not MOCK:
+        push_now([THUMB_PRE], "today's thumbnail pictures")
+    try:                                             # older days' pictures go (the repo stays small)
+        for f in os.listdir(THUMB_PRE):
+            if f[:10] < (dt.date.fromisoformat(day) - dt.timedelta(days=2)).isoformat():
+                os.remove(os.path.join(THUMB_PRE, f))
+    except (OSError, ValueError):
+        pass
+    return made
+
+
+def morning_prepare(day, history):
+    """v68 morning: any story not yet written (the night run failed) is written now, then today's thumbnail
+    pictures FIRST, then the title list (only if it did not go out last night)."""
+    hist2 = list(history)
+    for h in (NOON, EVENING):
+        key = f"{day}@{h}"
+        plan = load_plan(key)
+        if not plan:
+            log(f"=== Writing the story for {when_words('bn', h, 0)} ({key}) ===")
+            STATE.clear()
+            SCRIPTS.clear()
+            try:
+                plan = choose_and_write(h, hist2)
+                plan = json.loads(json.dumps(plan, ensure_ascii=False, default=list))
+                save_plan(key, plan)
+                push_now([PLANS_FILE, MY_STORIES], f"story written for {key}")
+            except Exception as e:
+                log(f"  the story for {key} could not be written now ({str(e)[:200]}) - its own run will write it")
+                continue
+        hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
+                      "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
+                      "viewer_names": [p[0] for p in ((plan.get("state") or {}).get("viewer_names") or [])]})
+    send_title_list(day)
+    try:
+        premake_thumbs(day)
+    except Exception as e:
+        log("  morning thumbnails skipped:", str(e)[:150])
+    try:
+        thumb_inbox()                                # your pictures sent during the night
+    except Exception as e:
+        log("  your Telegram pictures skipped:", str(e)[:120])
+
+
+# ----------------------------------------------------------------- 4) the Sunday report on Telegram
+def weekly_report(history, force=False):
+    """SUNDAY NIGHT (with the weekly compilation): the week in numbers on Telegram - views, the best stories, which
+    time and which kind of story worked, your thumbnails vs the bot's, how much people watched and where they
+    left, and what the bot changes next week."""
+    if env("WEEKLY_REPORT") == "0":
+        return False
+    now = dt.datetime.now(extras.IST)
+    wk = f"{now.isocalendar()[0]}-W{now.isocalendar()[1]:02d}"
+    st_ = _jload(WEEKLY_FILE, {})
+    st_ = st_ if isinstance(st_, dict) else {}
+    if st_.get("last") == wk and not force:
+        return False
+    if not MOCK:
+        try:
+            extras.refresh_stats(history, max_items=40)
+            save_history(history)
+        except Exception as e:
+            log("  weekly report: stats not refreshed:", str(e)[:120])
+    week = []
+    for h in history:
+        if h.get("kind") or not (h.get("facebook") or h.get("youtube")):
+            continue
+        try:
+            t = dt.datetime.fromisoformat(str(h.get("date")))
+        except ValueError:
+            continue
+        if (now - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).days < 7:
+            week.append(h)
+    if not week:
+        return False
+    S = lambda h: h.get("stats") or {}
+    tot = {k: sum(int(S(h).get(k) or 0) for h in week) for k in ("views", "likes", "comments")}
+    d0 = now - dt.timedelta(days=6)
+    lines = [f"📊 সাপ্তাহিক হিসেব ({str(d0.day).translate(BN_DIGITS)} {BN_MONTH_NAMES[d0.month - 1]} - "
+             f"{str(now.day).translate(BN_DIGITS)} {BN_MONTH_NAMES[now.month - 1]})",
+             f"ভিডিও: {len(week)}টা | 👁 {tot['views']} | 👍 {tot['likes']} | 💬 {tot['comments']}"]
+    scored = sorted([h for h in week if S(h)], key=lambda h: extras.score(S(h)), reverse=True)
+    if scored:
+        lines.append("\n🏆 সেরা গল্প:")
+        for k, h in enumerate(scored[:3]):
+            lines.append(f"{k + 1}) {re.sub(r'[|].*$', '', str(h.get('title', '')))[:55].strip()} - 👁 {S(h).get('views', 0)}"
+                         f" 👍 {S(h).get('likes', 0)} 💬 {S(h).get('comments', 0)}")
+
+    def avg(rows, k="views"):
+        v = [float(S(h).get(k) or 0) for h in rows if S(h)]
+        return sum(v) / len(v) if v else None
+    by_t = {w: avg([h for h in week if str(h.get("slot", "")).endswith(f"@{hh}")]) for hh, w in ((NOON, "দুপুর ২টো"),
+                                                                                           (EVENING, "রাত ৮টা"))}
+    by_t = {k: v for k, v in by_t.items() if v is not None}
+    if len(by_t) == 2:
+        lines.append("\n⏰ গড় view: " + " | ".join(f"{k}: {v:.0f}" for k, v in by_t.items()))
+    cats = {}
+    for h in week:
+        if S(h) and h.get("category") in HORROR_CATS:
+            cats.setdefault(h["category"], []).append(h)
+    ca = sorted(((avg(v), HORROR_CATS[c]["bn"]) for c, v in cats.items() if avg(v) is not None), reverse=True)
+    if len(ca) >= 2:
+        lines.append(f"🗂️ সবচেয়ে ভালো চলেছে: {ca[0][1]} (গড় {ca[0][0]:.0f}), সবচেয়ে কম: {ca[-1][1]} (গড় {ca[-1][0]:.0f})")
+    ut = avg([h for h in week if h.get("thumb_src") == "user"])
+    bt = avg([h for h in week if h.get("thumb_src") and h.get("thumb_src") != "user"])
+    if ut is not None and bt is not None:
+        lines.append(f"🖼️ thumbnail: আপনার পাঠানো ছবিতে গড় view {ut:.0f}, bot-এর ছবিতে {bt:.0f}")
+    yp = [float(S(h)["yt_avg_pct"]) for h in week if S(h).get("yt_avg_pct") is not None]
+    fp = [float(S(h)["watched_pct"]) for h in week if S(h).get("watched_pct") is not None]
+    if yp or fp:
+        lines.append("⏱️ গড়ে দেখা হয়েছে: " + " | ".join(x for x in (
+            f"YouTube {sum(yp) / len(yp):.0f}%" if yp else "", f"Facebook {sum(fp) / len(fp):.0f}%" if fp else "") if x))
+    leave = []
+    for h in week:
+        tl, d = h.get("timeline") or {}, S(h).get("yt_drop_at")
+        if d is not None and tl.get("len") and tl.get("parts"):
+            sec = float(tl["len"]) * float(d) / 100
+            lab = next((l_ for t_, l_ in reversed(tl["parts"]) if t_ <= sec), None)
+            if lab:
+                leave.append(f"'{lab}' ({int(sec // 60)}:{int(sec % 60):02d})")
+    if leave:
+        lines.append("📉 বেশিরভাগ দর্শক যেখানে ছেড়ে গেছেন: " + ", ".join(leave[:3]))
+    les = (_jload(os.path.join(HERE, "assets", "lessons.json"), {}).get("horror_bn") or {})
+    tips = [str(x) for x in (les.get("lessons") or [])[:3]]
+    if tips:
+        bn = _bn_lines(tips)
+        lines.append("\n🧠 পরের সপ্তাহে bot যা মাথায় রাখবে:")
+        lines += [f"• {x}" for x in bn]
+    ok = _tg_text("\n".join(lines))
+    if ok:
+        st_["last"] = wk
+        _jsave(WEEKLY_FILE, st_)
+        push_now([WEEKLY_FILE, HISTORY], "weekly report sent")
+        log("Weekly report sent on Telegram")
+    return ok
+
+
+def _bn_lines(lines):
+    """the lessons in Bengali for you (one small Gemini request; English if it cannot)"""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return lines
+    prompt = ("Translate each line into simple, natural Bengali for a non-technical reader. Answer ONLY a JSON list "
+              "of strings in the same order.\n" + json.dumps(lines, ensure_ascii=False))
+    for model in gemini_models(key)[:2]:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}],
+                                    "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}},
+                              timeout=90)
+            if r.ok:
+                out = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                if isinstance(out, list) and len(out) == len(lines):
+                    return [str(x)[:220] for x in out]
+        except Exception:
+            pass
+    return lines
+
+
+# ----------------------------------------------------------------- 5) the stories as a YouTube podcast
+def podcast_cover(name, out, lang="bn"):
+    """a square cover (YouTube needs one before a playlist can be a podcast): our newest thumbnail picture, darker,
+    with the playlist's name"""
+    from PIL import ImageEnhance
+    S_ = 1280
+    src = None
+    for p in sorted(glob.glob(os.path.join(THUMB_PRE, "*.jpg")) + glob.glob(os.path.join(WORK, "thumb_base.jpg")),
+                    key=os.path.getmtime, reverse=True):
+        src = p
+        break
+    if src:
+        im = Image.open(src).convert("RGB")
+        s = S_ / min(im.width, im.height)
+        im = im.resize((int(im.width * s) + 1, int(im.height * s) + 1), Image.LANCZOS)
+        x = max(0, int(im.width * 0.62) - S_ // 2)
+        im = im.crop((min(x, im.width - S_), 0, min(x, im.width - S_) + S_, S_))
+        im = ImageEnhance.Brightness(im).enhance(0.6)
+    else:
+        im = Image.new("RGB", (S_, S_), (12, 4, 6))
+    d = ImageDraw.Draw(im)
+    try:
+        f = extras._title_font("horror", 120, FONT or find_font(lang))[0]
+    except Exception:
+        f = ImageFont.load_default()
+    words = str(name).split()
+    rows, cur = [], ""
+    for w in words:
+        if cur and d.textlength(cur + " " + w, font=f) > S_ - 140:
+            rows.append(cur)
+            cur = w
+        else:
+            cur = (cur + " " + w).strip()
+    rows.append(cur)
+    y = S_ - 120 - 140 * len(rows)
+    for r_ in rows:
+        w_ = d.textlength(r_, font=f)
+        d.text(((S_ - w_) / 2, y), r_, font=f, fill=(255, 235, 220), stroke_width=8, stroke_fill=(120, 0, 0))
+        y += 140
+    im.save(out, quality=88)
+    return out
+
+
+def yt_podcast(pid, name, lang="bn"):
+    """YouTube: our story playlist becomes a PODCAST (listed on YouTube and YouTube Music as a show) - free and
+    automatic: a square cover once, then the playlist marked as a podcast. Tried once a week until it works."""
+    if MOCK or DRY_RUN or not pid or env("YT_PODCAST") == "0":
+        return False
+    st_ = _jload(PODCAST_FILE, {})
+    st_ = st_ if isinstance(st_, dict) else {}
+    s = st_.get(pid) or {}
+    if s.get("ok"):
+        return True
+    try:
+        if s.get("tried") and (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(s["tried"])).days < 7:
+            return False
+    except ValueError:
+        pass
+    note = ""
+    try:
+        hdr = extras.yt_token()
+        cover = podcast_cover(name, os.path.join(WORK, "podcast_cover.jpg"), lang)
+        meta = json.dumps({"snippet": {"playlistId": pid, "type": "hero"}})
+        bnd = "storybot" + str(random.randint(10 ** 8, 10 ** 9))
+        body = (f"--{bnd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n{meta}\r\n--{bnd}\r\n"
+                f"Content-Type: image/jpeg\r\n\r\n").encode() + open(cover, "rb").read() + f"\r\n--{bnd}--".encode()
+        r = requests.post("https://www.googleapis.com/upload/youtube/v3/playlistImages", timeout=120,
+                          params={"part": "snippet", "uploadType": "multipart"},
+                          headers={**hdr, "Content-Type": f"multipart/related; boundary={bnd}"}, data=body)
+        if not r.ok:
+            note = f"cover: {extras._yt_err(r)}"
+        r = requests.put(f"{extras.YT}/playlists", params={"part": "status"}, timeout=60, headers=hdr,
+                         json={"id": pid, "status": {"privacyStatus": "public", "podcastStatus": "enabled"}})
+        if r.ok:
+            st_[pid] = {"ok": True, "name": name, "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")}
+            log(f"  YouTube: the playlist '{name}' is now a PODCAST (YouTube + YouTube Music)")
+            _tg_text(f"🎧 নতুন: '{name}' এখন YouTube / YouTube Music-এ পডকাস্ট হিসেবেও আছে - আলাদা কিছু করতে হবে না।")
+        else:
+            note = (note + " | " if note else "") + f"podcast: {extras._yt_err(r)}"
+    except Exception as e:
+        note = str(e)[:200]
+    if note:
+        log("  YouTube podcast not set yet:", note[:250])
+        st_[pid] = {**s, "tried": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "why": note[:300]}
+    _jsave(PODCAST_FILE, st_)
+    push_now([PODCAST_FILE], "youtube podcast")
+    return bool((st_.get(pid) or {}).get("ok"))
+
+
+
 def main():
     global FONT, VHS
     if env("MODE") == "voice_demo":
@@ -6922,6 +7743,10 @@ def main():
     SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
     if env("MODE") == "compilation":
+        try:                                         # v68: Sunday night - the week in numbers on Telegram
+            weekly_report(history)
+        except Exception as e:
+            log("  weekly report skipped:", str(e)[:150])
         return make_compilation(history)
     # automatic runs (GitHub's clock or the cron-job.org clock) must not post twice for one time slot
     if env("MODE") == "amavasya" and env("AMAVASYA_MIDNIGHT") != "1":
@@ -7140,30 +7965,14 @@ def main():
         log(f"Ghost face ready; hidden in {hidden} pictures")
 
     thumb_base = os.path.join(WORK, "thumb_base.jpg")
-    ti = story.get("thumbnail_image") or {}
-    if isinstance(ti, str):
-        ti = {"action": ti}
-    ghost = ascii_text(ti.get("ghost", ""))
-    ghost_names = [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")]
-    t_names = list(ti.get("characters") or []) + [n for n in ghost_names[:1] if n not in (ti.get("characters") or [])]
     # poster-style thumbnail: the same formula every time, only the people, the ghost and the moment change
-    hero = ti.get("hero") or next((n for n in (ti.get("characters") or []) if n not in ghost_names), "")
-    gname = ti.get("second") or (ghost_names[0] if ghost_names else "")
-    def describe(n):
-        c = cast.find(n) if n else None
-        if c and c["kind"].startswith("ghost"):
-            return f"{ghost or c['look']} ghost"
-        return f"{c['name']} ({c['look']})" if c else n
-    t_prompt = extras.poster_prompt("horror", {**ti, "hero": hero, "second": gname}, describe, "", cast.setting)
-    tkind = extras.thumb_kind("horror", special if special in ("karna",) else cat, bool(story.get("true_label")))
-    if env("POSTER_STYLE") not in ("old", "words"):   # YOUR thumbnail formula (7 Nov 2026)
-        subj = describe(gname) if gname else (ghost or "a terrifying ghost")
-        if tkind == "h_closeup":
-            subj = f"the face of {subj}"
-        t_prompt = extras.user_thumb_prompt(tkind, subj, ti.get("place") or cast.setting,
-                                            ti.get("moment") or ti.get("action") or "")
+    t_prompt, tkind, hero, gname, ti = thumb_plan(story, cast, special, cat)
+    if env("POSTER_STYLE") not in ("old", "words"):
         log(f"Thumbnail formula: {tkind}")
-    if not extras.hq_image(t_prompt, thumb_base, seed):
+    STATE["thumb_src"] = "bot"
+    if premade_thumb(SLOT, thumb_base):              # v68: made this morning (best model + Gemini's pick)
+        STATE["thumb_src"] = "bot_morning"
+    elif not extras.hq_image(t_prompt, thumb_base, seed):
         if not make_image(cast, t_prompt, "", [n for n in (hero, gname) if n], thumb_base, seed):
             gf_ = os.path.join(WORK, "ghost_face.jpg")
             shutil.copy(gf_ if os.path.exists(gf_) else first_ok, thumb_base)   # the ghost is always on it
@@ -7238,6 +8047,14 @@ def main():
         except Exception as e2:
             log("  poster thumbnail failed, simple one:", str(e2)[:120])
             make_thumbnail(thumb_base, story.get("thumbnail_text") or title, thumb, L["label"])
+    if SLOT and not MOCK:                            # v68: YOUR picture from Telegram ('1' = 2 PM, '2' = 8 PM)
+        try:
+            thumb_inbox()                            # (the pictures sent until this very minute)
+            if apply_user_thumb(SLOT, thumb, tw, small, tkind):
+                STATE["thumb_src"] = "user"
+            mark_thumb_made(SLOT)
+        except Exception as e:
+            log("  your Telegram thumbnail skipped:", str(e)[:150])
 
     clean_title = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?-]", "", title).strip()
     page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or L["page_default"]
@@ -7374,6 +8191,11 @@ def main():
     labels = (["⚡ " + ("ঝলক" if lang == "bn" else "झलक"), L["ch_intro"]] + labels) if STORY_PART[0] == 2 else \
         ([labels[0], L["ch_intro"]] + labels[1:]) if cold else [L["ch_intro"]] + labels
     chap = extras.chapters_text(part_times, labels + [L["ch_end"]], L["chapters"])
+    try:                                             # v68: where each chapter starts (to learn where viewers leave)
+        STATE["timeline"] = {"len": round(duration(video)),
+                             "parts": [[round(t_), str(l_)[:40]] for t_, l_ in zip(part_times, labels)]}
+    except Exception:
+        pass
     yt_description = description.replace(f"\n\n{ai_note}", (f"\n\n{chap}" if chap else "") + f"\n\n{ai_note}")
     # YouTube: the first lines are what search shows - a 2-3 sentence summary and the words people search for
     yt_description = extras.search_head("horror", lang, story.get("description", ""), seo_words[:4]) + "\n\n" + \
@@ -7457,6 +8279,9 @@ def main():
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
     try:                                             # v63: district of the week, viewers' names, the ghost map pin
         rec = history[-1]
+        for k_ in ("thumb_src", "timeline"):         # v68: whose thumbnail; where each chapter starts
+            if STATE.get(k_):
+                rec[k_] = STATE[k_]
         if STATE.get("district"):
             rec["district_week"] = STATE["district"]
         if used_names:
@@ -7504,6 +8329,12 @@ def main():
         log(f"  congratulated {n} viewers under their comments")
     page_name = env(f"PAGE_NAME_{lang.upper()}") or "Daily Horror Story"
     extras.telegram(extras.report_text(page_name, title, results, history))
+    if slot_hour == EVENING and env("MODE") not in ("amavasya", "compilation") and SLOT and \
+            str(SLOT).startswith(dt.datetime.now(extras.IST).date().isoformat()):
+        try:                                         # v68: tomorrow's two stories now + their titles to you by 9 PM
+            write_tomorrow(history)
+        except Exception as e:
+            log("  tomorrow's stories not written tonight (the morning run will):", str(e)[:200])
 
 
 def make_series_full(history):
@@ -7968,8 +8799,13 @@ def grow(video, story, title, lang, L, tags, results, history, page):
             log("  Instagram Reel skipped:", str(e)[:200])
     if results.get("youtube"):
         try:
-            extras.yt_add_to_playlist(results["youtube"], story.get("_playlist") or L["playlist"], lang)
+            pl_name = story.get("_playlist") or L["playlist"]
+            pid = extras.yt_add_to_playlist(results["youtube"], pl_name, lang)
             log("  added to YouTube playlist")
+            try:                                     # v68: the playlist as a podcast (YouTube + YouTube Music)
+                yt_podcast(pid, pl_name, lang)
+            except Exception as e:
+                log("  podcast skipped:", str(e)[:150])
             if story.get("_theme_pl") and story.get("_theme_pl") != story.get("_playlist"):
                 extras.yt_add_to_playlist(results["youtube"], story["_theme_pl"], lang)
                 log(f"  added to the themed playlist: {story['_theme_pl']}")
