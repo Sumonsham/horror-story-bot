@@ -59,7 +59,7 @@ LANGS = {
         "narrator": ("hi-IN-MadhurNeural", "+2%", "-6Hz"), "gtts": "hi",
         "label": "भूतिया कहानी",
         "intro": "आज की डरावनी कहानी है... {title}।",
-        "outro": "कहानी कैसी लगी, कमेंट में ज़रूर बताइए। और ऐसी ही डरावनी कहानियों के लिए {page} को फॉलो कीजिए।",
+        "outro": "ऐसी और डरावनी कहानियों के लिए {page} को फ़ॉलो कर लीजिए। और हाँ... बत्ती बुझाकर मत सोइएगा। फिर मिलेंगे, अंधेरे में।",
         "page_default": "हमारे पेज",
         "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
         "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
@@ -114,7 +114,7 @@ LANGS = {
         "narrator": ("bn-IN-BashkarNeural", "+2%", "-6Hz"), "gtts": "bn",
         "label": "ভৌতিক গল্প",
         "intro": "আজকের ভৌতিক গল্প... {title}।",
-        "outro": "গল্পটা কেমন লাগল কমেন্টে জানাবেন। আর এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করুন।",
+        "outro": "এরকম আরও ভৌতিক গল্পের জন্য {page} ফলো করে রাখুন। আর হ্যাঁ... আলো নিভিয়ে ঘুমোবেন না যেন। আবার দেখা হবে, অন্ধকারে।",
         "page_default": "আমাদের পেজ",
         "share_cta": "📌 রোজ দুপুরে আর রাতে নতুন ভূতের গল্প - পেজটা ফলো করে রাখুন।",
         "ai_note": "🎨 এই গল্প ও ছবি AI-এর সাহায্যে তৈরি। সবকিছু কাল্পনিক।",
@@ -5069,6 +5069,17 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
     return title, when, story
 
 
+def _teaser_short(reel, title, story, desc, tags, lang, at):
+    """A morning teaser as a YouTube Short, published at its time."""
+    try:
+        extras.PUBLISH["at"], extras.PUBLISH["used"] = at, False
+        loc = extras.shorts_localizations(
+            extras.yt_localizations(title, story.get("description") or desc, lang, env("GEMINI_API_KEY")), desc)
+        log("YouTube teaser Short:", post_to_youtube(reel, None, f"{title[:80]} #Shorts", desc, tags, lang, loc))
+    except Exception as e:
+        log("  teaser Short skipped:", str(e)[:200])
+
+
 def morning_teasers(history):
     """MORNING RUN (no morning story any more): writes today's afternoon and night stories, and posts a teaser
     for each, one hour apart. The afternoon and night runs then make their videos from exactly these stories."""
@@ -5080,6 +5091,13 @@ def morning_teasers(history):
     day = dt.datetime.now(extras.IST).date().isoformat()
     first = dt.datetime.now(extras.IST).replace(hour=int(env("TEASER_HOUR") or 9), minute=0, second=0, microsecond=0)
     hist2, base_work, out = list(history), WORK, []
+    gd_due, held_short = None, None
+    try:
+        gd_due = ghost_dict_due()                    # v63: is today the ghost dictionary's day?
+        if gd_due:
+            log(f"Today's ghost dictionary: no. {gd_due[1]} - {gd_due[0][2]} (after the teasers)")
+    except Exception as e:
+        log("  ghost dictionary check skipped:", str(e)[:100])
     for n, h in enumerate((NOON, EVENING)):
         key = f"{day}@{h}"
         plan = load_plan(key)
@@ -5102,7 +5120,8 @@ def morning_teasers(history):
             except Exception:
                 NOON_NEED[0] = 0
         hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
-                      "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")})
+                      "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
+                      "viewer_names": [p[0] for p in ((plan.get("state") or {}).get("viewer_names") or [])]})
         try:
             WORK = os.path.join(base_work, f"teaser_{h}")
             shutil.rmtree(WORK, ignore_errors=True)
@@ -5133,19 +5152,26 @@ def morning_teasers(history):
                 except Exception as e:
                     log("  teaser Reel skipped:", str(e)[:200])
             if extras.yt_extra_ok() and env("YT_SHORTS") != "0":
-                try:
-                    extras.PUBLISH["at"], extras.PUBLISH["used"] = at, False
-                    loc = extras.shorts_localizations(
-                        extras.yt_localizations(title, story.get("description") or desc, plan["lang"],
-                                                env("GEMINI_API_KEY")), desc)
-                    log("YouTube teaser Short:", post_to_youtube(reel, None, f"{title[:80]} #Shorts", desc, tags,
-                                                                 plan["lang"], loc))
-                except Exception as e:
-                    log("  teaser Short skipped:", str(e)[:200])
+                if gd_due and h == EVENING:            # v63: today the ghost dictionary takes this Short's place
+                    held_short = (reel, title, story, desc, tags, plan["lang"], at)    # (YouTube's daily limit)
+                    log("  YouTube: today the ghost dictionary Short takes this teaser's place (Facebook as always)")
+                else:
+                    _teaser_short(reel, title, story, desc, tags, plan["lang"], at)
         except Exception as e:
             log(f"  teaser for {key} skipped: {str(e)[:200]} (the story itself is saved for its run)")
         finally:
             WORK = base_work
+    if gd_due:                                       # v63: Thursday - the ghost dictionary (11 AM)
+        yt_done = False
+        try:
+            yt_done = make_ghost_dictionary(gd_due)
+        except Exception as e:
+            log("  ghost dictionary skipped this week:", str(e)[:200])
+        finally:
+            WORK = base_work
+        if held_short and not yt_done:               # the ghost film did not reach YouTube: the teaser after all
+            r_, t_, s_, d_, tg_, l_, at_ = held_short
+            _teaser_short(r_, t_, s_, d_, tg_, l_, max(at_, dt.datetime.now(extras.IST) + dt.timedelta(minutes=15)))
     done[str(SLOT)] = dt.datetime.now(extras.IST).isoformat(timespec="minutes")
     _jsave(TEASERS_FILE, {k: v for k, v in done.items() if k >= (dt.date.today() - dt.timedelta(days=7)).isoformat()})
     push_now([PLANS_FILE, TEASERS_FILE, MY_STORIES], "morning teasers posted")
@@ -5247,7 +5273,8 @@ CREATOR_RULE = (
 
 
 PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
-              "case_no", "creator_story", "creator_true", "len_scale", "short_plan")
+              "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
+              "district", "district_votes", "viewer_names")
 
 
 def length_scale():
@@ -5409,6 +5436,11 @@ def choose_and_write(slot_hour, history):
             if mine:
                 theme = "the creator's own story"
                 extra_rules += CREATOR_RULE.format(text=mine["text"])
+    try:                                             # v63: this week's district + viewers who asked to be in it
+        extra_rules += weekly_district(cat, slot_hour, prev, fest, amavasya_tonight, special, history, lang)
+        extra_rules += viewer_names_rule(cat, special, part, festival, history, lang)
+    except Exception as e:
+        log("  district / viewer names skipped:", str(e)[:120])
     if not MOCK:
         try:                                         # what people watch this week (also hashtags + search words)
             STATE["trends"] = extras.trending_topics("horror", lang, os.path.join(HERE, "assets"))
@@ -5553,6 +5585,885 @@ def choose_and_write(slot_hour, history):
     return plan
 
 
+
+# ===================== v63: SIX NEW FEATURES (9 Nov 2026) =====================
+# 1) "ভূতের অভিধান": every Thursday a short video about ONE ghost of Bengali folk belief (Reel + Short)
+# 2) "আপনাদের ভোটে এ সপ্তাহের জেলা": Tuesday's 2 PM village story happens in the district our viewers named most
+# 3) "বাংলার ভূতের মানচিত্র": every story becomes a pin on a free map website (GitHub Pages, docs/ folder)
+# 4) "রাতভর ভূতের গল্প": first Sunday of the month - the month's best stories as one 2-3 hour video
+# 5) viewers who ASK for it (#আমার_নাম) get a small, kind side character with their first name
+# 6) the storyteller's own sign-off at the end of every story (L["outro"])
+UNIQ = {
+    "bn": {"district_vote": "আপনাদের ভোটে এ সপ্তাহের জেলা: {d}।",
+           "district_week": "এ সপ্তাহের জেলা: {d}।",
+           "district_top": "📍 {line}",
+           "district_invite": ("📍 আপনার জেলায় কোন ভূতের লোককথা শোনা যায়? জেলার নাম আর লোককথাটা লিখে জানান - "
+                               "যে জেলার নাম সবচেয়ে বেশি আসবে, পরের {day} দুপুরের গ্রামের গল্প হবে সেই জেলায়।"),
+           "names_thanks": "💐 এই গল্পে আমাদের দর্শকদের নামে চরিত্র: {names}",
+           "names_invite": ("✍️ গল্পে নিজের নাম চান? কমেন্টে লিখুন #আমার_নাম - পরের কোনো গল্পে একটা ভালো "
+                            "চরিত্র হবে আপনার নামে (শুধু নামের প্রথম অংশ)।"),
+           "names_reply": "💐 আজকের গল্পে আপনার নামে একটা চরিত্র আছে! শুনে দেখুন:",
+           "map_line": "🗺️ বাংলার ভূতের মানচিত্র - আপনার জেলার গল্প খুঁজুন: {url}",
+           "dict_title": "ভূতের অভিধান পর্ব {n}: {name} কে? 👻",
+           "dict_band": "ভূতের অভিধান · পর্ব {n}",
+           "dict_tagline": "বাংলার লোকবিশ্বাস",
+           "dict_hook": "{name} কে?",
+           "dict_playlist": "ভূতের অভিধান | Bengali Ghost Encyclopedia",
+           "dict_desc": "লোকবিশ্বাসে {name}: {summary}\n\nবাংলার প্রতিটা ভূতের কথা - প্রতি বৃহস্পতিবার একটা করে। 👻",
+           "marathon_title": "রাতভর ভূতের গল্প 🌙 মাসের সেরা {n}টা গল্প একসাথে | {h}",
+           "marathon_thumb": "রাতভর ভূতের গল্প",
+           "marathon_intro": "মাসের সবচেয়ে বেশি শোনা গল্পগুলো একটানা - আলো নিভিয়ে, হেডফোনে শুনুন। 🌙",
+           "marathon_playlist": "রাতভর ভূতের গল্প | Bengali Horror Marathon",
+           "hours": "{h} ঘণ্টা", "hours_min": "{h} ঘণ্টা {m} মিনিট"},
+    "hi": {"district_vote": "आपके वोट से इस हफ़्ते का ज़िला: {d}।",
+           "district_week": "इस हफ़्ते का ज़िला: {d}।",
+           "district_top": "📍 {line}",
+           "district_invite": ("📍 बंगाल के किस ज़िले की भूतिया लोककथा सुननी है? ज़िले का नाम और वहाँ की लोककथा "
+                               "लिखकर बताइए - जिस ज़िले का नाम सबसे ज़्यादा आएगा, अगले {day} दोपहर की गाँव की कहानी "
+                               "वहीं की होगी।"),
+           "names_thanks": "💐 इस कहानी में हमारे दर्शकों के नाम के किरदार: {names}",
+           "names_invite": ("✍️ कहानी में अपना नाम चाहिए? कमेंट में लिखिए #मेरा_नाम - अगली किसी कहानी में एक "
+                            "अच्छा किरदार आपके नाम का होगा (सिर्फ़ पहला नाम)।"),
+           "names_reply": "💐 आज की कहानी में आपके नाम का एक किरदार है! सुनिए:",
+           "map_line": "🗺️ भूतिया कहानियों का नक्शा: {url}",
+           "dict_title": "भूतों का शब्दकोश भाग {n}: {name} कौन है? 👻",
+           "dict_band": "भूतों का शब्दकोश · भाग {n}",
+           "dict_tagline": "बंगाल की लोक-मान्यता",
+           "dict_hook": "{name} कौन है?",
+           "dict_playlist": "भूतों का शब्दकोश | Ghost Encyclopedia",
+           "dict_desc": "लोक-मान्यता में {name}: {summary}\n\nहर गुरुवार एक भूत की कहानी। 👻",
+           "marathon_title": "रात भर भूतिया कहानियाँ 🌙 महीने की {n} सबसे अच्छी कहानियाँ | {h}",
+           "marathon_thumb": "रात भर डर",
+           "marathon_intro": "महीने की सबसे ज़्यादा सुनी गई कहानियाँ एक साथ - बत्ती बुझाइए, हेडफ़ोन लगाइए। 🌙",
+           "marathon_playlist": "रात भर भूतिया कहानियाँ | Horror Marathon",
+           "hours": "{h} घंटे", "hours_min": "{h} घंटे {m} मिनट"},
+}
+
+# the 23 districts of West Bengal: key, Bengali, English, latitude, longitude (district town), other names
+# (no short or everyday words as other names - 'বেহালা' is also a violin, 'আমতা আমতা' means hesitating)
+WB_DISTRICTS = [
+    ("kolkata", "কলকাতা", "Kolkata", 22.5726, 88.3639, ["calcutta", "শ্যামবাজার", "টালিগঞ্জ", "tollygunge", "কলেজ স্ট্রিট",
+                                                        "college street", "বাগবাজার", "bagbazar", "ধর্মতলা", "esplanade"]),
+    ("howrah", "হাওড়া", "Howrah", 22.5958, 88.2636, ["উলুবেড়িয়া", "uluberia", "বাগনান", "bagnan", "শিবপুর", "shibpur"]),
+    ("n24", "উত্তর ২৪ পরগনা", "North 24 Parganas", 22.7248, 88.4789,
+     ["উত্তর চব্বিশ পরগনা", "north 24 parganas", "north 24 pgs", "বারাসত", "barasat", "সল্টলেক", "salt lake", "বনগাঁ",
+      "bongaon", "বারাকপুর", "barrackpore", "বসিরহাট", "basirhat", "দমদম", "dum dum", "dumdum", "নিউটাউন", "new town",
+      "হাবড়া", "habra", "ব্যারাকপুর"]),
+    ("s24", "দক্ষিণ ২৪ পরগনা", "South 24 Parganas", 22.1600, 88.4300,
+     ["দক্ষিণ চব্বিশ পরগনা", "south 24 parganas", "south 24 pgs", "সুন্দরবন", "sundarban", "ডায়মন্ড হারবার",
+      "diamond harbour", "diamond harbor", "কাকদ্বীপ", "kakdwip", "সাগরদ্বীপ", "sagar island", "গঙ্গাসাগর", "gangasagar",
+      "গোসাবা", "gosaba", "ক্যানিং", "বারুইপুর", "baruipur", "বকখালি", "bakkhali"]),
+    ("hooghly", "হুগলি", "Hooghly", 22.8960, 88.2460, ["হুগলী", "hugli", "চুঁচুড়া", "chinsurah", "চন্দননগর", "chandannagar",
+                                                      "শ্রীরামপুর", "serampore", "ব্যান্ডেল", "bandel", "আরামবাগ", "arambagh",
+                                                      "তারকেশ্বর", "tarakeswar"]),
+    ("bardhaman_p", "পূর্ব বর্ধমান", "Purba Bardhaman", 23.2324, 87.8615,
+     ["purba bardhaman", "purba burdwan", "বর্ধমান", "burdwan", "bardhaman", "কালনা", "kalna", "কাটোয়া", "katwa",
+      "মেমারি", "memari"]),
+    ("bardhaman_w", "পশ্চিম বর্ধমান", "Paschim Bardhaman", 23.6739, 86.9524,
+     ["paschim bardhaman", "paschim burdwan", "আসানসোল", "asansol", "দুর্গাপুর", "durgapur", "রানিগঞ্জ", "raniganj"]),
+    ("nadia", "নদিয়া", "Nadia", 23.4058, 88.4900, ["নদীয়া", "কৃষ্ণনগর", "krishnanagar", "নবদ্বীপ", "nabadwip", "মায়াপুর",
+                                                "mayapur", "রানাঘাট", "ranaghat", "শান্তিপুর", "shantipur", "কল্যাণী",
+                                                "kalyani", "জলঙ্গি", "jalangi"]),
+    ("murshidabad", "মুর্শিদাবাদ", "Murshidabad", 24.1000, 88.2500,
+     ["বহরমপুর", "baharampur", "berhampore", "লালবাগ", "lalbag", "জিয়াগঞ্জ", "jiaganj", "জঙ্গিপুর", "jangipur"]),
+    ("birbhum", "বীরভূম", "Birbhum", 23.9000, 87.5300, ["সিউড়ি", "siuri", "শান্তিনিকেতন", "santiniketan", "shantiniketan",
+                                                     "বোলপুর", "bolpur", "তারাপীঠ", "tarapith", "রামপুরহাট", "rampurhat"]),
+    ("bankura", "বাঁকুড়া", "Bankura", 23.2324, 87.0716, ["বিষ্ণুপুর", "bishnupur", "মুকুটমণিপুর", "mukutmanipur",
+                                                       "শুশুনিয়া", "susunia"]),
+    ("purulia", "পুরুলিয়া", "Purulia", 23.3320, 86.3650, ["অযোধ্যা পাহাড়", "ajodhya hill", "ayodhya hill", "বেগুনকোদর",
+                                                        "begunkodor", "জয়চণ্ডী", "joychandi", "বাঘমুন্ডি", "baghmundi"]),
+    ("medinipur_w", "পশ্চিম মেদিনীপুর", "Paschim Medinipur", 22.4250, 87.3199,
+     ["paschim medinipur", "west midnapore", "মেদিনীপুর", "midnapore", "medinipur", "খড়গপুর", "kharagpur", "ঘাটাল",
+      "ghatal", "গড়বেতা", "garbeta"]),
+    ("medinipur_e", "পূর্ব মেদিনীপুর", "Purba Medinipur", 22.3000, 87.9200,
+     ["purba medinipur", "east midnapore", "তমলুক", "tamluk", "দিঘা", "digha", "কাঁথি", "contai", "হলদিয়া", "haldia",
+      "মন্দারমণি", "mandarmani"]),
+    ("jhargram", "ঝাড়গ্রাম", "Jhargram", 22.4550, 86.9974, ["বেলপাহাড়ি", "belpahari", "কাঁকড়াঝোর", "kankrajhore"]),
+    ("malda", "মালদা", "Malda", 25.0108, 88.1411, ["মালদহ", "maldah", "ইংরেজবাজার", "english bazar", "পাণ্ডুয়া",
+                                                "pandua"]),
+    ("dinajpur_n", "উত্তর দিনাজপুর", "Uttar Dinajpur", 25.6200, 88.1200, ["uttar dinajpur", "north dinajpur", "রায়গঞ্জ",
+                                                                         "raiganj", "ইসলামপুর", "islampur"]),
+    ("dinajpur_s", "দক্ষিণ দিনাজপুর", "Dakshin Dinajpur", 25.2200, 88.7700, ["dakshin dinajpur", "south dinajpur",
+                                                                            "বালুরঘাট", "balurghat", "গঙ্গারামপুর",
+                                                                            "gangarampur"]),
+    ("jalpaiguri", "জলপাইগুড়ি", "Jalpaiguri", 26.5167, 88.7333, ["ডুয়ার্স", "dooars", "duars", "মালবাজার", "malbazar",
+                                                              "লাটাগুড়ি", "lataguri", "গরুমারা", "gorumara"]),
+    ("alipurduar", "আলিপুরদুয়ার", "Alipurduar", 26.4830, 89.5220, ["জলদাপাড়া", "jaldapara", "বক্সা", "buxa"]),
+    ("coochbehar", "কোচবিহার", "Cooch Behar", 26.3240, 89.4510, ["koch bihar", "coochbehar", "দিনহাটা", "dinhata"]),
+    ("darjeeling", "দার্জিলিং", "Darjeeling", 27.0410, 88.2663, ["শিলিগুড়ি", "siliguri", "কার্শিয়াং", "kurseong",
+                                                             "মিরিক", "mirik", "ডাওহিল", "dow hill"]),
+    ("kalimpong", "কালিম্পং", "Kalimpong", 27.0594, 88.4695, ["লোলেগাঁও", "lolegaon"]),
+]
+DISTRICT = {d[0]: d for d in WB_DISTRICTS}
+DISTRICT_HI = {"kolkata": "कोलकाता", "howrah": "हावड़ा", "n24": "उत्तर 24 परगना", "s24": "दक्षिण 24 परगना",
+               "hooghly": "हुगली", "bardhaman_p": "पूर्व बर्धमान", "bardhaman_w": "पश्चिम बर्धमान", "nadia": "नदिया",
+               "murshidabad": "मुर्शिदाबाद", "birbhum": "बीरभूम", "bankura": "बांकुड़ा", "purulia": "पुरुलिया",
+               "medinipur_w": "पश्चिम मेदिनीपुर", "medinipur_e": "पूर्व मेदिनीपुर", "jhargram": "झाड़ग्राम",
+               "malda": "मालदा", "dinajpur_n": "उत्तर दिनाजपुर", "dinajpur_s": "दक्षिण दिनाजपुर",
+               "jalpaiguri": "जलपाईगुड़ी", "alipurduar": "अलीपुरद्वार", "coochbehar": "कूचबिहार",
+               "darjeeling": "दार्जिलिंग", "kalimpong": "कालिम्पोंग"}
+_BN_DIG = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
+def district_name(key, lang):
+    return DISTRICT_HI.get(key, DISTRICT[key][2]) if lang == "hi" else DISTRICT[key][1]
+
+
+def district_day():
+    try:
+        return max(0, min(6, int(env("DISTRICT_DAY") or 1)))     # 1 = Tuesday (2 PM: the village story)
+    except ValueError:
+        return 1
+
+
+def district_hits(text):
+    """{district key: how often it is named} in a text - Bengali, Hindi or English, towns included. Longer names
+    are found first and taken out, so 'পশ্চিম বর্ধমান' is never also counted as 'বর্ধমান'."""
+    t = " " + str(text or "").lower().translate(_BN_DIG) + " "
+    pairs = []
+    for key, bn, en, _la, _lo, aka in WB_DISTRICTS:
+        for w in [bn, en.lower(), DISTRICT_HI.get(key, "")] + [a.lower() for a in aka]:
+            if w:
+                pairs.append((w.translate(_BN_DIG), key))
+    pairs.sort(key=lambda p: -len(p[0]))
+    out = {}
+    for w, key in pairs:
+        if w.isascii():                              # English: whole words only ('suri' is not in 'surinder'),
+            end = r"(?:r|er|e|te|y|ey|tei|rei)?" if len(w) >= 5 else ""     # Banglish endings: 'puruliar'
+            rx = re.compile(r"(?<![a-z])" + re.escape(w) + end + r"(?![a-z])")
+        else:                                        # Bengali / Hindi: the word may carry an ending ('পুরুলিয়ার')
+            rx = re.compile(r"(?<![ঀ-৿ऀ-ॿ])" + re.escape(w))
+        n = len(rx.findall(t))
+        if n:
+            out[key] = out.get(key, 0) + n
+            t = rx.sub(" ", t)
+    return out
+
+
+def story_district(story):
+    """Which district of West Bengal this story happens in (for its pin on the map), or None."""
+    text = " ".join([str(story.get("setting", "")), str(story.get("title", "")), str(story.get("description", ""))]
+                    + [str(sc.get("place", "")) for sc in story.get("scenes") or [] if isinstance(sc, dict)])
+    hits = district_hits(text)
+    if hits:
+        return max(hits, key=hits.get)
+    key = env("GEMINI_API_KEY")
+    if not key or MOCK:
+        return None
+    ask = ("In which district of West Bengal (India) does this story happen? Answer with ONLY one of these keys, "
+           "or the word none if it is not clearly in West Bengal: " + ", ".join(d[0] for d in WB_DISTRICTS)
+           + "\nSTORY: " + text[:1500])
+    for model in extras.text_models(key)[:2]:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": ask}]}],
+                                    "generationConfig": {"temperature": 0}}, timeout=60)
+            if r.ok:
+                ans = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip().lower().strip(" .'\"`")
+                return ans if ans in DISTRICT else None
+        except Exception:
+            continue
+    return None
+
+
+def _age_days(h):
+    try:
+        t = dt.datetime.fromisoformat(str(h.get("date")))
+        return (dt.datetime.now(dt.timezone.utc) - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).total_seconds() / 86400
+    except Exception:
+        return 999
+
+
+def voted_district(history):
+    """This week's district: the one our viewers named most in the last week's comments (one vote per person
+    and district; not one of the last four weeks' districts; Kolkata has the city stories). No votes yet: the
+    next district in turn, said honestly ('এ সপ্তাহের জেলা'). Returns (key, votes)."""
+    recent = [h.get("district_week") for h in history if h.get("district_week")][-4:]
+    votes, seen = {}, set()
+    if not MOCK:
+        for h in history[-24:]:
+            if not (h.get("facebook") or h.get("youtube")) or _age_days(h) > 8:
+                continue
+            try:
+                for c in extras.post_comments(h.get("facebook"), h.get("youtube")):
+                    who = str(c.get("name") or c.get("id") or "").lower()
+                    for k in district_hits(c.get("text", "")):
+                        if (who, k) not in seen:
+                            seen.add((who, k))
+                            votes[k] = votes.get(k, 0) + 1
+            except Exception:
+                pass
+    ranked = sorted((k for k in votes if k not in recent and k != "kolkata"), key=lambda k: -votes[k])
+    if ranked:
+        return ranked[0], votes[ranked[0]]
+    order = [d[0] for d in WB_DISTRICTS if d[0] != "kolkata"]
+    used = [h.get("district_week") for h in history if h.get("district_week")]
+    left = [k for k in order if k not in used[-(len(order) - 1):]] or order
+    return left[0], 0
+
+
+def weekly_district(cat, slot_hour, prev, fest, amavasya, special, history, lang):
+    """Tuesday 2 PM (the village story): the story happens in this week's district. Returns the writer's rule."""
+    if (env("DISTRICT_VOTE") == "0" or lang != "bn" or cat != "gram" or slot_hour != NOON or prev or fest
+            or amavasya or special or STATE.get("creator_story")
+            or dt.datetime.now(extras.IST).weekday() != district_day()):
+        return ""
+    key, votes = voted_district(history)
+    STATE["district"], STATE["district_votes"] = key, votes
+    d = DISTRICT[key]
+    log(f"This week's district: {d[2]} ({votes} viewers asked for it)" if votes else
+        f"This week's district (in turn - no viewer named one yet): {d[2]}")
+    return (f"\nTHIS WEEK'S DISTRICT ({'chosen by our viewers' if votes else 'our district of the week'}): the "
+            f"story happens in a village of {d[2]} district, West Bengal ({d[1]}) - even if a source story below "
+            "is set elsewhere, move it there. Give it that district's real character: its land and rivers, crops and "
+            "trades, local food and festivals, a touch of the local way of speaking and the folk beliefs told there "
+            "(only true facts, never invented ones). The village and every person in it are invented - no real "
+            "person's name or address. Name the district early in the story, naturally.\n")
+
+
+def district_line(lang):
+    """Said right after the story's name in the video, e.g. 'আপনাদের ভোটে এ সপ্তাহের জেলা: পুরুলিয়া।'"""
+    key = STATE.get("district")
+    if not key or key not in DISTRICT:
+        return ""
+    U = UNIQ.get(lang, UNIQ["bn"])
+    return (U["district_vote"] if STATE.get("district_votes") else U["district_week"]).format(d=district_name(key, lang))
+
+
+# ----------------------------------------------------------------- 5) viewers who asked to be in a story
+NAME_TAGS = ("#আমার_নাম", "#আমারনাম", "#আমার নাম", "#amar_naam", "#amarnaam", "#amar_nam", "#मेरा_नाम", "#मेरानाम",
+             "#mera_naam", "#meranaam")
+_SCRIPT = {"bn": "ঀ-৿", "hi": "ऀ-ॿ"}
+
+
+def optin_names(history, n=2):
+    """First names of viewers who ASKED to be in a story (a comment with #আমার_নাম in the last days) - never
+    anyone else, and nobody twice within about two weeks. [(first name, comment id, 'fb'/'yt')]"""
+    if MOCK:
+        return [(x.strip(), "", "") for x in env("TEST_VIEWER_NAMES").split(",") if x.strip()][:n]
+    used = {str(x[0] if isinstance(x, (list, tuple)) else x).lower()
+            for h in history[-30:] for x in (h.get("viewer_names") or [])}
+    page = " ".join(env(k) for k in ("PAGE_NAME_BN", "PAGE_NAME_HI", "PAGE_NAME")).lower()
+    out = []
+    for h in reversed(history[-8:]):
+        if not (h.get("facebook") or h.get("youtube")) or _age_days(h) > 5:
+            continue
+        try:
+            for c in extras.post_comments(h.get("facebook"), h.get("youtube")):
+                low = str(c.get("text", "")).lower()
+                if not any(tg in low for tg in NAME_TAGS) or "পরের কোনো গল্পে" in low or "अगली किसी कहानी" in low:
+                    continue                          # (never our own invitation text)
+                first = re.sub(r"[^A-Za-zঀ-৿ऀ-ॿ]", "", str(c.get("name") or ""))
+                if (2 <= len(first) <= 14 and first.lower() not in page and first.lower() not in used
+                        and first.lower() not in {o[0].lower() for o in out}):
+                    out.append((first, str(c.get("id") or ""), str(c.get("src") or "")))
+        except Exception:
+            pass
+        if len(out) >= n:
+            break
+    return out[:n]
+
+
+def local_names(names, lang):
+    """The names written in the story's own script (Bengali / Devanagari), as the writer must use them:
+    [[name as the viewer wrote it, name in the story, comment id, src]]"""
+    rng = _SCRIPT.get(lang, _SCRIPT["bn"])
+    done, todo = [], []
+    for nm, cid, src in names:
+        if re.fullmatch(f"[{rng}]+", nm):
+            done.append([nm, nm, cid, src])
+        else:
+            todo.append((nm, cid, src))
+    key = env("GEMINI_API_KEY")
+    if todo and key and not MOCK:
+        ask = (f"Write these Indian first names in {'Bengali' if lang == 'bn' else 'Hindi (Devanagari)'} script, "
+               "exactly as they are pronounced. Answer ONLY a JSON list of strings, same order: "
+               + json.dumps([t[0] for t in todo], ensure_ascii=False))
+        for model in extras.text_models(key)[:2]:
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json={"contents": [{"parts": [{"text": ask}]}],
+                                        "generationConfig": {"temperature": 0, "responseMimeType": "application/json"}},
+                                  timeout=60)
+                if r.ok:
+                    got = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                    if isinstance(got, list) and len(got) == len(todo):
+                        for (nm, cid, src), loc in zip(todo, got):
+                            loc = str(loc).strip()
+                            if re.fullmatch(f"[{rng}]+", loc) and len(loc) <= 14:
+                                done.append([nm, loc, cid, src])
+                        break
+            except Exception:
+                continue
+    elif todo and MOCK:
+        done += [[nm, nm, cid, src] for nm, cid, src in todo]
+    return done
+
+
+def viewer_names_rule(cat, special, part, festival, history, lang):
+    """The writer's rule that gives viewers who asked for it a small, kind part in today's story."""
+    if (env("VIEWER_NAMES") == "0" or not STATE.get("own_kind") or special or festival or part > 1
+            or cat not in ("gram", "shohor", "jayga")):
+        return ""
+    pairs = local_names(optin_names(history), lang)
+    if not pairs:
+        return ""
+    STATE["viewer_names"] = pairs
+    log("Viewers who asked to be in a story: " + ", ".join(f"{p[0]} ({p[1]})" for p in pairs))
+    shown = ", ".join(p[1] for p in pairs)
+    return (f"\nOUR VIEWERS IN THE STORY: these viewers asked to be in one of our stories - use exactly these first "
+            f"names, written exactly like this: {shown}. Give each ONE small, KIND side role (a helpful neighbour, the "
+            "tea-stall owner who warns the hero, a ferryman, a friend who comes with a torch, the doctor who "
+            "helps...). Never the ghost, a villain or a victim; never someone who dies, is hurt, possessed or made "
+            "fun of. The story stays the same story - they are small parts of it.\n")
+
+
+def names_in_story(story):
+    """The viewers' names that really made it into the story (only they are thanked)."""
+    pairs = STATE.get("viewer_names") or []
+    if not pairs:
+        return []
+    text = " ".join([str(story.get("title", ""))] + [str(c.get("name_local") or "") + " " + str(c.get("name") or "")
+                                                     for c in story.get("characters") or [] if isinstance(c, dict)]
+                    + [str(ln.get("text", "")) for sc in story.get("scenes") or [] if isinstance(sc, dict)
+                       for ln in sc.get("lines") or [] if isinstance(ln, dict)])
+    return [p for p in pairs if p[1] and p[1] in text]
+
+
+def uniq_top_lines(lang, used_names):
+    """Short lines right under the title of the description (Facebook keeps them - they come first)."""
+    U = UNIQ.get(lang, UNIQ["bn"])
+    rows = []
+    dl = district_line(lang)
+    if dl:
+        rows.append(U["district_top"].format(line=dl))
+    if used_names:
+        rows.append(U["names_thanks"].format(names=", ".join(p[1] for p in used_names)))
+    return "\n".join(rows)
+
+
+def uniq_invites(lang, youtube=False):
+    """The invitations at the end of the YouTube description and in the first comment."""
+    U = UNIQ.get(lang, UNIQ["bn"])
+    rows = []
+    if env("DISTRICT_VOTE") != "0" and lang == "bn":
+        rows.append(U["district_invite"].format(day=BN_DAYS[district_day()]))
+    if youtube and env("VIEWER_NAMES") != "0":       # (only on YouTube: Facebook dislikes 'comment X' asks)
+        rows.append(U["names_invite"])
+    url = map_url()
+    if url:
+        rows.append(U["map_line"].format(url=url))
+    return rows
+
+
+def thank_named_viewers(used_names, results, lang):
+    """A reply under each Facebook comment that asked for it: 'your name is in today's story' + the link."""
+    if not used_names or not results.get("facebook") or DRY_RUN:
+        return
+    U = UNIQ.get(lang, UNIQ["bn"])
+    for p in used_names:
+        if len(p) >= 4 and p[3] == "fb" and p[2]:
+            try:
+                extras.fb_comment(p[2], f"{U['names_reply']} https://www.facebook.com/{results['facebook']}")
+            except Exception as e:
+                log("  thank-you reply not posted:", str(e)[:100])
+
+
+# ----------------------------------------------------------------- 3) the ghost map (GitHub Pages)
+MAP_DIR = os.path.join(HERE, "docs")
+MAP_JSON = os.path.join(MAP_DIR, "stories.json")
+MAP_HTML = os.path.join(MAP_DIR, "index.html")
+MAP_VERSION = "ghost-map-v1"
+MAP_PAGE = """<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ghost-map-v1 -->
+<title>বাংলার ভূতের মানচিত্র</title>
+<meta name="description" content="বাংলার প্রতিটা জেলার ভূতের গল্প - মানচিত্রে। Bengali horror stories on a map.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#0b0b10;--card:#16161f;--text:#f2efe9;--muted:#a9a3b5;--red:#e23b3b;--gold:#ffcf4a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);
+font-family:"Noto Sans Bengali","Hind Siliguri",system-ui,sans-serif}
+header{padding:18px 16px 8px;text-align:center}h1{margin:0;font-size:1.6rem;color:var(--gold)}
+header p{margin:6px 0 0;color:var(--muted)}#map{height:60vh;margin:10px 12px;border-radius:14px;border:1px solid #2a2a38}
+main{max-width:860px;margin:0 auto;padding:6px 16px 40px}.d{margin:18px 0 6px;font-size:1.15rem;color:var(--gold)}
+.s{background:var(--card);border-radius:12px;padding:12px 14px;margin:8px 0;border-left:4px solid var(--red)}
+.s b{display:block;margin-bottom:6px}.s a{color:#ffd9d9;margin-right:14px;text-decoration:none}
+.s small{color:var(--muted)}.leaflet-popup-content a{margin-right:10px}
+footer{color:var(--muted);text-align:center;font-size:.85rem;padding:20px}
+</style></head><body>
+<header><h1>👻 বাংলার ভূতের মানচিত্র</h1><p>প্রতিটা লাল বিন্দু একটা গল্প - নিজের জেলায় চাপ দিন</p></header>
+<div id="map"></div><main id="list"><p>লোড হচ্ছে...</p></main>
+<footer>প্রতিটা নতুন গল্পের সাথে মানচিত্র নিজে থেকেই বাড়ে · গল্পগুলো লোককথা অবলম্বনে / কাল্পনিক, যদি না অন্য কিছু লেখা থাকে</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('map',{scrollWheelZoom:false});map.fitBounds([[21.6,85.8],[27.3,89.9]]);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,attribution:'&copy; OpenStreetMap'}).addTo(map);
+function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function links(x){var o='';if(x.fb)o+='<a href="'+esc(x.fb)+'" target="_blank" rel="noopener">▶ Facebook</a>';
+if(x.yt)o+='<a href="'+esc(x.yt)+'" target="_blank" rel="noopener">▶ YouTube</a>';return o}
+fetch('stories.json?'+Date.now()).then(function(r){return r.json()}).then(function(all){
+ all.sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});var by={};
+ all.forEach(function(x){if(x.lat&&x.lon){L.circleMarker([x.lat,x.lon],{radius:8,color:'#ffcf4a',weight:2,
+  fillColor:'#e23b3b',fillOpacity:.9}).addTo(map).bindPopup('<b>'+esc(x.t)+'</b><br><small>'+esc(x.dn)+' · '
+  +esc(x.date)+'</small><br>'+links(x))}(by[x.dn]=by[x.dn]||[]).push(x)});
+ var h='';Object.keys(by).sort(function(a,b){return by[b].length-by[a].length}).forEach(function(d){
+  h+='<div class="d">'+esc(d)+' ('+by[d].length+')</div>';by[d].forEach(function(x){
+  h+='<div class="s"><b>'+esc(x.t)+'</b><small>'+esc(x.date)+'</small><br>'+links(x)+'</div>'})});
+ document.getElementById('list').innerHTML=h||'<p>প্রথম গল্পের অপেক্ষা...</p>';
+}).catch(function(){document.getElementById('list').innerHTML='<p>এখনো কোনো গল্প যোগ হয়নি।</p>'});
+</script></body></html>
+"""
+MAP_LIVE = {}
+
+
+def map_url():
+    """The map's address - only once GitHub Pages really shows it (no dead link is ever posted)."""
+    if "url" in MAP_LIVE:
+        return MAP_LIVE["url"]
+    url = env("MAP_URL")
+    if not url:
+        repo = env("GITHUB_REPOSITORY")
+        if "/" in repo:
+            owner, name = repo.split("/", 1)
+            url = f"https://{owner.lower()}.github.io/{name}/"
+    ok = ""
+    if url and not MOCK and env("GHOST_MAP") != "0":
+        try:
+            r = requests.get(url, timeout=15)
+            ok = url if r.ok and "ভূতের মানচিত্র" in r.content.decode("utf-8", "ignore") else ""
+        except Exception:
+            ok = ""
+    MAP_LIVE["url"] = ok
+    return ok
+
+
+def _pin(title, key, lang, fb_id, yt_id, date, cat_name=""):
+    d = DISTRICT[key]
+    rnd = random.Random(str(fb_id or yt_id or title))     # the same story always gets the same spot
+    return {"t": re.sub(r"\s*\|.*$", "", str(title)).strip()[:90], "d": key, "dn": f"{d[1]} ({d[2]})",
+            "lat": round(d[3] + rnd.uniform(-0.12, 0.12), 4), "lon": round(d[4] + rnd.uniform(-0.12, 0.12), 4),
+            "fb": f"https://www.facebook.com/watch/?v={fb_id}" if fb_id else "",
+            "yt": f"https://youtu.be/{yt_id}" if yt_id else "", "cat": cat_name, "lang": lang, "date": date}
+
+
+def ensure_map_page(history):
+    """Makes the map website (docs/ folder) once - with the pins of the old stories whose place we can tell -
+    so GitHub Pages can show it as soon as you switch Pages on."""
+    if MOCK or DRY_RUN or env("GHOST_MAP") == "0" or env("GITHUB_ACTIONS") != "true":
+        return
+    try:
+        cur = open(MAP_HTML, encoding="utf-8").read() if os.path.exists(MAP_HTML) else ""
+    except Exception:
+        cur = ""
+    if MAP_VERSION in cur and os.path.exists(MAP_JSON):
+        return
+    os.makedirs(MAP_DIR, exist_ok=True)
+    with open(MAP_HTML, "w", encoding="utf-8") as f:
+        f.write(MAP_PAGE)
+    with open(os.path.join(MAP_DIR, ".nojekyll"), "w") as f:
+        f.write("")
+    items = _jload(MAP_JSON, None)
+    if not isinstance(items, list):
+        items = []
+        for h in history:
+            if h.get("kind") or not (h.get("facebook") or h.get("youtube")):
+                continue
+            hits = district_hits(" ".join(str(h.get(k) or "") for k in ("title", "theme", "idea_used", "source")))
+            key = h.get("district") or (max(hits, key=hits.get) if hits else None)
+            if key in DISTRICT:
+                items.append(_pin(h.get("title", ""), key, h.get("lang", "bn"), h.get("facebook"), h.get("youtube"),
+                                  str(h.get("date", ""))[:10], h.get("category") or ""))
+        _jsave(MAP_JSON, items)
+    log(f"Ghost map website made (docs/ folder, {len(items)} old stories on it)")
+    push_now([MAP_DIR], "ghost map website")
+
+
+def map_add(story, title, results, lang, cat_name=""):
+    """The new story's pin on the ghost map (docs/stories.json), saved to GitHub at once. Returns its district."""
+    if env("GHOST_MAP") == "0" or not (results.get("facebook") or results.get("youtube")):
+        return None
+    key = STATE.get("district") or story_district(story)
+    if not key or key not in DISTRICT:
+        log("  ghost map: this story is not set in a district of West Bengal - no pin")
+        return None
+    if MOCK or DRY_RUN:
+        return key
+    os.makedirs(MAP_DIR, exist_ok=True)
+    items = _jload(MAP_JSON, [])
+    items = items if isinstance(items, list) else []
+    pin = _pin(title, key, lang, results.get("facebook"), results.get("youtube"),
+               dt.datetime.now(extras.IST).date().isoformat(), cat_name)
+    if not any((pin["fb"] and x.get("fb") == pin["fb"]) or (pin["yt"] and x.get("yt") == pin["yt"]) for x in items):
+        items.append(pin)
+        _jsave(MAP_JSON, items[-3000:])
+    if not os.path.exists(MAP_HTML):
+        with open(MAP_HTML, "w", encoding="utf-8") as f:
+            f.write(MAP_PAGE)
+    log(f"  ghost map: pin in {DISTRICT[key][2]} ({len(items)} stories on the map)")
+    push_now([MAP_DIR], "ghost map: new story")
+    return key
+
+
+# ----------------------------------------------------------------- 1) the ghost dictionary (weekly)
+GHOST_FILE = os.path.join(HERE, "assets", "ghost_dict.json")      # which ghosts were already told
+GHOST_DICT = [   # Bengali folk belief (public domain), in the order they are told: bn, hi, English, gender, look
+    ("শাঁকচুন্নি", "शाँकचुन्नी", "Shakchunni", "female",
+     "the ghost of a married woman in a white sari with red-bordered conch-shell bangles, sitting in a tree beside a "
+     "village pond at night"),
+    ("ব্রহ্মদৈত্য", "ब्रह्मदैत्य", "Brahmadaitya", "male",
+     "the tall pale ghost of an old Brahmin with a sacred thread and a white dhoti, sitting in an ancient bel tree"),
+    ("নিশি", "निशि", "Nishi", "female",
+     "a dark night spirit standing outside a village hut's door at midnight, calling a sleeping person's name"),
+    ("মেছোভূত", "मेछो भूत", "Mechho Bhoot", "male",
+     "a thin hungry ghost by a village pond at night, reaching for a basket of fresh fish"),
+    ("পেত্নী", "पेत्नी", "Petni", "female",
+     "a female ghost with long loose black hair and backward-turned feet, standing under a tamarind tree"),
+    ("স্কন্ধকাটা", "स्कंधकाटा", "Skondhokata", "male",
+     "a headless figure walking along a railway line between foggy paddy fields at night"),
+    ("গেছোভূত", "गेछो भूत", "Gechho Bhoot", "male",
+     "a ghost crouching high in the branches of a giant banyan tree above a dark village path"),
+    ("আলেয়া", "आलेया", "Aleya", "male",
+     "eerie floating ghost lights glowing over a dark marsh at night, luring a lone traveller"),
+    ("কানাভুলো", "कानाभुलो", "Kanabhulo", "male",
+     "a lone villager with a lantern lost in endless foggy fields at night, a shadowy spirit leading him in circles"),
+    ("বেঘোভূত", "बेघो भूत", "Begho Bhoot", "male",
+     "the restless spirit of a man taken by a tiger, in the dark mangrove forest of the Sundarbans"),
+    ("চোরাচুন্নি", "चोराचुन्नी", "Chorachunni", "female",
+     "a shadowy female ghost slipping into a village house through a window on a moonless night"),
+    ("পেঁচাপেঁচি", "पेंचापेंची", "Penchapechi", "male",
+     "an owl-like ghost with glowing eyes following a traveller through a dark forest"),
+    ("যক্ষ", "यक्ष", "Jokkho", "male",
+     "a guardian spirit of hidden treasure in the dark cellar of an old abandoned zamindar house"),
+    ("একানড়ে", "एकानड़े", "Ekanore", "male",
+     "a very tall thin one-legged spirit standing among palm trees at dusk"),
+    ("পিশাচ", "पिशाच", "Pishach", "male",
+     "a gaunt pishach spirit at a riverside cremation ground at midnight, eyes glowing"),
+    ("চুড়েল", "चुड़ैल", "Churel", "female",
+     "a churel spirit of north Indian folklore, a woman in white on a lonely village road at night"),
+    ("বেতাল", "बेताल", "Vetal", "male",
+     "a vetal spirit hanging upside down from a tree at a cremation ground, as in the old Vetal tales"),
+    ("ব্রহ্মরাক্ষস", "ब्रह्मराक्षस", "Brahmarakshas", "male",
+     "a fierce scholar-demon with a sacred thread in an old ruined temple at night"),
+]
+
+
+def ghost_dict_due():
+    """Today's ghost for the dictionary, or None (only on its day, once a week). Returns (entry, number)."""
+    if env("GHOST_DICT") == "0":
+        return None
+    try:
+        day = int(env("GHOST_DICT_DAY") or 3)                    # 3 = Thursday
+    except ValueError:
+        day = 3
+    if dt.datetime.now(extras.IST).weekday() != day:
+        return None
+    done = (_jload(GHOST_FILE, {}) or {}).get("done") or []
+    if done and _age_days(done[-1]) < 6:
+        return None
+    told = {str(d.get("ghost")) for d in done}
+    entry = next((g for g in GHOST_DICT if g[2] not in told), None)
+    if not entry:
+        log("Ghost dictionary: every ghost on our list has been told")
+        return None
+    return entry, len(done) + 1
+
+
+def make_ghost_dictionary(due):
+    """A ~40-second film about ONE ghost of Bengali folk belief - who it is, where it is said to live, its signs
+    and its rule - told as folk belief. Facebook Reel + YouTube Short at 11 AM. Returns True if YouTube got it."""
+    global WORK, FONT
+    (bn, hi, en, gender, look), n = due
+    chan = (env("CHANNEL_LANG") or "bn").lower()
+    lang = chan if chan in LANGS else "bn"
+    name = bn if lang == "bn" else hi
+    U = UNIQ[lang]
+    key = env("GEMINI_API_KEY")
+    script = None
+    if MOCK:
+        script = {"lines": [{"speaker": "narrator", "emotion": "eerie", "text": f"লোকবিশ্বাস বলে, {name} থাকে পুকুরপাড়ের গাছে।"},
+                            {"speaker": "narrator", "emotion": "whisper", "text": "অমাবস্যার রাতে সে নেমে আসে।"},
+                            {"speaker": "narrator", "emotion": "tense", "text": "তার পায়ের পাতা থাকে উল্টো দিকে।"},
+                            {"speaker": "narrator", "emotion": "whisper", "text": "আপনার গ্রামে কি কেউ তাকে দেখেছে?"}],
+                  "pic1": look, "pic2": f"close view of {look}", "summary": f"{name} - বাংলার লোকবিশ্বাসের ভূত।"}
+    else:
+        ask = (f"Write a short {'Bengali (Kolkata cholit bhasha)' if lang == 'bn' else 'Hindi'} narration about "
+               f"'{name}' ({en}) of Bengali / Indian FOLK BELIEF: {look}. 4 or 5 short lines, 50-65 words in all: "
+               "who or what it is, where folk belief says it is found, its signs, its rule, and how people "
+               f"traditionally keep safe. Tell it as folk belief ('{'লোকবিশ্বাস বলে' if lang == 'bn' else 'लोग कहते हैं'}"
+               "...'), never as a proven fact; eerie but never gory; no clock times. The last line is a chilling "
+               "question to the listener. Answer ONLY JSON: {\"lines\": [{\"speaker\": \"narrator\", \"emotion\": "
+               "\"eerie|whisper|tense\", \"text\": \"\"}], \"pic1\": \"English picture prompt: the spirit in its place "
+               "at night, cinematic\", \"pic2\": \"English picture prompt: a closer, frightening view of it\", "
+               "\"summary\": \"1-2 sentences in the same language\"}")
+        for model in extras.text_models(key)[:3] if key else []:
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json={"contents": [{"parts": [{"text": ask}]}],
+                                        "generationConfig": {"temperature": 0.8, "responseMimeType": "application/json"}},
+                                  timeout=120)
+                if r.ok:
+                    js = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                    if isinstance(js, dict) and isinstance(js.get("lines"), list) and len(js["lines"]) >= 3:
+                        script = js
+                        break
+            except Exception:
+                continue
+    if not script:
+        raise RuntimeError("the narration could not be written")
+    lines = [{"speaker": "narrator", "emotion": str(ln.get("emotion") or "eerie"), "text": str(ln.get("text")).strip()}
+             for ln in script["lines"][:6] if isinstance(ln, dict) and str(ln.get("text", "")).strip()]
+    base_work = WORK
+    WORK = os.path.join(base_work, "ghost_dict")
+    shutil.rmtree(WORK, ignore_errors=True)
+    os.makedirs(WORK)
+    try:
+        FONT = find_font(lang)
+        story = {"title": name, "setting": "a Bengal village at night",
+                 "characters": [{"name": en, "gender": gender, "age": "adult", "kind": "ghost", "look": look}]}
+        cast = Cast(story)
+        voices = Voices(lang, cast)
+        seed = random.randint(1, 1_000_000)
+        pics = []
+        for k, prm in enumerate((script.get("pic1") or look, script.get("pic2") or f"close view of {look}")):
+            p = os.path.join(WORK, f"gd_{k}.jpg")
+            if make_image(cast, str(prm)[:600], "a Bengal village at night", [en], p, seed + k):
+                pics.append(p)
+        if not pics:
+            raise RuntimeError("no pictures")
+        half = max(1, (len(lines) + 1) // 2)
+        parts = [{"image": pics[0], "lines": lines[:half], "sounds": ["wind"], "mood": "creepy", "voices": voices},
+                 {"image": pics[-1], "lines": lines[half:] or lines[-1:], "sounds": [], "mood": "scary",
+                  "voices": voices}]
+        STING_AT[0], STORY_PART[0], HOOK_TEXT[0] = 0, 0, ""
+        nn = str(n).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else str(n)
+        # the 9:16 film (big picture, the words on top, big subtitles below) IS the Short
+        STATE["top_text"] = (U["dict_band"].format(n=nn), U["dict_hook"].format(name=name))
+        GEMINI_CACHE.clear()
+        wide = os.path.join(WORK, "gd_wide.mp4")
+        PORTRAIT[0] = None
+        VOICE_CONTEXT[0] = "teaser"                      # the 2 PM story keeps its share of Gemini's voice
+        try:
+            build_video(parts, lang, wide)
+        finally:
+            VOICE_CONTEXT[0] = "main"
+        short = os.path.join(WORK, "gd_short.mp4")
+        if PORTRAIT[0] and os.path.exists(PORTRAIT[0]):
+            run(["ffmpeg", "-y", "-i", PORTRAIT[0], "-t", "88", "-c", "copy", "-movflags", "+faststart", short])
+        else:
+            extras.make_teaser(wide, 0.0, min(88.0, duration(wide)), short, FONT, U["dict_hook"].format(name=name),
+                               U["dict_band"].format(n=nn), WORK, tagline=U["dict_tagline"],
+                               colors=((255, 230, 0), (200, 0, 20)))
+        PORTRAIT[0] = None
+        title = U["dict_title"].format(n=nn, name=name)
+        page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or LANGS[lang]["page_default"]
+        desc = (U["dict_desc"].format(name=name, summary=str(script.get("summary") or "").strip()) + "\n\n"
+                + f"{page} · {LANGS[lang]['ai_note']}")
+        tags = (["#ভূতেরঅভিধান", "#" + name.replace(" ", ""), "#বাংলারভূত", "#ভূতেরগল্প", "#BengaliFolklore"]
+                if lang == "bn" else ["#भूतोंकाशब्दकोश", "#" + name.replace(" ", ""), "#भूत", "#Folklore", "#Shorts"])
+        log(f"Ghost dictionary film ready: {title} ({duration(short):.0f} s)")
+        if DRY_RUN or MOCK:
+            return False
+        at = dt.datetime.now(extras.IST).replace(hour=int(env("GHOST_DICT_HOUR") or 11), minute=0, second=0,
+                                                  microsecond=0)
+        at = max(at, dt.datetime.now(extras.IST) + dt.timedelta(minutes=15))
+        rec = {"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "ghost": en, "n": n,
+               "title": title, "lang": lang}
+        if env("FB_REELS") != "0":
+            try:
+                rec["fb_reel"] = extras.fb_post_reel(short, f"{title}\n\n{desc}\n\n{' '.join(tags)}", at=at)
+                log("Ghost dictionary Facebook Reel:", rec["fb_reel"])
+            except Exception as e:
+                log("  ghost dictionary Reel skipped:", str(e)[:200])
+        if extras.yt_extra_ok() and env("YT_SHORTS") != "0":
+            try:
+                extras.PUBLISH["at"], extras.PUBLISH["used"] = at, False
+                yd = extras.search_head("horror", lang, "", [f"{name} কে" if lang == "bn" else f"{name} कौन",
+                                                             f"{en} ghost", "Bengali ghost"]) + "\n\n" + desc
+                loc = extras.shorts_localizations(extras.yt_localizations(title, yd, lang, key), yd)
+                rec["yt_short"] = post_to_youtube(short, None, f"{title} #Shorts"[:100], yd, tags, lang, loc)
+                log("Ghost dictionary YouTube Short:", rec["yt_short"])
+                try:
+                    extras.yt_add_to_playlist(rec["yt_short"], U["dict_playlist"], lang)
+                except Exception as e:
+                    log("  ghost dictionary playlist skipped:", str(e)[:120])
+            except Exception as e:
+                log("  ghost dictionary Short skipped:", str(e)[:200])
+        if rec.get("fb_reel") or rec.get("yt_short"):
+            gd = _jload(GHOST_FILE, {}) or {}
+            gd["done"] = (gd.get("done") or []) + [rec]
+            _jsave(GHOST_FILE, gd)
+            push_now([GHOST_FILE], "ghost dictionary posted")
+            extras.telegram(f"👻 {title} - বেলা {at.strftime('%I:%M').lstrip('0')}-এ Facebook Reel"
+                            + (" আর YouTube Short" if rec.get("yt_short") else "") + " হিসেবে আসবে।")
+        return bool(rec.get("yt_short"))
+    finally:
+        WORK = base_work
+        STING_AT[0], HOOK_TEXT[0] = 0, ""
+        PORTRAIT[0] = None
+
+
+# ----------------------------------------------------------------- 4) the monthly night-long marathon
+def marathon_items(history, lang, max_n=12):
+    """The month's most-watched stories (one language) for the night-long video, best first."""
+    pool = []
+    for h in history[-160:]:
+        whole = (not h.get("kind") and not h.get("part")) or h.get("kind") == "series_full"   # never half a series
+        if _age_days(h) <= 31 and h.get("facebook") and h.get("lang") == lang and whole:
+            st = h.get("stats") or {}
+            pool.append((extras.score(st) if st else 0, h))
+    pool.sort(key=lambda x: -x[0])
+    return [h for _s, h in pool[:max_n]]
+
+
+def _probe_wh(path):
+    out = run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height",
+               "-of", "csv=p=0:s=x", path]).strip().splitlines()[0]
+    w, h = out.split("x")[:2]
+    return int(w), int(h)
+
+
+def _fill_clip(src, dst, W, H):
+    """Any video into W x H: the whole picture in the middle, a dark blurred copy of it filling the rest
+    (no black bars). Same codec settings for every piece, so the pieces join without a new encode."""
+    fc = (f"[0:v]split[a][b];[a]scale={W // 4}:{H // 4}:force_original_aspect_ratio=increase,"
+          f"crop={W // 4}:{H // 4},boxblur=6:1,scale={W}:{H},eq=brightness=-0.25[bg];"
+          f"[b]scale={W}:{H}:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2[fg];"
+          f"[bg][fg]overlay=(W-w)/2:(H-h)/2,fps=25,format=yuv420p[v]")
+    run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[v]", "-map", "0:a:0",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "24", "-maxrate", "3000k", "-bufsize", "6000k",
+         "-c:a", "aac", "-b:a", "160k", "-ar", "44100", "-ac", "2", "-movflags", "+faststart", dst])
+    return dst
+
+
+def _hours_text(sec, lang):
+    U = UNIQ.get(lang, UNIQ["bn"])
+    m = int(round(sec / 60.0))
+    h, mm = divmod(m, 60)
+    if mm >= 50:
+        h, mm = h + 1, 0
+    elif mm < 10:
+        mm = 0
+    else:
+        mm = int(round(mm / 5.0)) * 5
+    txt = U["hours_min"].format(h=h, m=mm) if mm else U["hours"].format(h=h)
+    return txt.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else txt
+
+
+def make_marathon(history):
+    """FIRST SUNDAY OF THE MONTH (instead of the weekly compilation): 'রাতভর ভূতের গল্প' - the month's best
+    stories in one 2-3 hour video, to listen to at night. Facebook gets it in 9:16 like our stories, YouTube in
+    16:9. Returns True when it is done (or was already done this month)."""
+    global FONT
+    month = dt.datetime.now(extras.IST).strftime("%Y-%m")
+    if any(h.get("marathon") and h.get("month") == month for h in history):
+        log("Night marathon: already out this month")
+        return True
+    langs = [h.get("lang") for h in history[-160:] if h.get("facebook") and not h.get("kind")]
+    lang = env("LANGUAGE") if env("LANGUAGE") in LANGS else (max(set(langs), key=langs.count) if langs else "bn")
+    items = marathon_items(history, lang, max_n=int(env("MARATHON_MAX") or 12))
+    if len(items) < 4:
+        log(f"Night marathon: only {len(items)} stories this month - the weekly compilation instead")
+        return False
+    L, U = LANGS[lang], UNIQ[lang]
+    FONT = find_font(lang)
+    limit = float(env("MARATHON_MIN") or 180) * 60
+    raws, t = [], 0.0
+    for k, h in enumerate(items):
+        if t >= limit - 600:                          # (within 10 minutes of the limit: long enough)
+            break
+        try:
+            src, length = extras.fb_video_source(h["facebook"])
+            if not src:
+                raise RuntimeError("no video link")
+            if length and t + length > limit + 300 and len(raws) >= 4:
+                continue                              # too long for what is left - perhaps a shorter one fits
+            raw = extras.download(src, os.path.join(WORK, f"mraw_{k:02d}.mp4"))
+            d = duration(raw)
+            raws.append((raw, d, h, _probe_wh(raw)))
+            t += d
+            log(f"  marathon: {str(h.get('title', ''))[:50]} ({d / 60:.0f} min)")
+        except Exception as e:
+            log(f"  marathon: one story left out ({str(e)[:150]})")
+    if len(raws) < 4:
+        log("Night marathon: not enough videos could be downloaded - the weekly compilation instead")
+        for r in raws:
+            if os.path.exists(r[0]):
+                os.remove(r[0])
+        return False
+    portrait = sum(1 for r in raws if r[3][1] > r[3][0]) * 2 > len(raws)
+    W, H = (720, 1280) if portrait else (1280, 720)
+    clips, chapters, frames, t = [], [], [], 0.0
+    for k, (raw, d, h, _wh) in enumerate(raws):
+        try:
+            c = _fill_clip(raw, os.path.join(WORK, f"m_{k:02d}.mp4"), W, H)
+            fr = os.path.join(WORK, f"mfr_{k}.jpg")
+            run(["ffmpeg", "-y", "-ss", f"{min(40, d / 3):.1f}", "-i", c, "-frames:v", "1", fr])
+            chapters.append((t, re.sub(r"\s*\|.*$", "", str(h.get("title") or f"{k + 1}")).strip()))
+            frames.append(fr)
+            clips.append(c)
+            t += duration(c)
+        except Exception as e:
+            log(f"  marathon: one story left out ({str(e)[:150]})")
+        finally:
+            if os.path.exists(raw):
+                os.remove(raw)
+    if len(clips) < 4:
+        log("Night marathon: not enough videos - the weekly compilation instead")
+        return False
+    lst = os.path.join(WORK, "marathon.txt")
+    with open(lst, "w") as f:
+        f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
+    video = os.path.join(WORK, "marathon.mp4")
+    run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", "-movflags", "+faststart", video])
+    for c in clips:
+        os.remove(c)
+    nn = str(len(clips))
+    title = U["marathon_title"].format(n=nn.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn"
+                                       else nn, h=_hours_text(t, lang))[:99]
+    base = extras.collage(frames, os.path.join(WORK, "m_thumb_base.jpg"))
+    thumb = os.path.join(WORK, "m_thumbnail.jpg")
+    make_thumbnail(base, U["marathon_thumb"], thumb, _hours_text(t, lang))
+    chap = L["chapters"] + "\n" + "\n".join(f"{extras.fmt_time(s)} {n[:60]}" for s, n in chapters)
+    tags = (["#ভূতেরগল্প", "#রাতভরভূতেরগল্প", "#BengaliHorrorStory", "#BhuterGolpo", "#HorrorMarathon"]
+            if lang == "bn" else ["#BhootKiKahani", "#HorrorStories", "#HindiHorrorStories", "#HorrorMarathon"])
+    description = f"{title}\n\n{U['marathon_intro']}\n\n{chap}\n\n{L['ai_note']}\n\n{' '.join(tags)}"
+    log(f"Night marathon ready: {t / 60:.0f} minutes, {len(clips)} stories ({'9:16' if portrait else '16:9'})")
+    if DRY_RUN:
+        return True
+    results = {}
+    PORTRAIT[0] = video if portrait else None          # Facebook: the way our stories look there
+    try:
+        results["facebook"] = post_to_facebook(video, thumb, title, description)
+        log("Night marathon on Facebook:", results["facebook"])
+    except Exception as e:
+        log("FACEBOOK FAILED (marathon):", e)
+    finally:
+        PORTRAIT[0] = None
+    if youtube_ready() and extras.yt_extra_ok():
+        try:
+            yv = _fill_clip(video, os.path.join(WORK, "marathon_yt.mp4"), 1280, 720) if portrait else video
+            if portrait:
+                os.remove(video)
+            results["youtube"] = post_to_youtube(yv, thumb, title, description, tags, lang)
+            log("Night marathon on YouTube:", results["youtube"])
+            try:
+                extras.yt_add_to_playlist(results["youtube"], U["marathon_playlist"], lang)
+            except Exception as e:
+                log("  marathon playlist skipped:", str(e)[:120])
+        except Exception as e:
+            log("YouTube marathon skipped:", str(e)[:200])
+    if not results:
+        return False
+    # kept as a 'compilation' (+ marathon), so nothing ever takes it for a normal story
+    history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang,
+                    "kind": "compilation", "marathon": True, "month": month, "title": title, **results})
+    save_history(history)
+    extras.telegram(f"🌙 {title} - পোস্ট হয়েছে ({len(clips)}টা গল্প)")
+    return True
+
+
+
 def main():
     global FONT, VHS
     if env("MODE") == "voice_demo":
@@ -5599,6 +6510,10 @@ def main():
             log(f"This run is for {SLOT}, which is long over - nothing to do (the next story comes at "
                 f"{EVENING}:00).")
             return
+    try:
+        ensure_map_page(history)                     # v63: the ghost map website (made once, in the docs folder)
+    except Exception as e:
+        log("  ghost map website skipped:", str(e)[:150])
     if not MOCK:
         try:
             extras.refresh_stats(history)            # learn which stories people liked
@@ -5691,6 +6606,9 @@ def main():
     if story.get("true_label"):
         title = extras.true_title(title, lang)
     log("Title:", title)
+    used_names = names_in_story(story)               # v63: viewers who asked to be in a story
+    if STATE.get("viewer_names"):
+        log("  viewers' names in the story: " + (", ".join(p[1] for p in used_names) or "none made it in"))
     with open(os.path.join(WORK, "story.json"), "w", encoding="utf-8") as f:
         json.dump(story, f, ensure_ascii=False, indent=1)
 
@@ -5911,6 +6829,9 @@ def main():
             lab = extras.TRUE_LABEL.get(lang, extras.TRUE_LABEL["bn"])
             base = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?-]", "", re.sub(r"\s*\|.*$", "", title)).strip()
             tline = f"{lab}... {base}।"
+    if district_line(lang):                          # v63: 'আপনাদের ভোটে এ সপ্তাহের জেলা: পুরুলিয়া।'
+        tline = f"{tline.rstrip()} {district_line(lang)}"
+        log(f"  title line: {tline}")
     parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": tline}],
               "sounds": ["wind"], "mood": "creepy", "voices": voices, "title_part": True}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
@@ -6010,6 +6931,9 @@ def main():
     description = (f"{title}\n\n{prev_link}{story.get('description', '').strip()}\n\n" + (f"🗳️ {vote_text}\n\n" if vote_text else "")
                    + (f"{L['find_ghost']}\n\n" if hidden else "") + f"{L['your_story']}\n\n{L['share_cta']}\n\n"
                    + f"{ai_note}\n\n{' '.join(tags)}")
+    top_lines = uniq_top_lines(lang, used_names)     # v63: this week's district / the viewers in the story
+    if top_lines:
+        description = description.replace(f"{title}\n\n", f"{title}\n\n{top_lines}\n\n", 1)
     part_times, segs = TIMELINE
     labels = [sc.get("chapter") or f"{k + 1}" for k, sc in enumerate(scenes)]
     labels = (["⚡ " + ("ঝলক" if lang == "bn" else "झलक"), L["ch_intro"]] + labels) if STORY_PART[0] == 2 else \
@@ -6019,6 +6943,12 @@ def main():
     # YouTube: the first lines are what search shows - a 2-3 sentence summary and the words people search for
     yt_description = extras.search_head("horror", lang, story.get("description", ""), seo_words[:4]) + "\n\n" + \
         yt_description.replace(f"\n\n{story.get('description', '').strip()}\n\n", "\n\n", 1)
+    try:                                             # v63: district wish, 'your name in a story', the ghost map
+        yt_more = "\n\n".join(uniq_invites(lang, youtube=True))
+        if yt_more:
+            yt_description = yt_description.replace(f"\n\n{ai_note}", f"\n\n{yt_more}\n\n{ai_note}", 1)
+    except Exception as e:
+        log("  YouTube invitations skipped:", str(e)[:100])
     yt_title = title
     kw = next((w for w in seo_words if w.lower() not in title.lower() and len(title) + 3 + len(w) <= 100), "")
     if kw:
@@ -6066,6 +6996,10 @@ def main():
     if shout_names:
         first.append(L["shout_comment"].format(names=extras.name_list(shout_names, lang, 10)))
     first.append(L["join_comment"])
+    try:
+        first += uniq_invites(lang)                  # v63: which district next Tuesday? + the ghost map
+    except Exception as e:
+        log("  first-comment invitations skipped:", str(e)[:100])
     story["comment_question"] = "\n\n".join(x for x in first if x)
     results.update(grow(video, story, title, lang, L, tags, results, history, page))
 
@@ -6086,6 +7020,18 @@ def main():
                     "karna_origin": True if special == "karna" else None,
                     "hidden": hidden, "mystery_answer": int(str(story.get("mystery_answer", 0) or 0)[:1] or 0)
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
+    try:                                             # v63: district of the week, viewers' names, the ghost map pin
+        rec = history[-1]
+        if STATE.get("district"):
+            rec["district_week"] = STATE["district"]
+        if used_names:
+            rec["viewer_names"] = [p[0] for p in used_names]
+        dk = map_add(story, title, results, lang, HORROR_CATS.get(cat, {}).get("bn", ""))
+        if dk:
+            rec["district"] = dk
+        thank_named_viewers(used_names, results, lang)
+    except Exception as e:
+        log("  ghost map / district note skipped:", str(e)[:150])
     STATE["posted_now"] = True
     if not MOCK and not DRY_RUN:
         save_promise(story, slot_hour, lang, continues)
@@ -6213,6 +7159,15 @@ def make_compilation(history):
         make_series_full(history)
     except Exception as e:
         log("  full stories skipped:", str(e)[:200])
+    if env("MARATHON") != "0" and dt.datetime.now(extras.IST).day <= 7:   # v63: first Sunday of the month
+        try:
+            if make_marathon(history):
+                return
+        except Exception as e:
+            log("  night marathon skipped - the weekly compilation instead:", str(e)[:200])
+        for f in os.listdir(WORK):                   # (room for the weekly compilation)
+            if f.startswith(("mraw_", "m_", "marathon")) and f.endswith(".mp4"):
+                os.remove(os.path.join(WORK, f))
     now = dt.datetime.now(dt.timezone.utc)
     week = []
     for h in history[-40:]:
@@ -6221,7 +7176,7 @@ def make_compilation(history):
         except Exception:
             continue
         if (now - t.replace(tzinfo=t.tzinfo or dt.timezone.utc)).days <= 7 and h.get("facebook") \
-                and h.get("kind") not in ("compilation", "series_full"):
+                and not h.get("kind"):
             week.append(h)
     langs = [h.get("lang") for h in week]
     lang = env("LANGUAGE") if env("LANGUAGE") in LANGS else (max(set(langs), key=langs.count) if langs else "bn")
