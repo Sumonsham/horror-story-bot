@@ -2937,7 +2937,7 @@ def estimate_requests(story):
             s = "narrator" if s.startswith("narrat") else s
             c, n = per.get(s, (0, 0))
             per[s] = (c + len(extras.strip_tags(str(ln.get("text", "")))), n + 1)
-    return sum(max(-(-c // 1900), -(-n // 16), 1) for c, n in per.values()) + 1
+    return sum(max(-(-c // 1700), -(-n // 9), 1) for c, n in per.values()) + 3    # (+ lines asked again)
 
 
 THEME_PL_EN = {"gram": "Village Ghost Stories", "shohor": "City Horror Stories", "jayga": "Haunted Places",
@@ -2975,7 +2975,7 @@ def voice_reserve():
             night = False
         if night:
             try:
-                return max(0, int(env("TTS_KEEP_FOR_NOON") or 18))
+                return max(0, int(env("TTS_KEEP_FOR_NOON") or 19))
             except ValueError:
                 return 18
         return 0
@@ -3009,13 +3009,14 @@ def sentence_items(items):
     out, parts = [], {}
     for it in items:
         sents = split_sentences(it["text"])
+        it["line"] = it["out"]                        # (v69: the batch keeps whole lines; see extras.tts_gemini_batch)
         if len(sents) <= 1:
             out.append(it)
             continue
         subs = []
         for k, s in enumerate(sents):
             sub = dict(it)
-            sub.update(text=s, plain=extras.strip_tags(s), out=f"{it['out']}.s{k}.wav")
+            sub.update(text=s, plain=extras.strip_tags(s), out=f"{it['out']}.s{k}.wav", line=it["out"])
             subs.append(sub)
         parts[it["out"]] = subs
         out += subs
@@ -3090,31 +3091,39 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         if keep:
             log(f"  {keep} voice requests are kept for the next 2 PM story (and its teasers) - this "
                 f"{'story' if VOICE_CONTEXT[0] == 'main' else VOICE_CONTEXT[0]} uses only the rest")
-        need = {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
-        gem, acc = [], 0
-        for s in [x for x in order if x in chars]:
-            if acc + need[s] <= left:
-                gem.append(s)
-                acc += need[s]
-        log(f"  today's free voice requests left: {left} -> Gemini now for: {', '.join(gem) or '-'} ({acc} requests)"
-            + (f"; waiting: {', '.join(s for s in order if s in chars and s not in gem)}" if len(gem) < len(chars) else ""))
-        gp = pairs_of(set(gem))
-        if gp:
-            turns, parts = sentence_items([it for _t, it in gp])
+        # HOW FULL each request is made (10 Nov 2026): Google gives ~36 free requests a day for two stories and two
+        # teasers. Small requests are cut apart most surely, but then one story alone needs 14-16 - so: the SMALLEST
+        # size with which the whole cast still fits today's share with a third to spare for lines asked again.
+        need_of = lambda: {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
+        for n_, c_ in ((12, 1100), (16, 1400), (20, 1700), (26, 1900)):
+            extras.TTS_PLAN.update(pieces=n_, chars=c_)
+            need = need_of()
+            if sum(need.values()) * 1.34 + 1 <= left:
+                break
+        log(f"  today's free voice requests left: {left}; the whole cast needs {sum(need.values())} "
+            f"(up to {extras.TTS_PLAN['pieces']} sentences / {extras.TTS_PLAN['chars']} letters per request)")
+        gem = []
+        for s in [x for x in order if x in chars]:    # ONE character after the other, each one finished (with its
+            if extras.TTS_USED[0] + need[s] + (need[s] > 1) > left:   # lines asked again) before the next begins;
+                continue                              # (a character is only begun when it can also be finished)
+            gem.append(s)
+            mine = [it for _t, it in pairs_of({s})]
+            turns, parts = sentence_items(mine)
             try:
-                # (the whole share may be used: retries for lines that could not be cut cleanly come out of it)
                 extras.tts_gemini_batch(turns, LANGS[lang]["name"], SR, max_requests=left)
             except Exception as e:                    # never lose the video over the voices
                 log("  expressive voices stopped:", str(e)[:150])
             join_sentences(parts)
-        for s in gem:                                 # 1-3 lines of a character came out empty: those lines alone
-            mine = [it for _t, it in pairs_of({s})]
-            miss = [it for it in mine if not made(it)]
-            if miss and len(miss) <= max(3, len(mine) // 8) and len(miss) < len(mine) and extras.gemini_quota_left():
-                for it in miss:
-                    extras.TTS_USED[0] += 1
-                    extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
-                                      + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], it["out"], SR)
+            for it in [it for it in mine if not made(it)]:   # a line still open: alone, while the share lasts
+                if extras.TTS_USED[0] >= left or not extras.gemini_quota_left():
+                    break
+                extras.TTS_USED[0] += 1
+                extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
+                                  + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], it["out"], SR)
+            miss = sum(1 for it in mine if not made(it))
+            log(f"  {s}: {len(mine) - miss}/{len(mine)} lines in the Gemini voice ({extras.TTS_USED[0]} of {left} requests used)")
+        if len(gem) < len(chars):
+            log("  no request left today for: " + ", ".join(s for s in order if s in chars and s not in gem))
         try:
             extras.tts_budget_use(TTS_USAGE)
             push_now([TTS_USAGE], "voice limit used today")
@@ -3145,12 +3154,18 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         used0 = extras.chirp_used(TTS_USAGE)
         for s in [x for x in order if x in waiting]:
             mine = pairs_of({s})
-            ok = all(extras.chirp_tts(it["plain"], it["voice"], it["out"], SR, TTS_USAGE, lang) for _t, it in mine)
-            if ok:                                     # the whole character, so one person keeps one voice
+            # (10 Nov 2026) Gemini made nearly all of this character and only 1-2 lines are open: ONLY those lines get
+            # the Chirp voice of the same name - before, 20 good Gemini lines were thrown away for one open line
+            gap = [x for x in mine if not made(x[1])]
+            few = 0 < len(gap) < len(mine) and len(gap) <= max(2, len(mine) // 7)
+            part = gap if few else mine
+            ok = all(extras.chirp_tts(it["plain"], it["voice"], it["out"], SR, TTS_USAGE, lang) for _t, it in part)
+            if ok:                                     # (else the whole character, so one person keeps one voice)
                 for (i, j, _ln), it in mine:
                     GEMINI_CACHE[(i, j)] = it["out"]
                 done_chars.add(s)
-                log(f"  {s}: all {len(mine)} lines in the Chirp voice ({mine[0][1]['voice']})")
+                log(f"  {s}: {'only ' + str(len(part)) + ' of' if few else 'all'} {len(mine)} lines in the Chirp voice "
+                    f"({mine[0][1]['voice']})" + (" - the rest is Gemini" if few else ""))
             else:
                 for _t, it in mine:
                     if os.path.exists(it["out"]):
