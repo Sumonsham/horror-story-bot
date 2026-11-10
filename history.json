@@ -119,7 +119,7 @@
    "comments": 0,
    "views": 0,
    "length_s": 257,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -138,7 +138,7 @@
    "yt_avg_s": 25,
    "yt_avg_pct": 31.0,
    "yt_drop_at": 10,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -153,7 +153,7 @@
    "comments": 0,
    "views": 0,
    "length_s": 781,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -172,10 +172,10 @@
    "comments": 3,
    "views": 4,
    "length_s": 657,
-   "yt_views": 3,
-   "yt_avg_s": 14,
-   "yt_avg_pct": 2.3,
-   "checked": "2026-11-07T08:33+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 11,
+   "yt_avg_pct": 1.8,
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -338,7 +338,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -366,7 +366,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -394,7 +394,7 @@
    "yt_views": 4,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -630,7 +630,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -845,7 +845,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-07T08:33+00:00"
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -877,12 +877,12 @@
   "stats": {
    "likes": 2,
    "comments": 4,
-   "views": 0,
+   "views": 1,
    "length_s": 1034,
    "yt_views": 0,
-   "yt_avg_s": 70,
-   "yt_avg_pct": 6.8,
-   "checked": "2026-11-07T08:33+00:00"
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -1136,10 +1136,10 @@
    "comments": 2,
    "views": 1,
    "length_s": 1856,
-   "yt_views": 2,
-   "yt_avg_s": 1830,
-   "yt_avg_pct": 98.6,
-   "checked": "2026-11-07T08:33+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-10T12:31+00:00"
   }
  },
  {
@@ -1401,12 +1401,12 @@
   "stats": {
    "likes": 0,
    "comments": 2,
-   "views": 0,
+   "views": 2,
    "length_s": 1791,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-07T08:33+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 223,
+   "yt_avg_pct": 12.4,
+   "checked": "2026-11-10T12:31+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1675,6 +1675,12 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-10T01:02+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 1,
+   "at": "2026-11-10T12:31+00:00",
+   "thumb": false
   }
  },
  {
@@ -1705,7 +1711,17 @@
   "facebook": "2241668193229704",
   "youtube": "TuWwZbD23Kc",
   "yt_short": "7hquKevToz8",
-  "district": "nadia"
+  "district": "nadia",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 1,
+   "length_s": 1128,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-10T12:31+00:00"
+  }
  },
  {
   "date": "2026-11-10T03:48+00:00",
@@ -1836,5 +1852,140 @@
    ]
   },
   "district": "bankura"
+ },
+ {
+  "date": "2026-11-10T14:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-10@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "category": "karna",
+  "question_post": null,
+  "title_b": "নদিয়ার অভিশপ্ত পুষ্করিণী ও পিশাচিনী 🪔 | পর্ব 1",
+  "theme": "a new Karna Pishachini case",
+  "format": "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-11-10T12:31+00:00",
+  "title": "কর্ণপিশাচিনী #3: শুকনো পুকুরের সেই মৃত কণ্ঠ 🕯️ | পর্ব ১",
+  "festival": null,
+  "special": "karna",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": "",
+  "karna_origin": true,
+  "hidden": 4,
+  "mystery_answer": 1,
+  "facebook": "1711238733777823",
+  "youtube": "NjMhzrXdLiQ",
+  "fb_reel": "1036074386232167",
+  "fb_story": "1154166040419568",
+  "fb_reel2": "2099206214057682",
+  "yt_short": "IGug3BFxvng",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 875,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     12,
+     "শুরু"
+    ],
+    [
+     27,
+     "অন্ধকারের প্রথম ফিসফিস"
+    ],
+    [
+     81,
+     "ধূপকাঠির বাঁকা ধোঁয়া"
+    ],
+    [
+     129,
+     "অনির্বাণের আকুল প্রার্থনা"
+    ],
+    [
+     182,
+     "সাড়ে তিনটের পকেটঘড়ি"
+    ],
+    [
+     237,
+     "বিশাখা পিসির অভিশপ্ত সতর্কবাণী"
+    ],
+    [
+     277,
+     "অদৃশ্য শক্তির বন্দিশালা"
+    ],
+    [
+     338,
+     "ছেঁড়া ডায়েরির পাতা"
+    ],
+    [
+     394,
+     "বাঁ কাঁধের গুঞ্জন"
+    ],
+    [
+     445,
+     "নিভে যাওয়া আলো"
+    ],
+    [
+     508,
+     "স্মৃতির ভারী মূল্য"
+    ],
+    [
+     556,
+     "অশুভ মুহূর্ত"
+    ],
+    [
+     592,
+     "স্থবির সময়"
+    ],
+    [
+     624,
+     "বিশাখা মাসির সতর্কতা"
+    ],
+    [
+     641,
+     "কাদার তলার রহস্য"
+    ],
+    [
+     660,
+     "বদ্ধ দরজার শব্দ"
+    ],
+    [
+     684,
+     "পিশাচিনীর আহ্বান"
+    ],
+    [
+     709,
+     "গুপ্ত ডায়েরির খোঁজে"
+    ],
+    [
+     727,
+     "ভুল সংকেত"
+    ],
+    [
+     748,
+     "মিথ্যা ও ছায়া"
+    ],
+    [
+     766,
+     "কলসির হাসি"
+    ],
+    [
+     791,
+     "অন্ধকারের গ্রাস"
+    ],
+    [
+     813,
+     "হাড়হিম ফিসফিসানি"
+    ]
+   ]
+  },
+  "tagline": "শুকনো পুকুর থেকে কে ডাকছে মধ্যরাতে?",
+  "district": "nadia"
  }
 ]
