@@ -3124,6 +3124,9 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
             log(f"  {s}: {len(mine) - miss}/{len(mine)} lines in the Gemini voice ({extras.TTS_USED[0]} of {left} requests used)")
         if len(gem) < len(chars):
             log("  no request left today for: " + ", ".join(s for s in order if s in chars and s not in gem))
+        if sum(extras.MARK_STATS):                    # v71: how the line ends were found
+            log(f"  line ends found by the marker words in {extras.MARK_STATS[0]} recordings, by pauses in "
+                f"{extras.MARK_STATS[1]}")
         try:
             extras.tts_budget_use(TTS_USAGE)
             push_now([TTS_USAGE], "voice limit used today")
