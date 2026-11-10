@@ -4559,6 +4559,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 TIMELINE = ([], [])          # (start second of every part, every spoken line) of the last video
+METERS = []                  # v70: the heartbeat films of this video and when each one shows
 SUB_NAME, NAME_LOCAL = {}, {}  # line text -> speaker's name for the subtitles; english name -> name in the story
 PORTRAIT = [None]            # the 9:16 Facebook version of the video
 BADGE_COLORS = ((200, 0, 20), (255, 255, 255))
@@ -4671,10 +4672,16 @@ def build_video(scene_parts, lang, out):
         extras.make_badge(FONT, LANGS[lang]["badge"], os.path.join(WORK, "badge.png"), BADGE_COLORS)
         extras.headphone_hint(FONT, LANGS[lang]["hp"], os.path.join(WORK, "hp.png"))
         hook_png(HOOK_TEXT[0], os.path.join(WORK, "hook.png"))
-        pic = ["-i", "badge.png", "-i", "hp.png", "-i", "hook.png", "-filter_complex",
+        try:                                         # v70: the heartbeat line (top left), faster in the dark scenes
+            METERS[:] = fear_meter(part_times, [sp.get("mood", "creepy") for sp in scene_parts], total)
+        except Exception as e:
+            METERS[:] = []
+            log("  fear meter skipped:", str(e)[:120])
+        m_in, m_fc, m_lab = _meter_args(METERS, 5, "h", 24, 20)
+        pic = ["-i", "badge.png", "-i", "hp.png", "-i", "hook.png"] + m_in + ["-filter_complex",
                f"[0:v]{vf}[b];[b][2:v]overlay=W-w-24:22:enable='{extras.badge_filter(total)}'[c];"
                f"[c][3:v]overlay=(W-w)/2:H-h-110:enable='between(t,0.5,7)'[d];"
-               f"[d][4:v]overlay=0:0:enable='between(t,0,4.5)'[v]", "-map", "[v]"]
+               f"[d][4:v]overlay=0:0:enable='between(t,0,4.5)'[h]" + m_fc, "-map", f"[{m_lab}]"]
     except Exception as e:
         log("  badge skipped:", str(e)[:120])
         pic = ["-vf", vf, "-map", "0:v"]
@@ -4740,6 +4747,93 @@ def top_png(path, show, title):
     return path
 
 
+# ===================== v70: the fear meter - a heartbeat line that runs faster as the story gets more frightening
+METER = {"calm": (72, (90, 235, 130)), "sad": (72, (90, 235, 130)), "creepy": (92, (255, 215, 60)),
+         "tense": (116, (255, 140, 40)), "scare": (142, (255, 50, 50)), "scary": (142, (255, 50, 50))}
+
+
+def _ecg(ph):
+    """one heartbeat (ph 0..1): a small wave, the sharp spike, a round wave"""
+    g = lambda c, w, a: a * math.exp(-((ph - c) / w) ** 2)
+    return g(0.18, 0.035, 0.12) - g(0.335, 0.012, 0.18) + g(0.36, 0.014, 1.0) - g(0.39, 0.014, 0.28) + g(0.6, 0.06, 0.22)
+
+
+def fear_meter(part_times, moods, total, start=6.0):
+    """Small looping heartbeat films (one per mood that occurs) + when each is shown: [(file, enable-expression)].
+    The line, the little heart and the number beat faster and turn from green to red as the scenes get darker."""
+    if env("FEAR_METER") == "0" or not part_times:
+        return []
+    mw, mh = 300, 80
+    ends = list(part_times[1:]) + [total]
+    spans = {}
+    for st, en, mood in zip(part_times, ends, moods):
+        bpm = METER.get(str(mood).lower(), METER["creepy"])[0]
+        st = max(st, start)
+        if en - st > 0.5:
+            spans.setdefault(bpm, []).append((st, en))
+    out = []
+    digits = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+    for bpm, sp in sorted(spans.items()):
+        col = next(c for b, c in METER.values() if b == bpm)
+        beat = 60.0 / bpm
+        beats = max(2, round(3.2 / beat))
+        frames = max(8, round(beats * beat * FPS))
+        d_ = os.path.join(WORK, f"meter_{bpm}")
+        os.makedirs(d_, exist_ok=True)
+        try:
+            f_num = extras._font(FONT, 34)
+        except Exception:
+            f_num = None
+        for k in range(frames):
+            now = k / frames * beats                  # in beats
+            img = Image.new("RGBA", (mw, mh), (0, 0, 0, 0))
+            d = ImageDraw.Draw(img)
+            d.rounded_rectangle([0, 0, mw - 1, mh - 1], radius=18, fill=(8, 8, 12, 150))
+            x0, x1, mid = 70, mw - 78, mh // 2 + 10
+            pts = []
+            for x in range(x0, x1):                   # the newest moment is at the right end
+                ph = (now - (x1 - x) / (x1 - x0) * 2.4) % 1.0
+                pts.append((x, mid - _ecg(ph) * 34))
+            d.line(pts, fill=col + (255,), width=3, joint="curve")
+            d.ellipse([x1 - 4, pts[-1][1] - 4, x1 + 4, pts[-1][1] + 4], fill=(255, 255, 255, 255))
+            pulse = 1.0 + 0.28 * max(0.0, _ecg(now % 1.0))            # the heart swells on every beat
+            r = 12 * pulse
+            cx, cy = 36, mh // 2 - 2
+            d.ellipse([cx - r * 1.05, cy - r, cx, cy + r * 0.2], fill=col + (255,))
+            d.ellipse([cx, cy - r, cx + r * 1.05, cy + r * 0.2], fill=col + (255,))
+            d.polygon([(cx - r * 1.02, cy - r * 0.25), (cx + r * 1.02, cy - r * 0.25), (cx, cy + r * 1.25)],
+                      fill=col + (255,))
+            if f_num:
+                num = str(bpm).translate(digits) if FONT and "Bengali" in os.path.basename(FONT) else str(bpm)
+                try:
+                    d.text((x1 + 10, mh // 2 - 26), extras.fit_glyphs(num, FONT), font=f_num, fill=(255, 255, 255, 235))
+                except Exception:
+                    pass
+            img.save(os.path.join(d_, f"f_{k:03d}.png"))
+        mov = os.path.join(WORK, f"meter_{bpm}.mov")
+        run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(d_, "f_%03d.png"),
+             "-c:v", "qtrle", "-pix_fmt", "argb", mov])
+        shutil.rmtree(d_, ignore_errors=True)
+        merged = []
+        for st, en in sp:                             # neighbouring scenes of one mood = one stretch
+            if merged and st - merged[-1][1] < 0.05:
+                merged[-1][1] = en
+            else:
+                merged.append([st, en])
+        out.append((os.path.basename(mov), "+".join(f"between(t,{a:.2f},{b:.2f})" for a, b in merged)))
+    return out
+
+
+def _meter_args(meters, first_index, last_label, x, y):
+    """ffmpeg inputs + filter steps that lay the heartbeat films over [last_label]; returns (inputs, filter, label)"""
+    inp, fc, lab = [], "", last_label
+    for k, (mov, when) in enumerate(meters):
+        inp += ["-stream_loop", "-1", "-i", mov]
+        fc += f";[{lab}][{first_index + k}:v]overlay={x}:{y}:enable='{when}'[mt{k}]"
+        lab = f"mt{k}"
+    return inp, fc, lab
+
+
 def make_portrait(segs, lang, total):
     """Facebook: the same film in 9:16 - the picture big in the middle (gently panning, so nothing stays hidden),
     a dark blurred copy behind it, the show + title at the top and big subtitles (with the speaker's name) below."""
@@ -4753,9 +4847,11 @@ def make_portrait(segs, lang, total):
           f"scale={VW}:{VH},eq=brightness=-0.28[bg];"
           f"[b]scale={fw}:{FHh},crop={VW}:{FHh}:'({fw}-{VW})/2+({fw}-{VW})*0.45*sin(2*PI*t/18)':0[fg];"
           f"[bg][fg]overlay=0:{FY}[m];[m][2:v]overlay=0:0[t];"
-          f"[t]ass=subs_v.ass:fontsdir={os.path.dirname(FONT)}:shaping=complex,format=yuv420p[v]")
+          f"[t]ass=subs_v.ass:fontsdir={os.path.dirname(FONT)}:shaping=complex[s]")
+    m_in, m_fc, m_lab = _meter_args(METERS, 3, "s", 20, FY + 14)       # v70: the heartbeat line on the picture
+    fc += m_fc + f";[{m_lab}]format=yuv420p[v]"
     out_v = os.path.join(WORK, "facebook_9x16.mp4")
-    r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-i", "full.wav", "-i", "top_v.png", "-filter_complex", fc,
+    r = subprocess.run(["ffmpeg", "-y", "-i", "joined.mp4", "-i", "full.wav", "-i", "top_v.png"] + m_in + ["-filter_complex", fc,
                         "-map", "[v]", "-map", "1:a", "-t", f"{total:.2f}", "-r", str(FPS), "-c:v", "libx264",
                         "-preset", "veryfast", "-crf", "23", "-c:a", "aac", "-b:a", "160k", "-ac", "2",
                         "-movflags", "+faststart", out_v], capture_output=True, text=True, cwd=WORK)
@@ -5371,6 +5467,38 @@ SERIES_BIBLE = {   # how our recurring people speak and behave - the same in eve
 }
 
 
+ARC_WHO = ("THE SHADOW BEHIND THE CASES (our own invention - the thread that runs through the whole series): somewhere "
+           "in Bengal an unseen tantrik, known only as 'কালো সাধু' (the Black Sadhu), wakes old spirits on purpose. "
+           "Nobody has seen his face. His sign: a small trident drawn in black ash ('কালো ছাইয়ের ত্রিশূল') left at the "
+           "haunted place. Bhairab Thakur has been following this sign for years and does not talk about it.\n")
+
+
+def arc_rule(special, part, total, prev):
+    """v70: the Bhairab Thakur cases share one hidden enemy. In a normal case only his sign is found (one quiet
+    moment); the month's LAST case is the meeting with him. Returns the rule for the writer ('' for other series)."""
+    if special != "bhairab" or env("SERIES_ARC") == "0":
+        return ""
+    now = dt.datetime.now(extras.IST)
+    last = ((now.replace(day=28) + dt.timedelta(days=4)).replace(day=1) - dt.timedelta(days=1)).day
+    later = sum(1 for d in range(now.day + 1, last + 1) if category_of(EVENING, now.replace(day=d)) == "rohoshyo")
+    need = max(1, int(total or 1))
+    # the last case that still ENDS in this month (a case begun on the month's last evening belongs to the next one)
+    finale = ((prev or {}).get("arc") == "finale" if part and part >= 2 else
+              later >= need - 1 and later - (need - 1) < need)
+    STATE["arc"] = "finale" if finale else "sign"
+    if finale:
+        log("Bhairab Thakur: the month's last case - he meets the Black Sadhu")
+        return ("\n" + ARC_WHO + "THIS IS THE MONTH'S LAST CASE - THE MEETING: the haunting of this case leads Bhairab to the "
+                "Black Sadhu's own ritual place. They meet at last - a calm, cold voice and a figure whose face stays in "
+                "shadow (give him 2-5 spoken lines; speaker name 'Kalo Sadhu'). Bhairab breaks his ritual and frees the "
+                "spirits he woke; the Sadhu slips away into the dark with one quiet promise to return. The case itself is "
+                "fully solved - only he stays unknown" + (" (the meeting comes in the LAST part)." if need > 1 else ".")
+                + "\n")
+    return ("\n" + ARC_WHO + "IN THIS CASE his sign appears ONCE, small, near the end: Bhairab notices the black-ash trident, "
+            "goes silent for a moment, and when Paltu asks he only says something like 'আবার সে।' It is never explained and "
+            "never the main plot - the case is complete without it. Do not show the Sadhu himself.\n")
+
+
 def bible_rule(special):
     """The series' character book + the cases already told (so a new episode may remember them and never
     contradicts them)."""
@@ -5453,7 +5581,7 @@ CREATOR_RULE = (
 
 PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
-              "district", "district_votes", "viewer_names")
+              "district", "district_votes", "viewer_names", "arc")
 
 
 def length_scale():
@@ -5633,6 +5761,10 @@ def choose_and_write(slot_hour, history):
         except Exception as e:
             log("  lessons skipped:", str(e)[:100])
     extra_rules += bible_rule(special)                 # the series' character book and its past cases
+    try:
+        extra_rules += arc_rule(special, part, total, prev)
+    except Exception as e:
+        log("  series thread skipped:", str(e)[:100])
     if special == "karna":
         extra_rules += "\n" + karna_rule(history, lang)
     elif special == "taranath" and theme == "madhusundari":
@@ -6161,10 +6293,10 @@ def thank_named_viewers(used_names, results, lang):
 MAP_DIR = os.path.join(HERE, "docs")
 MAP_JSON = os.path.join(MAP_DIR, "stories.json")
 MAP_HTML = os.path.join(MAP_DIR, "index.html")
-MAP_VERSION = "ghost-map-v1"
+MAP_VERSION = "ghost-map-v2"
 MAP_PAGE = """<!doctype html>
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- ghost-map-v1 -->
+<!-- ghost-map-v2 -->
 <title>বাংলার ভূতের মানচিত্র</title>
 <meta name="description" content="বাংলার প্রতিটা জেলার ভূতের গল্প - মানচিত্রে। Bengali horror stories on a map.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -6180,7 +6312,8 @@ main{max-width:860px;margin:0 auto;padding:6px 16px 40px}.d{margin:18px 0 6px;fo
 .s small{color:var(--muted)}.leaflet-popup-content a{margin-right:10px}
 footer{color:var(--muted);text-align:center;font-size:.85rem;padding:20px}
 </style></head><body>
-<header><h1>👻 বাংলার ভূতের মানচিত্র</h1><p>প্রতিটা লাল বিন্দু একটা গল্প - নিজের জেলায় চাপ দিন</p></header>
+<header><h1>👻 বাংলার ভূতের মানচিত্র</h1><p>প্রতিটা লাল বিন্দু একটা গল্প - নিজের জেলায় চাপ দিন</p>
+<p><a href="cases.html" style="color:#ffcf4a;font-weight:700;text-decoration:none">📁 ভৈরব ঠাকুর, তারানাথ ও কর্ণপিশাচিনীর কেস ফাইল →</a></p></header>
 <div id="map"></div><main id="list"><p>লোড হচ্ছে...</p></main>
 <footer>প্রতিটা নতুন গল্পের সাথে মানচিত্র নিজে থেকেই বাড়ে · গল্পগুলো লোককথা অবলম্বনে / কাল্পনিক, যদি না অন্য কিছু লেখা থাকে</footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -6274,7 +6407,95 @@ def ensure_map_page(history):
                                   str(h.get("date", ""))[:10], h.get("category") or ""))
         _jsave(MAP_JSON, items)
     log(f"Ghost map website made (docs/ folder, {len(items)} old stories on it)")
+    try:
+        cases_page(history)
+    except Exception as e:
+        log("  case files skipped:", str(e)[:120])
     push_now([MAP_DIR], "ghost map website")
+
+
+# ----------------------------------------------------------------- v70: the case files of our series (website)
+CASES_HTML = os.path.join(MAP_DIR, "cases.html")
+CASE_SERIES = [("bhairab", "🕵️ ভৈরব ঠাকুরের কেস ফাইল", "অলৌকিক রহস্যের সন্ধানী ভৈরব ঠাকুর আর তার সঙ্গী পল্টু"),
+               ("taranath", "🕯️ তারানাথ তান্ত্রিকের খাতা", "বৃদ্ধ তারানাথ নিজের মুখে শোনান তাঁর জীবনের অভিজ্ঞতা"),
+               ("karna", "👂 কর্ণপিশাচিনী", "নীলকণ্ঠ আচার্য, ভাগ্নে বাপি আর কানে-কানে কথা বলা সেই পিশাচিনী")]
+
+
+def cases_page(history):
+    """docs/cases.html: every case of our three series in order - where it happened, whether it is solved, what
+    happened (once it is over) and the links to every part. New viewers can watch a series from its first case.
+    Returns True when the page changed."""
+    import html
+    if MOCK or DRY_RUN or env("GHOST_MAP") == "0" or env("CASE_FILES") == "0":
+        return False
+    bible = _jload(BIBLE_FILE, {})
+    e = lambda s: html.escape(str(s or ""))
+    body, total = "", 0
+    for sp, head, about in CASE_SERIES:
+        cases = {}
+        for h in history:
+            if h.get("special") != sp or h.get("kind") or not (h.get("facebook") or h.get("youtube")):
+                continue
+            base = re.sub(r"\s*\|.*$", "", str(h.get("title") or "")).strip()
+            if base:
+                cases.setdefault(h.get("series_id") or base, {"t": base, "parts": []})["parts"].append(h)
+        if not cases:
+            continue
+        body += f'<h2>{e(head)}</h2><p class="a">{e(about)}</p>'
+        for c in sorted(cases.values(), key=lambda c: str(c["parts"][0].get("date") or ""), reverse=True):
+            parts = sorted(c["parts"], key=lambda h: (int(h.get("part") or 0), str(h.get("date") or "")))
+            last = parts[-1]
+            open_ = bool(last.get("continues"))
+            dk = next((h.get("district") for h in parts if h.get("district") in DISTRICT), None)
+            summ = next((b.get("summary") for b in bible.get(sp) or [] if b.get("title") == c["t"]), "")
+            tag = next((h.get("tagline") for h in parts if h.get("tagline")), "")
+            links = ""
+            for h in parts:
+                lab = f"পর্ব {str(h.get('part')).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))}" if h.get("part") else "গল্প"
+                links += f'<span class="p">{lab}: '
+                if h.get("facebook"):
+                    links += f'<a href="https://www.facebook.com/watch/?v={e(h["facebook"])}" target="_blank" rel="noopener">▶ Facebook</a>'
+                if h.get("youtube"):
+                    links += f'<a href="https://youtu.be/{e(h["youtube"])}" target="_blank" rel="noopener">▶ YouTube</a>'
+                links += "</span>"
+            body += (f'<div class="c{" o" if open_ else ""}"><b>{e(c["t"])}</b>'
+                     f'<small>{e(str(parts[0].get("date") or "")[:10])}'
+                     + (f' · {e(DISTRICT[dk][1])}' if dk else "")
+                     + (" · ⏳ চলছে - পরের পর্ব আসছে" if open_ else " · ✅ শেষ হয়েছে") + "</small>"
+                     + (f"<p>{e(tag)}</p>" if tag else "")
+                     + (f"<p>{e(summ)}</p>" if summ and not open_ and re.search(r"[\u0980-\u09FF]", str(summ)) else "")
+                     + links + "</div>")
+            total += 1
+    if not total:
+        return False
+    page = ("""<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>কেস ফাইল - ভূতের গল্পের সিরিজ</title>
+<meta name="description" content="ভৈরব ঠাকুর, তারানাথ তান্ত্রিক আর কর্ণপিশাচিনীর সব গল্প - প্রথম থেকে পরপর।">
+<style>
+:root{--bg:#0b0b10;--card:#16161f;--text:#f2efe9;--muted:#a9a3b5;--red:#e23b3b;--gold:#ffcf4a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);
+font-family:"Noto Sans Bengali","Hind Siliguri",system-ui,sans-serif}
+header{padding:18px 16px 4px;text-align:center}h1{margin:0;font-size:1.5rem;color:var(--gold)}
+header a{color:var(--gold);text-decoration:none;font-weight:700}main{max-width:860px;margin:0 auto;padding:6px 16px 40px}
+h2{margin:26px 0 2px;font-size:1.25rem;color:var(--gold)}.a{margin:0 0 8px;color:var(--muted)}
+.c{background:var(--card);border-radius:12px;padding:12px 14px;margin:10px 0;border-left:4px solid #3c8f5a}
+.c.o{border-left-color:var(--red)}.c b{display:block;font-size:1.05rem}.c small{color:var(--muted)}
+.c p{margin:8px 0;line-height:1.55}.p{display:inline-block;margin:8px 14px 0 0}.p a{color:#ffd9d9;margin-left:8px;text-decoration:none}
+footer{color:var(--muted);text-align:center;font-size:.85rem;padding:20px}
+</style></head><body>
+<header><h1>📁 কেস ফাইল</h1><p><a href="./">← ভূতের মানচিত্রে ফিরুন</a></p></header><main>"""
+            + body + "</main><footer>নতুন পর্ব এলেই এই পাতা নিজে থেকে বদলায় · গল্পগুলো কাল্পনিক</footer></body></html>\n")
+    try:
+        if os.path.exists(CASES_HTML) and open(CASES_HTML, encoding="utf-8").read() == page:
+            return False
+    except Exception:
+        pass
+    os.makedirs(MAP_DIR, exist_ok=True)
+    with open(CASES_HTML, "w", encoding="utf-8") as f:
+        f.write(page)
+    log(f"  case files website: {total} cases")
+    return True
 
 
 def map_add(story, title, results, lang, cat_name=""):
@@ -6901,6 +7122,10 @@ def repair_lost_posts(history, now=None):
             f"- its history entry is back")
     if fixed:
         save_history(history)
+        try:
+            cases_page(history)
+        except Exception:
+            pass
         push_now([HISTORY, NEXT_PART, MAP_DIR, BIBLE_FILE], "lost save repaired: " + ", ".join(fixed))
         try:
             extras.telegram("🛠️ আগের run-এর হারানো হিসেব ঠিক করা হয়েছে: " + ", ".join(fixed) +
@@ -7727,6 +7952,60 @@ def yt_podcast(pid, name, lang="bn"):
 
 
 
+def recap_frames(history, series_id, part, lang, n=3):
+    """v70 'আগের পর্বে...': real pictures from the LAST PART's film - grey, like a memory - for the opening of this
+    part, while the storyteller tells what happened. (No new pictures are needed for them either.)"""
+    if MOCK or DRY_RUN or env("RECAP_FRAMES") == "0" or not part or int(part) < 2 or not series_id:
+        return []
+    ph = next((h for h in reversed(history) if h.get("series_id") == series_id and not h.get("kind")
+               and int(h.get("part") or 0) == int(part) - 1 and h.get("facebook")), None)
+    if not ph:
+        return []
+    from PIL import ImageEnhance, ImageFilter, ImageOps
+    src, length = extras.fb_video_source(ph["facebook"])
+    if not src or length < 120:
+        return []
+    out = []
+    label = "আগের পর্বে" if lang == "bn" else "पिछले भाग में"
+    for k, fr in enumerate((0.36, 0.62, 0.9)[:n]):
+        raw = os.path.join(WORK, f"recap_raw_{k}.jpg")
+        try:
+            r = subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{length * fr:.1f}", "-i", src,
+                                "-frames:v", "1", "-q:v", "2", raw], capture_output=True, timeout=150)
+            if r.returncode != 0 or not os.path.exists(raw) or os.path.getsize(raw) < 5000:
+                continue
+            im = Image.open(raw).convert("RGB")
+            w, h = im.size
+            if h > w:                                 # Facebook's 9:16 film: the picture is the band in the middle
+                im = im.crop((0, int(h * 300 / 1280), w, int(h * 860 / 1280)))
+            else:                                     # 16:9: without the badge at the top and the subtitles below
+                im = im.crop((int(w * 0.1), int(h * 0.15), int(w * 0.9), int(h * 0.76)))
+            im = ImageOps.fit(im, (W, H), Image.LANCZOS, centering=(0.5, 0.7))   # (below the heartbeat line)
+            g = ImageOps.grayscale(im)                # a memory: grey with a touch of cold blue, soft, dark edges
+            im = ImageOps.colorize(g, (6, 8, 14), (214, 222, 235)).filter(ImageFilter.GaussianBlur(1.1))
+            im = ImageEnhance.Contrast(im).enhance(1.15)
+            vg = Image.new("L", (W, H), 0)
+            ImageDraw.Draw(vg).ellipse([-W * 0.18, -H * 0.3, W * 1.18, H * 1.3], fill=255)
+            im = Image.composite(im, Image.new("RGB", (W, H), (0, 0, 0)), vg.filter(ImageFilter.GaussianBlur(120)))
+            d = ImageDraw.Draw(im, "RGBA")
+            f_ = extras._font(FONT, 34)
+            txt = extras.fit_glyphs(label, FONT)
+            tw = d.textlength(txt, font=f_)
+            d.rounded_rectangle([40, 96, 40 + tw + 44, 96 + 56], radius=14, fill=(0, 0, 0, 170))
+            d.text((62, 102), txt, font=f_, fill=(255, 215, 80, 255))
+            p_ = os.path.join(WORK, f"recap_{k}.jpg")
+            im.save(p_, quality=92)
+            out.append(p_)
+        except Exception as e:
+            log("  recap picture skipped:", str(e)[:100])
+        finally:
+            if os.path.exists(raw):
+                os.remove(raw)
+    if out:
+        log(f"  the recap opens with {len(out)} real pictures from part {int(part) - 1}")
+    return out
+
+
 def main():
     global FONT, VHS
     if env("MODE") == "voice_demo":
@@ -7902,6 +8181,11 @@ def main():
     scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
     total_lines = sum(len(x) for x in scene_lines) or 1
     imgs, shots_per_scene, last_ok, count = [], [], None, 0
+    try:
+        recap_pics = recap_frames(history, series_id, part, lang)
+    except Exception as e:
+        recap_pics = []
+        log("  recap pictures skipped:", str(e)[:120])
     for i, (s, lines) in enumerate(zip(scenes, scene_lines)):
         want = max(1, min(len(lines), round(len(lines) * budget / total_lines))) if lines else 1
         groups = [lines[round(g * len(lines) / want):round((g + 1) * len(lines) / want)] for g in range(want)] or [[]]
@@ -7930,7 +8214,9 @@ def main():
                           f"appears twice. {desc}. {action}")
                 names = [x["name"] for x in people]
             log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)})")
-            if make_image(cast, action, s.get("place", ""), names, p, seed):
+            if i == 0 and g < len(recap_pics) and len(groups) > len(recap_pics):   # v70: the last part's own pictures
+                p = recap_pics[g]
+            elif make_image(cast, action, s.get("place", ""), names, p, seed):
                 last_ok = p
             elif scene_shots:
                 p = scene_shots[-1]                      # reuse; the camera move makes it look different
@@ -7940,8 +8226,9 @@ def main():
                 p = None
             scene_shots += [p] * max(1, len(grp))
         shots_per_scene.append(scene_shots)
-        imgs.append(next((x for x in scene_shots if x), None))
-    first_ok = next((p for p in imgs if p), None)
+        imgs.append(next((x for x in scene_shots if x and x not in recap_pics), None)
+                    or next((x for x in scene_shots if x), None))
+    first_ok = next((p for p in imgs if p and p not in recap_pics), None) or next((p for p in imgs if p), None)
     if not first_ok:
         if CF_QUOTA_OUT:
             extras.telegram("⚠️ Daily Horror Story: today's free picture limit is used up - this video was skipped. "
@@ -8299,6 +8586,8 @@ def main():
                 rec[k_] = STATE[k_]
         if STATE.get("district"):
             rec["district_week"] = STATE["district"]
+        if special in SERIES_BIBLE and story.get("tagline"):
+            rec["tagline"] = str(story["tagline"])[:160]      # (shown in the case files on the website)
         if used_names:
             rec["viewer_names"] = [p[0] for p in used_names]
         dk = map_add(story, title, results, lang, HORROR_CATS.get(cat, {}).get("bn", ""))
@@ -8324,6 +8613,7 @@ def main():
                 "last_lines": " / ".join(str(ln.get("text", "")) for ln in (last_sc.get("lines") or [])[-4:]),
                 "outline": STATE.get("outline") or (prev or {}).get("outline", ""),
                 "characters": story.get("characters"), "setting": story.get("setting", ""),
+                "arc": STATE.get("arc") or (prev or {}).get("arc"),
                 "source": STATE.get("source_name", "") or (prev or {}).get("source", "")})
             log(f"Series: part {part + 1} of {total} comes on this category's next day")
         elif part >= 2:
@@ -8333,6 +8623,12 @@ def main():
                 bible_add(special, title, story.get("episode_summary") or str(story.get("summary", ""))[:300])
             except Exception as e:
                 log("  series memory skipped:", str(e)[:100])
+        if special in SERIES_BIBLE:                  # v70: the series' case files on the website
+            try:
+                if cases_page(history):
+                    push_now([MAP_DIR], "case files")
+            except Exception as e:
+                log("  case files skipped:", str(e)[:120])
     if viewer and not DRY_RUN:                       # tell the viewer their story is out
         try:
             if viewer["id"].startswith("fb_") and results.get("facebook"):
