@@ -1809,10 +1809,9 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         # no plan at all (Google refused every model): only TWO chapters - a shorter story that holds together
         # is far better than a long one whose chapters wander off on their own
         share, starts, ends = [], [], []
-        n_ch = max_ch = 2
+        n_ch, max_ch = 2, 3                           # (a 3rd chapter only if the first ones came out too short)
         words_per = int(LONG_MIN * wpm / 2)
-        STATE["short_plan"] = True                    # not a normal-length story: nothing to learn from it
-        log("  no story plan today - writing a shorter story in 2 chapters so it stays in one piece")
+        log("  no story plan today - writing the story in 2 chapters so it stays in one piece")
     full_outline = STATE.get("outline") or ""
 
     def outline_for(k, final):
@@ -1839,7 +1838,10 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     carry = []                                        # beats of a chapter that failed go to the next one
     while k < max_ch:
         k += 1
-        final = force_final or k == max_ch or (not share and k >= 3 and total + words_per >= need)
+        # without a plan: chapter 2 ends the story - unless the story so far is clearly too short for the
+        # 20-minute minimum (11 Nov 2026: chapters of 500-650 words gave 11-15 minute videos); then one more
+        # chapter comes before the ending
+        final = force_final or k == max_ch or (not share and k >= 2 and total >= words_per * 0.85 * (k - 1))
         mine = (carry + share[k - 1]) if share and k - 1 < len(share) else []
         if share and final and k - 1 < len(share):
             mine = carry + [b for s in share[k - 1:] for b in s]
@@ -1899,7 +1901,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                 rule += ("NOT THE END YET: in this chapter do NOT solve the mystery, do NOT reveal the twist and do "
                          "NOT wrap up the story - that happens only in the last chapter. ")
             s = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=er + rule,
-                           length=length, min_w=int(words_per * 0.7))   # ... more chapters make up the length
+                           length=length, min_w=int(words_per * 0.88))   # ... more chapters make up the length
         except ClassicUnknown:
             raise
         except Exception as e:
@@ -2925,6 +2927,7 @@ class NoGoodVoice(Exception):
 VOICE_CONTEXT = ["main"]      # "main" (the 2 PM / 8 PM story), "teaser" or "amavasya"
 HIDDEN_PICS = []              # pictures of this story with its ghost hidden in them (weekly 'spot the ghost')
 NOON_NEED = [0]               # Gemini voice requests today's 2 PM story will need (known once it is written)
+VOICE_SAMPLES = os.path.join(HERE, "assets", "voice_samples")    # v72: a few raw Gemini recordings + their text
 
 
 def estimate_requests(story):
@@ -3091,20 +3094,27 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         if keep:
             log(f"  {keep} voice requests are kept for the next 2 PM story (and its teasers) - this "
                 f"{'story' if VOICE_CONTEXT[0] == 'main' else VOICE_CONTEXT[0]} uses only the rest")
-        # HOW FULL each request is made (10 Nov 2026): Google gives ~36 free requests a day for two stories and two
-        # teasers. Small requests are cut apart most surely, but then one story alone needs 14-16 - so: the SMALLEST
-        # size with which the whole cast still fits today's share with a third to spare for lines asked again.
+        # HOW FULL each request is made (11 Nov 2026). Google gives ~36 free requests a day for two stories and two
+        # teasers, and EVERY recording is used now (nothing is thrown away for an uncertain line end - that cost so
+        # many requests that whole stories fell back to the Chirp voice). Small recordings are cut apart most surely,
+        # so: the SMALLEST size with which the whole cast fits into 4/5 of today's share; the rest is kept for a
+        # broken recording and for making doubtful lines again one by one.
         need_of = lambda: {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
-        for n_, c_ in ((12, 1100), (16, 1400), (20, 1700), (26, 1900)):
+        for n_, c_ in ((6, 700), (8, 900), (10, 1100), (12, 1300), (16, 1500), (20, 1700), (26, 1900)):
             extras.TTS_PLAN.update(pieces=n_, chars=c_)
             need = need_of()
-            if sum(need.values()) * 1.34 + 1 <= left:
+            if sum(need.values()) <= int(left * 0.8):
                 break
-        log(f"  today's free voice requests left: {left}; the whole cast needs {sum(need.values())} "
+        total_need = sum(need.values())
+        extras.TTS_SPARE[0] = max(0, left - total_need)
+        del extras.SUSPECT[:]
+        if VOICE_CONTEXT[0] == "main" and env("VOICE_SAMPLES") != "0":   # a few raw recordings for tuning the cutting
+            extras.SAMPLE["dir"] = VOICE_SAMPLES
+        log(f"  today's free voice requests left: {left}; the whole cast needs {total_need} "
             f"(up to {extras.TTS_PLAN['pieces']} sentences / {extras.TTS_PLAN['chars']} letters per request)")
         gem = []
-        for s in [x for x in order if x in chars]:    # ONE character after the other, each one finished (with its
-            if extras.TTS_USED[0] + need[s] + (need[s] > 1) > left:   # lines asked again) before the next begins;
+        for s in [x for x in order if x in chars]:    # one character after the other (the storyteller first)
+            if extras.TTS_USED[0] + need[s] > left:
                 continue                              # (a character is only begun when it can also be finished)
             gem.append(s)
             mine = [it for _t, it in pairs_of({s})]
@@ -3124,9 +3134,38 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
             log(f"  {s}: {len(mine) - miss}/{len(mine)} lines in the Gemini voice ({extras.TTS_USED[0]} of {left} requests used)")
         if len(gem) < len(chars):
             log("  no request left today for: " + ", ".join(s for s in order if s in chars and s not in gem))
-        if sum(extras.MARK_STATS):                    # v71: how the line ends were found
-            log(f"  line ends found by the marker words in {extras.MARK_STATS[0]} recordings, by pauses in "
-                f"{extras.MARK_STATS[1]}")
+        # the requests still left: the most doubtful lines (their length does not fit their words - maybe a sentence
+        # of the neighbouring line got into them) are made again ALONE, the worst first. A line alone needs no cutting.
+        by_out = {it["out"]: it for _t, it in pairs_of(set(gem))}
+        fixed_n, seen_ = 0, set()
+        for _dev, ln_ in sorted(extras.SUSPECT, key=lambda z: -z[0]):
+            if extras.TTS_USED[0] >= left or not extras.gemini_quota_left() or extras.TTS_STATE["off"]:
+                break
+            it = by_out.get(ln_)
+            if not it or ln_ in seen_:
+                continue
+            seen_.add(ln_)
+            tmp_ = it["out"] + ".alone.wav"
+            extras.TTS_USED[0] += 1
+            try:
+                if extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
+                                     + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], tmp_, SR) \
+                        and os.path.exists(tmp_) and os.path.getsize(tmp_) > 2000:
+                    os.replace(tmp_, it["out"])
+                    fixed_n += 1
+            except Exception as e:
+                log("  a doubtful line could not be made again:", str(e)[:100])
+            finally:
+                if os.path.exists(tmp_):
+                    os.remove(tmp_)
+        log(f"  recordings cut by the count of their pauses: {extras.CUT_STATS[0]}, by the length of the words: "
+            f"{extras.CUT_STATS[1]}; doubtful lines: {len({l_ for _d, l_ in extras.SUSPECT})}, made again alone: {fixed_n}")
+        if extras.SAMPLE.get("dir") and os.path.isdir(VOICE_SAMPLES):
+            try:
+                push_now([VOICE_SAMPLES], "voice samples for tuning")
+            except Exception:
+                pass
+            extras.SAMPLE["dir"] = None
         try:
             extras.tts_budget_use(TTS_USAGE)
             push_now([TTS_USAGE], "voice limit used today")
@@ -5597,7 +5636,9 @@ def length_scale():
         s = float(_jload(TTS_USAGE, {}).get("len_scale") or 0)
     except (TypeError, ValueError, AttributeError):
         s = 0
-    return s if 0.3 <= s <= 1.3 else 0.6               # first guess from the ~40-minute episode
+    # (11 Nov 2026: with 0.6 the stories came out at 1000-1300 words = 11-15 minutes; our real videos run at
+    # 75-90 words a minute, so a 22-minute story needs about 1800 words)
+    return s if 0.3 <= s <= 1.3 else 0.68
 
 
 def learn_length(video_sec):
