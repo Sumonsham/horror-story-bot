@@ -664,7 +664,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-08T01:01+00:00"
+   "checked": "2026-11-11T01:02+00:00"
   }
  },
  {
@@ -695,9 +695,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 0,
+   "views": 1,
    "length_s": 744,
-   "checked": "2026-11-08T01:01+00:00"
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-11T01:02+00:00"
   }
  },
  {
@@ -914,12 +917,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 0,
+   "views": 1,
    "length_s": 956,
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-08T01:01+00:00"
+   "checked": "2026-11-11T01:02+00:00"
   }
  },
  {
@@ -1448,12 +1451,12 @@
   "stats": {
    "likes": 3,
    "comments": 2,
-   "views": 1,
+   "views": 3,
    "length_s": 2435,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-08T01:01+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 29,
+   "yt_avg_pct": 1.2,
+   "checked": "2026-11-11T01:02+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1721,6 +1724,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-10T12:31+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 3
   }
  },
  {
@@ -1851,7 +1858,17 @@
     ]
    ]
   },
-  "district": "bankura"
+  "district": "bankura",
+  "stats": {
+   "likes": 0,
+   "comments": 1,
+   "views": 1,
+   "length_s": 934,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-11T01:02+00:00"
+  }
  },
  {
   "date": "2026-11-10T14:31+00:00",
