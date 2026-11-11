@@ -5761,6 +5761,7 @@ CREATOR_RULE = (
 
 
 PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
+              "trend_used",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
               "district", "district_votes", "viewer_names", "arc")
 
@@ -5908,6 +5909,21 @@ def choose_and_write(slot_hour, history):
                 theme = idea[0]
                 STATE["idea_used"] = idea[0]
                 log(f"Idea from the list: {theme}")
+            # TREND STORY (v75): the 2 PM story of our own kind is built on what is MOST WATCHED on YouTube this week
+            # (real YouTube search, sorted by views) - a new, original story on that topic, never a copy
+            if (not mine and not idea and slot_hour == NOON and cat in ("gram", "shohor", "jayga")
+                    and env("TREND_STORY") != "0" and not MOCK):
+                try:
+                    tr_ = extras.trending_topics("horror", lang, os.path.join(HERE, "assets"))
+                except Exception as e:
+                    tr_ = []
+                    log("  trend story skipped:", str(e)[:100])
+                done_ = {str(h.get("theme", "")).strip() for h in history} | {str(h.get("trend_used", "")) for h in history}
+                tr_ = [x for x in tr_ if x.strip() and x.strip() not in done_]
+                if tr_:
+                    theme = tr_[0].strip()
+                    STATE["trend_used"] = theme
+                    log(f"TREND STORY - what is most watched on YouTube this week: {theme}")
             if cat == "sotti" and not mine:
                 vs = []
                 try:
@@ -5938,6 +5954,10 @@ def choose_and_write(slot_hour, history):
             STATE["trends"] = extras.trending_topics("horror", lang, os.path.join(HERE, "assets"))
         except Exception as e:
             log("  trends skipped:", str(e)[:100])
+        try:                                         # title + thumbnail words in this week's winning style
+            extra_rules += extras.trend_style_rule("horror", lang, os.path.join(HERE, "assets"))
+        except Exception:
+            pass
         if STATE.get("own_kind") and STATE.get("trends"):
             extra_rules += ("\nTRENDING THIS WEEK (Bengali / Indian viewers are watching these - if one fits "
                             "today's category, build on it): " + " | ".join(STATE["trends"]) + "\n")
@@ -7237,7 +7257,7 @@ def repair_lost_posts(history, now=None):
         ma = str(story.get("mystery_answer", 0) or 0)[:1]
         rec = {"date": when, "lang": lang, "slot": key, "pending_comments": [],
                "source": st.get("source_name") or (prev or {}).get("source") or None,
-               "idea_used": st.get("idea_used"), "category": cat, "question_post": None,
+               "idea_used": st.get("idea_used"), "trend_used": st.get("trend_used"), "category": cat, "question_post": None,
                "title_b": (tb + (f" | {L['part'].format(n=pn)}" if part else "")) if tb else None,
                "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id,
                "title": title, "festival": plan.get("festival"), "special": special,
@@ -7518,6 +7538,8 @@ def send_title_list(day):
     lines = [f"🎬 {when} ভিডিও ({wd}, {str(d.day).translate(BN_DIGITS)} {BN_MONTH_NAMES[d.month - 1]}):", ""]
     for h, p in items:
         lines.append(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(p)}")
+        if (p.get("state") or {}).get("trend_used"):
+            lines.append("   🔥 YouTube-এ এই সপ্তাহে সবচেয়ে বেশি দেখা বিষয় নিয়ে নতুন গল্প")
     lines += ["", "নিজের thumbnail দিতে চাইলে: নিচের message-এর লেখাটা ChatGPT-তে paste করে ছবি বানান, তারপর ছবিটা "
               "এখানে পাঠান - ছবির নিচে লিখুন 1 (দুপুরের) বা 2 (রাতের)। বাংলা লেখাটা bot নিজেই বসিয়ে দেবে।",
               "⏰ 1-এর ছবি সকাল ৮টার মধ্যে, 2-এর ছবি বিকেল ৪টের মধ্যে (রাতেই পাঠানো সবচেয়ে ভালো)। কিছু না পাঠালে "
@@ -8753,6 +8775,7 @@ def main():
                     "pending_comments": list(extras.PENDING),
                     "source": STATE.get("source_name") or (prev or {}).get("source") or None,
                     "idea_used": STATE.get("idea_used"),
+                    "trend_used": STATE.get("trend_used"),
                     "category": STATE.get("category"),
                     "question_post": extras.fb_question_post(
                         history, "horror", lang, photo=(HIDDEN_PICS[0] if HIDDEN_PICS else None),
