@@ -2765,9 +2765,10 @@ def _voiced(seg, rate, thr):
     return float((rms >= thr).sum()) * 0.02
 
 
-def _tight(seg, rate, thr, over=0.36, keep=0.26):
-    """the long pauses INSIDE a line (the bot asks for one after every sentence, to find the line ends) are made
-    short again, so the storyteller does not drag"""
+def _tight(seg, rate, thr, over=0.9, keep=0.75):
+    """only the VERY long pauses inside a line are shortened (to 0.75 s). 11 Nov 2026: with every pause cut down to
+    0.26 s the grave storyteller sounded hurried and a 20-minute story became a 13-minute video - on the real
+    recordings half of the time is his pauses."""
     import numpy as np
     hop = max(1, int(rate * 0.02))
     n = len(seg) // hop
@@ -2956,7 +2957,7 @@ SPK_VOICED = {}                 # seconds of speech per letter of every voice (p
 CUT_HOW = [""]                  # how the last recording was cut: "count" (as many clear pauses as line ends) / "length"
 SUSPECT = []                    # (how far off, line file) - lines whose length does not fit their words (maybe cut wrong)
 TTS_SPARE = [0]                 # requests of today's share that are free for asking a recording again
-SAMPLE = {"dir": None, "max": 8}   # a few raw recordings + their text are kept, to tune the cutting on REAL sound
+SAMPLE = {"dir": None, "max": 16}   # a few raw recordings + their text are kept, to tune the cutting on REAL sound
 
 
 def _best_cut(wav, plains):
@@ -3045,6 +3046,273 @@ def _best_cut(wav, plains):
     return [a[b[k]:b[k + 1]] for k in range(n)], sr
 
 
+# ===================== v73: line ends from an ALIGNMENT with a machine reading (tuned on real recordings) ============
+_ESPK = {}
+
+def _espeak_lib():
+    if "lib" in _ESPK:
+        return _ESPK["lib"]
+    import ctypes
+    import numpy as np
+    try:
+        import espeakng_loader
+    except ImportError:                               # (not in the workflow's package list: fetched once, a few seconds)
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "espeakng-loader"], capture_output=True, timeout=240)
+        import espeakng_loader
+    lib = ctypes.CDLL(espeakng_loader.get_library_path())
+    CB = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.POINTER(ctypes.c_short), ctypes.c_int, ctypes.c_void_p)
+    buf = []
+    def cb(wav, n, events):
+        if wav and n > 0:
+            buf.append(np.ctypeslib.as_array(wav, shape=(n,)).copy())
+        return 0
+    _ESPK["cb"] = CB(cb)                                  # (kept alive)
+    _ESPK["buf"] = buf
+    lib.espeak_Initialize.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
+    sr = lib.espeak_Initialize(1, 0, os.path.dirname(espeakng_loader.get_data_path()).encode(), 0)   # 1 = retrieval
+    if sr <= 0:
+        sr = lib.espeak_Initialize(1, 0, espeakng_loader.get_data_path().encode(), 0)
+    lib.espeak_SetSynthCallback(_ESPK["cb"])
+    lib.espeak_Synth.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.c_uint, ctypes.c_int, ctypes.c_uint,
+                                 ctypes.c_uint, ctypes.POINTER(ctypes.c_uint), ctypes.c_void_p]
+    _ESPK["lib"], _ESPK["sr"] = lib, sr
+    return lib
+
+def _espeak_say(text, lang="bn", rate=None):
+    import numpy as np
+    lib = _espeak_lib()
+    if rate and _ESPK.get("rate") != rate:
+        lib.espeak_SetParameter(1, int(rate), 0)       # 1 = espeakRATE (words a minute)
+        _ESPK["rate"] = rate
+    if _ESPK.get("lang") != lang:
+        if lib.espeak_SetVoiceByName(lang.encode()) != 0:
+            raise RuntimeError(f"espeak has no voice '{lang}'")
+        _ESPK["lang"] = lang
+    del _ESPK["buf"][:]
+    b = text.encode("utf-8")
+    lib.espeak_Synth(b, len(b) + 1, 0, 0, 0, 1, None, None)        # 1 = the text is UTF-8
+    lib.espeak_Synchronize()
+    a = np.concatenate(_ESPK["buf"]) if _ESPK["buf"] else np.zeros(0, dtype=np.int16)
+    return a, _ESPK["sr"]
+
+
+def _al_feats(a, sr, ncep=6, delta=False, smooth=7):
+    """a few smoothed MFCC every 20 ms of the SPEECH frames only (normalised) + each kept frame's time in seconds.
+    (Few and smoothed: tuned on real recordings - two different machine readings then agree on 92% of the sentence
+    ends; with 12 sharp ones only on 50%.)"""
+    import numpy as np
+    from math import gcd
+    from scipy.signal import resample_poly
+    a = np.asarray(a, dtype="float32")
+    if sr != 16000:
+        g = gcd(16000, int(sr)); a = resample_poly(a, 16000 // g, int(sr) // g).astype("float32")
+    a = np.append(a[0], a[1:] - 0.97 * a[:-1])
+    win, hop, nfft = 400, 160, 512
+    n = (len(a) - win) // hop + 1
+    idx = np.arange(win)[None, :] + hop * np.arange(n)[:, None]
+    spec = np.abs(np.fft.rfft(a[idx] * np.hamming(win)[None, :], nfft)) ** 2
+    mel = lambda f: 2595 * np.log10(1 + f / 700.0)
+    imel = lambda m: 700 * (10 ** (m / 2595.0) - 1)
+    pts = imel(np.linspace(mel(80), mel(7600), 28)); bins = np.floor((nfft + 1) * pts / 16000).astype(int)
+    fb = np.zeros((26, nfft // 2 + 1))
+    for k in range(26):
+        l, c, r = bins[k], bins[k + 1], bins[k + 2]
+        if c > l: fb[k, l:c] = (np.arange(l, c) - l) / (c - l)
+        if r > c: fb[k, c:r] = (r - np.arange(c, r)) / (r - c)
+    lm = np.log(spec @ fb.T + 1e-6)
+    e = lm.mean(axis=1)
+    k_ = np.arange(26)[None, :]
+    dct = np.cos(np.pi * np.arange(1, ncep + 1)[:, None] * (2 * k_ + 1) / 52)
+    mf = lm @ dct.T
+    en = np.log(spec.sum(axis=1) + 1e-6)
+    speech = en > np.percentile(en, 95) - 4.6          # within ~1/100 of the loud frames' energy
+    mf = mf[::2]; speech = speech[::2]; t = (np.arange(n) * hop / 16000.0)[::2]
+    keep = np.where(speech)[0]
+    x = mf[keep]
+    x = (x - x.mean(axis=0)) / (x.std(axis=0) + 1e-6)
+    if smooth:
+        ker = np.ones(smooth) / smooth
+        x = np.stack([np.convolve(x[:, j], ker, mode="same") for j in range(x.shape[1])], axis=1)
+    if not delta:
+        return x.astype("float32"), t[keep]
+    d = np.zeros_like(x); d[1:-1] = (x[2:] - x[:-2]) / 2
+    return np.hstack([x, d]).astype("float32"), t[keep]
+
+def _al_dtw(A, B):
+    """best monotonic path between A (reference) and B (recording); returns for every A frame its last B frame"""
+    import numpy as np
+    n, m = len(A), len(B)
+    D = np.full((n + 1, m + 1), np.inf, dtype="float32"); D[0, 0] = 0
+    BT = np.zeros((n + 1, m + 1), dtype="int8")
+    B2 = (B * B).sum(axis=1)
+    for i in range(1, n + 1):
+        c = np.sqrt(np.maximum(0, (A[i - 1] ** 2).sum() + B2 - 2 * B @ A[i - 1]))
+        diag = D[i - 1, :-1]; up = D[i - 1, 1:]
+        best = np.minimum(diag, up); bt = np.where(diag <= up, 0, 1)        # 0 diag, 1 up (ref advances, audio stays)
+        row = np.empty(m + 1, dtype="float32"); row[0] = np.inf
+        # left moves (audio advances, ref stays): running minimum
+        v = best + c
+        acc = np.empty(m, dtype="float32"); btr = bt.copy()
+        run = np.inf
+        # vectorised left-chain: D[i,j] = c[j] + min(best[j], D[i,j-1])
+        cs = np.cumsum(c)
+        g = best - np.concatenate([[0], cs[:-1]])
+        gm = np.minimum.accumulate(g)
+        acc = c + np.concatenate([[0], cs[:-1]]) + gm - 0  # = c[j] + cs[j-1] + min_k<=j (best[k] - cs[k-1])
+        left = gm < g - 1e-9
+        btr[left] = 2
+        row[1:] = acc
+        D[i] = row; BT[i, 1:] = btr
+    i, j = n, m
+    last = np.zeros(n, dtype=int)
+    seen = set()
+    while i > 0 and j > 0:
+        if i - 1 not in seen:
+            last[i - 1] = j - 1; seen.add(i - 1)
+        b = BT[i, j]
+        if b == 0: i -= 1; j -= 1
+        elif b == 1: i -= 1
+        else: j -= 1
+    return last, float(D[n, m]) / (n + m)
+
+
+def _cut_plan(a, sr, plains, lang="bn", use_ref=True):
+    """Where the sentences of one recording end, and which stretches hold speech that is NOT in the text.
+    Found three ways together (tuned on real Gemini recordings, 11 Nov 2026 - its pauses alone say nothing: it
+    pauses after nearly every phrase, half of a recording is silence): (1) the recording is ALIGNED with a plain
+    machine reading of the same words (espeak-ng, three speeds); (2) the speech time of every sentence must fit its
+    letters; (3) a cut lies in a pause, long pauses first. A sentence with far more speech than its words need
+    (said twice, or the style note read out in English) keeps only the stretch that fits the reading best.
+    Returns dict(cuts=[seconds, n-1], drop=[(start, end) seconds], info=text)."""
+    import numpy as np
+    n = len(plains)
+    hop = int(sr * 0.02)
+    F = max(1, (len(a) - hop) // hop)
+    rms = np.sqrt((a[:F * hop].reshape(F, hop) ** 2).mean(axis=1))
+    quiet = rms < max(float(np.percentile(rms, 95)) * 0.05, 1e-6)
+    pauses, i = [], 0
+    while i < F:
+        if quiet[i]:
+            j = i
+            while j < F and quiet[j]:
+                j += 1
+            if (j - i) * 0.02 >= 0.12 and i > 0 and j < F:
+                pauses.append((i, j))
+            i = j
+        else:
+            i += 1
+    letters = np.array([max(1, len(p)) for p in plains], dtype=float)
+    speech_mask = ~quiet
+    ref_t = spread = None
+    drop = []
+    info = []
+    if use_ref and n > 1:
+        try:
+            GA, gt = _al_feats(a, sr)
+            allr, refs = [], []
+            for rate in (130, 165, 200):
+                ref, ends = [], []
+                for p in plains:
+                    w, rsr = _espeak_say(p, lang, rate=rate)
+                    ref.append(w.astype("float32"))
+                    ends.append(sum(len(x) for x in ref) / rsr)
+                RA, rt = _al_feats(np.concatenate(ref), rsr)
+                last, _c = _al_dtw(RA, GA)
+                allr.append([float(gt[last[max(0, np.searchsorted(rt, c) - 1)]]) for c in ends[:-1]])
+                refs.append((RA, rt, ends))
+            arr = np.array(allr)
+            ref_t, spread = np.median(arr, axis=0), arr.max(axis=0) - arr.min(axis=0)
+            # --- speech that is not in the text: a sentence whose stretch holds far more speech than its words need
+            cum = np.concatenate([[0.0], np.cumsum(speech_mask) * 0.02])
+            at = lambda t: cum[min(F, max(0, int(round(t / 0.02))))]
+            edges = [0.0] + list(ref_t) + [F * 0.02]
+            sp = np.array([at(edges[k + 1]) - at(edges[k]) for k in range(n)])
+            rate_ = float(np.median(sp / letters))
+            RA, rt, ends = refs[1]
+            for k in range(n):
+                need = letters[k] * rate_
+                if not (sp[k] > need * 1.75 and sp[k] - need >= 2.5):
+                    continue
+                f0, f1 = int(edges[k] / 0.02), int(edges[k + 1] / 0.02)
+                inner = [(max(f0, s), min(f1, e)) for s, e in pauses if e > f0 and s < f1]
+                bounds = [f0] + [(s + e) // 2 for s, e in inner if s > f0 and e < f1] + [f1]
+                chunks = [(bounds[q], bounds[q + 1]) for q in range(len(bounds) - 1)
+                          if speech_mask[bounds[q]:bounds[q + 1]].sum() * 0.02 >= 0.15]
+                if len(chunks) < 2:
+                    continue
+                r0 = 0 if k == 0 else np.searchsorted(rt, ends[k - 1])
+                r1 = np.searchsorted(rt, ends[k])
+                R = RA[r0:r1]
+                best = None
+                for x in range(len(chunks)):
+                    for y in range(x, len(chunks)):
+                        s_, e_ = chunks[x][0], chunks[y][1]
+                        spw = speech_mask[s_:e_].sum() * 0.02
+                        if not (need * 0.55 <= spw <= need * 1.45):
+                            continue
+                        g0, g1 = np.searchsorted(gt, s_ * 0.02), np.searchsorted(gt, e_ * 0.02)
+                        if g1 - g0 < 8 or len(R) < 8:
+                            continue
+                        _l, c_ = _al_dtw(R, GA[g0:g1])
+                        if best is None or c_ < best[0]:
+                            best = (c_, s_, e_)
+                if best:
+                    _c, s_, e_ = best
+                    for cs, ce in chunks:
+                        if ce <= s_ or cs >= e_:
+                            drop.append((cs * 0.02, ce * 0.02))
+                    info.append(f"sentence {k + 1}: {sp[k]:.1f} s of speech for words that need {need:.1f} s - "
+                                f"{sum(e - s for s, e in drop if f0 * 0.02 <= s < f1 * 0.02):.1f} s left out")
+        except Exception as ex:
+            info.append(f"no machine reading ({str(ex)[:60]})")
+            ref_t = None
+    # --- the cuts: pauses whose speech time fits the letters, near where the machine reading says, long pauses first
+    keepf = speech_mask.copy()
+    for s, e in drop:
+        keepf[int(s / 0.02):int(e / 0.02)] = False
+    cum = np.concatenate([[0.0], np.cumsum(keepf) * 0.02])
+    V = float(cum[-1])
+    exp = V * letters / letters.sum()
+    cand = [((s + e) // 2, (e - s) * 0.02) for s, e in pauses if not any(ds <= (s + e) / 2 * 0.02 <= de for ds, de in drop)]
+    if len(cand) < n - 1:
+        cuts = [float(np.searchsorted(cum, acc) * 0.02) for acc in np.cumsum(exp)[:-1]]
+        return dict(cuts=cuts, drop=drop, info="; ".join(info + ["too few pauses - cut by length"]))
+    C, K = len(cand), n - 1
+    pos = np.array([cum[c] for c, _l in cand])
+    tm = np.array([c * 0.02 for c, _l in cand])
+    bonus = np.array([0.8 * min(l, 1.3) for _c, l in cand])
+    w = 1.0 / (0.5 + np.sqrt(exp))
+    INF = 1e18
+    cost = np.full((K, C), INF)
+    back = np.zeros((K, C), dtype=int)
+    refc = (lambda k: 0.45 * np.minimum(np.abs(tm - ref_t[k]), 4.0) / (1.0 + 0.5 * spread[k])) if ref_t is not None else (lambda k: 0.0)
+    cost[0] = np.abs(pos - exp[0]) * w[0] - bonus + refc(0)
+    for k in range(1, K):
+        for c in range(k, C - (K - 1 - k)):
+            v = cost[k - 1][k - 1:c] + np.abs(pos[c] - pos[k - 1:c] - exp[k]) * w[k]
+            j = int(np.argmin(v))
+            cost[k][c] = v[j] - bonus[c] + (refc(k)[c] if ref_t is not None else 0.0)
+            back[k][c] = j + k - 1
+    fin = cost[K - 1] + np.abs(V - pos - exp[K]) * w[K]
+    c = int(np.argmin(fin[K - 1:])) + K - 1
+    picks = [c]
+    for k in range(K - 1, 0, -1):
+        picks.append(int(back[k][picks[-1]]))
+    cuts = [float(tm[c]) for c in reversed(picks)]
+    return dict(cuts=cuts, drop=drop, info="; ".join(info))
+
+
+def _short_feel(feel):
+    """'naturally, a deep, heavy ... (380 letters) ...; feeling: eerie' -> 'eerie'; 'terrified, breathing fast, voice
+    trembling, low, tense voice' -> 'terrified, breathing fast'"""
+    f = str(feel or "")
+    if "feeling:" in f:
+        f = f.rsplit("feeling:", 1)[1]
+    f = re.split(r"[;:.]", f.strip())[0]
+    f = ", ".join(x.strip() for x in f.split(",")[:2] if x.strip())
+    return (f[:48] or "naturally")
+
+
 def _keep_sample(tmp, g, got):
     """saves this raw recording (small .ogg) and its lines - only the first few, see SAMPLE"""
     d = SAMPLE.get("dir")
@@ -3105,8 +3373,11 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45, max_requests=None)
         for attempt in range(2):                      # one quiet retry for a busy server, never more
             TTS_USED[0] += 1
             if len(g) > 1:
-                data = _tts_call(_requests_for([("Speaker1", x["text"], x["feel"]) for x in g],
-                                               [("Speaker1", x0["voice"])], lang_label, note))
+                # the long description of the voice goes with the FIRST sentence only; every other sentence gets just
+                # its feeling in 2-6 words (11 Nov 2026, measured on real recordings: the storyteller's 380-letter
+                # note on every sentence was sometimes READ OUT in English - 6-8 s of extra speech in the story)
+                data = _tts_call(_requests_for([("Speaker1", x["text"], x["feel"] if k == 0 else _short_feel(x["feel"]))
+                                                for k, x in enumerate(g)], [("Speaker1", x0["voice"])], lang_label, note))
             else:
                 data = _tts_call([_single_body(mm, x0["text"], x0["voice"], f"{x0['who']}. {x0['feel']}. "
                                                + PRONOUNCE.get(lang, ""), lang_label) for mm in NEW_TTS + OLD_TTS])
@@ -3128,12 +3399,7 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45, max_requests=None)
         expect = chars / 8.0 + 1.0 * (len(g) - 1)
         missing = bool(SPK_RATE.get(vk)) and chars >= 120 and got < chars * SPK_RATE[vk] * 0.6
         broken = missing or got > expect * 2.0 + 4 or got < expect * 0.33
-        twice = ""
-        if not broken:
-            try:
-                twice = _said_twice(tmp, plains)
-            except Exception as ex:
-                log(f"    repeat check skipped: {str(ex)[:80]}")
+        twice = ""                                    # (something said twice is CUT OUT now, see _cut_plan)
         try:
             _keep_sample(tmp, g, got)
         except Exception:
@@ -3150,14 +3416,41 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45, max_requests=None)
             os.remove(tmp)
             log(f"  voices: an empty recording ({got:.1f} s) - {len(lines)} lines stay open")
             continue
-        psegs, rate = _best_cut(tmp, plains)
-        how = CUT_HOW[0]
+        rate, allv = wavfile.read(tmp)
+        allv = allv.astype("float32")
+        if allv.ndim > 1:
+            allv = allv.mean(axis=1)
         os.remove(tmp)
         hop = int(rate * 0.02)
-        allv = np.concatenate(psegs) if len(psegs) > 1 else psegs[0]
         fr = np.array([np.sqrt((allv[i:i + hop] ** 2).mean()) for i in range(0, max(1, len(allv) - hop), hop)])
         thr = max(float(np.percentile(fr, 95)) * 0.05, 1e-6) if fr.size else 1e-6
-        segs = [np.concatenate([psegs[k] for k, kk in enumerate(keys) if kk == ln]) for ln in lines]
+        how = "one"
+        if len(g) > 1:
+            try:
+                plan = _cut_plan(allv, rate, plains, lang, use_ref=env("TTS_ALIGN") != "0")
+            except Exception as ex:
+                log(f"    alignment failed ({str(ex)[:80]}) - cut by the length of the words")
+                plan = _cut_plan(allv, rate, plains, lang, use_ref=False)
+            how = "reading" if "no machine reading" not in plan["info"] and env("TTS_ALIGN") != "0" else "length"
+            if plan["drop"]:
+                log(f"  voices: speech that is not in the story left out - {plan['info'][:260]}")
+            ends = [int(c * rate) for c in plan["cuts"]] + [len(allv)]
+            starts = [0] + ends[:-1]
+            segs = []
+            for ln in lines:                          # a line = from its first sentence's start to its last one's end,
+                idx = [k for k, kk in enumerate(keys) if kk == ln]     # without the stretches that were left out
+                s_, e_ = starts[idx[0]], ends[idx[-1]]
+                parts_, pos_ = [], s_
+                for ds, de in sorted(plan["drop"]):
+                    ds, de = int(ds * rate), int(de * rate)
+                    if de <= s_ or ds >= e_:
+                        continue
+                    parts_.append(allv[pos_:max(pos_, ds)])
+                    pos_ = max(pos_, de)
+                parts_.append(allv[pos_:e_])
+                segs.append(np.concatenate(parts_) if parts_ else allv[s_:e_])
+        else:
+            segs = [allv]
         lchars = [sum(len(plains[k]) for k, kk in enumerate(keys) if kk == ln) for ln in lines]
         voiced = [_voiced(s_, rate, thr) for s_ in segs]
         good = 0
@@ -3189,13 +3482,13 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45, max_requests=None)
                 if lchars[k] >= 20 and voiced[k] > 0:
                     r_ = voiced[k] / (lchars[k] * ref)
                     if (r_ > 1.45 and voiced[k] - lchars[k] * ref >= 1.0) or r_ < 0.62:
-                        SUSPECT.append((abs(math.log(r_)) + (0.15 if how != "count" else 0), ln))
+                        SUSPECT.append((abs(math.log(r_)) + (0.15 if how == "length" else 0), ln))
                         odd += 1
             SPK_VOICED[vk] = ref if vk not in SPK_VOICED else SPK_VOICED[vk] * 0.6 + ref * 0.4
         if chars >= 60 and not broken:
             r_ = got / chars
             SPK_RATE[vk] = r_ if vk not in SPK_RATE else SPK_RATE[vk] * 0.6 + r_ * 0.4
-        CUT_STATS[0 if how in ("count", "one") else 1] += 1
+        CUT_STATS[0 if how in ("reading", "one") else 1] += 1
         log(f"  voices: {len(done_lines)}/{n_lines} lines ({(time.time() - t0) / 60:.1f} min, {TTS_USED[0]} requests; "
             f"cut by {how}" + (f", {odd} line(s) to check" if odd else "") + ")")
     return len(done_lines) == n_lines

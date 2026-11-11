@@ -766,6 +766,49 @@ GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
 LORE_DIR = os.path.join(HERE, "assets", "lore")
 
 
+def plan_text(plan, limit=14000):
+    """The plan as JSON text that is ALWAYS complete. (11 Nov 2026: it was simply cut off after 12,000 letters -
+    a long plan then was no valid JSON any more, the chapters never got their beats, and the story was written
+    'without a plan': no clear beginning, no Sunday-Suspense build-up.) Too long -> its long texts are shortened."""
+    def cut(v, n):
+        if isinstance(v, str):
+            return v[:n]
+        if isinstance(v, list):
+            return [cut(x, n) for x in v]
+        if isinstance(v, dict):
+            return {k: cut(x, n) for k, x in v.items()}
+        return v
+    s, n = json.dumps(plan, ensure_ascii=False), 700
+    while len(s) > limit and n > 90:
+        n = int(n * 0.8)
+        s = json.dumps(cut(plan, n), ensure_ascii=False)
+    return s
+
+
+def plan_load(text):
+    """the plan back from its text - also from an older one that was cut off in the middle (its complete beats)"""
+    text = str(text or "").strip()
+    if not text:
+        return {}
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+    pos = len(text)
+    for _ in range(60):                               # back to the end of the last complete beat
+        pos = text.rfind("}", 0, pos)
+        if pos < 0:
+            break
+        for tail in ("]}", "}", "]}}"):
+            try:
+                j = json.loads(text[:pos + 1] + tail)
+                if isinstance(j, dict):
+                    return j
+            except Exception:
+                continue
+    return {}
+
+
 def plan_story(lang, theme, extra_rules, fmt, parts=1):
     """A professional writers' room BEFORE the script: (1) plan the whole plot as a chain of cause and effect,
     every decision and its consequence, the escalating scares, clues and twist; (2) a 'script doctor' finds the
@@ -875,7 +918,7 @@ PLAN:
         return ""
     log(f"Story plan ready: {len(plan['beats'])} beats - {str(plan.get('premise', ''))[:120]}")
     plan.pop("fixed", None)
-    return json.dumps(plan, ensure_ascii=False)[:12000]
+    return plan_text(plan)
 
 
 def find_source_story(theme, history):
@@ -1189,6 +1232,40 @@ FEMALE_WORDS = ("পিসি", "মাসি", "দিদি", "বউ", "ব�
                 "kakima", "jethima", "rani", "devi", "bala", "girl", "woman", "aunt", "mother", "grandma", "wife",
                 "mrs", "बुआ", "मौसी", "दीदी", "माँ", "दादी", "नानी", "चाची", "ताई", "भाभी", "लड़की", "औरत", "देवी",
                 "bua", "mausi", "dadi", "nani", "chachi", "tai", "bhabhi")
+# (11 Nov 2026) words that ALWAYS mean a woman / a female spirit - whatever gender the writer wrote. The Karna
+# Pishachini, a petni, a shakchunni, a daini, a yogini ... is a WOMAN and always gets a woman's voice.
+FEMALE_STRONG = ("পিশাচিনী", "পেত্নী", "পেতনি", "শাকচুন্নি", "শাঁকচুন্নি", "ডাইনি", "ডাকিনী", "যোগিনী", "ভৈরবী", "চুড়েল",
+                 "সুন্দরী", "মহিলা", "নারী", "বুড়ি", "বৃদ্ধা", "কন্যা", "মেয়ে", "বউ", "বৌ", "বৌদি", "পিসি", "মাসি", "দিদি",
+                 "ঠাকুমা", "দিদিমা", "কাকিমা", "জেঠিমা", "রানি", "রাণী", "দেবী", "ঠাকরুন", "গিন্নি", "মা ",
+                 "pishachini", "pisachini", "pishachi", "petni", "petni", "shakchunni", "shankchunni", "daini", "dakini",
+                 "yogini", "jogini", "bhairavi", "chudail", "churel", "witch", "sundari", "woman", "women", "girl", "lady",
+                 "wife", "widow", "mother", "grandmother", "grandma", "daughter", "sister", "aunt", "queen", "bride",
+                 "nun", "she-", "female", "mrs", "miss ", "didi", "boudi", "pishi", "mashi", "thakuma", "didima",
+                 "kakima", "jethima", "rani", "devi", "thakrun", "ginni", "kanya", "nari", "mahila", "buri",
+                 "पिशाचिनी", "चुड़ैल", "डायन", "योगिनी", "औरत", "लड़की", "माँ", "दादी", "नानी", "चाची", "भाभी", "दीदी",
+                 "मौसी", "बुआ", "देवी", "रानी")
+FEMALE_SERIES = {"karna pishachini", "the karna pishachini", "pishachini", "madhusundari", "matu pagli"}
+
+
+def is_woman(c):
+    """The ONE rule for a character's voice gender: the words about the person decide before the gender field."""
+    name = f" {c.get('name', '')} {c.get('name_local', '')} ".lower()
+    key = re.sub(r"\s+", " ", re.sub(r"[^a-z ]", " ", name)).strip()
+    if key in FEMALE_SERIES or key.replace("the ", "", 1) in FEMALE_SERIES or "pishachini" in key:
+        return True
+    if any(w in name for w in FEMALE_STRONG):
+        return True
+    g = str(c.get("gender", "")).lower().strip()
+    if g.startswith("f") or g in ("woman", "girl", "she"):
+        return True
+    if any(w in name for w in MALE_WORDS):
+        return False
+    about = f" {c.get('look', '')} {c.get('intro_en', '')} {c.get('intro', '')} ".lower()
+    she = len(re.findall(r"\b(?:she|her|hers|woman|girl|lady)\b", about))
+    he = len(re.findall(r"\b(?:he|him|his|man|boy)\b", about))
+    return bool(she >= 2 and she > 2 * he)
+
+
 MALE_A_NAMES = {"bapi", "raja", "krishna", "ravi", "hari", "shibu", "sona", "bhola", "gora", "kana", "nanda", "rama",
                 "nitai", "gopi", "kali", "bhai", "dada", "kaka", "mama", "jethu", "thakurda", "dadu", "pishemoshai",
                 "ali", "babai", "tapai", "rabi", "shashi", "bishu", "montu", "pintu", "kishori", "paltu", "bapida"}
@@ -1204,6 +1281,15 @@ NARRATOR_DELIVERY = ("a deep, heavy, grave, low male voice, like a man in his fi
                      "late at night: natural spoken Bengali/Hindi as in real conversation, steady and a little slow; "
                      "NOT theatrical, NOT sing-song, NOT like jatra or stage drama, no musical rise and fall, no "
                      "exaggerated stress - the fear comes from the words and the silences")
+
+
+GENERIC_FIRST = {"the", "a", "an", "old", "young", "mr", "mr.", "mrs", "mrs.", "dr", "dr.", "sri", "shri", "sree",
+                 "srimati", "smt", "smt.", "ghost", "spirit", "little", "big", "baba", "ma", "the,"}
+
+
+SPIRIT_ALIAS = {"পিশাচিনী": "pishachini", "पिशाचिनी": "pishachini", "পেত্নী": "petni", "পেতনি": "petni",
+                "শাকচুন্নি": "shakchunni", "শাঁকচুন্নি": "shakchunni", "ডাইনি": "daini", "চুড়েল": "churel",
+                "মধুসুন্দরী": "madhusundari", "মাতু পাগলি": "matu"}
 
 
 def fix_speakers(story):
@@ -1223,8 +1309,15 @@ def fix_speakers(story):
         for c in chars:
             keys = [norm(c["name"]), norm(c.get("name_local"))]
             for k in keys:
-                if k and (k == s or k in s or s in k or k.split()[0] == s.split()[0]):
+                if k and (k == s or re.search(rf"(?<!\w){re.escape(k)}(?!\w)", s)
+                          or re.search(rf"(?<!\w){re.escape(s)}(?!\w)", k)
+                          or (k.split()[0] == s.split()[0] and k.split()[0] not in GENERIC_FIRST)):
                     return c
+        for bn, en in SPIRIT_ALIAS.items():          # "কর্ণপিশাচিনী" is the character "Karna Pishachini"
+            if bn in s:
+                for c in chars:
+                    if en in norm(c["name"]):
+                        return c
         return None
     fixed, added = 0, 0
     for sc in story.get("scenes") or []:
@@ -1236,7 +1329,7 @@ def fix_speakers(story):
                 continue
             c = match(sp)
             if not c:
-                fem = any(w in sp.lower() for w in FEMALE_WORDS)
+                fem = any(w in sp.lower() for w in FEMALE_WORDS) or is_woman({"name": sp})
                 nm = re.sub(r"[^A-Za-z]", "", sp.split()[0]).lower() if re.search(r"[A-Za-z]", sp) else ""
                 if not fem and nm and nm[-1] in "ai" and nm not in MALE_A_NAMES:
                     fem = True                       # Mala, Sarala, Mita, Rani ... (Bapi, Raja are men)
@@ -1252,8 +1345,8 @@ def fix_speakers(story):
         both = f"{c['name']} {c.get('name_local', '')}".lower()
         about = f"{both} {c.get('intro', '')} {c.get('intro_en', '')} {c.get('look', '')}".lower()
         g0, a0 = str(c.get("gender", "")).lower(), str(c.get("age", "")).lower()
-        if g0.startswith("m") and any(w in both for w in FEMALE_WORDS[:30]):
-            c["gender"] = "female"
+        if is_woman(c):
+            c["gender"] = "female"                    # a woman / a female spirit is NEVER voiced by a man
         elif g0.startswith("f") and any(w in both for w in MALE_WORDS):
             c["gender"] = "male"
         elif not g0:
@@ -1781,7 +1874,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     # tells beats 1-5, chapter 2 beats 6-10 ... - so nothing is told too early, nothing is skipped and nothing is
     # pushed to the end. (Without this, a weak model 'forgot' beats and they were crammed into the last chapter.)
     try:
-        allb = json.loads(STATE.get("outline") or "{}").get("beats") or []
+        allb = plan_load(STATE.get("outline")).get("beats") or []
         if part and any(isinstance(b, dict) and b.get("part") for b in allb):     # a series: only THIS part's beats
             allb = [b for b in allb if not isinstance(b, dict) or str(b.get("part", part)) == str(part)]
         beats = []
@@ -1820,9 +1913,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         its first 5 minutes and then started again)."""
         if final or not full_outline:
             return full_outline
-        try:
-            pl = json.loads(full_outline)
-        except Exception:
+        pl = plan_load(full_outline)
+        if not pl:
             return full_outline
         for key_ in ("twist", "resolution", "last_line"):
             pl.pop(key_, None)
@@ -1841,7 +1933,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         # without a plan: chapter 2 ends the story - unless the story so far is clearly too short for the
         # 20-minute minimum (11 Nov 2026: chapters of 500-650 words gave 11-15 minute videos); then one more
         # chapter comes before the ending
-        final = force_final or k == max_ch or (not share and k >= 2 and total >= words_per * 0.85 * (k - 1))
+        final = force_final or k == max_ch or (not share and k >= 2 and total >= words_per * 0.6 * (k - 1))
         mine = (carry + share[k - 1]) if share and k - 1 < len(share) else []
         if share and final and k - 1 < len(share):
             mine = carry + [b for s in share[k - 1:] for b in s]
@@ -2436,7 +2528,7 @@ class Cast:
             if isinstance(c, dict) and c.get("name"):
                 k = ascii_text(c["name"]).lower()
                 self.chars[k] = {"name": ascii_text(c["name"]), "look": ascii_text(c.get("look", "")),
-                                 "gender": str(c.get("gender", "male")).lower(),
+                                 "gender": "female" if is_woman(c) else "male",
                                  "age": str(c.get("age", "adult")).lower(),
                                  "kind": str(c.get("kind", "human")).lower()}
         self.ref = None
@@ -2445,7 +2537,11 @@ class Cast:
         k = ascii_text(name).lower()
         if not k:
             return None
-        return self.chars.get(k) or next((v for kk, v in self.chars.items() if k in kk or kk in k), None)
+        if k in self.chars:
+            return self.chars[k]
+        # whole words only: "Ma" must not find "Kumar", "Ram" must not find "Ramola"
+        w = lambda a, b: re.search(rf"(?<![a-z]){re.escape(a)}(?![a-z])", b)
+        return next((v for kk, v in self.chars.items() if w(k, kk) or w(kk, k)), None)
 
     def pick(self, names):
         out = []
@@ -2723,6 +2819,8 @@ class Voices:
         self.gemini_map, taken = {}, {NARRATOR_GEMINI[0]}
         for c in cast.chars.values():
             fv = SERIES_VOICES.get(c["name"].lower().strip())
+            if fv and (fv in GEMINI_ALL["female"]) != c["gender"].startswith("f"):
+                fv = None                             # a fixed voice never gives a woman a man's voice (or back)
             if fv and fv not in taken:
                 self.gemini_map[c["name"].lower()] = fv
                 taken.add(fv)
@@ -2770,7 +2868,8 @@ GEMINI_VOICES = {k: v[0] for k, v in GEMINI_POOL.items()}
 # the fixed voices of our series characters (the same in every episode; never the storyteller's voice)
 SERIES_VOICES = {"bhairab thakur": "Rasalgethi", "bhairab": "Rasalgethi", "paltu": "Fenrir",
                  "taranath": "Sadaltager", "kishori": "Zubenelgenubi", "nilkantha": "Charon", "bapi": "Sadachbia",
-                 "madhusundari": "Vindemiatrix", "sadhu": "Algieba", "matu pagli": "Gacrux"}
+                 "madhusundari": "Vindemiatrix", "sadhu": "Algieba", "matu pagli": "Gacrux",
+                 "karna pishachini": "Achernar", "the karna pishachini": "Achernar", "pishachini": "Achernar"}
 GEMINI_ALL = {"male": ["Orus", "Iapetus", "Alnilam", "Schedar", "Umbriel", "Fenrir", "Zubenelgenubi", "Sadachbia",
                        "Rasalgethi", "Sadaltager", "Puck", "Achird", "Charon", "Algieba", "Enceladus", "Algenib"],
               "female": ["Kore", "Callirrhoe", "Erinome", "Sulafat", "Zephyr", "Aoede", "Despina", "Gacrux",
@@ -2804,6 +2903,35 @@ GHOST_GEMINI = ("Enceladus", "a ghost: a hollow, breathy, cold, slow, otherworld
 
 
 def gemini_persona(voices, speaker, revealed=True):
+    """(voice, who) for a speaker. A woman ALWAYS gets a woman's voice - checked here once more at the very end."""
+    v, who = _gemini_persona(voices, speaker, revealed)
+    s = ascii_text(speaker).lower()
+    c = voices.cast.find(s) if s and not s.startswith("narrat") else None
+    woman = (c is not None and c["gender"].startswith("f")) or (
+        c is None and str(speaker or "").strip() and not s.startswith("narrat") and is_woman({"name": str(speaker)}))
+    if woman and v not in GEMINI_ALL["female"]:
+        ghost = c is not None and c["kind"].startswith("ghost")
+        pool = (GHOST_POOL["female"] if ghost else []) + GEMINI_ALL["female"]
+        used = set(getattr(voices, "gemini_map", {}).values())
+        v = next((x for x in pool if x not in used), pool[0])
+        if c is not None:
+            voices.gemini_map[c["name"].lower()] = v
+        nm = c["name"] if c is not None else str(speaker)
+        who = f"{AGE_WORDS[age_group(c['age']) if c is not None else 'adult']} (woman named {nm}), a real person, natural and believable"
+        log(f"    voice check: {nm} is a woman - given the woman's voice {v}")
+    return v, who
+
+
+def female_feel(feel):
+    """A woman's line never carries a man's direction ('deep, growling, hollow male voice' made a female spirit
+    sound like a man): those words are taken out and 'a woman's voice' is said clearly."""
+    f = re.sub(r"(?i)\b(?:deep|deeper|growl\w*|baritone|bass|booming|hollow|gravel\w*|husky|male|man's|masculine|"
+               r"like a man|low-pitched|low pitched)\b", "", str(feel or ""))
+    f = re.sub(r"\s*,\s*(?:,\s*)+", ", ", f).strip(" ,;")
+    return (f + ", " if f else "") + "clearly a WOMAN'S voice (female)"
+
+
+def _gemini_persona(voices, speaker, revealed=True):
     s = ascii_text(speaker).lower()
     c = voices.cast.find(s) if s and not s.startswith("narrat") else None
     if not c:
@@ -2852,6 +2980,8 @@ def gemini_line(text, persona, emotion, lang, out_wav, delivery=""):
         return False
     voice, who = persona
     how = EMOTION_WORDS.get(str(emotion).lower(), "naturally")
+    if voice in GEMINI_ALL["female"]:
+        how, delivery = female_feel(f"{how}, {delivery}" if delivery else how), ""
     style = f"Character: {who}. Emotion: {how}. " + (f"Delivery: {delivery}. " if delivery else "") + extras.PRONOUNCE[lang]
     return extras.tts_gemini(text, voice, style, LANGS[lang]["name"], out_wav, SR)
 
@@ -3078,9 +3208,18 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         voice, who = gemini_persona(voices, ln.get("speaker", "narrator"), ln.get("_revealed", True))
         feel = EMOTION_WORDS.get(str(ln.get("emotion", "normal")).lower(), "naturally") + (
             f", {ln.get('delivery')}" if ln.get("delivery") else "")
+        if voice in GEMINI_ALL["female"]:
+            feel = female_feel(feel)
         items.append({"text": extras.performed(ln), "plain": extras.strip_tags(str(ln["text"])), "voice": voice,
                       "who": who, "feel": feel, "spk": voice, "out": os.path.join(WORK, f"g_{i:02d}_{j:02d}.wav"),
                       "lang": lang})
+    try:                                              # who speaks with which voice (to check women / men at a glance)
+        vv = {}
+        for (_i, _j, ln), it in zip(todo, items):
+            vv.setdefault(_who(ln), (it["voice"], "woman" if it["voice"] in GEMINI_ALL["female"] else "man"))
+        log("  voices: " + ", ".join(f"{k} = {v} ({g})" for k, (v, g) in vv.items()))
+    except Exception:
+        pass
     # ONLY GEMINI VOICES IN HORROR (no free / backup voice - it kills the feel). Planned by today's free limit:
     # as many WHOLE characters as fit go now (storyteller first); if some do not fit, the run waits for Google's
     # daily reset (about 1:30 PM India time) when that is near, and voices them then.
@@ -3158,7 +3297,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
             finally:
                 if os.path.exists(tmp_):
                     os.remove(tmp_)
-        log(f"  recordings cut by the count of their pauses: {extras.CUT_STATS[0]}, by the length of the words: "
+        log(f"  recordings cut with the machine reading: {extras.CUT_STATS[0]}, by the length of the words only: "
             f"{extras.CUT_STATS[1]}; doubtful lines: {len({l_ for _d, l_ in extras.SUSPECT})}, made again alone: {fixed_n}")
         if extras.SAMPLE.get("dir") and os.path.isdir(VOICE_SAMPLES):
             try:
@@ -5636,9 +5775,9 @@ def length_scale():
         s = float(_jload(TTS_USAGE, {}).get("len_scale") or 0)
     except (TypeError, ValueError, AttributeError):
         s = 0
-    # (11 Nov 2026: with 0.6 the stories came out at 1000-1300 words = 11-15 minutes; our real videos run at
-    # 75-90 words a minute, so a 22-minute story needs about 1800 words)
-    return s if 0.3 <= s <= 1.3 else 0.68
+    # (0.6 = 72 words a minute: measured 11 Nov 2026 - the Gemini storyteller with his own pauses. The stories were
+    # short because the writer delivered only 1000-1300 of the 1580 words asked for, see the chapters' minimum.)
+    return s if 0.3 <= s <= 1.3 else 0.6
 
 
 def learn_length(video_sec):
@@ -5652,6 +5791,8 @@ def learn_length(video_sec):
             return
         ratio = (video_sec / 60.0) / LONG_MIN          # 1.0 = exactly the planned length
         ideal = used / ratio
+        if STATE.get("story_words"):                   # better: the words really spoken per minute of this video
+            ideal = float(STATE["story_words"]) / (video_sec / 60.0) / 120.0
         d = _jload(TTS_USAGE, {})
         if not isinstance(d, dict):
             d = {}
@@ -8203,6 +8344,8 @@ def main():
     if story.get("true_label"):
         title = extras.true_title(title, lang)
     log("Title:", title)
+    STATE["story_words"] = sum(len(str(ln.get("text", "")).split()) for sc_ in story.get("scenes") or []
+                               for ln in sc_.get("lines") or [])
     used_names = names_in_story(story)               # v63: viewers who asked to be in a story
     if STATE.get("viewer_names"):
         log("  viewers' names in the story: " + (", ".join(p[1] for p in used_names) or "none made it in"))
