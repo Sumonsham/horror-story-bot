@@ -2034,6 +2034,22 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
             f"~{total / wpm:.0f} min)" + (" - the ending" if final else ""))
         if final:
             break
+        # (13 Nov 2026: Google's strong models were used up, the weaker ones wrote 550-650 words a chapter -> a 16-minute
+        # video) a chapter far too short: the rest of the plan is shared over ONE MORE chapter, so the story still
+        # reaches its length by living the planned beats (never by adding new events)
+        if (share and k < len(share) and max_ch < n_ch + 2 and total < words_per * 0.72 * k
+                and len(share[k]) >= 2 and env("EXTRA_CHAPTER") != "0"):
+            h_ = len(share[k]) // 2
+            share = share[:k] + [share[k][:h_], share[k][h_:]] + share[k + 1:]
+            ends, starts, c_ = [], [], 0
+            for s_ in share:
+                starts.append(c_)
+                c_ += len(s_)
+                ends.append(c_)
+            max_ch += 1
+            n_ch = max_ch
+            log(f"  chapter {k} came out short ({words} words) - the rest of the plan now goes over "
+                f"{max_ch - k} chapters, so the story still gets its length")
     if not chapters:
         raise RuntimeError("no chapter written")
     story = dict(chapters[0])
@@ -6293,7 +6309,7 @@ def story_district(story):
     ask = ("In which district of West Bengal (India) does this story happen? Answer with ONLY one of these keys, "
            "or the word none if it is not clearly in West Bengal: " + ", ".join(d[0] for d in WB_DISTRICTS)
            + "\nSTORY: " + text[:1500])
-    for model in extras.text_models(key)[:2]:
+    for model in extras.helper_models(key)[:3]:
         try:
             r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
                               json={"contents": [{"parts": [{"text": ask}]}],
@@ -6425,7 +6441,7 @@ def local_names(names, lang):
                "NOT a real first name (a nickname, a handle, a brand, a word, random letters, anything rude), give an "
                "empty string. Answer ONLY a JSON list of strings, same order: "
                + json.dumps([t[0] for t in todo], ensure_ascii=False))
-        for model in extras.text_models(key)[:2]:
+        for model in extras.helper_models(key)[:3]:
             try:
                 r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
                                   json={"contents": [{"parts": [{"text": ask}]}],
@@ -7801,7 +7817,7 @@ def _vision(prompt, images, max_side=768):
         if len(images) > 1:
             parts.append({"text": f"Picture {k + 1}:"})
         parts.append({"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(b.getvalue()).decode()}})
-    for model in gemini_models(key)[:3]:
+    for model in extras.helper_models(key)[:4]:
         try:
             r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
                               json={"contents": [{"parts": parts}],
@@ -8078,7 +8094,7 @@ def _bn_lines(lines):
         return lines
     prompt = ("Translate each line into simple, natural Bengali for a non-technical reader. Answer ONLY a JSON list "
               "of strings in the same order.\n" + json.dumps(lines, ensure_ascii=False))
-    for model in gemini_models(key)[:2]:
+    for model in extras.helper_models(key)[:3]:
         try:
             r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
                               json={"contents": [{"parts": [{"text": prompt}]}],
