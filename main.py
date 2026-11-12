@@ -5903,15 +5903,20 @@ def choose_and_write(slot_hour, history):
             log(f"Famous writer's story: {classic[4]}")
         elif special == "karna":
             theme = "a new Karna Pishachini case"
+            tr_ = trend_theme(cat, lang, history)     # v79: this week's most watched topic of this kind
+            if tr_:
+                theme = f"a new Karna Pishachini case - its topic: {tr_}"
             fmt = "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters"
         elif special == "taranath":
             theme = random.choice(HORROR_CATS["gram"]["themes"] + HORROR_CATS["jayga"]["themes"])
+            theme = trend_theme(cat, lang, history) or theme
             if env("MADHUSUNDARI") != "0" and not any(h.get("theme") == "madhusundari" for h in history):
                 theme, total, part = "madhusundari", 2, 1    # the Madhusundari Devi special (2 parts), once
                 log("Taranath special: Madhusundari Devi (part 1 of 2)")
             fmt = "Taranath Tantrik telling his own true experience to Kishori, in first person"
         elif special == "bhairab":
             theme = random.choice(HORROR_CATS["gram"]["themes"] + HORROR_CATS["shohor"]["themes"])
+            theme = trend_theme(cat, lang, history) or theme
         else:
             mine = take_creator_story() if cat in ("gram", "shohor", "jayga", "sotti") else None
             if mine:
@@ -5926,21 +5931,10 @@ def choose_and_write(slot_hour, history):
                 theme = idea[0]
                 STATE["idea_used"] = idea[0]
                 log(f"Idea from the list: {theme}")
-            # TREND STORY (v75): the 2 PM story of our own kind is built on what is MOST WATCHED on YouTube this week
-            # (real YouTube search, sorted by views) - a new, original story on that topic, never a copy
-            if (not mine and not idea and slot_hour == NOON and cat in ("gram", "shohor", "jayga")
-                    and env("TREND_STORY") != "0" and not MOCK):
-                try:
-                    tr_ = extras.trending_topics("horror", lang, os.path.join(HERE, "assets"))
-                except Exception as e:
-                    tr_ = []
-                    log("  trend story skipped:", str(e)[:100])
-                done_ = {str(h.get("theme", "")).strip() for h in history} | {str(h.get("trend_used", "")) for h in history}
-                tr_ = [x for x in tr_ if x.strip() and x.strip() not in done_]
-                if tr_:
-                    theme = tr_[0].strip()
-                    STATE["trend_used"] = theme
-                    log(f"TREND STORY - what is most watched on YouTube this week: {theme}")
+            # TREND STORY (v79: EVERY story): built on what is MOST WATCHED on YouTube this week in exactly this
+            # story's kind (real YouTube search of the category, sorted by views) - our own new story, never a copy
+            if not mine and not idea:
+                theme = trend_theme(cat, lang, history) or theme
             if cat == "sotti" and not mine:
                 vs = []
                 try:                                 # v76: the stories viewers TOLD us by voice on Telegram first
@@ -5972,7 +5966,7 @@ def choose_and_write(slot_hour, history):
         log("  district / viewer names skipped:", str(e)[:120])
     if not MOCK:
         try:                                         # what people watch this week (also hashtags + search words)
-            STATE["trends"] = extras.trending_topics("horror", lang, os.path.join(HERE, "assets"))
+            STATE["trends"] = STATE.get("trends") or extras.trending_topics("horror", lang, os.path.join(HERE, "assets"), cat)
         except Exception as e:
             log("  trends skipped:", str(e)[:100])
         try:                                         # title + thumbnail words in this week's winning style
@@ -8291,6 +8285,26 @@ def daily_monitor(history):
 def story_slug():
     s = str(SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H"))
     return re.sub(r"[^0-9A-Za-z-]", "-", s)
+
+
+def trend_theme(cat, lang, history):
+    """v79: this week's most watched topic on YouTube for THIS category (searched by its own words) that we have not
+    used yet - or None (then the story keeps its normal theme)"""
+    if MOCK or env("TREND_STORY") == "0" or cat in ("classic",):
+        return None
+    try:
+        tr_ = extras.trending_topics("horror", lang, os.path.join(HERE, "assets"), cat)
+    except Exception as e:
+        log("  trend story skipped:", str(e)[:100])
+        return None
+    done_ = {str(h.get("theme", "")).strip() for h in history} | {str(h.get("trend_used", "")).strip() for h in history}
+    tr_ = [x.strip() for x in tr_ if x.strip() and x.strip() not in done_ and not any(x.strip() in d for d in done_ if d)]
+    if not tr_:
+        return None
+    STATE["trend_used"] = tr_[0]
+    STATE["trends"] = tr_[:6]
+    log(f"TREND STORY ({cat}) - what is most watched on YouTube this week in this kind: {tr_[0][:120]}")
+    return tr_[0]
 
 
 def crossover_rule(history, part, prev):
