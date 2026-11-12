@@ -5465,7 +5465,8 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
     NAME_LOCAL.update({str(c["name"]).lower(): str(c.get("name_local") or c["name"]) for c in story["characters"]})
     mark_reveals(story)
     if special in ("bhairab", "taranath", "karna"):
-        fixed = {"bhairab": BHAIRAB, "taranath": TARANATH + (MADHU_CAST if plan.get("theme") == "madhusundari" else []),
+        fixed = {"bhairab": BHAIRAB + (KARNA if (plan.get("state") or {}).get("crossover") else []),
+                 "taranath": TARANATH + (MADHU_CAST if plan.get("theme") == "madhusundari" else []),
                  "karna": KARNA}[special]
         have = {str(c.get("name", "")).lower() for c in story.get("characters", [])}
         story["characters"] += [b for b in fixed if b["name"].lower() not in have]
@@ -5761,7 +5762,7 @@ CREATOR_RULE = (
 
 
 PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
-              "trend_used",
+              "trend_used", "crossover", "milestone",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
               "district", "district_votes", "viewer_names", "arc")
 
@@ -5926,8 +5927,12 @@ def choose_and_write(slot_hour, history):
                     log(f"TREND STORY - what is most watched on YouTube this week: {theme}")
             if cat == "sotti" and not mine:
                 vs = []
+                try:                                 # v76: the stories viewers TOLD us by voice on Telegram first
+                    vs = extras.viewer_voice_stories(ASSETS, {h.get("viewer_story_id") for h in history})
+                except Exception as e:
+                    log("  viewer voice stories skipped:", str(e)[:120])
                 try:
-                    vs = extras.viewer_stories(history, {h.get("viewer_story_id") for h in history})
+                    vs = vs or extras.viewer_stories(history, {h.get("viewer_story_id") for h in history})
                 except Exception as e:
                     log("  viewer stories skipped:", str(e)[:120])
                 if vs:
@@ -5958,6 +5963,10 @@ def choose_and_write(slot_hour, history):
             extra_rules += extras.trend_style_rule("horror", lang, os.path.join(HERE, "assets"))
         except Exception:
             pass
+        try:                                         # v76: a subscriber milestone - the storyteller says thank you
+            extra_rules += milestone_rule()
+        except Exception:
+            pass
         if STATE.get("own_kind") and STATE.get("trends"):
             extra_rules += ("\nTRENDING THIS WEEK (Bengali / Indian viewers are watching these - if one fits "
                             "today's category, build on it): " + " | ".join(STATE["trends"]) + "\n")
@@ -5978,6 +5987,10 @@ def choose_and_write(slot_hour, history):
         extra_rules += "\n" + TARANATH_RULE.format(looks=json.dumps(TARANATH)) + "\n"
     elif special == "bhairab":
         extra_rules += "\n" + BHAIRAB_RULE.format(looks=json.dumps(BHAIRAB)) + "\n"
+        try:                                         # v76: once a month the two series meet - the 'মহা-কেস'
+            extra_rules += crossover_rule(history, part, prev)
+        except Exception as e:
+            log("  crossover check skipped:", str(e)[:100])
     elif special == "classic" and classic:
         extra_rules += classic_rule(classic, lang)
     if not festival and special not in ("classic", "amavasya"):
@@ -7191,7 +7204,8 @@ def _series_cast(story, special, theme, part, prev):
     """the same people main() keeps in the series memory (our fixed heroes; part 2+ = part 1's people + new)"""
     chars = [dict(c) for c in story.get("characters") or [] if isinstance(c, dict)]
     if special in ("bhairab", "taranath", "karna"):
-        fixed = {"bhairab": BHAIRAB, "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []),
+        fixed = {"bhairab": BHAIRAB + (KARNA if STATE.get("crossover") or (prev or {}).get("crossover") else []),
+                 "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []),
                  "karna": KARNA}[special]
         names = {c["name"].lower(): c for c in fixed}
         chars = [names.get(str(c.get("name", "")).lower(), c) for c in chars]
@@ -7659,7 +7673,7 @@ def thumb_inbox():
         return 0
     try:
         r = requests.get(f"https://api.telegram.org/bot{tok}/getUpdates",
-                         params={"allowed_updates": json.dumps(["message"])}, timeout=30).json()
+                         params={"allowed_updates": json.dumps(extras.TG_UPDATES)}, timeout=30).json()
     except Exception as e:
         log("  your Telegram pictures: could not read -", str(e)[:100])
         return 0
@@ -8213,6 +8227,404 @@ def recap_frames(history, series_id, part, lang, n=3):
     return out
 
 
+# ===================================================================================================== v76: growth
+ASSETS = os.path.join(HERE, "assets")
+MILESTONE_FILE = os.path.join(ASSETS, "milestones.json")
+GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("milestones.json", "tg_channel.json", "viewer_voice.json")]
+
+
+def story_slug():
+    s = str(SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H"))
+    return re.sub(r"[^0-9A-Za-z-]", "-", s)
+
+
+def crossover_rule(history, part, prev):
+    """ONCE A MONTH (a Bhairab case that starts in the month's last 8 days): Nilkantha Acharya and Bapi of the
+    Karna Pishachini series join Bhairab Thakur and Paltu - both series' listeners meet. Both parts of the case."""
+    if env("CROSSOVER") == "0":
+        return ""
+    if part >= 2:
+        if not (prev or {}).get("crossover"):
+            return ""
+    else:
+        now = dt.datetime.now(extras.IST) + dt.timedelta(days=1)          # (written the night before)
+        last = (now.replace(day=28) + dt.timedelta(days=4)).replace(day=1) - dt.timedelta(days=1)
+        month = now.strftime("%Y-%m")
+        if (last.day - now.day) > 7 or any(h.get("crossover") and str(h.get("date", ""))[:7] == month for h in history):
+            return ""
+    STATE["crossover"] = True
+    log("CROSSOVER - this month's 'মহা-কেস': Bhairab Thakur and Paltu meet Nilkantha Acharya and Bapi")
+    return ("\nCROSSOVER - THIS MONTH'S 'মহা-কেস': in this case our two series meet. NILKANTHA ACHARYA and his nephew BAPI "
+            "(of the Karna Pishachini series; the Karna Pishachini whispers hidden truths into Nilkantha's ear, at a "
+            "terrible price) come to BHAIRAB THAKUR and PALTU with a case neither can solve alone. Their looks: "
+            + json.dumps(KARNA, ensure_ascii=False)[:1500] + ". Bhairab's calm tantrik method and Nilkantha's dangerous "
+            "gift clash and then work together; each keeps his own way of speaking. The TITLE starts with 'মহা-কেস: '.\n")
+
+
+def growth_links(lang):
+    """the lines under every video: read the story, tell us your own experience by voice, our fan channel"""
+    if lang != "bn":
+        return ""
+    out = []
+    base = map_url()
+    if base and env("STORY_PAGES") != "0":
+        out.append(f"📖 গল্পটা পড়ুন: {base}golpo/{story_slug()}.html")
+    bot = extras.tg_bot_link()
+    if bot and env("VIEWER_VOICE") != "0":
+        out.append(f"🎙️ আপনার নিজের ভৌতিক অভিজ্ঞতা গলায় বলে পাঠান (Telegram-এ voice message) - সেটা নিয়েই গল্প হবে: {bot}")
+    ch = extras.tg_channel_link(ASSETS)
+    if ch:
+        out.append(f"📢 নতুন গল্পের খবর সবার আগে: {ch}")
+    if base and os.path.exists(os.path.join(MAP_DIR, "podcast.xml")):
+        out.append(f"🎧 Spotify / Apple Podcasts-এ শুনতে: {base}podcast.xml")
+    return "\n".join(out)
+
+
+def growth_start(history):
+    """every run: answers under YouTube comments, the fan channel's waiting messages, viewers' voice stories,
+    and (once a day) the subscriber / follower milestones"""
+    lang = env("LANGUAGE") or "bn"
+    try:
+        if extras.yt_reply_fans(history, lang, "horror"):
+            save_history(history)
+    except Exception as e:
+        log("  YouTube replies skipped:", str(e)[:120])
+    try:
+        extras.tg_channel_flush(ASSETS)
+    except Exception as e:
+        log("  fan channel skipped:", str(e)[:100])
+    try:
+        extras.viewer_voice_process(ASSETS)
+    except Exception as e:
+        log("  viewer voices skipped:", str(e)[:100])
+    try:
+        got = extras.milestone_check(MILESTONE_FILE)
+        if got:
+            celebrate_milestone(got, lang)
+    except Exception as e:
+        log("  milestones skipped:", str(e)[:100])
+    try:
+        push_now([f for f in GROWTH_FILES if os.path.exists(f)], "growth notes")
+    except Exception:
+        pass
+
+
+def celebrate_milestone(got, lang):
+    global FONT
+    FONT = FONT or find_font(lang)
+    pf = {"yt": "YouTube", "fb": "Facebook"}[got["platform"]]
+    log(f"MILESTONE: {got['n']:,} on {pf} ({got['count']:,} now) - a thank-you")
+    bg = next((os.path.join(THUMB_B, f) for f in sorted(os.listdir(THUMB_B)) if f.endswith(".jpg")), None) \
+        if os.path.isdir(THUMB_B) else None
+    card = extras.milestone_card(bg, got["n"], got["platform"], lang, os.path.join(WORK, "milestone.jpg"), FONT)
+    num = str(got['n']).translate(extras.BN_DIG)
+    word = "সাবস্ক্রাইবার" if got["platform"] == "yt" else "ফলোয়ার"
+    text = (f"🕯️ আজ আমরা {num} জন {word}-এর পরিবার! প্রতিটা রাতে আমাদের গল্প শোনার জন্য আপনাদের সবাইকে অন্তর থেকে "
+            "ধন্যবাদ। আরও গভীর, আরও অন্ধকার গল্প আসছে...")
+    try:
+        if env("FB_PAGE_TOKEN"):
+            extras.fb_photo(card, text)
+    except Exception as e:
+        log("  milestone photo skipped:", str(e)[:100])
+    extras.tg_channel_post(ASSETS, text, card)
+    extras.telegram(f"🎉 মাইলফলক: {pf}-এ {num} জন {word} পার হলো ({got['count']:,})! পরের গল্পে গল্পকার সবাইকে "
+                    "ধন্যবাদ জানাবেন।")
+
+
+def milestone_rule():
+    got = extras.milestone_take(MILESTONE_FILE)
+    if not got:
+        return ""
+    STATE["milestone"] = got
+    word = "subscribers on YouTube" if got["platform"] == "yt" else "followers on Facebook"
+    return (f"\nMILESTONE THANKS: our channel has just passed {got['n']} {word}. The narrator's VERY FIRST line (before "
+            "the story begins) warmly thanks this family of listeners in one or two sentences - grateful and grave, "
+            "never asking for likes, shares or subscriptions - then the story starts.\n")
+
+
+def growth_after_post(story, title, results, history, lang, video, thumb, slot_hour, special, viewer):
+    """after a story is posted: the Facebook countdown story, the fan channel, the story as Facebook text (2 PM),
+    the story's own web page, the podcast episode, an old video's best moment as a Short (Tue / Thu night)"""
+    at = extras.publish_time()
+    when_bn = SLOT_BN.get(slot_hour, "") if isinstance(SLOT_BN, dict) else ""
+    fb_link = f"https://www.facebook.com/{results['facebook']}" if results.get("facebook") else ""
+    yt_link = f"https://youtu.be/{results['youtube']}" if results.get("youtube") else ""
+    clean = re.sub(r"\s*[|].*$", "", title).strip()
+    changed = []
+    # 10) Facebook photo story: countdown
+    if at and results.get("facebook") and env("FB_COUNTDOWN") != "0":
+        try:
+            card = extras.story_card_vertical(thumb, [f"আজ {when_bn}", clean[:40], "👻 নতুন ভূতের গল্প"],
+                                              os.path.join(WORK, "countdown.jpg"), FONT)
+            extras.fb_photo_story(card)
+            log("  Facebook story: countdown picture posted")
+        except Exception as e:
+            log("  Facebook countdown story skipped:", str(e)[:150])
+    # 6) fan channel: now 'coming', at the time 'here it is'
+    try:
+        if extras.tg_get(ASSETS).get("id"):
+            extras.tg_channel_post(ASSETS, f"🕯️ আজ {when_bn}: {clean}\n\nতৈরি থাকুন...", thumb)
+            extras.tg_channel_post(ASSETS, f"👻 এসে গেছে: {clean}\n\n▶ YouTube: {yt_link}\n▶ Facebook: {fb_link}".strip(),
+                                   at=at or dt.datetime.now(dt.timezone.utc))
+            changed.append(os.path.join(ASSETS, "tg_channel.json"))
+    except Exception as e:
+        log("  fan channel post skipped:", str(e)[:100])
+    names = {str(c.get("name", "")).lower(): str(c.get("name_local") or c.get("name")) for c in story.get("characters") or []}
+    # 7) the story as Facebook text (the 2 PM story, 3 hours after the video)
+    if slot_hour == NOON and fb_link and env("FB_TEXT_STORY") != "0" and lang == "bn":
+        try:
+            part_text = extras.story_text(story, names, frac=0.45, max_chars=6000)
+            msg = (f"📖 {clean}\n\n{part_text}\n\n... তারপর কী হলো? বাকি গল্পটা শুনুন: {fb_link}")
+            extras.fb_schedule_photo(thumb, msg, (at or dt.datetime.now(dt.timezone.utc)) + dt.timedelta(hours=3))
+            log("  the story as text: scheduled on Facebook 3 hours after the video")
+        except Exception as e:
+            log("  written story post skipped:", str(e)[:150])
+    # 3) the story's own web page (+ list + sitemap)
+    base = map_url()
+    if base and env("STORY_PAGES") != "0":
+        try:
+            when_d = (at or dt.datetime.now(dt.timezone.utc)).astimezone(extras.IST).date().isoformat()
+            extras.story_page(MAP_DIR, story_slug(), title, extras.story_text(story, names), results.get("youtube"),
+                              results.get("facebook"), base, lang, when_d)
+            changed.append(MAP_DIR)
+            log(f"  story web page: {base}golpo/{story_slug()}.html")
+        except Exception as e:
+            log("  story web page skipped:", str(e)[:150])
+    # 4) podcast episode (Spotify / Apple read the feed by themselves)
+    if base and env("PODCAST_FEED") != "0" and env("GITHUB_TOKEN"):
+        try:
+            mp3 = os.path.join(WORK, f"{story_slug()}.mp3")
+            run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-vn", "-ac", "1", "-ar", "44100", "-b:a", "64k", mp3])
+            url = extras.gh_release_upload(mp3, os.path.basename(mp3))
+            if url:
+                pub = (at or dt.datetime.now(dt.timezone.utc))
+                extras.podcast_feed(MAP_DIR, base, {
+                    "guid": story_slug(), "title": title, "url": url, "bytes": os.path.getsize(mp3),
+                    "secs": duration(video), "date": pub.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+                    "desc": str(story.get("description", ""))[:600]},
+                    env("PAGE_NAME_BN") or "ভূতের গল্প", thumb, lang)
+                changed.append(MAP_DIR)
+                log("  podcast episode added to the feed")
+        except Exception as e:
+            log("  podcast episode skipped:", str(e)[:150])
+    # 11) the viewer whose voice became this story hears it first
+    if viewer and str(viewer.get("id", "")).startswith("tg_"):
+        try:
+            extras.viewer_voice_done(ASSETS, viewer["id"], [x for x in (yt_link, fb_link) if x])
+        except Exception:
+            pass
+    # 8) an old video's scariest moment as a new Short / Reel (Tuesday and Thursday nights)
+    if (slot_hour == EVENING and dt.datetime.now(extras.IST).weekday() in (1, 3) and env("OLD_SHORTS") != "0"):
+        try:
+            if old_video_short(history, lang):
+                save_history(history)
+        except Exception as e:
+            log("  old-video short skipped:", str(e)[:150])
+    if changed:
+        try:
+            push_now(sorted(set(changed)), "story page, podcast, fan channel")
+        except Exception:
+            pass
+
+
+def old_video_short(history, lang):
+    """the scariest 45 seconds of one of our best OLDER videos as a new YouTube Short + Facebook Reel, with 'the
+    whole story' link - old videos get new viewers (no new voice needed)"""
+    global FONT
+    FONT = FONT or find_font(lang)
+    now = dt.datetime.now(dt.timezone.utc)
+    done = {h.get("from_video") for h in history if h.get("kind") == "old_short"}
+    cands = []
+    for h in history:
+        if h.get("kind") or not h.get("facebook") or not h.get("youtube") or h.get("youtube") in done:
+            continue
+        try:
+            age = (now - dt.datetime.fromisoformat(str(h["date"]))).days
+        except Exception:
+            continue
+        if age >= 7:
+            cands.append((extras.score(h.get("stats") or {}), h))
+    if not cands:
+        log("  old-video short: no older video yet")
+        return False
+    h = max(cands, key=lambda x: x[0])[1]
+    src, _ = extras.fb_video_source(h["facebook"])
+    if not src:
+        return False
+    raw = extras.download(src, os.path.join(WORK, "old_raw.mp4"))
+    st = extras.scariest_window(raw)
+    clean = re.sub(r"\s*[|].*$", "", str(h.get("title", ""))).strip()
+    top = os.path.join(WORK, "old_top.png")
+    im = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    for k, (txt, sz, y) in enumerate(((clean[:34], 74, 210), ("পুরো গল্প চ্যানেলে 👆" if lang == "bn" else "पूरी कहानी चैनल पर 👆", 58, 1600))):
+        f = font(sz)
+        txt = extras.fit_glyphs(txt, FONT)
+        while d.textlength(txt, font=f) > 1000 and sz > 30:
+            sz -= 4
+            f = font(sz)
+        d.text(((1080 - d.textlength(txt, font=f)) / 2, y), txt, font=f, fill=(255, 214, 90) if k == 0 else (255, 255, 255),
+               stroke_width=5, stroke_fill=(0, 0, 0))
+    im.save(top)
+    out = os.path.join(WORK, "old_short.mp4")
+    run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{st:.1f}", "-t", "45", "-i", raw, "-i", top, "-filter_complex",
+         "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:2,eq=brightness=-0.15[bg];"
+         "[0:v]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v1];[v1][1:v]overlay=0:0,format=yuv420p[v]",
+         "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac",
+         "-b:a", "128k", "-r", "30", out])
+    os.remove(raw)
+    full = f"https://youtu.be/{h['youtube']}"
+    title = f"{clean[:60]} 😱 #shorts"
+    desc = f"পুরো গল্প এখানে: {full}\n\n#ভূতের_গল্প #BhuterGolpo #HorrorShorts #shorts"
+    rec = {"date": now.isoformat(timespec="minutes"), "lang": lang, "kind": "old_short", "from_video": h["youtube"],
+           "title": title}
+    if youtube_ready() and extras.yt_extra_ok():
+        try:
+            fr = os.path.join(WORK, "old_frame.jpg")
+            run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "20", "-i", out, "-frames:v", "1", fr])
+            rec["youtube"] = post_to_youtube(out, fr, title, desc, ["shorts", "bhuter golpo", "horror"], lang)
+            log(f"  old-video short on YouTube: {rec['youtube']} (from '{clean[:40]}')")
+        except Exception as e:
+            log("  old-video short (YouTube) skipped:", str(e)[:150])
+    if env("FB_PAGE_TOKEN"):
+        try:
+            rec["facebook"] = extras.fb_post_reel(out, f"{clean} 😱\n\nপুরো গল্প: https://www.facebook.com/{h['facebook']}")
+            log("  old-video reel on Facebook:", rec["facebook"])
+        except Exception as e:
+            log("  old-video reel skipped:", str(e)[:150])
+    if rec.get("youtube") or rec.get("facebook"):
+        history.append(rec)
+        return True
+    return False
+
+
+def weekly_live(history):
+    """SATURDAY NIGHT LIVE on YouTube - 'ভূতের রাত': the week's best stories one after another (no new voice),
+    with cards between them that greet the people in the live chat by name; the bot also answers in the chat."""
+    global FONT
+    import threading
+    lang = "bn"
+    FONT = find_font(lang)
+    if MOCK or DRY_RUN or not youtube_ready() or env("YT_LIVE") == "0":
+        log("Live: not in this run")
+        return
+    hours = float(env("LIVE_HOURS") or 2.5)
+    now = dt.datetime.now(dt.timezone.utc)
+    cands = []
+    for h in history:
+        if h.get("kind") or not h.get("facebook") or not h.get("youtube"):
+            continue
+        try:
+            age = (now - dt.datetime.fromisoformat(str(h["date"]))).days
+        except Exception:
+            continue
+        if age <= 60:
+            cands.append(((age <= 7) * 1000 + extras.score(h.get("stats") or {}), h))
+    cands.sort(key=lambda x: -x[0])
+    clips, titles, total = [], [], 0.0
+    for _s, h in cands:
+        if total >= hours * 3600:
+            break
+        try:
+            src, _l = extras.fb_video_source(h["facebook"])
+            if not src:
+                continue
+            raw = extras.download(src, os.path.join(WORK, f"lraw_{len(clips)}.mp4"))
+            c = extras.live_clip(raw, os.path.join(WORK, f"l_{len(clips):02d}.mp4"))
+            os.remove(raw)
+            clips.append(c)
+            titles.append(re.sub(r"\s*[|].*$", "", str(h.get("title", ""))).strip())
+            total += duration(c)
+            log(f"  live: {titles[-1][:50]} ({duration(c) / 60:.0f} min)")
+        except Exception as e:
+            log("  live: a video skipped:", str(e)[:120])
+    if len(clips) < 2:
+        log("Live: not enough videos - no live tonight")
+        return
+    bg = os.path.join(WORK, "live_bg.jpg")
+    run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "60", "-i", clips[0], "-frames:v", "1", bg])
+    names = []
+
+    def card(k, secs=10.0):
+        bn_ = [x for x in names[-8:] if re.search(r"[\u0980-\u09FF]", x)][-4:]
+        en_ = [x for x in names[-8:] if not re.search(r"[\u0980-\u09FF]", x)][-4:]
+        who = (["লাইভে আছেন"] + ([", ".join(bn_)] if bn_ else []) + ([", ".join(en_)] if en_ else [])) if names \
+            else ["আলো নিভিয়ে, হেডফোন লাগিয়ে বসুন"]
+        lines = (["ভূতের রাত - লাইভ", "প্রথম গল্প", titles[0][:36]] if k == 0 else
+                 ["পরের গল্প", titles[k][:40]]) + who
+        sizes_ = [96, 64] + [56] * 4
+        img = extras.text_card(bg, lines, os.path.join(WORK, f"card_{k}.jpg"), FONT, sizes=sizes_)
+        tmp = os.path.join(WORK, f"c_{k:02d}.tmp.mp4")
+        extras.live_card(img, secs, tmp)
+        os.replace(tmp, os.path.join(WORK, f"c_{k:02d}.mp4"))
+    for k in range(len(clips)):
+        card(k)
+    lst = os.path.join(WORK, "live.txt")
+    with open(lst, "w") as f:
+        for k, c in enumerate(clips):
+            f.write(f"file 'c_{k:02d}.mp4'\nfile '{os.path.basename(c)}'\n")
+    title = "👻 ভূতের রাত - লাইভ | একটানা ভূতের গল্প | Bhuter Golpo Live"
+    desc = ("আজ রাতে একটানা সপ্তাহের সেরা ভূতের গল্প। চ্যাটে আপনার নাম লিখুন - পরের গল্পের আগে পর্দায় আপনার নাম "
+            "দেখাবে।\n\n" + "\n".join(f"{k + 1}. {t}" for k, t in enumerate(titles)) + "\n\n" + growth_links(lang))
+    thumb = extras.text_card(bg, ["👻 ভূতের রাত", "লাইভ", "একটানা ভূতের গল্প"], os.path.join(WORK, "live_thumb.jpg"), FONT)
+    try:
+        bid, rtmp, chat = extras.yt_live_create(title, desc, thumb)
+    except Exception as e:
+        msg = str(e)
+        log("Live could not start:", msg[:300])
+        if "liveStreamingNotEnabled" in msg or "not enabled" in msg.lower():
+            extras.telegram("⚠️ শনিবারের লাইভ হলো না: আপনার YouTube চ্যানেলে লাইভ এখনো চালু নয়। একবার YouTube Studio-তে "
+                            "'Create → Go live' টিপে ফোন নম্বর দিয়ে যাচাই করুন - ২৪ ঘণ্টা পরে লাইভ চালু হয়ে যাবে, তারপর "
+                            "bot নিজেই প্রতি শনিবার লাইভ করবে।")
+        return
+    link = f"https://www.youtube.com/watch?v={bid}"
+    log("LIVE:", link)
+    extras.telegram(f"🔴 লাইভ শুরু হচ্ছে: {link}")
+    extras.tg_channel_post(ASSETS, f"🔴 এখন লাইভ - ভূতের রাত! একটানা সপ্তাহের সেরা গল্প:\n{link}", thumb)
+    try:
+        if env("FB_PAGE_TOKEN"):
+            extras.fb_photo(thumb, f"🔴 এখন YouTube-এ লাইভ - ভূতের রাত! একটানা সপ্তাহের সেরা ভূতের গল্প, চ্যাটে আপনার নাম "
+                                   f"লিখলে পর্দায় দেখাবে 👻\n{link}")
+    except Exception:
+        pass
+    starts, t = [], 0.0
+    for c in clips:
+        starts.append(t)
+        t += 10.0 + duration(c)
+    stop = threading.Event()
+
+    def watcher():
+        tok, said, t0 = None, 0, time.time()
+        while not stop.is_set():
+            try:
+                if chat:
+                    msgs, tok = extras.yt_live_chat(chat, tok)
+                    for a, _m in msgs:
+                        if a and a not in names:
+                            names.append(a)
+                            if said < int(env("LIVE_REPLIES") or 8):
+                                said += extras.yt_live_say(chat, f"স্বাগতম {a} 🕯️ পরের গল্পের আগে পর্দায় আপনার নাম থাকবে")
+                el = time.time() - t0
+                for k in range(1, len(clips)):        # the next card: made again with the newest names
+                    if starts[k] - 150 <= el < starts[k] - 40:
+                        card(k)
+            except Exception as e:
+                log("  live chat:", str(e)[:80])
+            stop.wait(int(env("LIVE_CHAT_SEC") or 120))
+    th = threading.Thread(target=watcher, daemon=True)
+    th.start()
+    try:
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-re", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy",
+                        "-f", "flv", rtmp], cwd=WORK, timeout=int(hours * 3600 + 3600))
+    finally:
+        stop.set()
+    log(f"Live finished ({t / 60:.0f} min, {len(names)} people in the chat)")
+    history.append({"date": now.isoformat(timespec="minutes"), "lang": lang, "kind": "live", "youtube": bid,
+                    "title": title, "people": len(names)})
+    save_history(history)
+    extras.telegram(f"✅ লাইভ শেষ: {t / 60:.0f} মিনিট, চ্যাটে {len(names)} জন। {link}")
+
+
 def main():
     global FONT, VHS
     if env("MODE") == "voice_demo":
@@ -8237,6 +8649,13 @@ def main():
             creator_inbox(bot_status)   # (Telegram keeps a message only 24 hours) + your commands
         except Exception as e:
             log("  Telegram stories not read:", str(e)[:120])
+    if not MOCK and not DRY_RUN:
+        try:                                         # v76: YouTube replies, fan channel, viewers' voices, milestones
+            growth_start(history)
+        except Exception as e:
+            log("  growth start skipped:", str(e)[:150])
+    if env("MODE") == "live":
+        return weekly_live(history)
     if extras.bot_paused(MY_STORIES) and not MOCK:
         log("PAUSED from Telegram ('বন্ধ') - no video this time. Send 'চালু' to start again.")
         return
@@ -8320,7 +8739,8 @@ def main():
     series_id = (((prev or {}).get("series_id") or (prev or {}).get("created")) if part >= 2 else
                  (dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes") if part == 1 else None))
     if special in ("bhairab", "taranath", "karna"):  # always the same faces for our recurring heroes
-        fixed = {"bhairab": BHAIRAB, "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []),
+        fixed = {"bhairab": BHAIRAB + (KARNA if STATE.get("crossover") or (prev or {}).get("crossover") else []),
+                 "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []),
                  "karna": KARNA}[special]
         names = {c["name"].lower(): c for c in fixed}
         story["characters"] = [names.get(str(c.get("name", "")).lower(), c) for c in story.get("characters", [])]
@@ -8717,6 +9137,12 @@ def main():
             yt_description = yt_description.replace(f"\n\n{ai_note}", f"\n\n{yt_more}\n\n{ai_note}", 1)
     except Exception as e:
         log("  YouTube invitations skipped:", str(e)[:100])
+    try:                                             # v76: read the story, send your own experience, fan channel
+        g_links = growth_links(lang)
+        if g_links:
+            yt_description = yt_description.replace(f"\n\n{ai_note}", f"\n\n{g_links}\n\n{ai_note}", 1)
+    except Exception as e:
+        log("  growth links skipped:", str(e)[:100])
     yt_title = title
     kw = next((w for w in seo_words if w.lower() not in title.lower() and len(title) + 3 + len(w) <= 100), "")
     if kw:
@@ -8776,6 +9202,7 @@ def main():
                     "source": STATE.get("source_name") or (prev or {}).get("source") or None,
                     "idea_used": STATE.get("idea_used"),
                     "trend_used": STATE.get("trend_used"),
+                    "crossover": STATE.get("crossover") or None,
                     "category": STATE.get("category"),
                     "question_post": extras.fb_question_post(
                         history, "horror", lang, photo=(HIDDEN_PICS[0] if HIDDEN_PICS else None),
@@ -8824,6 +9251,7 @@ def main():
                 "outline": STATE.get("outline") or (prev or {}).get("outline", ""),
                 "characters": story.get("characters"), "setting": story.get("setting", ""),
                 "arc": STATE.get("arc") or (prev or {}).get("arc"),
+                "crossover": STATE.get("crossover") or (prev or {}).get("crossover"),
                 "source": STATE.get("source_name", "") or (prev or {}).get("source", "")})
             log(f"Series: part {part + 1} of {total} comes on this category's next day")
         elif part >= 2:
@@ -8848,6 +9276,11 @@ def main():
     if shout_ids and results.get("facebook") and not DRY_RUN:
         n = extras.reply_to(shout_ids, L["congrats_reply"].format(link=f"https://www.facebook.com/{results['facebook']}"))
         log(f"  congratulated {n} viewers under their comments")
+    if not MOCK and not DRY_RUN:
+        try:                                         # v76: countdown story, fan channel, written story, web page ...
+            growth_after_post(story, title, results, history, lang, video, thumb, slot_hour, special, viewer)
+        except Exception as e:
+            log("  growth steps skipped:", str(e)[:200])
     page_name = env(f"PAGE_NAME_{lang.upper()}") or "Daily Horror Story"
     extras.telegram(extras.report_text(page_name, title, results, history))
     if slot_hour == EVENING and env("MODE") not in ("amavasya", "compilation") and SLOT and \
