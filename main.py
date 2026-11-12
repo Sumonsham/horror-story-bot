@@ -306,10 +306,12 @@ HORROR_CATS = {
               "parts": 2},
     "classic": {"bn": "বিখ্যাত লেখকের গল্প", "hi": "मशहूर लेखक की कहानी", "about": "a famous writer's ghost story",
                 "special": "classic"},
+    # v80: our five new horror series take turns on these nights (see NEW_SERIES)
+    "notun": {"bn": "রাতের সিরিজ", "hi": "रात की सीरीज़", "about": "one of our own horror series", "special": "notun"},
 }
 HORROR_GRID = {   # weekday (0 = Monday): category at 10 AM, 2 PM, 8 PM
     0: ("gram", "shohor", "rohoshyo"), 1: ("jayga", "gram", "karna"), 2: ("shohor", "sotti", "tantrik"),
-    3: ("gram", "jayga", "rohoshyo"), 4: ("sotti", "shohor", "karna"), 5: ("jayga", "gram", "tantrik"),
+    3: ("gram", "jayga", "notun"), 4: ("sotti", "shohor", "karna"), 5: ("jayga", "gram", "notun"),
     6: ("shohor", "sotti", "classic"),
 }
 BN_DAYS = ["সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার", "রবিবার"]
@@ -3102,7 +3104,7 @@ def theme_playlist(lang, cat, special, festival, true_story):
         return "অমাবস্যার রাতের গল্প | Amavasya Night Horror" if lang == "bn" else "अमावस्या की रात | Amavasya Night Horror"
     if festival:
         return "উৎসবের রাতের ভূতের গল্প | Festival Horror Specials" if lang == "bn" else "त्योहार स्पेशल | Festival Horror"
-    if special in ("taranath", "bhairab", "karna") or cat not in THEME_PL_EN:
+    if special in SERIES_IDS or cat not in THEME_PL_EN:
         return ""                                     # (these series already have their own playlist)
     name = HORROR_CATS.get(cat, {}).get(lang, "")
     return f"{name} | {THEME_PL_EN[cat]}" if name else ""
@@ -5480,10 +5482,8 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
     fix_speakers(story)
     NAME_LOCAL.update({str(c["name"]).lower(): str(c.get("name_local") or c["name"]) for c in story["characters"]})
     mark_reveals(story)
-    if special in ("bhairab", "taranath", "karna"):
-        fixed = {"bhairab": BHAIRAB + (KARNA if (plan.get("state") or {}).get("crossover") else []),
-                 "taranath": TARANATH + (MADHU_CAST if plan.get("theme") == "madhusundari" else []),
-                 "karna": KARNA}[special]
+    if special in SERIES_IDS:
+        fixed = series_cast(special, plan.get("theme"), (plan.get("state") or {}).get("crossover"))
         have = {str(c.get("name", "")).lower() for c in story.get("characters", [])}
         story["characters"] += [b for b in fixed if b["name"].lower() not in have]
     moments = pick_moments(story["scenes"], story, n=3)   # short and sharp: ~25-35 seconds
@@ -5894,9 +5894,17 @@ def choose_and_write(slot_hour, history):
                         "happens on an Amavasya night and must be the scariest of the month.\n")
     else:
         special = info.get("special", "")
+        if special == "notun":                       # v80: tonight one of our new series (they take turns)
+            special = pick_new_series(history)
+            log(f"Tonight's series: {NEW_SERIES[special]['bn']}")
         total = int(info.get("parts", 1))
         part = 1 if total > 1 else 0
-        if special == "classic":
+        if special in NEW_SERIES:
+            used_ = {str(h.get("theme", "")) for h in history}
+            theme = trend_theme(special, lang, history) or random.choice(
+                [x for x in NEW_SERIES[special]["themes"] if x not in used_] or NEW_SERIES[special]["themes"])
+            fmt = NEW_SERIES[special]["fmt"]
+        elif special == "classic":
             classic = pick_classic_any(history, lang)
             theme = f"the classic: {classic[4]}"
             plain_rules = extra_rules
@@ -6005,6 +6013,8 @@ def choose_and_write(slot_hour, history):
         extra_rules += "\n" + MADHU_RULE.format(looks=json.dumps(TARANATH + MADHU_CAST, ensure_ascii=False)) + "\n"
     elif special == "taranath":
         extra_rules += "\n" + TARANATH_RULE.format(looks=json.dumps(TARANATH)) + "\n"
+    elif special in NEW_SERIES:
+        extra_rules += new_series_rule(special, history, lang)
     elif special == "bhairab":
         extra_rules += "\n" + BHAIRAB_RULE.format(looks=json.dumps(BHAIRAB)) + "\n"
         try:                                         # v76: once a month the two series meet - the 'মহা-কেস'
@@ -6658,6 +6668,167 @@ CASE_SERIES = [("bhairab", "🕵️ ভৈরব ঠাকুরের কেস
                ("taranath", "🕯️ তারানাথ তান্ত্রিকের খাতা", "বৃদ্ধ তারানাথ নিজের মুখে শোনান তাঁর জীবনের অভিজ্ঞতা"),
                ("karna", "👂 কর্ণপিশাচিনী", "নীলকণ্ঠ আচার্য, ভাগ্নে বাপি আর কানে-কানে কথা বলা সেই পিশাচিনী")]
 
+# ===================================================================================================== v80: new series
+# Five ORIGINAL horror series (13 Nov 2026), shaped after the KINDS of shows that are most heard in Bengali horror on
+# YouTube and podcasts right now - late-night call-in shows, hospital / morgue night duty, railway nights, ghost-hunting
+# teams, a lonely bungalow's register - with our own people, names and stories (nothing taken from any show).
+# They take turns on Thursday and Saturday night; every episode is one complete case.
+NEW_SERIES = {
+    "nishi": {
+        "bn": "নিশি-রেডিও", "hi": "निशि रेडियो", "icon": "📻",
+        "about": "NISHI RADIO - a late-night Kolkata FM show at 1 AM where listeners phone in their own true ghost experience",
+        "fmt": "RJ Mohona takes a listener's call live at night; the caller's experience is acted out in full, then back to the studio",
+        "cast": [{"name": "Mohona", "name_local": "মোহনা", "gender": "female", "age": "adult", "kind": "human",
+                  "look": "RJ Mohona, a Bengali woman of about thirty-five, shoulder-length wavy black hair, big silver "
+                          "headphones round her neck, a dark kurta, a small red bindi, sitting at a radio desk with a "
+                          "glowing ON AIR sign and a microphone, warm calm eyes"}],
+        "voices": {"mohona": "Aoede"},
+        "rule": ("Every episode is ONE complete call: RJ MOHONA opens the 1 AM show warmly, a listener (a NEW person "
+                 "every time, with a name and a town) calls in and tells what happened to them - this is the main story, "
+                 "acted out fully with its own people and scenes; Mohona comes back between the parts with one or two "
+                 "short, gentle questions. The last scene is back in the studio, with ONE quiet chill that ties the call "
+                 "to Mohona herself (never the same chill twice). The caller's story must have a clear start: who, where, "
+                 "when, why they were there."),
+        "bible": ("RJ MOHONA speaks softly and warmly, like a friend at night; never mocks a caller; says 'আপনি বলুন, "
+                  "আমি শুনছি' kind of things; a little afraid herself but steady on air."),
+        "themes": ["a call from a night-shift security guard of a closed cinema hall", "a call from a nurse in a rural "
+                   "health centre", "a call from a truck driver on NH-19 at night", "a call from a girl alone in a PG in Salt Lake"],
+        "q": {"bn": ["ভূতের অভিজ্ঞতা রেডিও", "সত্যি ভৌতিক অভিজ্ঞতা শ্রোতার", "bhoot fm style golpo"], "hi": ["real horror call radio", "listener horror experience hindi"]},
+    },
+    "morg": {
+        "bn": "মর্গের খাতা", "hi": "मुर्दाघर की डायरी", "icon": "🏥",
+        "about": "THE MORGUE REGISTER - night duty in the morgue of an old Kolkata hospital, one body and one night each time",
+        "fmt": "old night-guard Haradhan tells young doctor Ritam about one body and one night from his register",
+        "cast": [{"name": "Haradhan", "name_local": "হারাধন", "gender": "male", "age": "old", "kind": "human",
+                  "look": "Haradhan, the morgue's night guard, a lean Bengali man of about sixty-two, grey stubble, deep "
+                          "lines on his face, a faded khaki uniform shirt, a bunch of old keys at his waist, an old torch "
+                          "and a thick register book"},
+                 {"name": "Ritam", "name_local": "ঋতম", "gender": "male", "age": "young", "kind": "human",
+                  "look": "Dr Ritam, a young Bengali intern of about twenty-six, neat short hair, thin glasses, a white "
+                          "doctor's coat over a blue shirt, a stethoscope round his neck, tired curious eyes"}],
+        "voices": {"haradhan": "Schedar", "ritam": "Umbriel"},
+        "rule": ("Every episode is ONE complete case from HARADHAN's old morgue register (a different body, a different "
+                 "year): young DR RITAM, new on night duty, asks; Haradhan tells - and the night of that case is acted "
+                 "out in full. Real hospital detail (cold room, tags, the lift, the long corridor, the night staff), "
+                 "respectful to the dead, no gore. End: back in the present night, one small sign that the case is not "
+                 "over."),
+        "bible": ("HARADHAN speaks slowly, plainly, like an old worker who has seen everything; calls Ritam 'ডাক্তারবাবু'; "
+                  "never boasts, respects the dead. RITAM is rational, polite, slowly shaken."),
+        "themes": ["the body that came back to bed number nine", "a tag with a name that was never written",
+                   "the night the cold-room door would not stay shut"],
+        "q": {"bn": ["হাসপাতালের ভূতের গল্প", "মর্গের ভূতের গল্প", "hospital horror story bangla"], "hi": ["hospital horror story hindi", "मुर्दाघर की कहानी"]},
+    },
+    "local": {
+        "bn": "শেষ লোকাল", "hi": "आख़िरी लोकल", "icon": "🚆",
+        "about": "THE LAST LOCAL - the last local train of the night on a Kolkata suburban line, one passenger each time",
+        "fmt": "old guard Anadi Bose remembers one passenger from one last-local night",
+        "cast": [{"name": "Anadi", "name_local": "অনাদি", "gender": "male", "age": "old", "kind": "human",
+                  "look": "Guard Anadi Bose, a Bengali railway guard of about fifty-six, grey moustache, a black railway "
+                          "coat with brass buttons, a guard's cap, a green-and-red signal lamp in his hand, kind tired eyes"}],
+        "voices": {"anadi": "Alnilam"},
+        "rule": ("Every episode is ONE passenger on the last local of the night (a different line and station each time - "
+                 "Sealdah south, Howrah main, Bandel, Canning ...): GUARD ANADI BOSE remembers; the passenger's night is "
+                 "acted out in full - the empty compartment, the dark platforms, the station that should not be there. "
+                 "Clear start: who boarded, where, why so late. End: Anadi's last line about that train."),
+        "bible": ("ANADI speaks like a gentle old railwayman: short sentences, railway words (প্ল্যাটফর্ম, সিগন্যাল, "
+                  "গার্ডের কামরা), a little sad, never laughs at the dead."),
+        "themes": ["the woman who got down at a station that closed in 1971", "the compartment where the fan turned by itself",
+                   "the child who asked for the last stop every night"],
+        "q": {"bn": ["ট্রেনের ভূতের গল্প", "লোকাল ট্রেনের ভূত", "railway station bhuter golpo"], "hi": ["train horror story hindi", "रेलवे स्टेशन भूत"]},
+    },
+    "tadanta": {
+        "bn": "রাত-তদন্ত", "hi": "रात की तहक़ीक़ात", "icon": "🔦",
+        "about": "NIGHT INVESTIGATION - a young ghost-hunting team with a camera and a sound recorder spends one night in a haunted place",
+        "fmt": "Riya and Tanmoy's team spends one night in a haunted place with their camera and recorder",
+        "cast": [{"name": "Riya", "name_local": "রিয়া", "gender": "female", "age": "young", "kind": "human",
+                  "look": "Riya Sen, the team leader, a Bengali woman of about twenty-six, hair in a high ponytail, a dark "
+                          "green jacket, cargo trousers, a small digital sound recorder in her hand, a headlamp, brave sharp eyes"},
+                 {"name": "Tanmoy", "name_local": "তন্ময়", "gender": "male", "age": "young", "kind": "human",
+                  "look": "Tanmoy, the cameraman, a stocky Bengali man of about twenty-eight, short beard, a black hoodie, "
+                          "a camera with a night-vision light on his shoulder, a backpack of cables"}],
+        "voices": {"riya": "Zephyr", "tanmoy": "Orus"},
+        "rule": ("Every episode is ONE night in ONE real-sounding haunted place of Bengal (a different place every time): "
+                 "RIYA (believes, careful) and TANMOY (does not believe, jokes) arrive at dusk, set up the camera and "
+                 "recorder, talk to one local person, and the night goes wrong step by step; the recorder catches a "
+                 "voice. Clear start (why this place, who told them about it). End: the next morning, what the "
+                 "recording really says."),
+        "bible": ("RIYA is calm, brave, respectful to the place, speaks quickly when excited. TANMOY makes jokes to hide "
+                  "fear, calls her 'রিয়াদি', is the first to run and the first to come back for her."),
+        "themes": ["a closed jute mill by the Hooghly", "an abandoned TB sanatorium in the hills", "a rajbari with one locked room"],
+        "q": {"bn": ["প্যারানর্মাল ইনভেস্টিগেশন বাংলা", "ভূতুড়ে জায়গায় এক রাত", "ghost hunting bangla"], "hi": ["paranormal investigation hindi", "haunted place one night hindi"]},
+    },
+    "bungalow": {
+        "bn": "ডাকবাংলোর খাতা", "hi": "डाक बंगले का रजिस्टर", "icon": "🏚️",
+        "about": "THE BUNGALOW REGISTER - an old forest dak bungalow in Purulia; one guest's night from its visitors' book each time",
+        "fmt": "old chowkidar Mahadeb reads one old entry from the visitors' book and that guest's night is told",
+        "cast": [{"name": "Mahadeb", "name_local": "মহাদেব", "gender": "male", "age": "old", "kind": "human",
+                  "look": "Mahadeb Mahato, the chowkidar of an old forest dak bungalow, a dark thin Bengali man of about "
+                          "sixty-five, white stubble, a checked gamchha on his shoulder, a brown shawl, a hurricane lantern, "
+                          "an old cloth-bound visitors' book under his arm"}],
+        "voices": {"mahadeb": "Iapetus"},
+        "rule": ("Every episode is ONE entry of the bungalow's old visitors' book (a different year and guest each time): "
+                 "CHOWKIDAR MAHADEB opens the book by lantern light and the guest's night is acted out in full - the "
+                 "forest, the generator going off, the room at the end of the verandah. Clear start (who came, from where, "
+                 "why). End: Mahadeb closes the book - and the last line in it is new."),
+        "bible": ("MAHADEB speaks in plain Purulia-touched Bengali, slowly, kind but full of warnings he never fully explains; "
+                  "calls guests 'বাবু' / 'দিদিমণি'."),
+        "themes": ["a young couple on their honeymoon in 1984", "a forest officer in the monsoon of 1962", "three college friends in the winter of 1998"],
+        "q": {"bn": ["ডাকবাংলোর ভূতের গল্প", "জঙ্গলের বাংলোর ভূত", "purulia bhuter golpo"], "hi": ["dak bungalow horror story", "jungle bungalow bhoot"]},
+    },
+}
+SERIES_IDS = ("bhairab", "taranath", "karna") + tuple(NEW_SERIES)
+for _k, _s in NEW_SERIES.items():
+    LANGS["bn"][_k] = f"{_s['bn']} #{{n}}"
+    LANGS["bn"][_k + "_pl"] = f"{_s['bn']} - {_k.title()} Horror Series"
+    LANGS["hi"][_k] = f"{_s['hi']} #{{n}}"
+    LANGS["hi"][_k + "_pl"] = f"{_s['hi']} - {_k.title()} Horror Series"
+    SERIES_RX[_k] = re.escape(_s["bn"]) + "|" + re.escape(_s["hi"])
+    SERIES_BIBLE[_k] = _s["bible"]
+    SERIES_VOICES.update(_s["voices"])
+    CASE_SERIES.append((_k, f"{_s['icon']} {_s['bn']}", _s["about"].split(" - ", 1)[-1]))
+    extras.CAT_QUERIES[("horror", _k)] = _s["q"]       # (its own YouTube search for this week's trend)
+
+
+def series_cast(special, theme="", crossover=False):
+    """the fixed people of a series (old and new)"""
+    if special in NEW_SERIES:
+        return [dict(c) for c in NEW_SERIES[special]["cast"]]
+    return {"bhairab": BHAIRAB + (KARNA if crossover else []),
+            "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []), "karna": KARNA}.get(special, [])
+
+
+def series_label(special, L):
+    if special in NEW_SERIES or special in ("taranath", "karna"):
+        return L[special].split(" #")[0]
+    if special == "bhairab":
+        return L["bhairab"].split(" #")[0].replace("ের কেস", "").replace(" का केस", "")
+    return None
+
+
+def pick_new_series(history):
+    """the next of our new series: the one not heard for the longest time (a series that people clearly watch
+    less is given fewer turns once there are numbers)"""
+    last = {k: "" for k in NEW_SERIES}
+    sc = {k: [] for k in NEW_SERIES}
+    for h in history:
+        if h.get("special") in NEW_SERIES:
+            last[h["special"]] = max(last[h["special"]], str(h.get("date", "")))
+            if h.get("stats"):
+                sc[h["special"]].append(extras.score(h["stats"]))
+    avg = {k: (sum(v) / len(v)) for k, v in sc.items() if len(v) >= 3}
+    weak = {k for k, a in avg.items() if avg and a < 0.5 * (sum(avg.values()) / len(avg))}
+    order = sorted(NEW_SERIES, key=lambda k: (k in weak, last[k]))
+    return order[0]
+
+
+def new_series_rule(special, history, lang):
+    s = NEW_SERIES[special]
+    n = 1 + sum(1 for h in history if h.get("special") == special)
+    return (f"\nOUR OWN ORIGINAL SERIES '{s['bn']}' ({s['about']}), episode {n} - never copy any existing show, "
+            f"podcast, book or film; our own people and stories only.\n{s['rule']}\nThe fixed people and their looks "
+            f"(use EXACTLY these names and looks): {json.dumps(s['cast'], ensure_ascii=False)}. Every other person is "
+            "new in this episode. Women are always played as women.\n")
+
 
 def cases_page(history):
     """docs/cases.html: every case of our three series in order - where it happened, whether it is solved, what
@@ -7223,10 +7394,8 @@ def _yt_find_posted(keys, hint):
 def _series_cast(story, special, theme, part, prev):
     """the same people main() keeps in the series memory (our fixed heroes; part 2+ = part 1's people + new)"""
     chars = [dict(c) for c in story.get("characters") or [] if isinstance(c, dict)]
-    if special in ("bhairab", "taranath", "karna"):
-        fixed = {"bhairab": BHAIRAB + (KARNA if STATE.get("crossover") or (prev or {}).get("crossover") else []),
-                 "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []),
-                 "karna": KARNA}[special]
+    if special in SERIES_IDS:
+        fixed = series_cast(special, theme, STATE.get("crossover") or (prev or {}).get("crossover"))
         names = {c["name"].lower(): c for c in fixed}
         chars = [names.get(str(c.get("name", "")).lower(), c) for c in chars]
         for b in fixed:
@@ -7326,7 +7495,7 @@ def repair_lost_posts(history, now=None):
                                 (cur.get("series_id") == series_id and int(cur.get("done") or 0) < part)):
                 m = re.search(r"#\s*([০-৯0-9]+)", title)
                 case_no = (int(m.group(1).translate(str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789"))) if m and special in
-                           ("bhairab", "taranath", "karna") else (prev or {}).get("case_no"))
+                           SERIES_IDS else (prev or {}).get("case_no"))
                 chars, setting = _series_cast(story, special, theme, part, prev)
                 last_sc = story["scenes"][-1] if story.get("scenes") else {}
                 extras.series_put(NEXT_PART, cat, {
@@ -7421,7 +7590,7 @@ def _plan_title(plan):
     L = LANGS[lang]
     t = re.sub(r"\s*\|.*$", "", str(story.get("title", ""))).strip()
     sp = plan.get("special")
-    if sp in ("bhairab", "taranath", "karna"):     # the case number exactly as the video will count it
+    if sp in SERIES_IDS:                           # the case number exactly as the video will count it
         prev = plan.get("prev") if isinstance(plan.get("prev"), dict) else {}
         try:
             n = prev.get("case_no") or 1 + sum(1 for h in load_history() if h.get("special") == sp
@@ -7474,8 +7643,7 @@ def thumb_plan(story, cast, special, cat):
 
 def _thumb_small(plan_or_story, part, special, lang, true_label):
     L = LANGS[lang]
-    series_bn = {"taranath": L["taranath"].split(" #")[0], "karna": L["karna"].split(" #")[0],
-                 "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "").replace(" का केस", "")}.get(special)
+    series_bn = series_label(special, L)
     pn = str(part).translate(BN_DIGITS) if lang == "bn" else str(part)
     return " · ".join(x for x in (extras.TRUE_LABEL.get(lang, extras.TRUE_LABEL["bn"]) if true_label else "",
                                   series_bn or "", L["part"].format(n=pn) if part else "") if x)
@@ -8812,10 +8980,8 @@ def main():
     story.pop("choice", None)                        # ... this category's next day
     series_id = (((prev or {}).get("series_id") or (prev or {}).get("created")) if part >= 2 else
                  (dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes") if part == 1 else None))
-    if special in ("bhairab", "taranath", "karna"):  # always the same faces for our recurring heroes
-        fixed = {"bhairab": BHAIRAB + (KARNA if STATE.get("crossover") or (prev or {}).get("crossover") else []),
-                 "taranath": TARANATH + (MADHU_CAST if theme == "madhusundari" else []),
-                 "karna": KARNA}[special]
+    if special in SERIES_IDS:                        # always the same faces for our recurring heroes
+        fixed = series_cast(special, theme, STATE.get("crossover") or (prev or {}).get("crossover"))
         names = {c["name"].lower(): c for c in fixed}
         story["characters"] = [names.get(str(c.get("name", "")).lower(), c) for c in story.get("characters", [])]
         for b in fixed:
@@ -8851,6 +9017,12 @@ def main():
         title = f"{L['karna'].format(n=case_no)}: {no_series_name(title, 'karna')}"[:95]
         STATE["case_no"] = case_no
         story["_playlist"] = L["karna_pl"]
+    elif special in NEW_SERIES:
+        case_no = (prev or {}).get("case_no") or 1 + sum(1 for h in history if h.get("special") == special
+                                                         and h.get("lang") == lang)
+        title = f"{L[special].format(n=case_no)}: {no_series_name(title, special)}"[:95]
+        STATE["case_no"] = case_no
+        story["_playlist"] = L[special + "_pl"]
     elif special == "amavasya":
         title = f"{L['amavasya']}: {title}"[:95]
     elif special == "classic" and classic:
@@ -8982,8 +9154,7 @@ def main():
             gf_ = os.path.join(WORK, "ghost_face.jpg")
             shutil.copy(gf_ if os.path.exists(gf_) else first_ok, thumb_base)   # the ghost is always on it
     thumb = os.path.join(WORK, "thumbnail.jpg")
-    series_bn = {"taranath": L["taranath"].split(" #")[0], "karna": L["karna"].split(" #")[0], "bhairab": L["bhairab"].split(" #")[0].replace("ের কেস", "")
-                 .replace(" का केस", "")}.get(special)
+    series_bn = series_label(special, L)
     big = re.sub(r"[^\w\sঀ-৿ऀ-ॿ!?,।'’-]", " ", re.sub(r"\s*\|.*$", "", title))   # the title on the thumbnail
     big = re.sub(r"\s{2,}", " ", re.sub(r"[0-9০-৯०-९]+", " ", big)).strip()   # the poster font has no digits
     sub = str(story.get("tagline") or story.get("thumbnail_text") or story.get("episode_name") or "").strip()   # ... + tag line
@@ -9153,7 +9324,7 @@ def main():
     STING_AT[0] = 1 if cold else 0      # the show's sound with the title, right after the hook
     HOOK_TEXT[0] = str(story.get("thumbnail_text") or "").strip()
     video = os.path.join(WORK, "final.mp4")
-    show_top = (L["karna"].split(" #")[0] if special == "karna" else
+    show_top = (series_label(special, L) if special == "karna" or special in NEW_SERIES else
                 f"{SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])} · {HORROR_CATS[cat][lang]}")
     STATE["top_text"] = (show_top, re.sub(r"\s*\|.*$", "", title).strip())
     VOICE_CONTEXT[0] = "amavasya" if env("MODE") == "amavasya" else "main"
@@ -9767,8 +9938,8 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
         sc[:len(scream)] += scream
     parts.append(_still_clip(ghost_img, sc, 2.4, nxt("ghost"), zoom=True))
     show = SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])
-    if special == "karna":
-        show = L["karna"].split(" #")[0]
+    if special == "karna" or special in NEW_SERIES:
+        show = series_label(special, L)
     clean = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?'-]", "", title).strip()
     final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["follow"], L["link_below"]], [50, 66, 46, 40, 40],
                   [(200, 200, 200), (255, 225, 0), (255, 60, 60), (255, 255, 255), (120, 220, 255)], bg=ghost_img)
