@@ -200,7 +200,7 @@
    "comments": 1,
    "views": 0,
    "length_s": 599,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -228,7 +228,7 @@
    "yt_views": 2,
    "yt_avg_s": 76,
    "yt_avg_pct": 15.4,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -254,7 +254,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -412,7 +412,7 @@
    "yt_views": 2,
    "yt_avg_s": 12,
    "yt_avg_pct": 0.2,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -436,12 +436,12 @@
   "stats": {
    "likes": 3,
    "comments": 2,
-   "views": 0,
+   "views": 1,
    "length_s": 691,
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -460,7 +460,7 @@
    "yt_views": 1,
    "yt_avg_s": 22,
    "yt_avg_pct": 2.1,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -478,7 +478,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -503,12 +503,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 1,
+   "views": 2,
    "length_s": 356,
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -737,7 +737,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -769,12 +769,12 @@
   "stats": {
    "likes": 4,
    "comments": 3,
-   "views": 2,
+   "views": 4,
    "length_s": 811,
    "yt_views": 2,
    "yt_avg_s": 105,
    "yt_avg_pct": 13,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -1027,12 +1027,12 @@
   "stats": {
    "likes": 5,
    "comments": 1,
-   "views": 0,
+   "views": 1,
    "length_s": 1040,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-09T01:02+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 1040,
+   "yt_avg_pct": 100.0,
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -1267,12 +1267,12 @@
   "stats": {
    "likes": 3,
    "comments": 3,
-   "views": 4,
+   "views": 8,
    "length_s": 1912,
-   "yt_views": 2,
-   "yt_avg_s": 289,
-   "yt_avg_pct": 15.1,
-   "checked": "2026-11-09T01:02+00:00"
+   "yt_views": 6,
+   "yt_avg_s": 882,
+   "yt_avg_pct": 46.1,
+   "checked": "2026-11-12T01:04+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1545,7 +1545,7 @@
    "comments": 2,
    "views": 0,
    "length_s": 802,
-   "checked": "2026-11-09T01:02+00:00"
+   "checked": "2026-11-12T01:04+00:00"
   }
  },
  {
@@ -2007,7 +2007,23 @@
    ]
   },
   "tagline": "শুকনো পুকুর থেকে কে ডাকছে মধ্যরাতে?",
-  "district": "nadia"
+  "district": "nadia",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 1,
+   "length_s": 875,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-12T01:04+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 1,
+   "at": "2026-11-12T01:05+00:00",
+   "thumb": true
+  }
  },
  {
   "date": "2026-11-11T03:59+00:00",
@@ -2129,18 +2145,23 @@
     ]
    ]
   },
-  "district": "birbhum"
+  "district": "birbhum",
+  "stats": {
+   "likes": 1,
+   "comments": 1,
+   "views": 0,
+   "length_s": 664,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-12T01:04+00:00"
+  }
  },
  {
   "date": "2026-11-11T10:21+00:00",
   "lang": "bn",
   "slot": "2026-11-11@20",
-  "pending_comments": [
-   {
-    "id": "1028200703646019",
-    "text": "আপনার কি কখনো এমন কোনো অদৃশ্য উপস্থিতি অনুভূত হয়েছে? 👻\n\n🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!\n\n👇 কীভাবে অংশ নেবেন:\n✅ প্রশ্নের উত্তর এখানে কমেন্টে লিখুন - ঠিক উত্তরদাতাদের নাম পরের ভিডিওতে!\n🗳️ ভোট থাকলে ১ বা ২ লিখুন\n📝 আপনার সত্যি ভৌতিক ঘটনা #আমার_গল্প লিখে পাঠান - পরের গল্পটা আপনার হতে পারে\n🔔 ফলো করে রাখুন, পরের পর্ব যেন মিস না হয়\n\n📍 আপনার জেলায় কোন ভূতের লোককথা শোনা যায়? জেলার নাম আর লোককথাটা লিখে জানান - যে জেলার নাম সবচেয়ে বেশি আসবে, পরের মঙ্গলবার দুপুরের গ্রামের গল্প হবে সেই জেলায়।\n\n🗺️ বাংলার ভূতের মানচিত্র - আপনার জেলার গল্প খুঁজুন: https://sumonsham.github.io/horror-story-bot/map/"
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "category": "tantrik",
