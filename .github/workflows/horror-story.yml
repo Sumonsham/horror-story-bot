@@ -13,6 +13,8 @@ on:
         description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special."
         required: false
         default: ""
+  schedule:                 # v76: ONLY the Saturday-night YouTube Live 'ভূতের রাত' (20:30 India time) - its own queue,
+    - cron: "0 15 * * 6"    #      so it never blocks or waits for a story run
   push:                     # ONLY the website (privacy page + ghost map) is updated on a push - never a video
     branches: [main]
     paths:
@@ -24,12 +26,12 @@ permissions:
   contents: write
 
 concurrency:                # (a website update never waits for or cancels a video run)
-  group: ${{ github.event_name == 'push' && 'horror-website' || 'horror-story' }}
+  group: ${{ github.event_name == 'push' && 'horror-website' || (github.event_name == 'schedule' && 'horror-live' || 'horror-story') }}
   cancel-in-progress: false
 
 jobs:
   post:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 360    # 6 hours (the most GitHub allows)
     env:
@@ -136,9 +138,11 @@ jobs:
           LANGUAGE: ${{ github.event.inputs.language }}
           CHANNEL_LANG: ${{ secrets.CHANNEL_LANG }}
           EVENT: ${{ github.event_name }}
-          MODE: ${{ github.event.inputs.mode || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || '' }}
+          MODE: ${{ github.event.inputs.mode || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || (github.event.schedule == '0 15 * * 6' && 'live') || '' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        # (GitHub gives this by itself - for the podcast audio)
+          PODCAST_EMAIL: ${{ secrets.PODCAST_EMAIL }}      # (optional - Spotify sends its check code here)
         run: python main.py
 
       - name: Remember this story
@@ -172,7 +176,7 @@ jobs:
             fi
           fi
           # one by one: before, ONE missing file made git skip the whole list (lessons, series memory... never saved)
-          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json; do
+          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json; do
             if [ -e "$p" ]; then git add -A -f -- "$p" || true; fi
           done
           git commit -q -m "story posted $(date -u +%F_%H%M)" || echo "nothing new to remember"
