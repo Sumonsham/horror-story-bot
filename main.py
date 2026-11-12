@@ -5762,7 +5762,7 @@ CREATOR_RULE = (
 
 
 PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
-              "trend_used", "crossover", "milestone",
+              "trend_used", "crossover", "milestone", "opening",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
               "district", "district_votes", "viewer_names", "arc")
 
@@ -5967,6 +5967,16 @@ def choose_and_write(slot_hour, history):
             extra_rules += milestone_rule()
         except Exception:
             pass
+        try:                                         # v77: what the growth monitor learned + the opening style
+            coach = extras.coach_load(COACH_FILE)
+            extra_rules += extras.coach_rule(coach, "horror")
+            if not (part and part >= 2) and env("OPENING_TEST") != "0":
+                op = extras.pick_opening(coach)
+                STATE["opening"] = op
+                extra_rules += "\nOPENING OF THIS STORY (we measure which opening keeps listeners) - " + extras.OPENINGS[op] + "\n"
+                log(f"Opening style of this story: {op}")
+        except Exception as e:
+            log("  opening / coach rules skipped:", str(e)[:100])
         if STATE.get("own_kind") and STATE.get("trends"):
             extra_rules += ("\nTRENDING THIS WEEK (Bengali / Indian viewers are watching these - if one fits "
                             "today's category, build on it): " + " | ".join(STATE["trends"]) + "\n")
@@ -8230,7 +8240,36 @@ def recap_frames(history, series_id, part, lang, n=3):
 # ===================================================================================================== v76: growth
 ASSETS = os.path.join(HERE, "assets")
 MILESTONE_FILE = os.path.join(ASSETS, "milestones.json")
-GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("milestones.json", "tg_channel.json", "viewer_voice.json")]
+COACH_FILE = os.path.join(ASSETS, "coach.json")
+GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("milestones.json", "tg_channel.json", "viewer_voice.json", "coach.json")]
+
+
+def video_len(h):
+    tl = h.get("timeline") or {}
+    if tl.get("len"):
+        return float(tl["len"])
+    if h.get("facebook"):
+        try:
+            return float(extras.fb_video_source(h["facebook"])[1] or 0) or None
+        except Exception:
+            return None
+    return None
+
+
+def daily_monitor(history):
+    """v77: ONCE A DAY - the health of every key, the channel's numbers, the first 30 seconds, clicks, how long people
+    watch: what the bot changes by itself, and (only if needed) what YOU must do. One message on Telegram."""
+    coach, lines, did = extras.growth_monitor(history, COACH_FILE, "horror", "bn", video_len)
+    if lines is None or (not lines and not did and not (coach.get("last_report") or {}).get("todo")):
+        return False
+    todo = (coach.get("last_report") or {}).get("todo") or []
+    msg = ["📈 ভূতের চ্যানেল - আজকের খবর"] + lines
+    if did:
+        msg += ["", "🤖 bot নিজে যা বদলাল:"] + [f"• {x}" for x in did]
+    msg += ["", "⚠️ আপনাকে যা করতে হবে:"] + [f"• {x}" for x in todo] if todo else ["", "✅ সব চাবি ঠিক আছে - আপনার কিছু করার নেই।"]
+    extras.telegram("\n".join(msg))
+    save_history(history)
+    return True
 
 
 def story_slug():
@@ -8303,6 +8342,11 @@ def growth_start(history):
             celebrate_milestone(got, lang)
     except Exception as e:
         log("  milestones skipped:", str(e)[:100])
+    if env("MONITOR") != "0":
+        try:
+            daily_monitor(history)
+        except Exception as e:
+            log("  daily monitor skipped:", str(e)[:150])
     try:
         push_now([f for f in GROWTH_FILES if os.path.exists(f)], "growth notes")
     except Exception:
@@ -9148,6 +9192,15 @@ def main():
     if kw:
         yt_title = f"{title} | {kw}"
     yt_tags = [w for w in seo_words] + tags
+    try:                                             # v77: the safety check before every upload
+        yt_title, yt_description, yt_tags, n1 = extras.safety_check(yt_title, yt_description, yt_tags, "horror")
+        title, description, _t, n2 = extras.safety_check(title, description, [], "horror")
+        extras.thumb_safe(thumb)
+        if n1 or n2:
+            log("  safety check: " + "; ".join(dict.fromkeys(n1 + n2)))
+            extras.note("নিরাপত্তা-পরীক্ষা: " + "; ".join(dict.fromkeys(n1 + n2))[:300])
+    except Exception as e:
+        log("  safety check skipped:", str(e)[:120])
 
     results = {}
     if DRY_RUN:
@@ -9203,6 +9256,7 @@ def main():
                     "idea_used": STATE.get("idea_used"),
                     "trend_used": STATE.get("trend_used"),
                     "crossover": STATE.get("crossover") or None,
+                    "opening": STATE.get("opening"),
                     "category": STATE.get("category"),
                     "question_post": extras.fb_question_post(
                         history, "horror", lang, photo=(HIDDEN_PICS[0] if HIDDEN_PICS else None),
