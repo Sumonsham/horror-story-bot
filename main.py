@@ -8574,7 +8574,7 @@ def recap_frames(history, series_id, part, lang, n=3):
 ASSETS = os.path.join(HERE, "assets")
 MILESTONE_FILE = os.path.join(ASSETS, "milestones.json")
 COACH_FILE = os.path.join(ASSETS, "coach.json")
-GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("milestones.json", "tg_channel.json", "viewer_voice.json", "coach.json",
+GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("promos.json", "milestones.json", "tg_channel.json", "viewer_voice.json", "coach.json",
                                                    "messenger.json", "tg_requests.json")]
 
 
@@ -9013,6 +9013,98 @@ def crossover_rule(history, part, prev):
             "gift clash and then work together; each keeps his own way of speaking. The TITLE starts with 'মহা-কেস: '.\n")
 
 
+PROMO_FILE = os.path.join(ASSETS, "promos.json")
+
+
+def _clean_url(u):
+    """a link without the tracking part (?si=...&utm_source=...)"""
+    return str(u or "").strip().split("?")[0].split("#")[0].rstrip("/")
+
+
+def _short_url(u):
+    return re.sub(r"^https?://", "", _clean_url(u))
+
+
+def promo_list(lang):
+    """v84: our features that can be advertised RIGHT NOW (only the ones that really work - no dead links)"""
+    if lang != "bn" or env("PROMOS") == "0":
+        return {}
+    base = map_url() if not MOCK else (env("MAP_URL") or "https://sumonsham.github.io/horror-story-bot/map/")
+    bot = extras.tg_bot_link()
+    ch = extras.tg_channel_link(ASSETS)
+    out = {}
+    if base:
+        out["map"] = {"icon": "map", "head": "বাংলার ভূতের মানচিত্র", "sub": "আপনার জেলার ভূতের গল্প এক জায়গায়",
+                      "sub2": "প্রতিটা নতুন গল্পের সাথে মানচিত্র নিজেই বাড়ে", "link": _short_url(base), "url": base}
+    if bot and env("TG_REQUESTS") != "0":
+        out["golpo_chai"] = {"icon": "bot", "head": "Telegram-এ লিখুন: গল্প চাই",
+                             "sub": "সাথে সাথে একটা ছোট ভূতের গল্প আপনার কাছে", "sub2": "দিনে তিনটে পর্যন্ত, একদম বিনামূল্যে",
+                             "link": _short_url(bot), "url": bot}
+    if bot and env("VIEWER_VOICE") != "0":
+        out["voice"] = {"icon": "voice", "head": "আপনার নিজের ভৌতিক অভিজ্ঞতা",
+                        "sub": "Telegram-এ গলায় বলে পাঠান - সেটা নিয়েই গল্প হবে", "sub2": "ভয়েস মেসেজ পাঠালেই হবে",
+                        "link": _short_url(bot), "url": bot}
+    if ch:
+        out["channel"] = {"icon": "channel", "head": "আমাদের Telegram চ্যানেল", "sub": "নতুন গল্পের খবর সবার আগে",
+                          "sub2": "কোন গল্প কখন আসছে - সব এখানে", "link": _short_url(ch), "url": ch}
+    if base and (MOCK or os.path.exists(os.path.join(MAP_DIR, "podcast.xml"))):
+        sp = _clean_url(env("SPOTIFY_URL"))
+        out["podcast"] = {"icon": "podcast", "head": "এখন Spotify-তেও শুনুন",
+                          "sub": "সব ভূতের গল্প পডকাস্টে - হাঁটতে চলতে শুনুন", "sub2": "Spotify-তে আমাদের নাম লিখে খুঁজুন",
+                          "link": _short_url(sp), "url": sp}
+    if env("YT_LIVE") != "0":
+        out["live"] = {"icon": "live", "head": "প্রতি শনিবার রাতে লাইভ: ভূতের রাত",
+                       "sub": "সপ্তাহের সেরা গল্প একটানা - YouTube-এ", "sub2": "লাইভ চ্যাটে আপনার নাম পর্দায় আসবে"}
+    if base and env("STORY_PAGES") != "0":
+        out["web"] = {"icon": "web", "head": "গল্পগুলো পড়তেও পারেন", "sub": "প্রতিটা গল্প লেখা আকারে আমাদের ওয়েবসাইটে",
+                      "sub2": "রাতে শোনার আগে বা পরে - পড়ে নিন", "link": _short_url(base + "golpo/"), "url": base + "golpo/"}
+    if env("AMBIENCE") != "0":
+        out["ambience"] = {"icon": "moon", "head": "প্রতি বুধবার: ২ ঘণ্টার রাতের আওয়াজ",
+                           "sub": "বৃষ্টি, হাওয়া, দূরের ঝিঁঝিঁ - ঘুম বা পড়ার জন্য", "sub2": "আমাদের YouTube চ্যানেলে"}
+    out["series"] = {"icon": "star", "head": "বৃহস্পতি আর শনিবার রাত ৮টা: নতুন সিরিজ",
+                     "sub": "নিশি-রেডিও, মর্গের খাতা, শেষ লোকাল, রাত-তদন্ত, ডাকবাংলোর খাতা",
+                     "sub2": "প্রতি সপ্তাহে নতুন পর্ব"}
+    if env("TEXT_SHORT") != "0":
+        out["text_short"] = {"icon": "clock", "head": "রোজ সকাল ১০টা: এক মিনিটের ভূতের গল্প",
+                             "sub": "ছোট্ট, কিন্তু রাতে মনে পড়বেই", "sub2": "YouTube Shorts আর Facebook Reels-এ"}
+    return out
+
+
+def promo_card_for(lang, secs):
+    """(png, start, seconds) of this video's feature card - or None (every 2nd video, each feature every month)"""
+    feats = promo_list(lang)
+    if not feats or secs < (30 if MOCK else 120):
+        return None
+    pid = extras.promo_pick(PROMO_FILE, list(feats), every=int(env("PROMO_EVERY") or 2))
+    if not pid:
+        return None
+    png = extras.promo_card_png((W, H), feats[pid], os.path.join(WORK, "promo_card.png"), FONT)
+    log(f"  feature card in the video: {pid}")
+    return (png, round(secs * 0.45, 1), 7.0)
+
+
+def promo_monthly_post(thumb):
+    """v84: one Facebook poster a day at most, every feature once a month, at least 3 days apart"""
+    feats = promo_list(env("LANGUAGE") or "bn")
+    if not feats or not env("FB_PAGE_TOKEN") or env("PROMO_POSTS") == "0":
+        return False
+    pid = extras.promo_post_due(PROMO_FILE, list(feats), gap_days=3)
+    if not pid:
+        return False
+    f = feats[pid]
+    img = extras.promo_poster(thumb, f, os.path.join(WORK, "promo_poster.jpg"), FONT)
+    msg = "\n".join(x for x in [f"✨ {f['head']}", f.get("sub", ""), f.get("sub2", ""),
+                                (f"👉 {f['url']}" if f.get("url") else "")] if x)
+    now = dt.datetime.now(extras.IST)
+    when = now.replace(hour=12, minute=15, second=0, microsecond=0)        # a quiet hour, far from the videos
+    if when < now + dt.timedelta(minutes=30):
+        when += dt.timedelta(days=1)
+    extras.fb_schedule_photo(img, msg, when)
+    extras.promo_post_done(PROMO_FILE, pid)
+    log(f"  monthly feature poster scheduled on Facebook: {pid}")
+    return True
+
+
 def growth_links(lang):
     """the lines under every video: read the story, tell us your own experience by voice, our fan channel"""
     if lang != "bn":
@@ -9121,6 +9213,12 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
     yt_link = f"https://youtu.be/{results['youtube']}" if results.get("youtube") else ""
     clean = re.sub(r"\s*[|].*$", "", title).strip()
     changed = []
+    # v84: once in a while (each feature once a month) a Facebook poster for one of our features
+    try:
+        if results.get("facebook") and promo_monthly_post(thumb):
+            changed.append(PROMO_FILE)
+    except Exception as e:
+        log("  feature poster skipped:", str(e)[:150])
     # 10) Facebook photo story: countdown
     if at and results.get("facebook") and env("FB_COUNTDOWN") != "0":
         try:
@@ -9430,7 +9528,7 @@ def main():
     if not MOCK and not DRY_RUN:
         try:
             changed = extras.flush_pending(history)    # comments of earlier videos that are live now
-            changed = extras.reply_fans(history, env("LANGUAGE") or "bn") or changed   # answer the fans
+            changed = extras.reply_fans(history, env("LANGUAGE") or "bn", kind="horror") or changed   # answer the fans
             if changed:
                 save_history(history)
         except Exception as e:
@@ -9891,20 +9989,32 @@ def main():
         return
     log(f"Video ready: {duration(video):.0f} seconds")
     learn_length(duration(video))
+    cards_ = []                                      # pictures laid over the video (one re-encode for all)
     if special in NEW_SERIES and env("PREV_CARD") != "0":
         try:                                         # v82: 'আগের পর্বে: ...' over the first seconds (no voice)
             prev_ep = next((h for h in reversed(history) if h.get("special") == special and h.get("title")), None)
             if prev_ep:
-                vw_ = os.path.join(WORK, "final_prev.mp4")
                 png_ = extras.prev_card_png(f"{series_label(special, L)} - আগের পর্বে" if lang == "bn" else
                                             f"{series_label(special, L)} - पिछले एपिसोड में",
                                             re.sub(r"^.*?:\s*", "", re.sub(r"\s*\|.*$", "", str(prev_ep["title"])))[:60],
                                             (W, H), os.path.join(WORK, "prev_card.png"), FONT)
-                extras.overlay_card(video, png_, 5.0, vw_)
-                os.replace(vw_, video)
+                cards_.append((png_, 0.0, 5.0))
                 log(f"  'last episode' card: {prev_ep['title'][:60]}")
         except Exception as e:
             log("  last-episode card skipped:", str(e)[:150])
+    try:                                             # v84: a small card for one of our features (every 2nd video)
+        pc_ = promo_card_for(lang, duration(video))
+        if pc_:
+            cards_.append(pc_)
+    except Exception as e:
+        log("  feature card skipped:", str(e)[:150])
+    if cards_:
+        try:
+            vw_ = os.path.join(WORK, "final_cards.mp4")
+            extras.overlay_cards(video, cards_, vw_)
+            os.replace(vw_, video)
+        except Exception as e:
+            log("  cards over the video skipped:", str(e)[:150])
 
     own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
     seeds = ([HORROR_CATS[cat]["bn"], "ভূতের গল্প", "bhuter golpo"] if lang == "bn" else

@@ -4986,7 +4986,46 @@ def sub_times(text, dur, chunks):
 
 
 # ----------------------------------------------------------------- talking with the fans
-def reply_fans(history, lang, max_n=5):
+def human_reply_ask(kind, lang, todo):
+    """v84: the prompt for replies that read like the channel owner typed them himself - not like a bot"""
+    page = ("a Bengali horror-story page/channel (the stories are told late at night, a little mysterious)" if kind == "horror"
+            else "a Bengali/Hindi children's story cartoon page/channel (family friendly, cheerful)")
+    home = "Bengali (natural Kolkata cholit bhasha)" if lang == "bn" else "Hindi (simple, natural)"
+    return (f"You are the real person who runs {page}. You are replying to your viewers' comments YOURSELF, from "
+            "your own page, the way a real Bengali creator types on the phone. Rules for every reply:\n"
+            f"- Reply in the SAME language and script the viewer used (Bengali letters -> Bengali; Bengali/Hindi "
+            f"written in English letters -> answer the same way in English letters; English -> simple English). "
+            f"If unclear, use {home}.\n"
+            "- React to exactly what THIS viewer said (their guess, their fear, their memory, their question, the "
+            "character they liked). Never a generic 'thank you for watching'. No two replies may start the same way.\n"
+            "- Sound human: casual, warm, sometimes a little playful; vary the length (3 to 22 words); use their "
+            "first name only sometimes; 0 or 1 emoji (often none); no formal words, no 'dear viewer', no 'we "
+            "appreciate'.\n"
+            "- Answer a question honestly and simply; never spoil a twist; if they ask for a story idea, say you "
+            "noted it. Never ask for likes, shares, subscriptions or follows; no links, no hashtags.\n"
+            "- Never say you are a bot or AI, and never promise something exact (dates, prizes).\n"
+            "- For spam, links, abuse or anything rude return an empty string \"\" (we skip it).\n"
+            "Return ONLY a JSON list of strings, one per comment, in the same order.\n"
+            + "\n".join(f"{k + 1}. [video: {t}] {n or 'viewer'}: {m}" for k, (h, cid, n, m, t) in enumerate(todo)))
+
+
+def _ask_replies(ask, key):
+    for model in helper_models(key)[:4]:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": ask}]}],
+                                    "generationConfig": {"responseMimeType": "application/json", "temperature": 0.95}},
+                              timeout=90)
+            if r.ok:
+                out = load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                if isinstance(out, list) and out:
+                    return out
+        except Exception:
+            continue
+    return []
+
+
+def reply_fans(history, lang, max_n=12, kind=None):
     """Each run: answer the first few NEW comments under our recent videos - warm, short, personal replies (like
     a real creator), so people feel heard and come back. Never more than max_n replies per run."""
     token, page_id, key = env("FB_PAGE_TOKEN"), env("FB_PAGE_ID"), env("GEMINI_API_KEY")
@@ -4994,23 +5033,29 @@ def reply_fans(history, lang, max_n=5):
         return False
     now = dt.datetime.now(dt.timezone.utc)
     todo = []
-    for h in reversed(history[-6:]):
-        if not h.get("facebook") or not h.get("date"):
+    kind = kind or ("horror" if "horror" in os.path.abspath(__file__).lower() else "cartoon")
+    for h in reversed(history[-14:]):
+        if not h.get("date") or len(todo) >= max_n:
             continue
         try:
             age = (now - dt.datetime.fromisoformat(h["date"])).total_seconds() / 3600
         except Exception:
             continue
-        if not 1 <= age <= 48:
+        if not 0.3 <= age <= 24 * 7:                      # v84: a whole week, not just 2 days
             continue
-        try:
-            r = requests.get(f"{GRAPH}/{h['facebook']}/comments", timeout=30, params={
-                "fields": "id,message,from{id,name},comment_count", "limit": 50, "order": "chronological",
-                "access_token": token}).json()
-        except Exception:
-            continue
+        items = []
+        for fid in [h.get("facebook"), h.get("fb_reel"), h.get("fb_teaser")]:
+            if not fid or not isinstance(fid, str):
+                continue
+            try:
+                r = requests.get(f"{GRAPH}/{fid}/comments", timeout=30, params={
+                    "fields": "id,message,from{id,name},comment_count", "limit": 50, "order": "chronological",
+                    "access_token": token}).json()
+                items += r.get("data", []) or []
+            except Exception:
+                continue
         done = set(h.get("replied") or [])
-        for c in r.get("data", []):
+        for c in items:
             frm = c.get("from") or {}
             msg = str(c.get("message", "")).strip()
             if (c.get("id") in done or frm.get("id") == page_id or c.get("comment_count") or len(msg) < 2
@@ -5020,31 +5065,15 @@ def reply_fans(history, lang, max_n=5):
     if not todo:
         return False
     lang = todo[0][0].get("lang") or lang            # the language of the video they commented on
-    lang_name = "Bengali (pure Kolkata cholit bhasha)" if lang == "bn" else "Hindi"
-    ask = ("You run a popular story page. Write a short, warm, natural reply (max 18 words, 0-1 emoji) to each "
-           f"viewer comment in {lang_name}, like a real friendly creator: thank them by first name, answer their "
-           "question if they asked one (never spoil a twist), invite them to the next story. No links, no hashtags. "
-           "Return ONLY a JSON list of strings in the same order.\n" +
-           "\n".join(f"{k + 1}. [{t}] {n}: {m}" for k, (h, cid, n, m, t) in enumerate(todo)))
-    try:
-        replies = None
-        for model in helper_models(key)[:3]:
-            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                              json={"contents": [{"parts": [{"text": ask}]}],
-                                    "generationConfig": {"responseMimeType": "application/json", "temperature": 0.8}},
-                              timeout=90)
-            if r.ok:
-                replies = load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
-                break
-        if replies is None:
-            raise RuntimeError("no model answered")
-    except Exception as e:
-        log("  fan replies skipped:", str(e)[:120])
+    replies = _ask_replies(human_reply_ask(kind, lang, todo), key)
+    if not replies:
+        log("  fan replies skipped: no model answered")
         return False
     n = 0
-    for (h, cid, name, msg, t), text in zip(todo, replies if isinstance(replies, list) else []):
-        text = str(text).strip()
+    for (h, cid, name, msg, t), text in zip(todo, replies):
+        text = str(text).strip().strip('"')
         if not text:
+            h.setdefault("replied", []).append(cid)          # spam / rude - skipped on purpose, never again
             continue
         try:
             rr = requests.post(f"{GRAPH}/{cid}/comments", data={"message": text, "access_token": token},
@@ -5054,7 +5083,9 @@ def reply_fans(history, lang, max_n=5):
         except Exception:
             pass
         h.setdefault("replied", []).append(cid)
-    log(f"  replied to {n} viewer comments")
+        h["replied"] = h["replied"][-300:]
+        time.sleep(0 if env("MOCK") else random.uniform(2, 6))   # like a person, not all in the same second
+    log(f"  replied to {n} Facebook comments (as the page)")
     return True
 
 
@@ -6223,7 +6254,7 @@ def yt_my_channel():
     return _MY_YT
 
 
-def yt_reply_fans(history, lang, kind="horror", max_n=5):
+def yt_reply_fans(history, lang, kind="horror", max_n=12):
     """Each run: a short, warm reply under the first few NEW YouTube comments of our last 2 days' videos (YouTube
     shows a video to more people when its comments get answers). Never more than max_n a run, never twice."""
     key = env("GEMINI_API_KEY")
@@ -6232,22 +6263,26 @@ def yt_reply_fans(history, lang, kind="horror", max_n=5):
     me = yt_my_channel().get("id")
     now = dt.datetime.now(dt.timezone.utc)
     todo = []
-    for h in reversed(history[-8:]):
-        if not h.get("youtube") or not h.get("date") or len(todo) >= max_n:
+    for h in reversed(history[-14:]):
+        if not h.get("date") or len(todo) >= max_n:
             continue
         try:
             age = (now - dt.datetime.fromisoformat(h["date"])).total_seconds() / 3600
         except Exception:
             continue
-        if not 1 <= age <= 60:
+        if not 0.3 <= age <= 24 * 7:                      # v84: a whole week
             continue
-        try:
-            r = requests.get(f"{YT}/commentThreads", headers=yt_token(), timeout=30, params={
-                "part": "snippet", "videoId": h["youtube"], "maxResults": 50, "order": "time",
-                "textFormat": "plainText"})
-            items = r.json().get("items", []) if r.ok else []
-        except Exception:
-            continue
+        items = []
+        for vid in [h.get("youtube"), h.get("yt_short"), h.get("yt_teaser")]:
+            if not vid or not isinstance(vid, str):
+                continue
+            try:
+                r = requests.get(f"{YT}/commentThreads", headers=yt_token(), timeout=30, params={
+                    "part": "snippet", "videoId": vid, "maxResults": 50, "order": "time",
+                    "textFormat": "plainText"})
+                items += (r.json().get("items", []) or []) if r.ok else []
+            except Exception:
+                continue
         done = set(h.get("yt_replied") or [])
         for it in items:
             sn = it["snippet"]["topLevelComment"]["snippet"]
@@ -6260,31 +6295,12 @@ def yt_reply_fans(history, lang, kind="horror", max_n=5):
     if not todo:
         return False
     lang = todo[0][0].get("lang") or lang
-    lang_name = "Bengali (pure Kolkata cholit bhasha)" if lang == "bn" else "Hindi"
-    who = ("the grave, warm storyteller of a horror-story channel" if kind == "horror" else
-           "the friendly storyteller of a children's story channel")
-    ask = (f"You are {who}. Write a short, warm, natural reply (max 18 words, 0-1 emoji) to each viewer comment in "
-           f"{lang_name}: thank them by name, answer a question if there is one (never spoil a twist), mention the "
-           "next story if it fits. No links, no hashtags, never ask for likes, shares or subscriptions. Return ONLY "
-           "a JSON list of strings in the same order.\n"
-           + "\n".join(f"{k + 1}. [{t}] {n}: {m}" for k, (h, cid, n, m, t) in enumerate(todo)))
-    replies = []
-    for model in helper_models(key)[:4]:
-        try:
-            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                              json={"contents": [{"parts": [{"text": ask}]}],
-                                    "generationConfig": {"responseMimeType": "application/json", "temperature": 0.8}},
-                              timeout=90)
-            if r.ok:
-                replies = load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
-                if isinstance(replies, list) and replies:
-                    break
-        except Exception:
-            continue
+    replies = _ask_replies(human_reply_ask(kind, lang, todo), key)
     n = 0
-    for (h, cid, name, msg, t), text in zip(todo, replies if isinstance(replies, list) else []):
-        text = str(text).strip()
+    for (h, cid, name, msg, t), text in zip(todo, replies):
+        text = str(text).strip().strip('"')
         if not text:
+            h["yt_replied"] = (list(h.get("yt_replied") or []) + [cid])[-200:]
             continue
         try:
             rr = requests.post(f"{YT}/comments", headers=yt_token(), params={"part": "snippet"}, timeout=30,
@@ -6293,7 +6309,8 @@ def yt_reply_fans(history, lang, kind="horror", max_n=5):
         except Exception:
             pass
         h["yt_replied"] = (list(h.get("yt_replied") or []) + [cid])[-200:]
-    log(f"  replied to {n} YouTube comments")
+        time.sleep(0 if env("MOCK") else random.uniform(2, 6))
+    log(f"  replied to {n} YouTube comments (as the channel)")
     return n > 0
 
 
@@ -7385,12 +7402,249 @@ def messenger_replies(kind="horror", links=(), voice_bot="", max_n=10):
     return n
 
 
-def overlay_card(video, png, secs, out):
-    """a picture (with transparency) over the first `secs` seconds of a video - the timeline stays the same"""
-    _run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-i", png, "-filter_complex",
-          f"[1:v]format=rgba,fade=t=out:st={max(0.5, secs - 0.6):.1f}:d=0.6:alpha=1[o];[0:v][o]overlay=0:0:enable='lte(t,{secs})'",
-          "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-c:a", "copy", "-movflags", "+faststart", out])
+def overlay_card(video, png, secs, out, start=0.0):
+    """a picture (with transparency) over `secs` seconds of a video (from `start`) - the timeline stays the same"""
+    return overlay_cards(video, [(png, start, secs)], out)
+
+
+def overlay_cards(video, cards, out):
+    """several pictures, each over its own few seconds [(png, start, secs)] - one re-encode for all of them"""
+    cards = [(p, float(s), float(d)) for p, s, d in cards if p and os.path.exists(p) and d > 0]
+    if not cards:
+        shutil.copy(video, out)
+        return out
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", video]
+    fl, last = [], "[0:v]"
+    for k, (p, s, d) in enumerate(cards):
+        cmd += ["-loop", "1", "-framerate", "25", "-t", f"{s + d + 0.2:.2f}", "-i", p]
+        fin = f"fade=t=in:st={s:.2f}:d=0.5:alpha=1," if s > 0.3 else ""
+        fl.append(f"[{k + 1}:v]format=rgba,{fin}fade=t=out:st={max(s + 0.5, s + d - 0.6):.2f}:d=0.6:alpha=1[o{k}]")
+        fl.append(f"{last}[o{k}]overlay=0:0:eof_action=pass:enable='between(t,{s:.2f},{s + d:.2f})'[v{k}]")
+        last = f"[v{k}]"
+    cmd += ["-filter_complex", ";".join(fl), "-map", last, "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
+            "-crf", "21", "-c:a", "copy", "-movflags", "+faststart", out]
+    _run(cmd)
     return out
+
+
+# ----------------------------------------------------------------- v84: our own features, advertised in the videos
+# Every second main video gets a small, good-looking card for ONE of our features (about 7 s, at the middle,
+# no voice, nothing covered for long). Every feature comes at least once a month; the ghost map every ~10 days.
+# Once a month each feature also gets its own Facebook poster (spaced out, never two on the same day).
+PROMO_COLORS = {"map": (220, 60, 60), "bot": (40, 160, 225), "voice": (235, 120, 40), "channel": (40, 160, 225),
+                "podcast": (30, 185, 84), "live": (230, 40, 40), "web": (150, 110, 230), "moon": (90, 120, 220),
+                "star": (240, 180, 30), "clock": (240, 150, 40), "learn": (60, 190, 120), "quiz": (230, 90, 170)}
+
+
+def _promo_icon(d, cx, cy, r, icon, col):
+    """a simple drawn icon (no emoji - the fonts have none)"""
+    W_ = max(3, r // 7)
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col + (255,))
+    wh = (255, 255, 255, 255)
+    s = r * 0.55
+    if icon == "map":                                   # a map pin
+        d.ellipse([cx - s * 0.6, cy - s * 0.95, cx + s * 0.6, cy + s * 0.25], fill=wh)
+        d.polygon([(cx - s * 0.5, cy - s * 0.1), (cx + s * 0.5, cy - s * 0.1), (cx, cy + s * 0.95)], fill=wh)
+        d.ellipse([cx - s * 0.25, cy - s * 0.6, cx + s * 0.25, cy - s * 0.1], fill=col + (255,))
+    elif icon in ("bot", "channel"):                    # a paper plane
+        d.polygon([(cx - s, cy - s * 0.1), (cx + s, cy - s * 0.8), (cx + s * 0.35, cy + s * 0.85)], fill=wh)
+        d.polygon([(cx - s * 0.05, cy + s * 0.15), (cx + s, cy - s * 0.8), (cx + s * 0.05, cy + s * 0.75)],
+                  fill=(225, 235, 245, 255))
+    elif icon == "voice":                               # a microphone
+        d.rounded_rectangle([cx - s * 0.32, cy - s * 0.95, cx + s * 0.32, cy + s * 0.25], radius=int(s * 0.32), fill=wh)
+        d.arc([cx - s * 0.6, cy - s * 0.55, cx + s * 0.6, cy + s * 0.55], 0, 180, fill=wh, width=W_)
+        d.line([cx, cy + s * 0.55, cx, cy + s * 0.9], fill=wh, width=W_)
+        d.line([cx - s * 0.35, cy + s * 0.9, cx + s * 0.35, cy + s * 0.9], fill=wh, width=W_)
+    elif icon == "podcast":                             # headphones
+        d.arc([cx - s * 0.85, cy - s * 0.85, cx + s * 0.85, cy + s * 0.85], 180, 360, fill=wh, width=W_ + 2)
+        for sx in (-1, 1):
+            d.rounded_rectangle([cx + sx * s * 0.85 - s * 0.22, cy - s * 0.05, cx + sx * s * 0.85 + s * 0.22,
+                                 cy + s * 0.75], radius=int(s * 0.15), fill=wh)
+    elif icon == "live":                                # a play button with a dot
+        d.polygon([(cx - s * 0.45, cy - s * 0.7), (cx - s * 0.45, cy + s * 0.7), (cx + s * 0.75, cy)], fill=wh)
+    elif icon == "web":                                 # an open book
+        d.polygon([(cx - s, cy - s * 0.6), (cx - s * 0.05, cy - s * 0.4), (cx - s * 0.05, cy + s * 0.75),
+                   (cx - s, cy + s * 0.55)], fill=wh)
+        d.polygon([(cx + s, cy - s * 0.6), (cx + s * 0.05, cy - s * 0.4), (cx + s * 0.05, cy + s * 0.75),
+                   (cx + s, cy + s * 0.55)], fill=wh)
+    elif icon == "moon":
+        d.ellipse([cx - s * 0.8, cy - s * 0.8, cx + s * 0.8, cy + s * 0.8], fill=wh)
+        d.ellipse([cx - s * 0.4, cy - s * 1.0, cx + s * 1.1, cy + s * 0.5], fill=col + (255,))
+    elif icon == "star":
+        pts = [(cx + (s if k % 2 == 0 else s * 0.42) * math.sin(k * math.pi / 5),
+                cy - (s if k % 2 == 0 else s * 0.42) * math.cos(k * math.pi / 5)) for k in range(10)]
+        d.polygon(pts, fill=wh)
+    elif icon == "clock":
+        d.ellipse([cx - s * 0.85, cy - s * 0.85, cx + s * 0.85, cy + s * 0.85], outline=wh, width=W_)
+        d.line([cx, cy, cx, cy - s * 0.55], fill=wh, width=W_)
+        d.line([cx, cy, cx + s * 0.4, cy + s * 0.2], fill=wh, width=W_)
+    elif icon == "learn":                               # a pencil
+        d.polygon([(cx - s * 0.75, cy + s * 0.45), (cx + s * 0.45, cy - s * 0.75), (cx + s * 0.75, cy - s * 0.45),
+                   (cx - s * 0.45, cy + s * 0.75)], fill=wh)
+        d.polygon([(cx - s * 0.75, cy + s * 0.45), (cx - s * 0.45, cy + s * 0.75), (cx - s * 0.9, cy + s * 0.9)], fill=wh)
+    else:                                               # quiz: a big question mark
+        d.arc([cx - s * 0.5, cy - s * 0.9, cx + s * 0.5, cy + s * 0.1], 200, 90, fill=wh, width=W_ + 2)
+        d.line([cx, cy + s * 0.1, cx, cy + s * 0.4], fill=wh, width=W_ + 2)
+        d.ellipse([cx - W_, cy + s * 0.62, cx + W_, cy + s * 0.62 + 2 * W_], fill=wh)
+
+
+def _mixed_runs(text, font_path):
+    """split a line into pieces for the main (Bengali / Hindi) font and pieces for an English-letter font, so
+    'Telegram-এ লিখুন: গল্প চাই' shows every letter and every sign (the Indian fonts have no English letters)"""
+    try:
+        if font_path not in _CMAPS:
+            from fontTools.ttLib import TTFont
+            _CMAPS[font_path] = set(TTFont(font_path).getBestCmap())
+        cm = _CMAPS[font_path]
+    except Exception:
+        cm = set()
+    lat = latin_font()
+    runs = []
+    for ch in no_tofu(str(text)):
+        if ch == " " and runs:
+            which = runs[-1][1]
+        elif ord(ch) in cm:
+            which = font_path
+        elif lat:
+            which = lat
+        else:
+            continue
+        if runs and runs[-1][1] == which:
+            runs[-1][0] += ch
+        else:
+            runs.append([ch, which])
+    return [(a, b) for a, b in runs if a]
+
+
+def _mixed_width(d, runs, size):
+    return sum(d.textlength(a, font=_font(b, size)) for a, b in runs)
+
+
+def _mixed_draw(d, x, base, runs, size, fill, stroke):
+    for a, b in runs:
+        f = _font(b, size)
+        d.text((x, base), a, font=f, fill=fill, anchor="ls", stroke_width=stroke, stroke_fill=(0, 0, 0))
+        x += d.textlength(a, font=f)
+
+
+def _mixed_fit(d, text, font_path, size, max_w):
+    runs = _mixed_runs(text, font_path)
+    while runs and _mixed_width(d, runs, size) > max_w and size > 14:
+        size -= 2
+    return runs, size
+
+
+def promo_card_png(size, promo, out, font_path):
+    """a rounded glass card at the top of the picture: icon + headline + one line + the address (transparent elsewhere)"""
+    W, H = size
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    col = PROMO_COLORS.get(promo.get("icon"), (240, 180, 30))
+    cw, ch = int(W * 0.66), int(H * 0.2)                 # top right: the top left keeps the heartbeat / logo
+    x0, y0 = W - cw - int(W * 0.03), int(H * 0.045)
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle([x0 + 6, y0 + 8, x0 + cw + 6, y0 + ch + 8], radius=ch // 4, fill=(0, 0, 0, 120))
+    im = Image.alpha_composite(im, sh.filter(ImageFilter.GaussianBlur(10)))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle([x0, y0, x0 + cw, y0 + ch], radius=ch // 4, fill=(14, 12, 22, 215), outline=col + (255,), width=4)
+    d.rounded_rectangle([x0 + 5, y0 + int(ch * 0.22), x0 + 13, y0 + int(ch * 0.78)], radius=4, fill=col + (255,))
+    r = int(ch * 0.3)
+    _promo_icon(d, x0 + 30 + r, y0 + ch // 2, r, promo.get("icon", "star"), col)
+    tx, tw = x0 + 60 + 2 * r, cw - (90 + 2 * r)
+    lines = [(promo.get("head", ""), 0.25, (255, 214, 90)), (promo.get("sub", ""), 0.17, (245, 245, 245)),
+             (promo.get("link", ""), 0.14, (150, 215, 255))]
+    lines = [x for x in lines if str(x[0]).strip()]
+    fitted = [(*_mixed_fit(d, txt, font_path, int(ch * k), tw), c) for txt, k, c in lines]
+    hs = [int(sz * 1.25) for runs, sz, c in fitted]
+    y = y0 + (ch - sum(hs)) // 2
+    for (runs, sz, c), h in zip(fitted, hs):
+        _mixed_draw(d, tx, y + int(h * 0.8), runs, sz, c, 2)
+        y += h
+    im.save(out)
+    return out
+
+
+def promo_poster(bg, promo, out, font_path, size=(1080, 1080)):
+    """the monthly Facebook poster for one feature: a dark blurred picture, a big icon, the words"""
+    W, H = size
+    try:
+        im = Image.open(bg).convert("RGB")
+        s = max(W / im.width, H / im.height)
+        im = im.resize((int(im.width * s) + 1, int(im.height * s) + 1))
+        l, t = (im.width - W) // 2, (im.height - H) // 2
+        im = im.crop((l, t, l + W, t + H)).filter(ImageFilter.GaussianBlur(6))
+    except Exception:
+        im = Image.new("RGB", (W, H), (16, 12, 26))
+    im = Image.blend(im, Image.new("RGB", (W, H), (6, 4, 12)), 0.62).convert("RGBA")
+    d = ImageDraw.Draw(im)
+    col = PROMO_COLORS.get(promo.get("icon"), (240, 180, 30))
+    d.rounded_rectangle([40, 40, W - 40, H - 40], radius=40, outline=col + (255,), width=6)
+    _promo_icon(d, W // 2, int(H * 0.27), int(H * 0.12), promo.get("icon", "star"), col)
+    y = int(H * 0.47)
+    for txt, k, c in [(promo.get("head", ""), 0.068, (255, 214, 90)), (promo.get("sub", ""), 0.045, (245, 245, 245)),
+                      (promo.get("sub2", ""), 0.04, (220, 220, 220)), (promo.get("link", ""), 0.036, (150, 215, 255))]:
+        if not str(txt).strip():
+            continue
+        runs, sz = _mixed_fit(d, txt, font_path, int(H * k), W * 0.84)
+        w = _mixed_width(d, runs, sz)
+        _mixed_draw(d, (W - w) / 2, y + sz, runs, sz, c, 3)
+        y += int(sz * 1.25) + int(H * 0.04)
+    im.convert("RGB").save(out, quality=92)
+    return out
+
+
+def promo_pick(path, ids, every=2, map_id="map", map_gap=10, today=None):
+    """which feature (if any) this video advertises. Every `every`-th video; first the ones not yet shown this
+    month, the map whenever it is `map_gap` days since it was last shown; then the one shown longest ago."""
+    ids = [i for i in ids if i]
+    if not ids:
+        return None
+    st = _jl(path, {}) or {}
+    today = today or dt.datetime.now(IST).date()
+    st["n"] = int(st.get("n", 0)) + 1
+    pick = None
+    if st["n"] % max(1, every) == 0:
+        shown = st.get("shown") or {}
+        month = today.isoformat()[:7]
+
+        def ago(i):
+            try:
+                return (today - dt.date.fromisoformat(shown[i])).days
+            except Exception:
+                return 10 ** 6
+        if map_id in ids and ago(map_id) >= map_gap:
+            pick = map_id
+        else:
+            fresh = [i for i in ids if str(shown.get(i, ""))[:7] != month]
+            pick = fresh[0] if fresh else max(ids, key=ago)
+        shown[pick] = today.isoformat()
+        st["shown"] = shown
+    _js(path, st)
+    return pick
+
+
+def promo_post_due(path, ids, gap_days=3, today=None):
+    """the feature whose monthly Facebook poster is due today (not posted this month, >= gap_days since the last)"""
+    st = _jl(path, {}) or {}
+    today = today or dt.datetime.now(IST).date()
+    posted = st.get("posted") or {}
+    try:
+        last = max(dt.date.fromisoformat(v) for v in posted.values())
+        if (today - last).days < gap_days:
+            return None
+    except ValueError:
+        pass
+    month = today.isoformat()[:7]
+    for i in ids:
+        if i and str(posted.get(i, ""))[:7] != month:
+            return i
+    return None
+
+
+def promo_post_done(path, pid, today=None):
+    st = _jl(path, {}) or {}
+    today = today or dt.datetime.now(IST).date()
+    st.setdefault("posted", {})[pid] = today.isoformat()
+    _js(path, st)
 
 
 def prev_card_png(text_top, text_main, size, out, font_path):
