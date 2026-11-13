@@ -13,7 +13,7 @@
    "yt_views": 1,
    "yt_avg_s": 12,
    "yt_avg_pct": 4.3,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -31,7 +31,7 @@
    "yt_views": 33,
    "yt_avg_s": 13,
    "yt_avg_pct": 4.6,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -49,7 +49,7 @@
    "yt_avg_s": 43,
    "yt_avg_pct": 14.6,
    "yt_drop_at": 3,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -68,7 +68,7 @@
    "yt_avg_s": 76,
    "yt_avg_pct": 14.3,
    "yt_drop_at": 4,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -86,7 +86,7 @@
    "yt_views": 9,
    "yt_avg_s": 36,
    "yt_avg_pct": 17.2,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -104,7 +104,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -282,7 +282,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -305,12 +305,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 0,
+   "views": 1,
    "length_s": 463,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -533,12 +533,12 @@
   "stats": {
    "likes": 0,
    "comments": 2,
-   "views": 0,
+   "views": 1,
    "length_s": 581,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -568,7 +568,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -593,12 +593,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 1,
+   "views": 3,
    "length_s": 558,
-   "yt_views": 1,
+   "yt_views": 3,
    "yt_avg_s": 11,
    "yt_avg_pct": 2,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -811,7 +811,7 @@
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -1069,7 +1069,7 @@
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -1101,12 +1101,12 @@
   "stats": {
    "likes": 4,
    "comments": 2,
-   "views": 6,
+   "views": 7,
    "length_s": 2416,
-   "yt_views": 5,
-   "yt_avg_s": 20,
-   "yt_avg_pct": 0.8,
-   "checked": "2026-11-10T01:02+00:00"
+   "yt_views": 7,
+   "yt_avg_s": 36,
+   "yt_avg_pct": 1.5,
+   "checked": "2026-11-13T01:03+00:00"
   }
  },
  {
@@ -1317,7 +1317,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1363,7 +1363,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1583,10 +1583,10 @@
    "comments": 2,
    "views": 4,
    "length_s": 993,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "yt_views": 6,
+   "yt_avg_s": 472,
+   "yt_avg_pct": 47.5,
+   "checked": "2026-11-13T01:03+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1627,10 +1627,10 @@
    "comments": 1,
    "views": 0,
    "length_s": 989,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 989,
+   "yt_avg_pct": 99.9,
+   "checked": "2026-11-13T01:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1674,10 +1674,10 @@
    "comments": 1,
    "views": 1,
    "length_s": 1259,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T01:02+00:00"
+   "checked": "2026-11-13T01:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2294,6 +2294,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-12T08:33+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 3
   }
  },
  {
@@ -2443,12 +2447,7 @@
   "date": "2026-11-12T10:11+00:00",
   "lang": "bn",
   "slot": "2026-11-12@20",
-  "pending_comments": [
-   {
-    "id": "1017201964755616",
-    "text": "কালো সাধুর এই অশুভ চক্রান্ত থেকে বাঁচতে গঙ্গার ওপারে ভৈরব ঠাকুরকে কী পদক্ষেপ নিতে হবে বলে মনে হয়? কমেন্টে জানান! 🕯️\n\n👇 কীভাবে অংশ নেবেন:\n✅ প্রশ্নের উত্তর এখানে কমেন্টে লিখুন - ঠিক উত্তরদাতাদের নাম পরের ভিডিওতে!\n🗳️ ভোট থাকলে ১ বা ২ লিখুন\n📝 আপনার সত্যি ভৌতিক ঘটনা #আমার_গল্প লিখে পাঠান - পরের গল্পটা আপনার হতে পারে\n🔔 ফলো করে রাখুন, পরের পর্ব যেন মিস না হয়\n\n📍 আপনার জেলায় কোন ভূতের লোককথা শোনা যায়? জেলার নাম আর লোককথাটা লিখে জানান - যে জেলার নাম সবচেয়ে বেশি আসবে, পরের মঙ্গলবার দুপুরের গ্রামের গল্প হবে সেই জেলায়।\n\n🗺️ বাংলার ভূতের মানচিত্র - আপনার জেলার গল্প খুঁজুন: https://sumonsham.github.io/horror-story-bot/map/"
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": null,
