@@ -2614,5 +2614,155 @@
   },
   "tagline": "মধ্যরাতের রূপালী পর্দায় বন্দিনী এক অতৃপ্ত আত্মা",
   "district": "hooghly"
+ },
+ {
+  "date": "2026-11-13T04:01+00:00",
+  "lang": "bn",
+  "slot": "2026-11-13@14",
+  "pending_comments": [
+   {
+    "id": "2640400246475822",
+    "text": "আপনার বাড়ির কল দিয়ে যদি হঠাৎ রক্ত বেরোতে শুরু করে, আপনি কি সেই বাড়িতে আর এক মুহূর্ত থাকবেন? 🩸\n\n🔍 ভিডিওর ছবিগুলোতে ভূতটা কতবার লুকিয়ে ছিল? খেয়াল করেছেন? কমেন্টে লিখুন!\n\n👇 কীভাবে অংশ নেবেন:\n✅ প্রশ্নের উত্তর এখানে কমেন্টে লিখুন - ঠিক উত্তরদাতাদের নাম পরের ভিডিওতে!\n🗳️ ভোট থাকলে ১ বা ২ লিখুন\n📝 আপনার সত্যি ভৌতিক ঘটনা #আমার_গল্প লিখে পাঠান - পরের গল্পটা আপনার হতে পারে\n🔔 ফলো করে রাখুন, পরের পর্ব যেন মিস না হয়\n\n📍 আপনার জেলায় কোন ভূতের লোককথা শোনা যায়? জেলার নাম আর লোককথাটা লিখে জানান - যে জেলার নাম সবচেয়ে বেশি আসবে, পরের মঙ্গলবার দুপুরের গ্রামের গল্প হবে সেই জেলায়।\n\n🗺️ বাংলার ভূতের মানচিত্র - আপনার জেলার গল্প খুঁজুন: https://sumonsham.github.io/horror-story-bot/map/"
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A newly shifted family in a Kolkata apartment complex finds their water supply running red every midnight, watched by a landlord who vanished in 1974.",
+  "crossover": null,
+  "opening": "flash",
+  "category": "shohor",
+  "question_post": "2026-11-13",
+  "title_b": "রক্তাক্ত কল ও হারানাথ বাবুর অন্তর্ধান 🩸",
+  "theme": "A newly shifted family in a Kolkata apartment complex finds their water supply running red every midnight, watched by a landlord who vanished in 1974.",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "বাগবাজারের সেই অভিশপ্ত কুঠুরি 🏢 | সত্য ঘটনা অবলম্বনে",
+  "festival": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 2,
+  "facebook": "2640400246475822",
+  "youtube": "FhVvDEUcc6Y",
+  "fb_reel": "4791566084462843",
+  "fb_story": "1140603165092999",
+  "fb_reel2": "1480442123967442",
+  "yt_short": "aTWL9rYMyds",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1052,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     10,
+     "শুরু"
+    ],
+    [
+     24,
+     "অভিশপ্ত শুরু"
+    ],
+    [
+     58,
+     "নতুন ঠিকানা"
+    ],
+    [
+     99,
+     "অচেনা গন্ধ"
+    ],
+    [
+     123,
+     "মাঝরাতের আতঙ্ক"
+    ],
+    [
+     152,
+     "যুক্তির আড়ালে"
+    ],
+    [
+     180,
+     "অন্ধকার অতীত"
+    ],
+    [
+     215,
+     "সতর্কবার্তা"
+    ],
+    [
+     270,
+     "প্রদীপের সংকেত"
+    ],
+    [
+     299,
+     "অশরীরী পদক্ষেপ"
+    ],
+    [
+     331,
+     "গোপন চাবি"
+    ],
+    [
+     361,
+     "ছাদের পথে"
+    ],
+    [
+     391,
+     "হারানাথের আহ্বান"
+    ],
+    [
+     461,
+     "মুখোমুখি সত্য"
+    ],
+    [
+     525,
+     "রহস্যময় ডায়েরি"
+    ],
+    [
+     565,
+     "গোপন নথি"
+    ],
+    [
+     592,
+     "বলিদানের মন্ত্র"
+    ],
+    [
+     633,
+     "রুদ্ধ পথ"
+    ],
+    [
+     663,
+     "রক্তের বন্যা"
+    ],
+    [
+     704,
+     "কুয়াশার ছায়া"
+    ],
+    [
+     738,
+     "অশরীরী জমিদার"
+    ],
+    [
+     779,
+     "চরম সত্য"
+    ],
+    [
+     814,
+     "শৃঙ্খল মুক্তি"
+    ],
+    [
+     846,
+     "অবসান"
+    ],
+    [
+     885,
+     "শেষ নেই"
+    ]
+   ]
+  },
+  "district": "kolkata"
  }
 ]
