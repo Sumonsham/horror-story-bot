@@ -5785,6 +5785,17 @@ def morning_teasers(history):
             _teaser_short(r_, t_, s_, d_, tg_, l_, max(at_, dt.datetime.now(extras.IST) + dt.timedelta(minutes=15)))
     done[str(SLOT)] = dt.datetime.now(extras.IST).isoformat(timespec="minutes")
     _jsave(TEASERS_FILE, {k: v for k, v in done.items() if k >= (dt.date.today() - dt.timedelta(days=7)).isoformat()})
+    for job_ in (daily_text_short, weekly_ambience):   # v83: no voice needed for either
+        try:
+            WORK = os.path.join(base_work, job_.__name__)
+            shutil.rmtree(WORK, ignore_errors=True)
+            os.makedirs(WORK)
+            if job_(history):
+                save_history(history)
+        except Exception as e:
+            log(f"  {job_.__name__} skipped:", str(e)[:200])
+        finally:
+            WORK = base_work
     push_now([PLANS_FILE, TEASERS_FILE, MY_STORIES], "morning teasers posted")
     log(f"Morning done: {len(out)} teaser(s); the afternoon and night videos will use these stories")
 
@@ -5917,7 +5928,7 @@ CREATOR_RULE = (
 
 
 PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
-              "trend_used", "crossover", "milestone", "opening",
+              "trend_used", "crossover", "milestone", "opening", "sequel_of",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
               "district", "district_votes", "viewer_names", "arc")
 
@@ -6080,7 +6091,12 @@ def choose_and_write(slot_hour, history):
                 log(f"Idea from the list: {theme}")
             # TREND STORY (v79: EVERY story): built on what is MOST WATCHED on YouTube this week in exactly this
             # story's kind (real YouTube search of the category, sorted by views) - our own new story, never a copy
-            if not mine and not idea:
+            seq_ = None if (mine or idea or cat == "sotti") else hit_for_sequel(history, lang)
+            if seq_:                                 # v82: a story people loved comes back ('... ফিরে এল')
+                theme = f"the SEQUEL of our hit story '{seq_.get('title')}'"
+                STATE["sequel_of"] = seq_.get("slot") or seq_.get("title")
+                extra_rules += sequel_rule(seq_, lang)
+            if not mine and not idea and not seq_:
                 theme = trend_theme(cat, lang, history) or theme
             if cat == "sotti" and not mine:
                 vs = []
@@ -8558,7 +8574,8 @@ def recap_frames(history, series_id, part, lang, n=3):
 ASSETS = os.path.join(HERE, "assets")
 MILESTONE_FILE = os.path.join(ASSETS, "milestones.json")
 COACH_FILE = os.path.join(ASSETS, "coach.json")
-GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("milestones.json", "tg_channel.json", "viewer_voice.json", "coach.json")]
+GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("milestones.json", "tg_channel.json", "viewer_voice.json", "coach.json",
+                                                   "messenger.json", "tg_requests.json")]
 
 
 def video_len(h):
@@ -8612,6 +8629,365 @@ def trend_theme(cat, lang, history):
     STATE["trends"] = tr_[:6]
     log(f"TREND STORY ({cat}) - what is most watched on YouTube this week in this kind: {tr_[0][:120]}")
     return tr_[0]
+
+
+def hit_for_sequel(history, lang):
+    """a normal story (not a series) of the last 3-12 days that people watched at least twice as much as usual and
+    that has no sequel yet - at most one sequel a week"""
+    if env("SEQUELS") == "0":
+        return None
+    now = dt.datetime.now(dt.timezone.utc)
+
+    def age(h):
+        try:
+            return (now - dt.datetime.fromisoformat(str(h.get("date")))).days
+        except Exception:
+            return 999
+    if any(h.get("sequel_of") and age(h) < 7 for h in history[-20:]):
+        return None
+    recent = [h for h in history[-40:] if not h.get("kind") and h.get("stats") and h.get("lang", "bn") == lang]
+    scores = sorted(extras.score(h["stats"]) for h in recent)
+    if len(scores) < 6:
+        return None
+    med = max(scores[len(scores) // 2], 1)
+    done = {h.get("sequel_of") for h in history if h.get("sequel_of")}
+    for h in sorted(recent, key=lambda h: -extras.score(h["stats"])):
+        if (3 <= age(h) <= 12 and not h.get("special") and not h.get("part") and not h.get("sequel_of")
+                and (h.get("slot") or h.get("title")) not in done and extras.score(h["stats"]) >= 2 * med):
+            log(f"SEQUEL: '{h.get('title')}' was watched {extras.score(h['stats']) / med:.1f}x more than usual")
+            return h
+    return None
+
+
+def sequel_rule(h, lang):
+    t = re.sub(r"\s*\|.*$", "", str(h.get("title", ""))).strip()
+    return (f"\nSEQUEL OF OUR HIT STORY '{t}' (our listeners loved it): {h.get('summary') or h.get('theme') or ''}\n"
+            "Write its second story: the same place and the same surviving people some time later, a NEW mystery that "
+            "grows out of what was left unexplained; in the first minute the storyteller reminds the listener in two "
+            "or three sentences what happened last time. The TITLE says that it is back (for example '"
+            + t[:30] + " ফিরে এল ...'). A complete story of its own.\n")
+
+
+BEST_COMMENT_FILE = os.path.join(HERE, "assets", "best_comment.json")
+
+
+def add_best_comment(story, history, lang, slot_hour):
+    """SUNDAY 8 PM: before the story, the storyteller reads the week's best viewer comment with the viewer's name"""
+    if env("BEST_COMMENT") == "0" or slot_hour != EVENING or dt.datetime.now(extras.IST).weekday() != 6:
+        return
+    wk = dt.datetime.now(extras.IST).strftime("%G-W%V")
+    if (_jload(BEST_COMMENT_FILE, {}) or {}).get("week") == wk:
+        return
+    bc = extras.best_comment(history, "horror")
+    if not bc:
+        return
+    line = (f"গল্প শুরুর আগে... এ সপ্তাহে আপনাদের সবচেয়ে সুন্দর মন্তব্যটি লিখেছেন {bc['name']}। তিনি লিখেছেন: "
+            f"“{bc['text']}”... ধন্যবাদ {bc['name']}। আর এবার, আজকের গল্প।" if lang == "bn" else
+            f"कहानी से पहले... इस हफ़्ते की सबसे सुंदर टिप्पणी {bc['name']} ने लिखी: “{bc['text']}”... धन्यवाद "
+            f"{bc['name']}। और अब, आज की कहानी।")
+    (story.get("scenes") or [{}])[0].setdefault("lines", []).insert(0, {"speaker": "narrator", "emotion": "calm",
+                                                                         "text": line})
+    STATE["best_comment_id"] = bc["id"]
+    _jsave(BEST_COMMENT_FILE, {"week": wk, "id": bc["id"]})
+    try:
+        push_now([BEST_COMMENT_FILE], "best comment of the week")
+    except Exception:
+        pass
+    log(f"  the week's best comment (by {bc['name']}) is read before the story")
+
+
+def make_web_story(story, title, video, results, base, lang, names):
+    """8 vertical pictures from the finished video + 8 short lines of the story -> a Google Web Story"""
+    dur_ = duration(video)
+    lines = [extras.strip_tags(str(ln.get("text", ""))).strip() for sc in story.get("scenes") or []
+             for ln in sc.get("lines") or [] if str(ln.get("speaker", "narrator")).lower().startswith("narrat")]
+    lines = [l for l in lines if len(l) >= 20]
+    if len(lines) < 8 or dur_ < 60:
+        return None
+    pick = [lines[int(i * (len(lines) - 1) / 7)] for i in range(8)]
+    pick = [re.split(r"(?<=[।!?])\s+", p)[0][:120] for p in pick]
+    urls = []
+    for i in range(8):
+        tsec = dur_ * (0.08 + 0.84 * i / 7)
+        fr = os.path.join(WORK, f"ws_{i}.jpg")
+        run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{tsec:.1f}", "-i", video, "-frames:v", "1", "-vf",
+             "crop=ih*9/16:ih,scale=720:1280", "-q:v", "4", fr])
+        urls.append(extras.gh_release_upload(fr, f"{story_slug()}_{i}.jpg", tag="webstory", ctype="image/jpeg",
+                                             title="Web Story pictures"))
+    if not all(urls):
+        return None
+    link = (f"https://youtu.be/{results['youtube']}" if results.get("youtube") else
+            f"https://www.facebook.com/{results.get('facebook', '')}")
+    u = extras.web_story(MAP_DIR, story_slug(), re.sub(r"\s*\|.*$", "", title).strip(), urls, pick, base, link, lang)
+    log(f"  web story: {u}")
+    return u
+
+
+def _today_done(history, kind, days=0):
+    today = dt.datetime.now(extras.IST).date()
+    for h in reversed(history[-80:]):
+        if h.get("kind") == kind:
+            try:
+                d = dt.datetime.fromisoformat(str(h["date"])).astimezone(extras.IST).date()
+            except Exception:
+                continue
+            if (today - d).days <= days:
+                return True
+    return False
+
+
+def _dark_bg(w, h, seed=0):
+    """a dark, misty, original background when no picture can be made"""
+    np = _np()
+    rng = np.random.default_rng(seed)
+    y, x = np.mgrid[0:h, 0:w].astype("float32")
+    v = 1 - np.clip(np.hypot((x - w / 2) / w, (y - h * 0.45) / h) * 1.6, 0, 1)
+    img = np.stack([v * 30 + 6, v * 38 + 8, v * 52 + 12], -1)
+    fog = np.zeros((h // 8 + 1, w // 8 + 1), "float32")
+    for _ in range(40):
+        cx, cy, r = rng.uniform(0, w // 8), rng.uniform(0, h // 8), rng.uniform(4, 20)
+        fog += np.exp(-(((np.arange(w // 8 + 1)[None, :] - cx) ** 2 + (np.arange(h // 8 + 1)[:, None] - cy) ** 2) / (2 * r * r)))
+    fog = np.array(Image.fromarray(np.clip(fog / fog.max() * 255, 0, 255).astype("uint8")).resize((w, h))).astype("float32")
+    img += fog[..., None] * np.array([0.10, 0.12, 0.16])
+    return Image.fromarray(np.clip(img, 0, 255).astype("uint8"))
+
+
+def _picture(prompt, w, h, path, seed=0):
+    """one picture from the picture model (no people, no text) - or the misty dark background"""
+    try:
+        if not MOCK and not CF_QUOTA_OUT:
+            save_picture(cf_request(CF_MODEL, prompt + ". Dark, atmospheric, cinematic, eerie Bengal night, no people, "
+                                    "no text, no letters, no watermark", w=w, h=h, seed=seed), path)
+            if os.path.exists(path) and os.path.getsize(path) > 5000:
+                im = Image.open(path).convert("RGB").resize((w, h))
+                im.save(path, quality=92)
+                return path
+    except Exception as e:
+        log("  picture not made, misty background instead:", str(e)[:100])
+    _dark_bg(w, h, seed).save(path, quality=92)
+    return path
+
+
+def _drone(secs, seed=0, heart_at=None):
+    """a low, uneasy drone (and a heartbeat near the end) - our own sound, no copyright"""
+    np = _np()
+    rnd = np.random.default_rng(seed)
+    n = int(secs * SR)
+    t_ = np.arange(n) / SR
+    a = 0.10 * np.sin(2 * np.pi * 55 * t_) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.07 * t_))
+    a += 0.05 * np.sin(2 * np.pi * 82.4 * t_ + 0.5 * np.sin(2 * np.pi * 0.2 * t_))
+    a += _filt(rnd.standard_normal(n), "lowpass", 400) * 0.06
+    try:
+        a += synth("wind", n, rnd) * 0.25
+    except Exception:
+        pass
+    if heart_at is not None:
+        k = int(heart_at * SR)
+        hb = synth("heartbeat", n - k, rnd) * 0.6
+        a[k:k + len(hb)] += hb[:n - k]
+    fade = int(SR * 1.0)
+    a[:fade] *= np.linspace(0, 1, fade)
+    a[-fade:] *= np.linspace(1, 0, fade)
+    return a / (np.abs(a).max() + 1e-9) * 0.7
+
+
+def daily_text_short(history):
+    """v83 - EVERY DAY: a tiny written ghost story (3-4 sentences) appearing line by line on a dark picture, with our
+    own uneasy sound - a YouTube Short and a Facebook Reel at 10 AM. No voice at all."""
+    global FONT
+    if env("TEXT_SHORTS") == "0" or _today_done(history, "text_short"):
+        return False
+    lang = "bn"
+    FONT = FONT or find_font(lang)
+    avoid = [h.get("title") for h in history if h.get("kind") == "text_short"][-60:]
+    ms = extras.micro_story(lang, avoid) if not MOCK else {
+        "title": "শেষ বাসের যাত্রী", "lines": ["রাত সাড়ে এগারোটার শেষ বাসে আমি একাই ছিলাম।", "কন্ডাক্টর দুটো টিকিট কাটল।",
+                                             "জিজ্ঞেস করতেই বলল, আপনার পাশের দিদিরটা।", "আমার পাশের সিট ফাঁকা ছিল।"],
+        "picture": "an empty night bus interior"}
+    if not ms:
+        log("  text Short: no tiny story today (Gemini busy)")
+        return False
+    Wv, Hv = 720, 1280
+    bg = _picture(ms["picture"], Wv, Hv, os.path.join(WORK, "ts_bg.jpg"), seed=len(avoid))
+    lines = ms["lines"]
+    per = [max(3.2, min(6.0, len(l) / 11.0)) for l in lines]
+    t0, starts = 2.6, []
+    for d_ in per:
+        starts.append(t0)
+        t0 += d_
+    total = t0 + 3.0
+    pngs = []
+
+    def text_png(txt, size, color, y, path, box=True):
+        im = Image.new("RGBA", (Wv, Hv), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        f = font(size)
+        words, rows, cur = extras.fit_glyphs(txt, FONT).split(), [], ""
+        for w_ in words:
+            if cur and d.textlength(cur + " " + w_, font=f) > Wv * 0.84:
+                rows.append(cur)
+                cur = w_
+            else:
+                cur = (cur + " " + w_).strip()
+        rows.append(cur)
+        hh = int(size * 1.45)
+        if box:
+            d.rounded_rectangle([Wv * 0.05, y - 18, Wv * 0.95, y + hh * len(rows) + 10], radius=22, fill=(0, 0, 0, 120))
+        for k, r_ in enumerate(rows):
+            d.text(((Wv - d.textlength(r_, font=f)) / 2, y + k * hh), r_, font=f, fill=color, stroke_width=3,
+                   stroke_fill=(0, 0, 0))
+        im.save(path)
+        return path, hh * len(rows) + 40
+    title_png, _h = text_png("👻 " + ms["title"], 58, (255, 207, 74), 140, os.path.join(WORK, "ts_t.png"), box=False)
+    y = 360
+    for k, l in enumerate(lines):
+        p_, hh = text_png(l, 40, (240, 240, 240) if k < len(lines) - 1 else (255, 90, 90), y, os.path.join(WORK, f"ts_{k}.png"))
+        pngs.append(p_)
+        y += hh
+    end_png, _h = text_png("পুরো গল্প শুনুন আমাদের চ্যানেলে 🕯️", 36, (255, 207, 74), Hv - 220,
+                           os.path.join(WORK, "ts_end.png"), box=False)
+    wav = os.path.join(WORK, "ts.wav")
+    write_wav(wav, _drone(total, len(avoid), heart_at=starts[-1] - 1.0))
+    out = os.path.join(WORK, "text_short.mp4")
+    lp = ["-loop", "1", "-framerate", "25", "-t", f"{total:.2f}"]     # (each picture as a running video)
+    inputs = lp + ["-i", bg] + lp + ["-i", title_png] + sum((lp + ["-i", p_] for p_ in pngs), []) + \
+        lp + ["-i", end_png] + ["-i", wav]
+    fl = [f"[0:v]scale={Wv * 2}:{Hv * 2},zoompan=z='min(1+0.0009*on,1.25)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+          f"d={int(total * 25)}:s={Wv}x{Hv}:fps=25,eq=brightness=-0.12:saturation=0.85[b0]",
+          "[1:v]format=rgba,fade=t=in:st=0.3:d=0.8:alpha=1[t]", "[b0][t]overlay=0:0[b1]"]
+    cur = "b1"
+    for k, st in enumerate(starts):
+        fl.append(f"[{k + 2}:v]format=rgba,fade=t=in:st={st:.2f}:d=0.9:alpha=1[l{k}]")
+        fl.append(f"[{cur}][l{k}]overlay=0:0:enable='gte(t,{st:.2f})'[c{k}]")
+        cur = f"c{k}"
+    ei = len(starts) + 2
+    fl.append(f"[{ei}:v]format=rgba,fade=t=in:st={total - 2.8:.2f}:d=0.6:alpha=1[e]")
+    fl.append(f"[{cur}][e]overlay=0:0:enable='gte(t,{total - 2.8:.2f})',format=yuv420p[v]")
+    run(["ffmpeg", "-y", "-loglevel", "error"] + inputs + ["-filter_complex", ";".join(fl), "-map", "[v]",
+                                                            "-map", f"{ei + 1}:a", "-t", f"{total:.2f}", "-c:v", "libx264",
+                                                            "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a",
+                                                            "128k", out])
+    log(f"Text Short ready: {ms['title']} ({total:.0f} s)")
+    rec = {"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "kind": "text_short",
+           "title": ms["title"]}
+    if MOCK or DRY_RUN:
+        return False
+    tags = ["#ভূতের_গল্প", "#BhuterGolpo", "#HorrorShorts", "#ছোট_গল্প", "#shorts"]
+    desc = f"{ms['title']}\n\n" + " ".join(ms["lines"]) + "\n\n🕯️ রোজ পুরো ভূতের গল্প দুপুর ২টো আর রাত ৮টায়।\n\n" + " ".join(tags)
+    if youtube_ready() and extras.yt_extra_ok():
+        try:
+            rec["youtube"] = post_to_youtube(out, None, f"{ms['title']} 👻 #Shorts", desc, ["shorts", "bhuter golpo",
+                                                                                           "horror story bangla"], lang)
+            log("  text Short on YouTube:", rec["youtube"])
+        except Exception as e:
+            log("  text Short (YouTube) skipped:", str(e)[:150])
+    if env("FB_PAGE_TOKEN"):
+        try:
+            rec["facebook"] = extras.fb_post_reel(out, desc)
+            log("  text Reel on Facebook:", rec["facebook"])
+        except Exception as e:
+            log("  text Reel skipped:", str(e)[:150])
+    if rec.get("youtube") or rec.get("facebook"):
+        history.append(rec)
+        return True
+    return False
+
+
+AMBIENCE_SCENES = [
+    ("ভূতুড়ে বৃষ্টির রাত", "a lonely old Bengal zamindar house at night in heavy rain, one dim lantern in a window, "
+                          "wet banana trees, dark sky"),
+    ("শ্মশানঘাটের কুয়াশা-রাত", "a misty river ghat at night with an old temple and burning lamps far away, fog over water"),
+    ("জঙ্গলের ডাকবাংলো", "an old forest dak bungalow at night in the monsoon, a hurricane lantern on the verandah, rain"),
+    ("পুরনো কলকাতার গলি", "a narrow old north Kolkata lane at night in the rain, a flickering street lamp, closed doors"),
+]
+
+
+def weekly_ambience(history):
+    """v83 - EVERY WEDNESDAY: a long 'sleep / study' video (2 hours) - a dark rainy scene with our own rain, wind,
+    crickets and far-away night sounds, softly moving. No voice. YouTube + Facebook."""
+    global FONT
+    if (env("AMBIENCE") == "0" or dt.datetime.now(extras.IST).weekday() != int(env("AMBIENCE_DAY") or 2)
+            or _today_done(history, "ambience", days=5)):
+        return False
+    np = _np()
+    lang = "bn"
+    FONT = FONT or find_font(lang)
+    n_done = sum(1 for h in history if h.get("kind") == "ambience")
+    name, scene = AMBIENCE_SCENES[n_done % len(AMBIENCE_SCENES)]
+    hours = float(env("AMBIENCE_HOURS") or 2)
+    secs = int(hours * 3600) if not MOCK else 30
+    img = _picture(scene, 1280, 720, os.path.join(WORK, "amb.jpg"), seed=n_done + 77)
+    # 1) 20 seconds of picture that loops without a seam: falling rain + a breathing lantern light
+    base = np.asarray(Image.open(img).convert("RGB").resize((1280, 720))).astype("float32")
+    rng = np.random.default_rng(n_done)
+    LOOP, FPSA = 20, 25
+    drops = np.c_[rng.uniform(0, 1280, 260), rng.uniform(0, 720, 260), rng.uniform(1, 3, 260)]   # x, y, speed (screens / loop)
+    loop_mp4 = os.path.join(WORK, "amb_loop.mp4")
+    ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", "1280x720",
+                           "-r", str(FPSA), "-i", "-", "-c:v", "libx264", "-preset", "veryfast", "-crf", "24",
+                           "-g", str(FPSA * 2), "-pix_fmt", "yuv420p", loop_mp4], stdin=subprocess.PIPE)
+    import cv2
+    for f in range(LOOP * FPSA):
+        u = f / (LOOP * FPSA)
+        fr = base * (0.86 + 0.06 * math.sin(2 * math.pi * 3 * u))
+        layer = np.zeros((720, 1280), "float32")
+        for x_, y_, sp in drops:
+            yy = (y_ + sp * 720 * u * 4) % 720
+            cv2.line(layer, (int(x_), int(yy)), (int(x_ - 3), int(yy + 18)), 1.0, 1)
+        fr = fr + cv2.GaussianBlur(layer, (0, 0), 0.8)[..., None] * 70
+        ff.stdin.write(np.clip(fr, 0, 255).astype("uint8").tobytes())
+    ff.stdin.close()
+    ff.wait()
+    # 2) ten minutes of sound that loops: rain + wind + crickets + now and then a far-away night sound
+    n = SR * 600 if not MOCK else SR * 30
+    rnd = np.random.default_rng(n_done + 5)
+    a = synth("rain", n, rnd) * 0.55 + synth("wind", n, rnd) * 0.25 + synth("crickets", n, rnd) * 0.18
+    real = freesound("heavy rain on roof night", True)
+    if real:
+        r_ = _decode(real, 600)
+        if len(r_) > SR * 20:
+            a += np.resize(r_, n) * 0.6
+    for k in range(int(n / SR / 75)):
+        at = int(rnd.uniform(20, n / SR - 10) * SR)
+        snd = synth(rnd.choice(["owl", "thunder", "creak", "drip", "clock"]), int(SR * 4), rnd) * 0.35
+        a[at:at + len(snd)] += snd[:max(0, n - at)]
+    xf = SR * 3                                        # the end fades into the start - the loop has no seam
+    a[:xf] = a[:xf] * np.linspace(0, 1, xf) + a[-xf:] * np.linspace(1, 0, xf)
+    a = a[:-xf]
+    wav = os.path.join(WORK, "amb.wav")
+    write_wav(wav, a / (np.abs(a).max() + 1e-9) * 0.6)
+    out = os.path.join(WORK, "ambience.mp4")
+    run(["ffmpeg", "-y", "-loglevel", "error", "-stream_loop", "-1", "-i", loop_mp4, "-stream_loop", "-1", "-i", wav,
+         "-t", str(secs), "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "128k",
+         "-movflags", "+faststart", out])
+    hrs_bn = str(int(hours)).translate(BN_DIGITS)
+    title = f"{name} 🌧️ {hrs_bn} ঘণ্টা | ঘুম আর পড়ার জন্য গা ছমছমে বৃষ্টির আবহ | Horror Rain Ambience for Sleep"[:100]
+    thumb = extras.text_card(img, [name, f"{hrs_bn} ঘণ্টা ঘুমের আবহ", "কোনো কথা নেই, শুধু রাত"], os.path.join(WORK, "amb_thumb.jpg"), FONT)
+    log(f"Ambience video ready: {name} ({secs / 3600:.1f} h)")
+    if MOCK or DRY_RUN:
+        return False
+    desc = (f"{name} - {hrs_bn} ঘণ্টা একটানা বৃষ্টি, হাওয়া, ঝিঁঝিঁ আর দূরের রাতের শব্দ। ঘুমোনোর, পড়ার বা ভূতের গল্প পড়ার "
+            "সময় চালিয়ে রাখুন। কোনো কথা নেই, কোনো হঠাৎ জোরে শব্দ নেই।\n\n🕯️ রোজ নতুন ভূতের গল্প দুপুর ২টো আর রাত ৮টায়।\n\n"
+            "#ভূতের_গল্প #RainSounds #SleepSounds #HorrorAmbience #BhuterGolpo")
+    rec = {"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang, "kind": "ambience",
+           "title": title}
+    if youtube_ready() and extras.yt_extra_ok():
+        try:
+            rec["youtube"] = post_to_youtube(out, thumb, title, desc, ["rain sounds", "sleep sounds", "horror ambience",
+                                                                       "ভূতের গল্প", "bhuter golpo"], lang)
+            log("  ambience on YouTube:", rec["youtube"])
+        except Exception as e:
+            log("  ambience (YouTube) skipped:", str(e)[:150])
+    if env("FB_PAGE_TOKEN"):
+        try:
+            rec["facebook"] = post_to_facebook(out, thumb, title, desc)
+            log("  ambience on Facebook:", rec["facebook"])
+        except Exception as e:
+            log("  ambience (Facebook) skipped:", str(e)[:150])
+    if rec.get("youtube") or rec.get("facebook"):
+        history.append(rec)
+        return True
+    return False
 
 
 def crossover_rule(history, part, prev):
@@ -8673,6 +9049,19 @@ def growth_start(history):
         extras.viewer_voice_process(ASSETS)
     except Exception as e:
         log("  viewer voices skipped:", str(e)[:100])
+    try:                                             # v82: people who wrote to the Page on Messenger
+        last_ = [h for h in history if not h.get("kind") and (h.get("youtube") or h.get("facebook"))][-2:]
+        links_ = [f"{re.sub(r'[|].*$', '', str(h.get('title', ''))).strip()}: " +
+                  (f"https://youtu.be/{h['youtube']}" if h.get("youtube") else f"https://www.facebook.com/{h['facebook']}")
+                  for h in reversed(last_)]
+        extras.messenger_replies("horror", links_, extras.tg_bot_link())
+    except Exception as e:
+        log("  Messenger skipped:", str(e)[:100])
+    try:                                             # v83: 'গল্প চাই' on Telegram
+        last1 = next((h for h in reversed(history) if not h.get("kind") and h.get("youtube")), None)
+        extras.tg_requests_answer(ASSETS, f"https://youtu.be/{last1['youtube']}" if last1 else "")
+    except Exception as e:
+        log("  Telegram story requests skipped:", str(e)[:100])
     try:
         got = extras.milestone_check(MILESTONE_FILE)
         if got:
@@ -8760,6 +9149,20 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
             log("  the story as text: scheduled on Facebook 3 hours after the video")
         except Exception as e:
             log("  written story post skipped:", str(e)[:150])
+    # 4) a safe copy of the video (GitHub release) - also used by the live and the old-video Shorts
+    try:
+        bk = extras.backup_video(video, f"{story_slug()}.mp4")
+        if bk and history and history[-1].get("title") == title:
+            history[-1]["backup"] = bk
+            save_history(history)
+            log("  video backup kept")
+    except Exception as e:
+        log("  video backup skipped:", str(e)[:150])
+    if results.get("youtube"):
+        try:
+            extras.VIDEO_SECS[results["youtube"]] = duration(video)
+        except Exception:
+            pass
     # 3) the story's own web page (+ list + sitemap)
     base = map_url()
     if base and env("STORY_PAGES") != "0":
@@ -8771,6 +9174,13 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
             log(f"  story web page: {base}golpo/{story_slug()}.html")
         except Exception as e:
             log("  story web page skipped:", str(e)[:150])
+    # 2) a Google Web Story (tap-through pictures, shown in Google Discover)
+    if base and env("WEB_STORY") != "0" and env("GITHUB_TOKEN"):
+        try:
+            make_web_story(story, title, video, results, base, lang, names)
+            changed.append(MAP_DIR)
+        except Exception as e:
+            log("  web story skipped:", str(e)[:150])
     # 4) podcast episode (Spotify / Apple read the feed by themselves)
     if base and env("PODCAST_FEED") != "0" and env("GITHUB_TOKEN"):
         try:
@@ -8829,7 +9239,7 @@ def old_video_short(history, lang):
         log("  old-video short: no older video yet")
         return False
     h = max(cands, key=lambda x: x[0])[1]
-    src, _ = extras.fb_video_source(h["facebook"])
+    src = h.get("backup") or extras.fb_video_source(h["facebook"])[0]
     if not src:
         return False
     raw = extras.download(src, os.path.join(WORK, "old_raw.mp4"))
@@ -8907,7 +9317,7 @@ def weekly_live(history):
         if total >= hours * 3600:
             break
         try:
-            src, _l = extras.fb_video_source(h["facebook"])
+            src = h.get("backup") or extras.fb_video_source(h["facebook"])[0]
             if not src:
                 continue
             raw = extras.download(src, os.path.join(WORK, f"lraw_{len(clips)}.mp4"))
@@ -9113,6 +9523,11 @@ def main():
     fix_speakers(story)
     NAME_LOCAL.update({str(c["name"]).lower(): str(c.get("name_local") or c["name"]) for c in story["characters"]})
     ensure_intros(story, cold=env("COLD_OPEN") == "1")
+    if not MOCK and not DRY_RUN:
+        try:                                         # v82: Sunday night - the week's best viewer comment, read aloud
+            add_best_comment(story, history, lang, slot_hour)
+        except Exception as e:
+            log("  best comment skipped:", str(e)[:120])
     ensure_ghost_laughs(story)
     mark_reveals(story)
     continues = bool(part) and part < total          # this part ends on a cliffhanger, the next part comes on
@@ -9476,6 +9891,20 @@ def main():
         return
     log(f"Video ready: {duration(video):.0f} seconds")
     learn_length(duration(video))
+    if special in NEW_SERIES and env("PREV_CARD") != "0":
+        try:                                         # v82: 'আগের পর্বে: ...' over the first seconds (no voice)
+            prev_ep = next((h for h in reversed(history) if h.get("special") == special and h.get("title")), None)
+            if prev_ep:
+                vw_ = os.path.join(WORK, "final_prev.mp4")
+                png_ = extras.prev_card_png(f"{series_label(special, L)} - আগের পর্বে" if lang == "bn" else
+                                            f"{series_label(special, L)} - पिछले एपिसोड में",
+                                            re.sub(r"^.*?:\s*", "", re.sub(r"\s*\|.*$", "", str(prev_ep["title"])))[:60],
+                                            (W, H), os.path.join(WORK, "prev_card.png"), FONT)
+                extras.overlay_card(video, png_, 5.0, vw_)
+                os.replace(vw_, video)
+                log(f"  'last episode' card: {prev_ep['title'][:60]}")
+        except Exception as e:
+            log("  last-episode card skipped:", str(e)[:150])
 
     own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
     seeds = ([HORROR_CATS[cat]["bn"], "ভূতের গল্প", "bhuter golpo"] if lang == "bn" else
@@ -9604,6 +10033,8 @@ def main():
                     ) if not (MOCK or DRY_RUN) else None,
                     "title_b": (str(story.get("title_b") or "").strip()[:85] + (f" | {L['part'].format(n=part)}" if part else "")) or None,
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
+                    "summary": str(story.get("summary") or story.get("description") or "")[:500] or None,
+                    "sequel_of": STATE.get("sequel_of"), "best_comment_id": STATE.get("best_comment_id"),
                     "special": special, "viewer_story_id": viewer["id"] if viewer else None,
                     "classic_id": classic[0] if special == "classic" and classic else None,
                     "episode_summary": str(story.get("episode_summary", ""))[:400] if special == "karna" else None,
@@ -10202,6 +10633,15 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 log("  English subtitles added on YouTube")
         except Exception as e:
             log("  subtitles skipped:", str(e)[:160])
+        if lang == "bn" and env("HINDI_SUBS") != "0":
+            try:                                      # v82: Hindi subtitles - Hindi-speaking viewers can follow too
+                hi_ = extras.translate_lines([s[3] for s in segs], "Hindi")
+                srt_hi = extras.write_srt(segs, hi_, os.path.join(WORK, "subs_hi.srt"))
+                if srt_hi:
+                    extras.yt_upload_captions(results["youtube"], srt_hi, language="hi", name="हिन्दी")
+                    log(f"  Hindi subtitles added on YouTube ({len(hi_)} lines)")
+            except Exception as e:
+                log("  Hindi subtitles skipped:", str(e)[:160])
     if results.get("facebook") and env("ANNOUNCE") != "0" and env("MODE") != "amavasya":
         try:                                          # "coming soon" post 2 hours before the next video
             nxt = extras.next_slot([NOON, EVENING], [EVENING])
