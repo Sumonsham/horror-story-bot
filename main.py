@@ -1203,6 +1203,131 @@ def clean_story_text(story):
         dedupe_story(story)
     except Exception as e:
         log("  repeat check skipped:", str(e)[:100])
+    try:                                             # v81: how real people call each other
+        natural_names(story)
+    except Exception as e:
+        log("  name check skipped:", str(e)[:100])
+    try:                                             # v81: no sentence that an earlier story already said
+        drop_said_before(story)
+    except Exception as e:
+        log("  said-before check skipped:", str(e)[:100])
+
+
+HONORIFICS = ("ডাক্তার", "ডঃ", "ডা.", "মিস্টার", "শ্রী", "শ্রীমতী", "ইন্সপেক্টর", "অফিসার", "প্রফেসর", "মাস্টার", "দারোগা",
+              "डॉक्टर", "डॉ.", "मिस्टर", "श्री", "श्रीमती", "इंस्पेक्टर", "प्रोफेसर")
+RELATION_TAIL = ("পিসি", "মাসি", "দিদি", "দাদা", "কাকা", "কাকু", "জেঠু", "জেঠা", "বৌদি", "মামা", "মাসিমা", "পিসিমা", "দাদু",
+                 "ঠাকুমা", "দিদিমা", "ঠাকুর", "মশাই", "बुआ", "मौसी", "दीदी", "भैया", "चाचा", "मामा", "दादा", "दादी")
+BN_VOWEL_END = "ািীুূৃেৈোৌঅআইঈউঊএঐওঔ"
+
+
+def _bn_attach(word, suffix):
+    """Bengali case endings after a name: 'অনির্বাণ' + possessive -> 'অনির্বাণের', 'মিনু' -> 'মিনুর'"""
+    if suffix in ("র", "ের"):
+        return word + ("র" if word[-1] in BN_VOWEL_END else "ের")
+    return word + suffix
+
+
+def natural_names(story):
+    """(13 Nov 2026: 'অনির্বাণ চ্যাটার্জি, আমার পাশে এসে দাঁড়া!' - nobody talks like that) In what people SAY, a
+    full name becomes the first name (an elder: surname + 'মশাই', a doctor/officer: title + surname); the storyteller
+    keeps the full name only the first time."""
+    changes = 0
+    for c in story.get("characters") or []:
+        if not isinstance(c, dict) or str(c.get("kind", "human")).startswith("ghost"):
+            continue
+        full = re.sub(r"\s+", " ", str(c.get("name_local") or "")).strip()
+        ws = full.split()
+        if len(ws) < 2 or ws[-1] in RELATION_TAIL or len(ws) > 4:
+            continue
+        title = ws[0] if ws[0] in HONORIFICS else ""
+        rest = ws[1:] if title else ws
+        if len(rest) < 2:
+            continue
+        given, surname = rest[0], rest[-1]
+        old = str(c.get("age", "")).lower() in ("old",) or "old" in str(c.get("age", "")).lower()
+        male = not str(c.get("gender", "male")).lower().startswith("f")
+        if title:
+            talk = f"{title} {surname}"
+        elif old and male and re.search(r"[\u0980-\u09FF]", surname):
+            talk = f"{surname}মশাই"
+        else:
+            talk = given
+        rx = re.compile(re.escape(full) + r"(দের|ের|র|কে|ও|ই)?(?![\u0980-\u09FF\u0900-\u097F])")
+        first_seen = [False]
+
+        def sub(m, who):
+            nonlocal changes
+            if who == "narrator" and not first_seen[0]:
+                first_seen[0] = True
+                return m.group(0)
+            changes += 1
+            base = talk if who != "narrator" else given if not title else f"{title} {surname}"
+            suf = m.group(1) or ""
+            return _bn_attach(base, suf) if suf and re.search(r"[\u0980-\u09FF]", base) else base + suf
+        for sc in story.get("scenes") or []:
+            for ln in sc.get("lines") or []:
+                who = "narrator" if str(ln.get("speaker", "narrator")).lower().startswith("narrat") else "person"
+                before = first_seen[0]
+                if ln.get("text") and full in str(ln["text"]):
+                    ln["text"] = rx.sub(lambda m: sub(m, who), str(ln["text"]))
+                after = first_seen[0]
+                if ln.get("voice_text") and full in str(ln["voice_text"]):
+                    first_seen[0] = before            # (the voice says exactly what the subtitle shows)
+                    ln["voice_text"] = rx.sub(lambda m: sub(m, who), str(ln["voice_text"]))
+                    first_seen[0] = after
+    if changes:
+        log(f"  names: {changes} full name(s) made natural (people call each other by first name / relation)")
+
+
+SAID_FILE = os.path.join(HERE, "assets", "said_before.json")
+
+
+def _sent_keys(text):
+    for s in re.split(r"(?<=[।!?])\s+|\.{3}\s*", str(text)):
+        k = re.sub(r"[^\u0980-\u09FF\u0900-\u097F]", "", s)
+        if len(k) >= 18:
+            yield s, k
+
+
+def drop_said_before(story):
+    """a storyteller's sentence that an EARLIER story already said word for word is taken out (a stock line that
+    comes in story after story makes every story sound the same)"""
+    old = set((_jload(SAID_FILE, {}) or {}).get("keys") or [])
+    if not old:
+        return
+    cut = 0
+    for sc in story.get("scenes") or []:
+        keep = []
+        for ln in sc.get("lines") or []:
+            if not str(ln.get("speaker", "narrator")).lower().startswith("narrat"):
+                keep.append(ln)
+                continue
+            t = str(ln.get("text", ""))
+            bad = [s for s, k in _sent_keys(t) if k in old]
+            for s in bad:
+                t = t.replace(s, " ")
+                cut += 1
+            t = re.sub(r"\s{2,}", " ", t).strip()
+            if bad:
+                ln["text"] = t
+                ln.pop("voice_text", None)
+            if re.search(r"[\u0980-\u09FF\u0900-\u097F]", t):
+                keep.append(ln)
+        sc["lines"] = keep
+    if cut:
+        log(f"  {cut} sentence(s) that earlier stories already said were taken out")
+
+
+def remember_said(story):
+    """after a story is out: its storyteller's sentences are remembered (the last ~40 stories)"""
+    d = _jload(SAID_FILE, {}) or {}
+    keys = list(d.get("keys") or [])
+    for sc in story.get("scenes") or []:
+        for ln in sc.get("lines") or []:
+            if str(ln.get("speaker", "narrator")).lower().startswith("narrat"):
+                keys += [k for _s, k in _sent_keys(ln.get("text", ""))]
+    d["keys"] = list(dict.fromkeys(keys))[-6000:]
+    _jsave(SAID_FILE, d)
 
 
 CLICHES = {
@@ -1670,7 +1795,17 @@ MASTER_STYLE = (
     "logic that holds to the end, and the supernatural entering quietly. Never retell or closely follow any "
     "copyrighted modern book, film or series (a folk legend or the SOURCE STORY given is fine). "
     "No call, exclamation or catchphrase over and over: a name called out ('ঠাকুরমশাই!', 'মা গো!') at most twice "
-    "in the whole story - every line must say something new.\n")
+    "in the whole story - every line must say something new.\n"
+    "REAL PEOPLE, REAL TALK (it must feel as if real people lived it): people speak to each other the way Bengalis "
+    "really do - by first name or pet name (ডাকনাম), or by the relation (দাদা, দিদি, কাকু, মাসিমা, বৌদি, মামা, "
+    "স্যার, ডাক্তারবাবু, মাস্টারমশাই) - NEVER by full name with surname, and they do not say the other person's name in "
+    "every line; an elder may be called by surname + 'মশাই'. The storyteller says a person's full name only once, "
+    "when he or she first comes in, then the first name. Half sentences, interruptions, small everyday worries "
+    "(the bus fare, the electricity bill, a child's exam), exact real places (a real para, a real bus route, a real "
+    "shop sign), exact times; people are not brave or wise in every line.\n"
+    "NO STOCK LINES: every story begins in its OWN way and has its own sentences - never a ready-made line that "
+    "could fit any story (like 'the day had begun like any ordinary day', 'little did they know', 'that night "
+    "changed everything'): show it with this story's own concrete detail instead.\n")
 
 
 LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 22)     # two ~22-minute stories a day (2 PM, 8 PM)
@@ -5594,6 +5729,10 @@ def morning_teasers(history):
         hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
                       "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
                       "viewer_names": [p[0] for p in ((plan.get("state") or {}).get("viewer_names") or [])]})
+        if env("TEASER_VOICE") != "1":
+            # (13 Nov 2026) NO separate teaser with its own voice any more: the teaser is cut from the FINISHED video
+            # itself (made 3 hours before its time) and posted right away - no extra voice needed
+            continue
         try:
             WORK = os.path.join(base_work, f"teaser_{h}")
             shutil.rmtree(WORK, ignore_errors=True)
@@ -9274,7 +9413,7 @@ def main():
                          "hook_part": True})
         cold = True
         log(f"Hook at the start (from scene {hi + 1}): {str(hlines[0].get('text', ''))[:80]}")
-        if env("TENSION_BRIDGE") != "0":
+        if env("TENSION_BRIDGE") == "1":             # (13 Nov 2026: OFF - the same 3 lines came in every story)
             bridges = (["কিন্তু কীভাবে শুরু হয়েছিল এই সব? ফিরে যেতে হবে প্রথম দিনে...",
                         "কে সে? কেন এসেছিল? উত্তর লুকিয়ে আছে প্রথম রাতে...",
                         "অথচ শুরুটা ছিল একেবারে সাধারণ একটা দিন... তারপর?"] if lang == "bn" else
@@ -9491,6 +9630,11 @@ def main():
     STATE["posted_now"] = True
     if not MOCK and not DRY_RUN:
         save_promise(story, slot_hour, lang, continues)
+        try:                                         # v81: its storyteller's sentences are never used again
+            remember_said(story)
+            push_now([SAID_FILE], "sentences remembered")
+        except Exception as e:
+            log("  sentences not remembered:", str(e)[:100])
     if not MOCK:
         save_history(history)
         cat_ = STATE.get("category", "gram")
@@ -9977,8 +10121,19 @@ def grow(video, story, title, lang, L, tags, results, history, page):
     short_desc = f"{title}\n\n{L['full_link']} {fb_full}\n\n{' '.join(tags[:5])}"   # the FULL story's own link
     if teaser and env("FB_REELS") != "0":
         try:
-            out["fb_reel"] = extras.fb_post_reel(teaser, short_desc)
-            log("Posted Facebook Reel:", out["fb_reel"])
+            pub = extras.PUBLISH.get("at")
+            now_ = dt.datetime.now(extras.IST)
+            if pub and (pub - now_).total_seconds() > 40 * 60:
+                # v81: the teaser (cut from this finished video - no extra voice) goes out NOW, before the story
+                sl_ = STATE.get("slot_hour", EVENING)
+                when_ = (SLOT_BN.get(sl_, "") + "য়") if lang == "bn" else ""
+                promo = (f"{re.sub(r'[|].*$', '', title).strip()}\n\n👻 পুরো গল্প আজ {when_}, এই পেজেই। "
+                         f"আলো নিভিয়ে শুনবেন।\n\n{' '.join(tags[:5])}" if lang == "bn" else short_desc)
+                out["fb_reel"] = extras.fb_post_reel(teaser, promo, at=now_ + dt.timedelta(minutes=12))
+                log("Teaser Reel (from the finished video) posted BEFORE the story:", out["fb_reel"])
+            else:
+                out["fb_reel"] = extras.fb_post_reel(teaser, short_desc)
+                log("Posted Facebook Reel:", out["fb_reel"])
         except Exception as e:
             log("  Facebook Reel skipped:", str(e)[:200])
         try:                                     # the teaser on the page Story too (24 h, top of the feed)
