@@ -6791,14 +6791,21 @@ def map_url():
             owner, name = repo.split("/", 1)
             url = f"https://{owner.lower()}.github.io/{name}/map/"
     ok = ""
-    if url and not MOCK and env("GHOST_MAP") != "0":
-        try:
-            r = requests.get(url, timeout=15)
-            ok = url if r.ok and "ভূতের মানচিত্র" in r.content.decode("utf-8", "ignore") else ""
-        except Exception:
-            ok = ""
-    MAP_LIVE["url"] = ok
     flag = os.path.join(MAP_DIR, "live.txt")
+    if url and not MOCK and env("GHOST_MAP") != "0":
+        for _try in range(3):                         # v87: one slow answer from GitHub Pages no longer turns off
+            try:                                      # the story page and the podcast episode for the whole run
+                r = requests.get(url, timeout=25)
+                ok = url if r.ok and "ভূতের মানচিত্র" in r.content.decode("utf-8", "ignore") else ""
+            except Exception:
+                ok = ""
+            if ok:
+                break
+            time.sleep(5)
+        if not ok and os.path.exists(flag):           # it was live before: a short hiccup, keep using it
+            ok = url
+            log("  ghost map did not answer just now - it was live before, so its address is used")
+    MAP_LIVE["url"] = ok
     if ok and not os.path.exists(flag) and not DRY_RUN:     # the first time it works: tell you on Telegram
         try:
             with open(flag, "w") as f:
@@ -9160,8 +9167,9 @@ def growth_links(lang):
     ch = extras.tg_channel_link(ASSETS)
     if ch:
         out.append(f"📢 নতুন গল্পের খবর সবার আগে: {ch}")
-    if base and os.path.exists(os.path.join(MAP_DIR, "podcast.xml")):
-        out.append(f"🎧 Spotify / Apple Podcasts-এ শুনতে: {base}podcast.xml")
+    sp = _clean_url(env("SPOTIFY_URL"))              # v87: the Spotify page itself (the feed file is for apps only)
+    if sp:
+        out.append(f"🎧 Spotify-তে শুনুন: {sp}")
     return "\n".join(out)
 
 
@@ -9248,6 +9256,7 @@ def milestone_rule():
 def growth_after_post(story, title, results, history, lang, video, thumb, slot_hour, special, viewer):
     """after a story is posted: the Facebook countdown story, the fan channel, the story as Facebook text (2 PM),
     the story's own web page, the podcast episode, an old video's best moment as a Short (Tue / Thu night)"""
+    log(f"After-post steps: map={'yes' if map_url() else 'NO'}, token={'yes' if env('GITHUB_TOKEN') else 'NO'}")
     at = extras.publish_time()
     when_bn = SLOT_BN.get(slot_hour, "") if isinstance(SLOT_BN, dict) else ""
     fb_link = f"https://www.facebook.com/{results['facebook']}" if results.get("facebook") else ""
@@ -9321,6 +9330,9 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
         except Exception as e:
             log("  web story skipped:", str(e)[:150])
     # 4) podcast episode (Spotify / Apple read the feed by themselves)
+    if not (base and env("GITHUB_TOKEN")):
+        log("  story page / podcast skipped: " + ("the ghost-map address is not live" if not base else
+                                                  "GITHUB_TOKEN is missing in horror-story.yml"))
     if base and env("PODCAST_FEED") != "0" and env("GITHUB_TOKEN"):
         try:
             mp3 = os.path.join(WORK, f"{story_slug()}.mp3")
