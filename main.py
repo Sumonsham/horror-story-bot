@@ -385,6 +385,44 @@ def save_history(items):
         json.dump(items[-200:], f, ensure_ascii=False, indent=1)
 
 
+NO_BAIT = os.getenv("COMMENT_ASKS") != "1"    # v86: never "comment 1, 2 or 3 / write your answer" (it breaks the story
+                                              # mid-way, and Facebook cuts the reach of such posts)
+
+
+HORROR_WORD_RE = re.compile(
+    r"bhoo?t|bhut|ভূত|ভুত|ভৌতিক|ভয়|bhoy|bhay|डर|भूत|भुत|horror|ghost|haunt|scary|spooky|creepy|paranormal|"
+    r"daini|ডাইনি|डायन|tantri|তান্ত্রিক|तांत्रिक|pret|প্রেত|प्रेत|atma|আত্মা|आत्मा|pishach|পিশাচ|पिशाच|"
+    r"shakchunni|শাঁকচুন্নি|petni|পেত্নী|brahmo|ব্রহ্মদৈত্য|nishi|নিশি|amavas|অমাবস্যা|अमावस|smashan|শ্মশান|"
+    r"श्मशान|রহস্য|rohosyo|rahasya|रहस्य|mystery|thriller|golpo|গল্প|kahani|कहानी|story|stories|অলৌকিক|"
+    r"alaukik|अलौकिक|chudail|चुड़ैल|কালো জাদু|kala jadu|काला जादू|tarana|তারানাথ|ভৈরব|bhairab", re.I)
+
+
+def horror_only(words):
+    """v86: only words that belong to ghost stories ('belly gurgles', 'feet soles girl' brought the wrong people)"""
+    return [w for w in (words or []) if HORROR_WORD_RE.search(str(w))]
+
+
+RETENTION_RULE = (
+    "\nKEEP THEM TILL THE END (our numbers: most viewers leave in the first minute):\n"
+    "- The first 3 lines are already INSIDE the fear: a sound, a touch, a voice, a wrong thing seen - no greeting, no "
+    "'today I will tell you', no slow description of the village, the weather or the house.\n"
+    "- Within the first minute the listener must have one burning question (who / what / why) that is answered only "
+    "at the very end.\n"
+    "- The first real scare comes before minute 3; after that something new happens at least every 2 minutes "
+    "(a clue, a sound, a reversal, a death, a secret) - never two calm scenes in a row.\n"
+    "- Every chapter ends on a small hook that pulls into the next one. Never stop the story to talk to the "
+    "listeners, never ask them to comment, like or vote.\n")
+
+
+def _hist_safe():
+    try:
+        with open(os.path.join(HERE, "history.json"), encoding="utf-8") as f:
+            h = json.load(f)
+        return h if isinstance(h, list) else []
+    except Exception:
+        return []
+
+
 def pick_language(history):
     """One language per page/channel (default Bengali) - a mixed-language channel splits its audience.
     Set the secret CHANNEL_LANG to "hi" for Hindi; "both" brings back one Hindi, one Bengali."""
@@ -399,9 +437,8 @@ def pick_language(history):
 
 
 FORMATS = [
-    "a whodunit ghost mystery: midway the narrator stops and asks the listeners which of three suspects is "
-    "really the ghost (telling them to comment 1, 2 or 3 and to listen till the end), and the final scene "
-    "reveals the answer with a twist",
+    "a whodunit ghost mystery: three people could be behind it, the clues are hidden in the story, and the final "
+    "scene reveals the answer with a twist (never stop the story to ask the listeners anything)",
     "classic third-person radio-drama narration",
     "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
     "a listener's letter read out by the narrator, then the events play out",
@@ -6122,6 +6159,8 @@ def choose_and_write(slot_hour, history):
             if mine:
                 theme = "the creator's own story"
                 extra_rules += CREATOR_RULE.format(text=mine["text"])
+    if env("RETENTION_RULE") != "0":                 # v86: people left in the first minute - keep them
+        extra_rules += RETENTION_RULE
     try:                                             # v63: this week's district + viewers who asked to be in it
         extra_rules += weekly_district(cat, slot_hour, prev, fest, amavasya_tonight, special, history, lang)
         extra_rules += viewer_names_rule(cat, special, part, festival, history, lang)
@@ -6669,9 +6708,9 @@ def uniq_invites(lang, youtube=False):
     """The invitations at the end of the YouTube description and in the first comment."""
     U = UNIQ.get(lang, UNIQ["bn"])
     rows = []
-    if env("DISTRICT_VOTE") != "0" and lang == "bn":
+    if env("DISTRICT_VOTE") != "0" and lang == "bn" and not NO_BAIT:
         rows.append(U["district_invite"].format(day=BN_DAYS[district_day()]))
-    if youtube and env("VIEWER_NAMES") != "0":       # (only on YouTube: Facebook dislikes 'comment X' asks)
+    if youtube and env("VIEWER_NAMES") != "0" and not NO_BAIT:       # (only on YouTube: Facebook dislikes 'comment X' asks)
         rows.append(U["names_invite"])
     url = map_url()
     if url:
@@ -8873,7 +8912,9 @@ def daily_text_short(history):
     if MOCK or DRY_RUN:
         return False
     tags = ["#ভূতের_গল্প", "#BhuterGolpo", "#HorrorShorts", "#ছোট_গল্প", "#shorts"]
-    desc = f"{ms['title']}\n\n" + " ".join(ms["lines"]) + "\n\n🕯️ রোজ পুরো ভূতের গল্প দুপুর ২টো আর রাত ৮টায়।\n\n" + " ".join(tags)
+    last_long = next((h.get("youtube") for h in reversed(_hist_safe()) if h.get("youtube") and not h.get("kind")), "")
+    desc = (f"{ms['title']}\n\n" + (f"▶ আগের পুরো ভূতের গল্পটা শুনুন: https://youtu.be/{last_long}\n\n" if last_long else "")
+            + " ".join(ms["lines"]) + "\n\n🕯️ রোজ পুরো ভূতের গল্প দুপুর ২টো আর রাত ৮টায়।\n\n" + " ".join(tags))
     if youtube_ready() and extras.yt_extra_ok():
         try:
             rec["youtube"] = post_to_youtube(out, None, f"{ms['title']} 👻 #Shorts", desc, ["shorts", "bhuter golpo",
@@ -9888,7 +9929,7 @@ def main():
     page = env(f"PAGE_NAME_{lang.upper()}") or env("PAGE_NAME") or L["page_default"]
     g = story.get("guess") if isinstance(story.get("guess"), dict) else {}
     gopts = [str(o).strip() for o in (g.get("options") or []) if str(o).strip()][:3]
-    if (not continues and not str(story.get("mystery_answer", "0")).strip()[:1] in "123" and g.get("question")
+    if (not NO_BAIT and not continues and not str(story.get("mystery_answer", "0")).strip()[:1] in "123" and g.get("question")
             and len(gopts) == 3 and str(g.get("answer", "")).strip()[:1] in ("1", "2", "3") and len(scenes) >= 4):
         mid = scenes[len(scenes) // 2 - 1]           # the viewers guess at the middle: comment 1, 2 or 3
         mid.setdefault("lines", []).append({"speaker": "narrator", "emotion": "eerie", "text": L["guess_line"].format(
@@ -9940,13 +9981,13 @@ def main():
     end_lines = []
     choice = story.get("choice") if continues and isinstance(story.get("choice"), dict) else None
     vote_text = ""
-    if choice and choice.get("question") and choice.get("option1") and choice.get("option2"):
+    if not NO_BAIT and choice and choice.get("question") and choice.get("option1") and choice.get("option2"):
         vote_text = L["vote_line"].format(q=choice["question"], o1=choice["option1"], o2=choice["option2"])
     if story.get("ending_line"):
         end_lines.append({"speaker": "narrator", "text": story["ending_line"]})
     if vote_text:
         end_lines.append({"speaker": "narrator", "text": vote_text})
-    if hidden:
+    if hidden and not NO_BAIT:
         end_lines.append({"speaker": "narrator", "text": L["find_ghost_line"]})
     lang_names = lambda ns: extras.name_list(ns, lang)
     if viewer and viewer.get("name"):
@@ -10020,6 +10061,7 @@ def main():
     seeds = ([HORROR_CATS[cat]["bn"], "ভূতের গল্প", "bhuter golpo"] if lang == "bn" else
              [HORROR_CATS[cat]["hi"], "bhoot ki kahani", "डरावनी कहानी"])
     trend_tags, seo_words = extras.seo_pack("horror", lang, os.path.join(HERE, "assets"), seeds) if not MOCK else ([], [])
+    trend_tags, seo_words = horror_only(trend_tags), horror_only(seo_words)   # v86: no stray trending words
     tags = []                                        # Facebook shows the first 5: 2 of this story + 3 trending tags
     for t in own[:2] + trend_tags[:3] + L.get("core_tags", [])[:3] + own[2:] + trend_tags[3:]:
         if t.lower() not in {x.lower() for x in tags}:
@@ -10035,7 +10077,7 @@ def main():
                    else f"https://www.facebook.com/watch/?v={p1['facebook']}")
             prev_link = ("⏮️ আগের পর্ব আগে শুনে নিন: " if lang == "bn" else "⏮️ पिछला भाग पहले सुनिए: ") + lnk + "\n\n"
     description = (f"{title}\n\n{prev_link}{story.get('description', '').strip()}\n\n" + (f"🗳️ {vote_text}\n\n" if vote_text else "")
-                   + (f"{L['find_ghost']}\n\n" if hidden else "") + f"{L['your_story']}\n\n{L['share_cta']}\n\n"
+                   + (f"{L['find_ghost']}\n\n" if hidden and not NO_BAIT else "") + f"{L['your_story']}\n\n{L['share_cta']}\n\n"
                    + f"{ai_note}\n\n{' '.join(tags)}")
     top_lines = uniq_top_lines(lang, used_names)     # v63: this week's district / the viewers in the story
     if top_lines:
@@ -10113,7 +10155,7 @@ def main():
                 log("  second thumbnail not kept:", str(e)[:100])
 
     first = [vote_text or str(story.get("comment_question", "")).strip()]
-    if hidden:
+    if hidden and not NO_BAIT:
         first.append(L["find_ghost"])
     if viewer and viewer.get("name"):
         first.append(L["credit_comment"].format(name=viewer["name"]))
@@ -10121,7 +10163,8 @@ def main():
         first.append(L["vote_comment"].format(names=extras.name_list(vote_names, lang, 10)))
     if shout_names:
         first.append(L["shout_comment"].format(names=extras.name_list(shout_names, lang, 10)))
-    first.append(L["join_comment"])
+    if not NO_BAIT:
+        first.append(L["join_comment"])
     try:
         first += uniq_invites(lang)                  # v63: which district next Tuesday? + the ghost map
     except Exception as e:
@@ -10600,7 +10643,7 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
         parts.append(_video_clip(video, c[0] - 0.15, c[1] + 0.4, nxt("fast"), c[3]))
     g = story.get("guess") if isinstance(story.get("guess"), dict) else {}
     opts = [str(x) for x in (g.get("options") or [])][:3]
-    if g.get("question") and len(opts) == 3:      # the viewers' puzzle: they comment 1, 2 or 3
+    if g.get("question") and len(opts) == 3 and not NO_BAIT:   # the viewers' puzzle: they comment 1, 2 or 3
         nums = "১২৩" if lang == "bn" else "123"
         qcard = _card(os.path.join(WORK, "tr_cq.jpg"),
                       [str(g["question"])] + [f"{nums[i]}) {o}" for i, o in enumerate(opts)] + [L["guess_card"]],
@@ -10664,7 +10707,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         try:
             pub = extras.PUBLISH.get("at")
             now_ = dt.datetime.now(extras.IST)
-            if pub and (pub - now_).total_seconds() > 40 * 60:
+            if pub and (pub - now_).total_seconds() > 40 * 60 and env("FB_TEASER_BEFORE") == "1":
                 # v81: the teaser (cut from this finished video - no extra voice) goes out NOW, before the story
                 sl_ = STATE.get("slot_hour", EVENING)
                 when_ = (SLOT_BN.get(sl_, "") + "য়") if lang == "bn" else ""
@@ -10672,6 +10715,11 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                          f"আলো নিভিয়ে শুনবেন।\n\n{' '.join(tags[:5])}" if lang == "bn" else short_desc)
                 out["fb_reel"] = extras.fb_post_reel(teaser, promo, at=now_ + dt.timedelta(minutes=12))
                 log("Teaser Reel (from the finished video) posted BEFORE the story:", out["fb_reel"])
+            elif pub and pub > now_ + dt.timedelta(minutes=15):
+                # v86: a Reel before the story got ~3 views (nothing to click yet) - now it comes 10 minutes AFTER
+                # the story is out, with the full story's link
+                out["fb_reel"] = extras.fb_post_reel(teaser, short_desc, at=pub + dt.timedelta(minutes=10))
+                log("Facebook Reel scheduled 10 minutes after the story:", out["fb_reel"])
             else:
                 out["fb_reel"] = extras.fb_post_reel(teaser, short_desc)
                 log("Posted Facebook Reel:", out["fb_reel"])
@@ -10724,6 +10772,11 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                                                   desc)
                 out["yt_short"] = post_to_youtube(teaser, None, f"{title[:80]} #Shorts", desc, tags, lang, loc)
                 log("Posted YouTube Short:", out["yt_short"])
+                try:                                 # v86: the way from the Short to the full story, right under it
+                    extras.yt_comment(out["yt_short"], ("▶ পুরো গল্পটা এখানে: " if lang == "bn" else "▶ पूरी कहानी यहाँ: ")
+                                      + f"https://youtu.be/{results['youtube']}")
+                except Exception as e:
+                    log("  Short's link comment skipped:", str(e)[:120])
             except Exception as e:
                 log("  YouTube Short skipped:", str(e)[:200])
     if results.get("facebook"):
