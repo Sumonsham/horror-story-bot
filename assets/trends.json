@@ -1,58 +1,136 @@
 {
  "horror_bn": {
-  "date": "2026-11-14",
+  "date": "2026-11-15",
   "topics": [
-   "A night-shift toll plaza worker in rural Bengal is locked inside his glass booth while whispering voices from the intercom broadcast old radio static and local ",
-   "A long-haul truck driver parked on a deserted stretch of the Mumbai-Pune highway hears rhythmic knocking on his trailer roof that stops the moment his headlight",
-   "A group of late-night amateur radio operators in Kolkata intercept a persistent distress frequency from an abandoned colonial-era telegraph station that was sea",
-   "A lone security guard patrolling an under-construction IT park in Salt Lake watches his own thermal imaging silhouette walk forty feet ahead of him down a pitch",
-   "A sleepy station master on the Darjeeling Himalayan Railway hears the phantom whistle of a steam engine echoing through the gorge, followed by the sound of heav",
-   "A young sound engineer cataloging old cassette tapes in a dilapidated Mumbai studio stumbles upon an unlabelled recording that captures his own voice speaking w"
+   "A night-shift security guard at a remote highway toll plaza encounters a woman in a bridal saree who asks for a lift every time the clock hits 3:00 AM.",
+   "A group of friends camping near a dried-up village pond discovers a hidden well that glows at night, trapping the soul of anyone who gazes into its reflection.",
+   "During a power outage in a rural ancestral home, a young boy realizes the shadow playing with his toys does not belong to any of his family members.",
+   "A delivery man takes a shortcut through a dense forest in Birbhum and finds a village that appears on no map, where the residents only speak in whispers.",
+   "After moving into a newly renovated apartment, a mother finds a hidden crawlspace behind the kitchen wall containing old, blood-stained children's drawings that",
+   "A lonely traveler stranded in a storm seeks shelter in a dilapidated roadside inn, only to realize the guests at the dinner table are all wearing burial shrouds"
   ],
   "hashtags": [
    "#BhuterGolpo",
-   "#BanglaHorror",
+   "#BengaliHorror",
+   "#VuterGolpo",
+   "#HorrorStories",
+   "#RealGhostStory",
    "#BhootKiKahani",
-   "#SundaySuspense",
-   "#HorrorAudioStory",
-   "#BanglaGhostStory",
-   "#IndianGhostStories",
-   "#RadioHorror",
-   "#TrueGhostStories",
-   "#DarkScreenHorror"
+   "#BanglaBhuterGolpo",
+   "#HorrorPodcast",
+   "#GhostStories",
+   "#BhoutikGolpo"
   ],
   "keywords": [
-   "bengali horror audio story",
-   "bhuter golpo new",
-   "sunday suspense style horror",
-   "old radio horror bangla",
-   "bhoot ki kahani hindi",
-   "true ghost experiences india",
-   "dark screen horror story",
-   "scary bhoot earphone audio"
+   "Bhuter golpo",
+   "Bengali horror story",
+   "Vuter golpo",
+   "Real ghost story",
+   "Bhoot ki kahani",
+   "Horror podcast",
+   "Sotti bhuter ghotona",
+   "Bengali horror cartoon"
   ],
   "style": {
    "tags": [],
    "hashtags": [],
-   "title_style": "These Bengali horror titles are moderately long and descriptive, heavily featuring specific durations like '৮ ঘণ্টার' (8 hours) and format markers like 'রেডিও হরর' (radio horror) to set expectations. They use curiosity and sleep-inducing angles with phrases like 'সবচেয়ে ভয়ঙ্কর ঘটনা শুনে ঘুমিয়ে পড়ুন' (listen to the scariest events and fall asleep) and separate clauses using the pipe symbol '|'. No emojis are used, relying instead on strong emotional keywords and exact numbers to pull clicks.",
-   "thumb_style": "The thumbnails feature a dark, atmospheric style with dominant red, black, and sepia tones creating a spooky vintage mood. They display eerie elements like glowing-eyed shadow figures, glowing antique radios, and rising smoke against graveyard or dark backgrounds. The composition places large serif white text prominently on the left side, often highlighted with a solid red accent box for duration numbers.",
-   "thumb_text_style": "About 4 to 8 words of large, clean serif English text highlighting the show name, topic, and exact runtime."
+   "title_style": "Titles are short and punchy, combining catchy horror keywords like 'ভয়ের গল্প' (scary story) or 'অভিশপ্ত' (cursed) with descriptive scenario hooks. They heavily utilize vertical pipes ('|') to stack multiple keyword variations for SEO optimization without using emojis.",
+   "thumb_style": "Thumbnails feature dark, night-time illustrations lit by eerie moonlight, lanterns, or glowing eyes to create a high-contrast spooky atmosphere. They prominently display terrified human characters reacting to monstrous ghouls, evil spirits, or wild beasts in rural Bengali settings.",
+   "thumb_text_style": "2 to 4 words of bold, stylized Bengali text in white or red with dripping effects, mirroring the video title."
   },
   "real": [
    {
-    "id": "BS8BWx9MPHk",
-    "title": "দ্য শ্যাডো-র ৮ ঘণ্টার সবচেয়ে ভয়ঙ্কর ঘটনা শুনে ঘুমিয়ে পড়ুন | পুরোনো দিনের রেডিও হরর | ডার্ক স্ক্রিন",
-    "views": 33,
+    "id": "MHOyVtyD2cA",
+    "title": "রাত ঠিক তিনটে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 734089,
+    "age": "5d ago"
+   },
+   {
+    "id": "iZhgpFbKT4k",
+    "title": "রক্ত কাফনের তালাশ | Bhuter Cartoon | Vuter Golpo | Bengali Horror Story | Bangla Vuter Cartoon",
+    "views": 636531,
+    "age": "4d ago"
+   },
+   {
+    "id": "Nt1YktPGSQk",
+    "title": "নর পিশাচ | হাড় কাঁপানো ভয়ের গল্প | Bengali Horror Stories | Vuther Golpo | Bhoot Ghar",
+    "views": 407352,
+    "age": "4d ago"
+   },
+   {
+    "id": "3SD2U5i5gdE",
+    "title": "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun",
+    "views": 400123,
+    "age": "1d ago"
+   },
+   {
+    "id": "swbupgGk2Vw",
+    "title": "নদিয়ার Haunted বাড়িতে পৈশাচিক ধর্ষণ এবং মৃত্যু ft. surya | Horror Podcast | Sotti Bhuter Ghotona",
+    "views": 311625,
+    "age": "6d ago"
+   },
+   {
+    "id": "mp9DyJUDbVw",
+    "title": "মৃত্যুর পর নিজের ঘরেই ফিরে এল মৃত বাচ্চাটি? | Real Ghost Story | @Pretkotha Live Horror Podcast",
+    "views": 304371,
+    "age": "6d ago"
+   },
+   {
+    "id": "QGbj5dU0TcE",
+    "title": "শীতের রাতে কলস নিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 285961,
     "age": "2d ago"
    },
    {
-    "id": "rKzzWVEgyZM",
-    "title": "আর্ট বেলের ঘোস্ট টু ঘোস্ট এএম, হ্যালোইন ১৯৯৫ | তিন ঘণ্টার আসল কলার",
-    "views": 1,
-    "age": "3h ago"
+    "id": "GUOLJNyz9-0",
+    "title": "মরা বিলের অভিশপ্ত আত্মা! Bhuter Cartoon | True Horror Story | Ghost | Bangla Bhuter Golpo",
+    "views": 265419,
+    "age": "4d ago"
+   },
+   {
+    "id": "B0TpOmmZOrg",
+    "title": "গ্রামে যখন বিদ্যূত থাকেনা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 232362,
+    "age": "6d ago"
+   },
+   {
+    "id": "JF68sxMBMI8",
+    "title": "দুর্যোগের রাতে মেলা দেখতে গিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 210597,
+    "age": "5d ago"
+   },
+   {
+    "id": "xbrIrf5OMRE",
+    "title": "ডাক | Missing Woman Mystery | Grambanglar bhuter golpo | Bengali Ghost Story | AtmaToons Bangla",
+    "views": 172892,
+    "age": "5d ago"
+   },
+   {
+    "id": "jpinMnvrOIg",
+    "title": "ভূত চতুর্দশীর রাতে | Bhut Chaturdashir Rate | Bengali Horror Story | Bhuter Cartoon",
+    "views": 169638,
+    "age": "6d ago"
+   },
+   {
+    "id": "lSco9yyRY9g",
+    "title": "বৃষ্টি ভেজা রাতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 158020,
+    "age": "3d ago"
+   },
+   {
+    "id": "TJupbxnOBHk",
+    "title": "১৯ জ্বিনের অভিশাপের সত্যি ভৌতিক ঘটনা | @Pretkotha Diwali Special Episode 658 | Real Ghost Story",
+    "views": 115982,
+    "age": "5d ago"
+   },
+   {
+    "id": "fDV5-XowcmU",
+    "title": "বীরভূমের Haunted বাড়িতে গর্ভবতী মহিলার ভয়ানক অভিশাপ | Horror Podcast | Sotti Bhuter Ghotona",
+    "views": 114372,
+    "age": "3d ago"
    }
   ],
-  "from_cat": "nishi"
+  "from_cat": "sotti"
  },
  "horror_bn_shohor": {
   "date": "2026-11-13",
@@ -427,6 +505,151 @@
   "youtube_top": [
    "দ্য শ্যাডো-র ৮ ঘণ্টার সবচেয়ে ভয়ঙ্কর ঘটনা শুনে ঘুমিয়ে পড়ুন | পুরোনো দিনের রেডিও হরর | ডার্ক স্ক্রিন (33)",
    "আর্ট বেলের ঘোস্ট টু ঘোস্ট এএম, হ্যালোইন ১৯৯৫ | তিন ঘণ্টার আসল কলার (1)"
+  ],
+  "from": "youtube"
+ },
+ "horror_bn_sotti": {
+  "date": "2026-11-15",
+  "topics": [
+   "A night-shift security guard at a remote highway toll plaza encounters a woman in a bridal saree who asks for a lift every time the clock hits 3:00 AM.",
+   "A group of friends camping near a dried-up village pond discovers a hidden well that glows at night, trapping the soul of anyone who gazes into its reflection.",
+   "During a power outage in a rural ancestral home, a young boy realizes the shadow playing with his toys does not belong to any of his family members.",
+   "A delivery man takes a shortcut through a dense forest in Birbhum and finds a village that appears on no map, where the residents only speak in whispers.",
+   "After moving into a newly renovated apartment, a mother finds a hidden crawlspace behind the kitchen wall containing old, blood-stained children's drawings that",
+   "A lonely traveler stranded in a storm seeks shelter in a dilapidated roadside inn, only to realize the guests at the dinner table are all wearing burial shrouds"
+  ],
+  "hashtags": [
+   "#BhuterGolpo",
+   "#BengaliHorror",
+   "#VuterGolpo",
+   "#HorrorStories",
+   "#RealGhostStory",
+   "#BhootKiKahani",
+   "#BanglaBhuterGolpo",
+   "#HorrorPodcast",
+   "#GhostStories",
+   "#BhoutikGolpo"
+  ],
+  "keywords": [
+   "Bhuter golpo",
+   "Bengali horror story",
+   "Vuter golpo",
+   "Real ghost story",
+   "Bhoot ki kahani",
+   "Horror podcast",
+   "Sotti bhuter ghotona",
+   "Bengali horror cartoon"
+  ],
+  "style": {
+   "tags": [],
+   "hashtags": [],
+   "title_style": "Titles are short and punchy, combining catchy horror keywords like 'ভয়ের গল্প' (scary story) or 'অভিশপ্ত' (cursed) with descriptive scenario hooks. They heavily utilize vertical pipes ('|') to stack multiple keyword variations for SEO optimization without using emojis.",
+   "thumb_style": "Thumbnails feature dark, night-time illustrations lit by eerie moonlight, lanterns, or glowing eyes to create a high-contrast spooky atmosphere. They prominently display terrified human characters reacting to monstrous ghouls, evil spirits, or wild beasts in rural Bengali settings.",
+   "thumb_text_style": "2 to 4 words of bold, stylized Bengali text in white or red with dripping effects, mirroring the video title."
+  },
+  "real": [
+   {
+    "id": "MHOyVtyD2cA",
+    "title": "রাত ঠিক তিনটে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 734089,
+    "age": "5d ago"
+   },
+   {
+    "id": "iZhgpFbKT4k",
+    "title": "রক্ত কাফনের তালাশ | Bhuter Cartoon | Vuter Golpo | Bengali Horror Story | Bangla Vuter Cartoon",
+    "views": 636531,
+    "age": "4d ago"
+   },
+   {
+    "id": "Nt1YktPGSQk",
+    "title": "নর পিশাচ | হাড় কাঁপানো ভয়ের গল্প | Bengali Horror Stories | Vuther Golpo | Bhoot Ghar",
+    "views": 407352,
+    "age": "4d ago"
+   },
+   {
+    "id": "3SD2U5i5gdE",
+    "title": "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun",
+    "views": 400123,
+    "age": "1d ago"
+   },
+   {
+    "id": "swbupgGk2Vw",
+    "title": "নদিয়ার Haunted বাড়িতে পৈশাচিক ধর্ষণ এবং মৃত্যু ft. surya | Horror Podcast | Sotti Bhuter Ghotona",
+    "views": 311625,
+    "age": "6d ago"
+   },
+   {
+    "id": "mp9DyJUDbVw",
+    "title": "মৃত্যুর পর নিজের ঘরেই ফিরে এল মৃত বাচ্চাটি? | Real Ghost Story | @Pretkotha Live Horror Podcast",
+    "views": 304371,
+    "age": "6d ago"
+   },
+   {
+    "id": "QGbj5dU0TcE",
+    "title": "শীতের রাতে কলস নিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 285961,
+    "age": "2d ago"
+   },
+   {
+    "id": "GUOLJNyz9-0",
+    "title": "মরা বিলের অভিশপ্ত আত্মা! Bhuter Cartoon | True Horror Story | Ghost | Bangla Bhuter Golpo",
+    "views": 265419,
+    "age": "4d ago"
+   },
+   {
+    "id": "B0TpOmmZOrg",
+    "title": "গ্রামে যখন বিদ্যূত থাকেনা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 232362,
+    "age": "6d ago"
+   },
+   {
+    "id": "JF68sxMBMI8",
+    "title": "দুর্যোগের রাতে মেলা দেখতে গিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 210597,
+    "age": "5d ago"
+   },
+   {
+    "id": "xbrIrf5OMRE",
+    "title": "ডাক | Missing Woman Mystery | Grambanglar bhuter golpo | Bengali Ghost Story | AtmaToons Bangla",
+    "views": 172892,
+    "age": "5d ago"
+   },
+   {
+    "id": "jpinMnvrOIg",
+    "title": "ভূত চতুর্দশীর রাতে | Bhut Chaturdashir Rate | Bengali Horror Story | Bhuter Cartoon",
+    "views": 169638,
+    "age": "6d ago"
+   },
+   {
+    "id": "lSco9yyRY9g",
+    "title": "বৃষ্টি ভেজা রাতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 158020,
+    "age": "3d ago"
+   },
+   {
+    "id": "TJupbxnOBHk",
+    "title": "১৯ জ্বিনের অভিশাপের সত্যি ভৌতিক ঘটনা | @Pretkotha Diwali Special Episode 658 | Real Ghost Story",
+    "views": 115982,
+    "age": "5d ago"
+   },
+   {
+    "id": "fDV5-XowcmU",
+    "title": "বীরভূমের Haunted বাড়িতে গর্ভবতী মহিলার ভয়ানক অভিশাপ | Horror Podcast | Sotti Bhuter Ghotona",
+    "views": 114372,
+    "age": "3d ago"
+   }
+  ],
+  "youtube_top": [
+   "রাত ঠিক তিনটে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (734,089)",
+   "রক্ত কাফনের তালাশ | Bhuter Cartoon | Vuter Golpo | Bengali Horror Story | Bangla Vuter Cartoon (636,531)",
+   "নর পিশাচ | হাড় কাঁপানো ভয়ের গল্প | Bengali Horror Stories | Vuther Golpo | Bhoot Ghar (407,352)",
+   "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun (400,123)",
+   "নদিয়ার Haunted বাড়িতে পৈশাচিক ধর্ষণ এবং মৃত্যু ft. surya | Horror Podcast | Sotti Bhuter Ghotona (311,625)",
+   "মৃত্যুর পর নিজের ঘরেই ফিরে এল মৃত বাচ্চাটি? | Real Ghost Story | @Pretkotha Live Horror Podcast (304,371)",
+   "শীতের রাতে কলস নিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (285,961)",
+   "মরা বিলের অভিশপ্ত আত্মা! Bhuter Cartoon | True Horror Story | Ghost | Bangla Bhuter Golpo (265,419)",
+   "গ্রামে যখন বিদ্যূত থাকেনা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (232,362)",
+   "দুর্যোগের রাতে মেলা দেখতে গিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (210,597)"
   ],
   "from": "youtube"
  }
