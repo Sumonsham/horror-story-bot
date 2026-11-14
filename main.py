@@ -411,7 +411,22 @@ RETENTION_RULE = (
     "- The first real scare comes before minute 3; after that something new happens at least every 2 minutes "
     "(a clue, a sound, a reversal, a death, a secret) - never two calm scenes in a row.\n"
     "- Every chapter ends on a small hook that pulls into the next one. Never stop the story to talk to the "
-    "listeners, never ask them to comment, like or vote.\n")
+    "listeners, never ask them to comment, like or vote.\n"
+    "REAL SUSPENSE (v91 - make it truly frightening, like the best Bengali radio horror):\n"
+    "- Dread before the scare: let the listener feel something is wrong long before it shows (a smell, a wet "
+    "footprint, a voice saying a name nobody told it, a clock that stopped at the same minute). The unseen is "
+    "scarier than the seen - show the ghost late and only in pieces.\n"
+    "- Plant and pay off: every strange detail planted early returns later with a terrible meaning; nothing is left "
+    "unexplained, nothing appears only to be forgotten.\n"
+    "- Misdirection: the listener should suspect the wrong person or the wrong reason until the twist, and the twist "
+    "must be fair - the clues were there.\n"
+    "- A ticking clock or a rule (before the moon sets / never answer if it calls three times) that the characters "
+    "must race against or break.\n"
+    "- The ghost speaks little: short, slow, broken sentences, often the victim's own name or words the dead person "
+    "used to say; a slow sinister laugh <evil laugh> may open or close at most two of the ghost's lines in the whole "
+    "story. Never a funny or talkative ghost.\n"
+    "- Every line follows from the line before it; nobody repeats what was just said; no sentence, event or "
+    "description is ever told twice.\n")
 
 
 def _hist_safe():
@@ -3504,7 +3519,12 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         # so: the SMALLEST size with which the whole cast fits into 4/5 of today's share; the rest is kept for a
         # broken recording and for making doubtful lines again one by one.
         need_of = lambda: {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
-        for n_, c_ in ((6, 700), (8, 900), (10, 1100), (12, 1300), (16, 1500), (20, 1700), (26, 1900)):
+        # (v91b: back to the full range - you want EVERY story fully in the Gemini voice; a sentence that Gemini reads
+        # twice is caught by its length and made again alone, see below)
+        sizes_ = ((6, 700), (8, 900), (10, 1100), (12, 1300), (16, 1500), (20, 1700), (26, 1900))
+        if env("TTS_MAX_PIECES"):
+            sizes_ = tuple(x for x in sizes_ if x[0] <= int(env("TTS_MAX_PIECES"))) or sizes_[:1]
+        for n_, c_ in sizes_:
             extras.TTS_PLAN.update(pieces=n_, chars=c_)
             need = need_of()
             if sum(need.values()) <= int(left * 0.8):
@@ -3562,6 +3582,29 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
             finally:
                 if os.path.exists(tmp_):
                     os.remove(tmp_)
+        # v91: doubtful lines that are still left (no Gemini request free): ONE line in the Chirp voice of the same
+        # name - a line alone can never come out twice
+        chirp_fixed = 0
+        if extras.chirp_ok(TTS_USAGE) and env("SUSPECT_CHIRP") != "0":
+            for _dev, ln_ in sorted(extras.SUSPECT, key=lambda z: -z[0]):
+                if ln_ in seen_ or _dev < 0.45:       # only a line clearly read twice (or missing half its words)
+                    continue
+                it = by_out.get(ln_)
+                if not it:
+                    continue
+                seen_.add(ln_)
+                tmp_ = it["out"] + ".chirp.wav"
+                try:
+                    if extras.chirp_tts(it["plain"], it["voice"], tmp_, SR, TTS_USAGE, lang) and os.path.getsize(tmp_) > 2000:
+                        os.replace(tmp_, it["out"])
+                        chirp_fixed += 1
+                except Exception as e:
+                    log("  a doubtful line could not get the Chirp voice:", str(e)[:100])
+                finally:
+                    if os.path.exists(tmp_):
+                        os.remove(tmp_)
+            if chirp_fixed:
+                log(f"  {chirp_fixed} doubtful line(s) made again alone in the Chirp voice (nothing heard twice)")
         log(f"  recordings cut with the machine reading: {extras.CUT_STATS[0]}, by the length of the words only: "
             f"{extras.CUT_STATS[1]}; doubtful lines: {len({l_ for _d, l_ in extras.SUSPECT})}, made again alone: {fixed_n}")
         if extras.SAMPLE.get("dir") and os.path.isdir(VOICE_SAMPLES):
@@ -3684,13 +3727,28 @@ GHOST_FX = {
 }
 
 
-GHOST_DEPTH = {"male": 0.93, "female": 0.96, "old_female": 0.95, "child": 0.97}
+GHOST_DEPTH = {"male": 0.86, "female": 0.92, "old_female": 0.9, "child": 0.95}     # v91: deeper (was .93/.96/.95/.97)
 
 
 def ghost_fx(src, out_wav, kind, af="anull"):
     """A revealed ghost: the SAME natural voice (never robotic), only a little deeper and heavier, with the cold
     echo of an empty room. The formants are kept, so it still sounds like a real person."""
-    k = GHOST_DEPTH.get(kind, 0.95)
+    k = GHOST_DEPTH.get(kind, 0.92)
+    if env("GHOST_VOICE") != "soft":             # v91: frightening, but every word still clear
+        # main: the same voice, deeper + a cold room; under it a second, much deeper voice (the thing inside her);
+        # above it a thin breathy hiss that trembles; before each word a backwards breath
+        low = 0.62 if kind == "male" else 0.7
+        fc = (f"[0:a]{af},asplit=4[a][b][c][d];"
+              f"[a]rubberband=pitch={k:.3f}:formant=preserved,aecho=0.8:0.6:60|140|260:0.3|0.18|0.1,bass=g=4:f=130[m];"
+              f"[b]rubberband=pitch={k * low:.3f},lowpass=f=900,volume=0.42,adelay=25[l];"
+              f"[c]rubberband=pitch={k:.3f}:formant=preserved,highpass=f=3200,tremolo=f=9:d=0.7,volume=0.22,adelay=45[h];"
+              f"[d]areverse,aecho=0.8:0.7:320:0.55,areverse,lowpass=f=5000,volume=0.3[p];"
+              "[m][l][h][p]amix=inputs=4:normalize=0,alimiter=limit=0.95,lowpass=f=10000[o]")
+        try:
+            run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[o]", "-ac", "1", "-ar", str(SR), out_wav])
+            return
+        except RuntimeError:
+            pass
     g = (f"{af},rubberband=pitch={k:.3f}:formant=preserved,"
          "aecho=0.8:0.55:70|160:0.22|0.12,bass=g=3:f=140,lowpass=f=9000,volume=1.05")
     try:
