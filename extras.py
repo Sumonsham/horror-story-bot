@@ -6464,12 +6464,30 @@ def tg_scan(updates, path_dir, owner_chat, kind="horror"):
             status = (mcm.get("new_chat_member") or {}).get("status")
             if status == "administrator" and str(ch.get("id")) != str(chat.get("id")):
                 ch = {"id": chat.get("id"), "title": chat.get("title", ""), "username": chat.get("username", ""),
-                      "queue": ch.get("queue") or []}
+                      "queue": ch.get("queue") or [], **({"group": ch["group"], "group_title": ch.get("group_title", "")}
+                                                        if ch.get("group") else {})}
                 changed = True
                 telegram(f"✅ {'কার্টুন' if kind == 'cartoon' else 'ভূতের'} bot-এর ফ্যান চ্যানেল পেয়েছি: "
                          f"{chat.get('title', '')}। এখন থেকে প্রতিটা নতুন গল্পের খবর এই চ্যানেলে যাবে।")
             elif status in ("left", "kicked") and str(ch.get("id")) == str(chat.get("id")):
-                ch, changed = {}, True
+                ch, changed = ({"group": ch["group"]} if ch.get("group") else {}), True
+        # v95: the night-adda GROUP (the bot added as a member): remembered; only replies to the bot reach it
+        if (chat.get("type") in ("group", "supergroup") and kind == "horror"
+                and not any(w in ttl for w in ("কার্টুন", "cartoon", "kids"))):
+            status = (mcm.get("new_chat_member") or {}).get("status")
+            if status in ("member", "administrator") and str(ch.get("group")) != str(chat.get("id")):
+                ch["group"], ch["group_title"] = chat.get("id"), chat.get("title", "")
+                changed = True
+                telegram(f"✅ রাতের আড্ডার group পেয়েছি: {chat.get('title', '')}। রাত ৮টার গল্পের পরে এখানে একটা প্রশ্ন "
+                         "যাবে, পরদিন সকালে সেরা উত্তরগুলো।")
+            elif status in ("left", "kicked") and str(ch.get("group")) == str(chat.get("id")):
+                ch.pop("group", None)
+                changed = True
+    if kind == "horror" and ch.get("group"):
+        try:
+            adda_collect(updates, path_dir, ch["group"])
+        except Exception as e:
+            log("  night adda replies skipped:", str(e)[:100])
     if changed:
         _js(os.path.join(path_dir, "tg_channel.json"), ch)
     if kind == "horror" and env("TG_STORY") != "0":
@@ -6504,6 +6522,162 @@ def tg_scan(updates, path_dir, owner_chat, kind="horror"):
     vv["seen"] = sorted(seen)[-500:]
     if added or vv.get("raw"):
         _js(vpath, vv)
+
+
+# ----------------------------------------------------------------- v95: the night adda (Telegram group)
+def adda_collect(updates, path_dir, group_id):
+    """replies people wrote (in the group) to the bot's question - only first names and the words are kept"""
+    p = os.path.join(path_dir, "adda.json")
+    a = _jl(p, {}) or {}
+    qid = a.get("msg_id")
+    if not qid:
+        return
+    seen = set(a.get("seen") or [])
+    for u in updates:
+        msg = u.get("message") or {}
+        if str((msg.get("chat") or {}).get("id")) != str(group_id) or u.get("update_id") in seen:
+            continue
+        seen.add(u.get("update_id"))
+        rep_ = (msg.get("reply_to_message") or {}).get("message_id")
+        txt = str(msg.get("text") or "").strip()
+        if rep_ == qid and 3 <= len(txt) <= 600:
+            a.setdefault("answers", []).append({"name": str((msg.get("from") or {}).get("first_name") or "")[:20],
+                                                "text": txt})
+    a["seen"] = sorted(seen)[-500:]
+    a["answers"] = (a.get("answers") or [])[-150:]
+    _js(p, a)
+
+
+def tg_send_id(chat_id, text):
+    """like tg_send, but returns the sent message's id (or None)"""
+    tok = env("TELEGRAM_BOT_TOKEN")
+    if not tok or not chat_id or env("MOCK") == "1":
+        return None
+    try:
+        r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", timeout=30,
+                          data={"chat_id": chat_id, "text": text[:4000]}).json()
+        return (r.get("result") or {}).get("message_id")
+    except Exception:
+        return None
+
+
+def adda_ask(path_dir, title, question, link=""):
+    """after the 8 PM story: one question for the group (people answer by REPLYING to it)"""
+    ch = tg_get(path_dir)
+    if not ch.get("group") or env("NIGHT_ADDA") == "0":
+        return False
+    txt = (f"🌙 আজ রাতের আড্ডা - \"{title}\"\n\n{question}\n\n(উত্তর দিতে এই message-এর ওপর Reply করুন - কাল সকালে "
+           "সবচেয়ে মজার কয়েকটা উত্তর এখানেই আসবে)" + (f"\n\n▶ গল্পটা: {link}" if link else ""))
+    mid = tg_send_id(ch["group"], txt)
+    if mid:
+        _js(os.path.join(path_dir, "adda.json"), {"msg_id": mid, "title": title, "question": question,
+                                                  "asked": dt.datetime.now(IST).isoformat(timespec="minutes"),
+                                                  "answers": [], "seen": [], "summed": False})
+    return bool(mid)
+
+
+def adda_summary(path_dir, key):
+    """the next morning: the 3 most interesting replies, with first names (one light Gemini request)"""
+    ch = tg_get(path_dir)
+    p = os.path.join(path_dir, "adda.json")
+    a = _jl(p, {}) or {}
+    if not ch.get("group") or a.get("summed") or not a.get("asked"):
+        return False
+    try:
+        asked = dt.datetime.fromisoformat(a["asked"])
+    except Exception:
+        return False
+    now = dt.datetime.now(IST)
+    if (now - asked).total_seconds() < 9 * 3600:
+        return False
+    ans = a.get("answers") or []
+    a["summed"] = True
+    if len(ans) < 2:
+        _js(p, a)
+        return False
+    pick = None
+    prompt = ("These are listeners' replies (first name: text) to a question about a Bengali horror story. Choose the "
+              "3 most interesting, kind and safe replies (no insults, no personal data). Answer ONLY JSON: "
+              "[{\"name\": \"..\", \"text\": \"the reply, shortened to max 30 words, same language\"}]\n"
+              + "\n".join(f"{x['name'] or 'কেউ'}: {x['text'][:300]}" for x in ans[:60]))
+    for model in helper_models(key)[:3] if key else []:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}],
+                                    "generationConfig": {"temperature": 0.3, "responseMimeType": "application/json"}},
+                              timeout=90)
+            if r.ok:
+                pick = load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                break
+        except Exception:
+            continue
+    if not isinstance(pick, list) or not pick:
+        pick = ans[:3]
+    txt = (f"☀️ কাল রাতের আড্ডার সেরা উত্তর - \"{a.get('title', '')}\"\n\n" +
+           "\n\n".join(f"💬 {x.get('name') or 'একজন শ্রোতা'}: {x.get('text', '')}" for x in pick[:3]) +
+           f"\n\n({len(ans)} জন উত্তর দিয়েছিলেন - সবাইকে ধন্যবাদ 🙏)")
+    ok = tg_send(ch["group"], txt)
+    _js(p, a)
+    return ok
+
+
+# ----------------------------------------------------------------- v95: which trailer opening keeps people watching
+HOOK_STYLES = ("voice", "sound")
+
+
+def hook_pick(path, history):
+    """'voice' = the trailer opens on a ghost's / person's frightening line; 'sound' = on a scream / bang / laugh.
+    Until each has 3 measured Shorts they take turns; then the better one 4 times in 5."""
+    st = _jl(path, {}) or {}
+    res = st.get("res") or {}
+    if any(len(res.get(s) or []) < 3 for s in HOOK_STYLES):
+        last = next((h.get("hook_style") for h in reversed(history or []) if h.get("hook_style")), None)
+        return "sound" if last == "voice" else "voice"
+    mean = {s: sum(res[s]) / len(res[s]) for s in HOOK_STYLES}
+    best = max(HOOK_STYLES, key=lambda s: mean[s])
+    return best if random.random() < 0.8 else [s for s in HOOK_STYLES if s != best][0]
+
+
+def hook_learn(history, path):
+    """once a day: how much of each measured Short people watched (YouTube Analytics) -> per opening style"""
+    if not env("YT_REFRESH_TOKEN") or env("MOCK") == "1":
+        return None
+    st = _jl(path, {}) or {}
+    res = st.setdefault("res", {})
+    now = dt.datetime.now(dt.timezone.utc)
+    n = 0
+    for h in history[-40:]:
+        if not h.get("hook_style") or not h.get("yt_short") or h.get("hook_done"):
+            continue
+        try:
+            age = (now - dt.datetime.fromisoformat(h["date"])).days
+        except Exception:
+            continue
+        if age < 2:
+            continue
+        if age > 20:
+            h["hook_done"] = True
+            continue
+        try:
+            r = requests.get(YTA, headers=yt_token(), timeout=30, params={
+                "ids": "channel==MINE", "startDate": "2020-01-01", "endDate": dt.date.today().isoformat(),
+                "dimensions": "video", "filters": f"video=={h['yt_short']}", "metrics": "views,averageViewPercentage"})
+            rows = r.json().get("rows") if r.ok else None
+        except Exception:
+            rows = None
+        if rows and rows[0][1] and int(rows[0][1]) >= 20:
+            res.setdefault(h["hook_style"], []).append(round(float(rows[0][2]), 1))
+            res[h["hook_style"]] = res[h["hook_style"]][-12:]
+            h["hook_done"] = True
+            n += 1
+    _js(path, st)
+    if not all(res.get(s) for s in HOOK_STYLES):
+        return None
+    m = {s: sum(res[s]) / len(res[s]) for s in HOOK_STYLES}
+    name = {"voice": "ভূত / মানুষের ভয়ের লাইন দিয়ে শুরু", "sound": "চিৎকার / শব্দ দিয়ে শুরু"}
+    best = max(m, key=m.get)
+    return (f"🎬 Reel-এর শুরু পরীক্ষা: '{name['voice']}' গড়ে {m['voice']:.0f}% দেখা, '{name['sound']}' {m['sound']:.0f}% - "
+            f"এখন বেশিরভাগ Reel: {name[best]}")
 
 
 def tg_send(chat_id, text, photo=None):
@@ -7250,7 +7424,13 @@ def growth_monitor(history, path, kind="horror", lang="bn", len_of=None):
             rules.pop("fast_start", None)
     drops = [int((h.get("stats") or {}).get("yt_drop_at")) for h in week if (h.get("stats") or {}).get("yt_drop_at") is not None]
     if len(drops) >= 3:
-        lines.append(f"📉 বেশিরভাগ লোক চলে যান ভিডিওর ~{sorted(drops)[len(drops) // 2]}%-এ")
+        med_ = sorted(drops)[len(drops) // 2]
+        lines.append(f"📉 বেশিরভাগ লোক চলে যান ভিডিওর ~{med_}%-এ")
+        if 8 <= med_ <= 92 and kind == "horror":         # v95: that part of the story gets a strong turn
+            if rules.get("drop_pct") != med_:
+                did.append(f"গল্পের ~{med_}% জায়গায় লোক বেশি চলে যাচ্ছেন - এখন থেকে ঠিক ওই জায়গায় একটা বড় মোড় "
+                           "(রহস্য খোলা, নতুন ভয়, কারও মৃত্যু) রাখা হবে")
+            rules["drop_pct"] = med_
     # best / weakest of the week
     sc = sorted([h for h in week if h.get("stats")], key=lambda h: score(h["stats"]), reverse=True)
     if sc:
@@ -7272,6 +7452,10 @@ def coach_rule(coach, kind="horror"):
     if r.get("ctr_low"):
         out += ("\nCLICKS ARE LOW THIS WEEK: make the title a sharper curiosity gap (a concrete strange detail + an open "
                 "question, never a lie or a spoiler) and the thumbnail_text 2-4 huge, punchy words.\n")
+    if r.get("drop_pct") and kind == "horror":
+        out += (f"\nVIEWERS LEAVE AROUND {int(r['drop_pct'])}% OF OUR STORIES: exactly around that point of THIS story "
+                "put a strong turn - a revelation, a death, a new and worse scare or a sudden reversal; never a calm "
+                "explanation, a journey or a recap there.\n")
     if r.get("fast_start") and kind == "horror":
         out += ("\nVIEWERS LEAVE EARLY THIS WEEK: the first real fright comes within the first 90 seconds of the story; "
                 "keep the opening description short - but the beginning must still be clear (who, where, why).\n")
@@ -7835,6 +8019,12 @@ def tg_requests_scan(updates, path_dir, owner_chat):
                 or u.get("update_id") in seen):
             continue
         seen.add(u.get("update_id"))
+        if re.match(r"(?i)^\s*(লোককথা|লোকগাথা|lok\s*kotha|lokkotha|lok\s*katha)", txt):
+            # v95: a viewer's own village / town legend -> the listeners' ghost map
+            d.setdefault("folk", []).append({"chat": chat.get("id"), "name": str((msg.get("from") or {}).get("first_name") or "")[:20],
+                                             "text": txt[:1500], "date": msg.get("date")})
+            d["folk"] = d["folk"][-40:]
+            continue
         kind = "start" if txt.startswith("/start") else (
             "story" if re.search(r"(?i)গল্প|golpo|galpo|story|kahani|कहानी|ভূত|bhoot|bhut", txt) else "")
         if kind:
@@ -7865,7 +8055,9 @@ def tg_requests_answer(path_dir, latest_link="", max_n=12):
         if rq["kind"] == "start":
             ok_ = tg_send(rq["chat"], f"🕯️ নমস্কার {nm}! আমি ভূতের গল্পের বট।\n\n👻 'গল্প চাই' লিখলেই একটা নতুন ছোট্ট ভূতের "
                                       "গল্প পাঠাব।\n🎙️ নিজের আসল ভৌতিক অভিজ্ঞতা থাকলে voice message-এ বলে পাঠান - সেটা "
-                                      "নিয়েই গল্প হবে।" + (f"\n\n▶ আজকের পুরো গল্প: {latest_link}" if latest_link else ""))
+                                      "নিয়েই গল্প হবে।\n🗺️ আপনার গ্রাম বা পাড়ার কোনো ভূতের লোককথা জানেন? 'লোককথা' লিখে, তারপর জায়গার "
+                                      "নাম আর গল্পটা লিখে পাঠান - আপনার প্রথম নাম সহ সেটা 'বাংলার ভূতের মানচিত্র'-এ উঠবে।"
+                                      + (f"\n\n▶ আজকের পুরো গল্প: {latest_link}" if latest_link else ""))
             n += bool(ok_)
             continue
         if count.get(ck, 0) >= 3:

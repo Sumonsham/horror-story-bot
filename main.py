@@ -438,6 +438,9 @@ def _hist_safe():
         return []
 
 
+KHATA_HOLD = {}
+
+
 def pick_language(history):
     """One language per page/channel (default Bengali) - a mixed-language channel splits its audience.
     Set the secret CHANNEL_LANG to "hi" for Hindi; "both" brings back one Hindi, one Bengali."""
@@ -6294,6 +6297,12 @@ def choose_and_write(slot_hour, history):
                 extra_rules += CREATOR_RULE.format(text=mine["text"])
     if env("RETENTION_RULE") != "0":                 # v86: people left in the first minute - keep them
         extra_rules += RETENTION_RULE
+    KHATA_HOLD.clear()
+    try:                                             # v95: today's hidden clue of the weekly mystery
+        if not special or special in NEW_SERIES:
+            extra_rules += khata_rule(KHATA_HOLD)
+    except Exception as e:
+        log("  weekly mystery clue skipped:", str(e)[:100])
     try:                                             # v63: this week's district + viewers who asked to be in it
         extra_rules += weekly_district(cat, slot_hour, prev, fest, amavasya_tonight, special, history, lang)
         extra_rules += viewer_names_rule(cat, special, part, festival, history, lang)
@@ -6429,6 +6438,7 @@ def choose_and_write(slot_hour, history):
         extra_rules += ("\nRESEARCH BRIEF (true facts we looked up before writing - FOLLOW THEM EXACTLY; never "
                         "contradict them):\n" + brief + "\n")
     saved = ((prev or {}).get("scripts") or {}).get(str(part)) if part >= 2 and has_script else None
+    from_saved_ = bool(saved)
     if saved:                                        # this part was written together with part 1: use it as is
         SCRIPTS.update({k: v for k, v in (prev.get("scripts") or {}).items() if int(k) > part})
         log(f"Series part {part}: using the script written with part 1")
@@ -6465,6 +6475,8 @@ def choose_and_write(slot_hour, history):
                            outline=STATE.get("outline", ""))
     if STATE.get("creator_true"):                      # 'সত্য ঘটনা অবলম্বনে' everywhere
         extras.mark_true_story(story, lang)
+    if "khata_clue" in KHATA_HOLD and isinstance(story, dict) and not from_saved_:   # v95: the hidden clue goes with the story
+        story["khata_clue"] = KHATA_HOLD["khata_clue"]
     plan = {k: v for k, v in locals().items() if k in ('cat', 'classic', 'festival', 'fmt', 'lang', 'outline', 'part', 'prev', 'shout_ids', 'shout_names', 'special', 'story', 'theme', 'total', 'viewer')}
     plan["state"] = {k: STATE[k] for k in PLAN_STATE if k in STATE}
     plan["scripts"], plan["vhs"], plan["long_min"], plan["slot_hour"] = dict(SCRIPTS), VHS, LONG_MIN, slot_hour
@@ -6868,7 +6880,7 @@ def thank_named_viewers(used_names, results, lang):
 MAP_DIR = os.path.join(HERE, "docs")
 MAP_JSON = os.path.join(MAP_DIR, "stories.json")
 MAP_HTML = os.path.join(MAP_DIR, "index.html")
-MAP_VERSION = "ghost-map-v2"
+MAP_VERSION = "ghost-map-v3"
 MAP_PAGE = """<!doctype html>
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- ghost-map-v2 -->
@@ -6887,7 +6899,8 @@ main{max-width:860px;margin:0 auto;padding:6px 16px 40px}.d{margin:18px 0 6px;fo
 .s small{color:var(--muted)}.leaflet-popup-content a{margin-right:10px}
 footer{color:var(--muted);text-align:center;font-size:.85rem;padding:20px}
 </style></head><body>
-<header><h1>👻 বাংলার ভূতের মানচিত্র</h1><p>প্রতিটা লাল বিন্দু একটা গল্প - নিজের জেলায় চাপ দিন</p>
+<header><h1>👻 বাংলার ভূতের মানচিত্র</h1><p>লাল বিন্দু = আমাদের গল্প · সবুজ বিন্দু = শ্রোতাদের পাঠানো লোককথা</p>
+<p id="folkc" style="color:#9be89b"></p>
 <p><a href="cases.html" style="color:#ffcf4a;font-weight:700;text-decoration:none">📁 ভৈরব ঠাকুর, তারানাথ ও কর্ণপিশাচিনীর কেস ফাইল →</a></p></header>
 <div id="map"></div><main id="list"><p>লোড হচ্ছে...</p></main>
 <footer>প্রতিটা নতুন গল্পের সাথে মানচিত্র নিজে থেকেই বাড়ে · গল্পগুলো লোককথা অবলম্বনে / কাল্পনিক, যদি না অন্য কিছু লেখা থাকে</footer>
@@ -6896,17 +6909,21 @@ footer{color:var(--muted);text-align:center;font-size:.85rem;padding:20px}
 var map=L.map('map',{scrollWheelZoom:false});map.fitBounds([[21.6,85.8],[27.3,89.9]]);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,attribution:'&copy; OpenStreetMap'}).addTo(map);
 function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function links(x){var o='';if(x.fb)o+='<a href="'+esc(x.fb)+'" target="_blank" rel="noopener">▶ Facebook</a>';
+function links(x){var o='';if(x.folk)return '<small>🗺️ '+esc(x.s||'')+'<br>— পাঠিয়েছেন '+esc(x.by||'একজন শ্রোতা')+'</small>';if(x.fb)o+='<a href="'+esc(x.fb)+'" target="_blank" rel="noopener">▶ Facebook</a>';
 if(x.yt)o+='<a href="'+esc(x.yt)+'" target="_blank" rel="noopener">▶ YouTube</a>';return o}
 fetch('stories.json?'+Date.now()).then(function(r){return r.json()}).then(function(all){
  all.sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});var by={};
  all.forEach(function(x){if(x.lat&&x.lon){L.circleMarker([x.lat,x.lon],{radius:8,color:'#ffcf4a',weight:2,
-  fillColor:'#e23b3b',fillOpacity:.9}).addTo(map).bindPopup('<b>'+esc(x.t)+'</b><br><small>'+esc(x.dn)+' · '
+  fillColor:x.folk?'#3fbf5f':'#e23b3b',fillOpacity:.9}).addTo(map).bindPopup('<b>'+esc(x.t)+'</b><br><small>'+esc(x.dn)+' · '
   +esc(x.date)+'</small><br>'+links(x))}(by[x.dn]=by[x.dn]||[]).push(x)});
  var h='';Object.keys(by).sort(function(a,b){return by[b].length-by[a].length}).forEach(function(d){
   h+='<div class="d">'+esc(d)+' ('+by[d].length+')</div>';by[d].forEach(function(x){
   h+='<div class="s"><b>'+esc(x.t)+'</b><small>'+esc(x.date)+'</small><br>'+links(x)+'</div>'})});
  document.getElementById('list').innerHTML=h||'<p>প্রথম গল্পের অপেক্ষা...</p>';
+ var f=all.filter(function(x){return x.folk}),fc={};f.forEach(function(x){fc[x.dn]=(fc[x.dn]||0)+1});
+ var top=Object.keys(fc).sort(function(a,b){return fc[b]-fc[a]}).slice(0,3).map(function(d){return esc(d)+' ('+fc[d]+')'});
+ document.getElementById('folkc').innerHTML=f.length?('শ্রোতাদের পাঠানো লোককথা: '+f.length+'টি · সবচেয়ে বেশি: '+top.join(', ')):
+  'আপনার এলাকার ভূতের লোককথা Telegram-এ আমাদের bot-কে "লোককথা" লিখে পাঠান - সেটা এখানে উঠবে';
 }).catch(function(){document.getElementById('list').innerHTML='<p>এখনো কোনো গল্প যোগ হয়নি।</p>'});
 </script></body></html>
 """
@@ -8572,6 +8589,7 @@ def weekly_report(history, force=False):
     tips = [str(x) for x in (les.get("lessons") or [])[:3]]
     if tips:
         bn = _bn_lines(tips)
+        lines.append(f"\n👉 পরের সপ্তাহের এক নম্বর কাজ (bot নিজেই করবে): {bn[0]}")     # v95
         lines.append("\n🧠 পরের সপ্তাহে bot যা মাথায় রাখবে:")
         lines += [f"• {x}" for x in bn]
     ok = _tg_text("\n".join(lines))
@@ -8753,7 +8771,9 @@ def recap_frames(history, series_id, part, lang, n=3):
 ASSETS = os.path.join(HERE, "assets")
 MILESTONE_FILE = os.path.join(ASSETS, "milestones.json")
 COACH_FILE = os.path.join(ASSETS, "coach.json")
-GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("promos.json", "milestones.json", "tg_channel.json", "viewer_voice.json", "coach.json",
+HOOK_FILE = os.path.join(ASSETS, "hook_test.json")         # v95: which trailer opening keeps people
+KHATA_FILE = os.path.join(ASSETS, "khata.json")            # v95: the weekly mystery ledger
+GROWTH_FILES = [os.path.join(ASSETS, f) for f in ("hook_test.json", "adda.json", "khata.json", "promos.json", "milestones.json", "tg_channel.json", "viewer_voice.json", "coach.json",
                                                    "messenger.json", "tg_requests.json")]
 
 
@@ -8773,6 +8793,13 @@ def daily_monitor(history):
     """v77: ONCE A DAY - the health of every key, the channel's numbers, the first 30 seconds, clicks, how long people
     watch: what the bot changes by itself, and (only if needed) what YOU must do. One message on Telegram."""
     coach, lines, did = extras.growth_monitor(history, COACH_FILE, "horror", "bn", video_len)
+    if lines is not None:
+        try:                                         # v95: which trailer opening wins
+            hl_ = extras.hook_learn(history, HOOK_FILE)
+            if hl_:
+                lines.append(hl_)
+        except Exception as e:
+            log("  hook test skipped:", str(e)[:100])
     if lines is None or (not lines and not did and not (coach.get("last_report") or {}).get("todo")):
         return False
     todo = (coach.get("last_report") or {}).get("todo") or []
@@ -9305,10 +9332,206 @@ def growth_links(lang):
     ch = channel_link()
     if ch:
         out.append(f"📢 নতুন গল্পের খবর সবার আগে: {ch}")
+    if base and os.path.exists(os.path.join(MAP_DIR, "khata.html")) and env("KHATA") != "0":
+        out.append(f"🔎 এই সপ্তাহের রহস্য-খাতা (প্রতিটা গল্পে একটা সূত্র লুকোনো): {base}khata.html")
     sp = _clean_url(env("SPOTIFY_URL"))              # v87: the Spotify page itself (the feed file is for apps only)
     if sp:
         out.append(f"🎧 Spotify-তে শুনুন: {sp}")
+    ap = _clean_url(env("APPLE_PODCAST_URL") or "https://podcasts.apple.com/us/podcast/daily-horror-story/id6834719714")
+    if ap and env("APPLE_PODCAST") != "0":            # v94: also on Apple Podcasts (14 Nov 2026)
+        out.append(f"🍎 Apple Podcasts-এ শুনুন: {ap}")
     return "\n".join(out)
+
+
+# ===================================================================================================== v95
+def _gem_json(prompt, temp=0.4, strong=False):
+    """one small Gemini request that answers JSON (light models first, unless strong) - or None"""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return None
+    models = (gemini_models(key)[:3] + extras.helper_models(key)[:3]) if strong else extras.helper_models(key)[:4]
+    for model in models:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}],
+                                    "generationConfig": {"temperature": temp, "responseMimeType": "application/json"}},
+                              timeout=120)
+            if r.ok:
+                return extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+        except Exception:
+            continue
+    return None
+
+
+def folk_process(max_n=5):
+    """LISTENERS' GHOST MAP: a legend a viewer wrote to the bot ('লোককথা ...') is checked (a real folk legend, safe,
+    no private person's name / address), retold in 2-3 lines and pinned on the ghost map with the sender's first
+    name; the sender gets the link. At most 3 a day per person."""
+    p = os.path.join(ASSETS, "tg_requests.json")
+    d = _jload(p, {}) or {}
+    q = d.get("folk") or []
+    if not q or env("FOLK_MAP") == "0":
+        return 0
+    base = map_url()
+    today = dt.datetime.now(extras.IST).date().isoformat()
+    cnt = {k: v for k, v in (d.get("folk_count") or {}).items() if k.endswith(today)}
+    dl = ", ".join(f"{k}={v[1]}" for k, v in DISTRICT.items())
+    items = _jload(MAP_JSON, [])
+    items = items if isinstance(items, list) else []
+    n, keep = 0, []
+    for it in q:
+        if n >= max_n:
+            keep.append(it)
+            continue
+        ck = f"{it['chat']}|{today}"
+        if cnt.get(ck, 0) >= 3:
+            extras.tg_send(it["chat"], "🙏 আজ আপনার ৩টে লোককথা নেওয়া হয়ে গেছে - কাল আবার পাঠাবেন।")
+            continue
+        ans = _gem_json("A listener sent this Bengali ghost legend from his own area for our public 'ghost map of "
+                        "Bengal'. Decide: is it a folk legend / local ghost belief of a place in West Bengal, and safe to "
+                        "publish (no insult, no hate, no real private person's full name, phone or address, nothing "
+                        "sexual or about children being harmed)? If yes, retell it in 2-3 short Bengali (Kolkata cholit) "
+                        "sentences WITHOUT any real person's name, give it a short Bengali title (max 8 words) and the "
+                        "district key from this list: " + dl + ". Answer ONLY JSON: {\"ok\": true/false, \"title\": "
+                        "\"..\", \"summary\": \"..\", \"district\": \"key\", \"why\": \"short reason if not ok\"}\n"
+                        "Text: <<<" + it["text"][:1400] + ">>>")
+        if ans is None:
+            keep.append(it)                             # (Gemini busy: the next run tries again)
+            break
+        key_ = str((ans or {}).get("district") or "").strip().lower()
+        if not (ans.get("ok") and key_ in DISTRICT and str(ans.get("summary") or "").strip()):
+            extras.tg_send(it["chat"], "🙏 ধন্যবাদ! এই লেখাটা মানচিত্রে তোলা গেল না - জায়গার নাম (গ্রাম / শহর আর জেলা) আর "
+                                       "সেখানকার ভূতের লোককথাটা একটু গুছিয়ে আবার পাঠাবেন। কারও আসল নাম-ঠিকানা দেবেন না।")
+            continue
+        pin = _pin(str(ans.get("title") or "লোককথা"), key_, "bn", None, None, today, "শ্রোতার লোককথা")
+        pin.update(folk=True, s=str(ans["summary"]).strip()[:400], by=str(it.get("name") or "")[:20])
+        items.append(pin)
+        n += 1
+        cnt[ck] = cnt.get(ck, 0) + 1
+        extras.tg_send(it["chat"], f"🗺️ ধন্যবাদ {it.get('name') or 'বন্ধু'}! আপনার লোককথা \"{pin['t']}\" "
+                                   f"({DISTRICT[key_][1]}) 'বাংলার ভূতের মানচিত্র'-এ উঠেছে" + (f": {base}" if base else "।"))
+    d["folk"], d["folk_count"] = keep, cnt
+    _jsave(p, d)
+    if n:
+        _jsave(MAP_JSON, items[-3000:])
+        log(f"  listeners' ghost map: {n} legend(s) pinned")
+        try:
+            push_now([MAP_DIR, p], "listeners' legends on the ghost map")
+        except Exception:
+            pass
+    return n
+
+
+def _week_key(d_=None):
+    d_ = d_ or dt.datetime.now(extras.IST).date()
+    y, w, _ = d_.isocalendar()
+    return f"{y}-W{w:02d}"
+
+
+def khata_get(create=True):
+    """THE WEEKLY MYSTERY LEDGER: one hidden case for the whole week - Monday to Friday each story carries ONE small
+    clue (an ordinary-looking detail, never pointed at), the website collects them, Sunday the solution comes out."""
+    k = _jload(KHATA_FILE, {}) or {}
+    wk = _week_key()
+    if k.get("week") == wk or not create or env("KHATA") == "0":
+        return k if k.get("week") == wk else {}
+    if dt.datetime.now(extras.IST).weekday() > 4:
+        return {}
+    ans = _gem_json("Invent ONE original Bengali ghost mystery case for a weekly puzzle page of a horror channel (it "
+                    "must not copy any known story). Give: a title (Bengali, max 8 words), a 2-sentence premise in "
+                    "Bengali (Kolkata cholit), EXACTLY 5 clues - each a small concrete detail (an object, a smell, a "
+                    "sound, a number, a colour) written in Bengali in 3-8 words, that could naturally appear in ANY "
+                    "ghost story without explaining itself - and a Bengali solution of 3-4 sentences that uses all 5 "
+                    "clues. Answer ONLY JSON: {\"title\": \"..\", \"premise\": \"..\", \"clues\": [\"..\" x5], "
+                    "\"solution\": \"..\"}", temp=0.9)
+    if not isinstance(ans, dict) or len(ans.get("clues") or []) < 5:
+        return {}
+    k = {"week": wk, "title": str(ans.get("title", ""))[:80], "premise": str(ans.get("premise", ""))[:400],
+         "clues": [str(c)[:80] for c in ans["clues"][:5]], "solution": str(ans.get("solution", ""))[:700],
+         "used": [], "found": [], "revealed": False}
+    _jsave(KHATA_FILE, k)
+    log(f"  weekly mystery ledger: new case '{k['title']}'")
+    return k
+
+
+def khata_rule(story_holder):
+    """the writer's rule for today's clue (Mon-Fri, main stories) - the clue number is kept with the story"""
+    if env("KHATA") == "0" or MOCK:
+        return ""
+    k = khata_get()
+    if not k:
+        return ""
+    i = len(k.get("used") or [])
+    if i >= 5:
+        return ""
+    story_holder["khata_clue"] = i
+    k.setdefault("used", []).append(i)
+    _jsave(KHATA_FILE, k)
+    try:
+        push_now([KHATA_FILE], "weekly mystery: clue given to a story")
+    except Exception:
+        pass
+    return (f"\nHIDDEN DETAIL (part of a weekly puzzle - very important that it stays invisible): somewhere in the "
+            f"middle of the story, ONCE, let this small detail simply be there as an ordinary part of a scene: "
+            f"\"{k['clues'][i]}\". Do not explain it, do not point at it, do not call it a clue, never speak to the "
+            "listener about it, and it must not change the plot.\n")
+
+
+def khata_record(story, title, results):
+    """after a story with a clue is out: the clue + where it was hidden go on the website page"""
+    i = story.get("khata_clue")
+    k = _jload(KHATA_FILE, {}) or {}
+    if i is None or not k.get("clues") or i >= len(k["clues"]):
+        return False
+    link = (f"https://youtu.be/{results['youtube']}" if results.get("youtube") else
+            f"https://www.facebook.com/{results['facebook']}" if results.get("facebook") else "")
+    if not any(f.get("i") == i for f in k.get("found") or []):
+        k.setdefault("found", []).append({"i": i, "clue": k["clues"][i], "title": re.sub(r"\s*\|.*$", "", title)[:80],
+                                          "link": link})
+    _jsave(KHATA_FILE, k)
+    return khata_page(k)
+
+
+def khata_page(k):
+    """docs/khata.html - the case, the clues found so far (with the story each was hidden in), Sunday the solution"""
+    if not k.get("title"):
+        return False
+    e = lambda s: str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    rows = "".join(f"<li><b>সূত্র {f['i'] + 1}:</b> {e(f['clue'])}<br><small>লুকিয়ে ছিল: "
+                   + (f"<a href='{e(f['link'])}'>{e(f['title'])}</a>" if f.get("link") else e(f["title"])) + "</small></li>"
+                   for f in sorted(k.get("found") or [], key=lambda f: f["i"]))
+    sol = (f"<h2>🔓 সমাধান</h2><p>{e(k['solution'])}</p>" if k.get("revealed") else
+           "<p class='w'>সপ্তাহ জুড়ে প্রতিটা গল্পে একটা করে সূত্র লুকোনো থাকে। রবিবার সমাধান এখানে খুলবে।</p>")
+    html = (f"<!doctype html><html lang='bn'><head><meta charset='utf-8'><meta name='viewport' "
+            "content='width=device-width,initial-scale=1'><title>রহস্য-খাতা</title><style>body{margin:0;background:#0b0b10;"
+            "color:#f2efe9;font-family:'Noto Sans Bengali',system-ui,sans-serif}main{max-width:760px;margin:0 auto;"
+            "padding:18px 16px 40px}h1{color:#ffcf4a}a{color:#ffd9d9}li{background:#16161f;margin:10px 0;padding:12px;"
+            "border-radius:10px;list-style:none;border-left:4px solid #e23b3b}.w{color:#a9a3b5}</style></head><body><main>"
+            f"<h1>🔎 এই সপ্তাহের রহস্য-খাতা</h1><h2>{e(k['title'])}</h2><p>{e(k['premise'])}</p>"
+            f"<h3>পাওয়া সূত্র ({len(k.get('found') or [])} / 5)</h3><ul>{rows or '<li>প্রথম সূত্র আসছে সোমবারের গল্পে</li>'}</ul>"
+            f"{sol}<p><a href='./'>← ভূতের মানচিত্র</a></p></main></body></html>")
+    os.makedirs(MAP_DIR, exist_ok=True)
+    with open(os.path.join(MAP_DIR, "khata.html"), "w", encoding="utf-8") as f:
+        f.write(html)
+    return True
+
+
+def khata_sunday():
+    """Sunday: the solution on the page and in the fan channel (once)"""
+    if env("KHATA") == "0" or dt.datetime.now(extras.IST).weekday() != 6:
+        return False
+    k = _jload(KHATA_FILE, {}) or {}
+    if k.get("week") != _week_key() or k.get("revealed") or not k.get("found"):
+        return False
+    k["revealed"] = True
+    _jsave(KHATA_FILE, k)
+    khata_page(k)
+    base = map_url()
+    extras.tg_channel_post(ASSETS, f"🔓 এই সপ্তাহের রহস্য-খাতার সমাধান: {k['title']}\n\n{k['solution']}"
+                           + (f"\n\nসব সূত্র আর কোন গল্পে লুকিয়ে ছিল: {base}khata.html" if base else ""))
+    push_now([MAP_DIR, KHATA_FILE], "weekly mystery solved")
+    log("  weekly mystery ledger: solution revealed")
+    return True
 
 
 def growth_start(history):
@@ -9341,6 +9564,12 @@ def growth_start(history):
         extras.tg_requests_answer(ASSETS, f"https://youtu.be/{last1['youtube']}" if last1 else "")
     except Exception as e:
         log("  Telegram story requests skipped:", str(e)[:100])
+    for fn_, nm_ in ((folk_process, "listeners' ghost map"), (khata_sunday, "weekly mystery"),
+                     (lambda: extras.adda_summary(ASSETS, env("GEMINI_API_KEY")), "night adda")):
+        try:                                         # v95
+            fn_()
+        except Exception as e:
+            log(f"  {nm_} skipped:", str(e)[:120])
     try:
         got = extras.milestone_check(MILESTONE_FILE)
         if got:
@@ -9467,6 +9696,19 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
             changed.append(MAP_DIR)
         except Exception as e:
             log("  web story skipped:", str(e)[:150])
+    # v95: the weekly mystery's clue of this story on the website; the night adda question (8 PM story)
+    try:
+        if story.get("khata_clue") is not None and khata_record(story, title, results):
+            changed += [MAP_DIR, KHATA_FILE]
+    except Exception as e:
+        log("  weekly mystery page skipped:", str(e)[:100])
+    if slot_hour == EVENING and STATE.get("adda_q"):
+        try:
+            if extras.adda_ask(ASSETS, re.sub(r"\s*\|.*$", "", title).strip(), STATE["adda_q"], yt_link or fb_link):
+                log("  night adda: question posted in the Telegram group")
+                changed.append(os.path.join(ASSETS, "adda.json"))
+        except Exception as e:
+            log("  night adda skipped:", str(e)[:100])
     # 4) podcast episode (Spotify / Apple read the feed by themselves)
     if not (base and env("GITHUB_TOKEN")):
         log("  story page / podcast skipped: " + ("the ghost-map address is not live" if not base else
@@ -10304,6 +10546,7 @@ def main():
             except Exception as e:
                 log("  second thumbnail not kept:", str(e)[:100])
 
+    STATE["adda_q"] = str(story.get("comment_question", "")).strip()
     first = [vote_text or str(story.get("comment_question", "")).strip()]
     if hidden and not NO_BAIT:
         first.append(L["find_ghost"])
@@ -10348,7 +10591,7 @@ def main():
                     if str(story.get("mystery_answer", 0) or 0)[:1].isdigit() else 0, **results})
     try:                                             # v63: district of the week, viewers' names, the ghost map pin
         rec = history[-1]
-        for k_ in ("thumb_src", "timeline"):         # v68: whose thumbnail; where each chapter starts
+        for k_ in ("thumb_src", "timeline", "hook_style"):   # v68: whose thumbnail; where each chapter starts
             if STATE.get(k_):
                 rec[k_] = STATE[k_]
         if STATE.get("district"):
@@ -10782,7 +11025,13 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     # most frightening short moment - a ghost's line, a scream, a jump scare - mid-sentence, no title first
     if env("TRAILER_SHOCK_OPEN") != "0":
         shock = [c for c in picks if c[1] <= 4.5] or picks
-        first = max(shock, key=score)
+        style_ = STATE.get("hook_style") or "voice"     # v95: two kinds of openings, the better one learned
+        if style_ == "sound":
+            open_score = lambda c: score(c) + (4 if c[3].strip() in scary else 0) + (1 if "!" in c[3] else 0)
+        else:
+            open_score = lambda c: score(c) + (4 if c[3].strip() in ghost_lines else 0) + (0 if c[2] else 1)
+        first = max(shock, key=open_score)
+        log(f"  trailer opens with a {'scream / sound' if style_ == 'sound' else 'frightening line'}: {first[3][:50]}")
         picks = [first] + [c for c in picks if c is not first]
     else:
         first = picks[0]
@@ -10846,6 +11095,8 @@ def grow(video, story, title, lang, L, tags, results, history, page):
     teaser = os.path.join(WORK, "teaser.mp4")
     try:
         try:                                         # a cinema trailer (ghost and the time at the end)
+            if env("HOOK_TEST") != "0":
+                STATE["hook_style"] = extras.hook_pick(HOOK_FILE, history)
             make_trailer(video, story, title, lang, L, teaser, STATE.get("slot_hour", EVENING), STATE.get("special"))
             log(f"Trailer ready ({duration(teaser):.0f} s)")
         except Exception as e:
