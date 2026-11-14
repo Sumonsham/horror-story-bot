@@ -6784,6 +6784,21 @@ def podcast_feed(docs, base, ep, show_title, cover_src=None, lang="bn"):
               .resize((1400, 1400)).save(cover, quality=90)
         except Exception:
             pass
+    cover_v = ""
+    if os.path.exists(cover):                         # v88: Spotify wants a SQUARE picture of 1400-3000 px, else it
+        try:                                          # silently keeps the old one - your 1254 px picture is made fit
+            im = Image.open(cover).convert("RGB")
+            if im.width != im.height or not 1400 <= im.width <= 3000:
+                s = min(im.width, im.height)
+                im = im.crop(((im.width - s) // 2, (im.height - s) // 2, (im.width + s) // 2, (im.height + s) // 2))
+                n = min(3000, max(1400, s))
+                im.resize((n, n), Image.LANCZOS).save(cover, quality=92)
+                log(f"  podcast cover made {n}x{n} px (Spotify needs 1400-3000 px, square)")
+            import hashlib
+            with open(cover, "rb") as f:              # a new picture = a new address, so Spotify fetches it again
+                cover_v = "?v=" + hashlib.md5(f.read()).hexdigest()[:8]
+        except Exception as e:
+            log("  podcast cover check skipped:", str(e)[:100])
     email = env("PODCAST_EMAIL")
     items = "".join(
         f"<item><title>{_esc(e['title'])}</title><description>{_esc(e.get('desc', ''))}</description>"
@@ -6798,7 +6813,8 @@ def podcast_feed(docs, base, ep, show_title, cover_src=None, lang="bn"):
 <description>প্রতিদিন নতুন বাংলা ভূতের গল্প - রেডিও নাটকের মতো, রাতের অন্ধকারে শোনার জন্য।</description>
 <itunes:author>{_esc(show_title)}</itunes:author><itunes:explicit>false</itunes:explicit>
 <itunes:category text="Fiction"><itunes:category text="Drama"/></itunes:category>
-<itunes:image href="{_esc(base)}podcast_cover.jpg"/>
+<itunes:image href="{_esc(base)}podcast_cover.jpg{cover_v}"/>
+<image><url>{_esc(base)}podcast_cover.jpg{cover_v}</url><title>{_esc(show_title)}</title><link>{_esc(base)}</link></image>
 {f'<itunes:owner><itunes:name>{_esc(show_title)}</itunes:name><itunes:email>{_esc(email)}</itunes:email></itunes:owner>' if email else ''}
 {items}</channel></rss>
 """

@@ -9344,7 +9344,7 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
                     "guid": story_slug(), "title": title, "url": url, "bytes": os.path.getsize(mp3),
                     "secs": duration(video), "date": pub.strftime("%a, %d %b %Y %H:%M:%S +0000"),
                     "desc": str(story.get("description", ""))[:600]},
-                    env("PAGE_NAME_BN") or "ভূতের গল্প", thumb, lang)
+                    env("PODCAST_TITLE") or "Daily Horror Story", thumb, lang)   # v88: the show's name in English
                 changed.append(MAP_DIR)
                 log("  podcast episode added to the feed")
         except Exception as e:
