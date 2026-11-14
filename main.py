@@ -1975,6 +1975,77 @@ def continuity_bridges(story, lang):
         return
 
 
+def line_flow_check(story, lang):
+    """v89: the joined story read LINE BY LINE as one film (the scene check only sees how scenes start and end):
+    an answer that does not answer, a line that comes from nowhere, someone who knows what he cannot know, a thing
+    or person used before it was introduced, a dead or absent person speaking, a fact that contradicts an earlier
+    one - each is mended with ONE changed line or ONE added line, so nothing feels cut or patched together."""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key or env("LINE_FLOW") == "0":
+        return 0
+    rows, idx = [], {}
+    for i, sc in enumerate(story.get("scenes") or []):
+        rows.append(f"--- scene {i} ({str(sc.get('place', ''))[:60]})")
+        for j, ln in enumerate(sc.get("lines") or []):
+            tx = str(ln.get("text", "")).strip()
+            if tx:
+                rows.append(f"{i}.{j} {ln.get('speaker', 'narrator')}: {extras.strip_tags(tx)[:300]}")
+                idx[f"{i}.{j}"] = (i, j)
+    prompt = (f"This is ONE {LANGS[lang]['name']} horror audio story, line by line ('scene.line speaker: text'). "
+              "Read it like a strict film editor. Find ONLY real breaks in the flow: (1) a reply that does not fit "
+              "the line before it; (2) a line or event that comes from nowhere; (3) a person who knows something he "
+              "was never told; (4) a person, object or place used before it was introduced; (5) a dead or absent "
+              "person speaking; (6) a fact that contradicts an earlier line; (7) the same thing told twice. "
+              "Mend each with the SMALLEST change: replace that one line, or add ONE short line after a given line. "
+              f"New text in {LANGS[lang]['name']} (pure Kolkata cholit for Bengali), the same speaker's way of "
+              "talking, max 25 words, no English, no sound tags. At most 12 fixes; [] if the story flows. "
+              "Answer ONLY JSON: [{\"id\": \"scene.line\", \"replace\": \"new text\"} or "
+              "{\"after\": \"scene.line\", \"speaker\": \"name or narrator\", \"insert\": \"new line\"}]\n"
+              + "\n".join(rows))
+    fixes = None
+    for model in (gemini_models(key)[:3] + extras.helper_models(key)[:3]):
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}],
+                                    "generationConfig": {"temperature": 0.3, "responseMimeType": "application/json"}},
+                              timeout=240)
+        except Exception:
+            continue
+        if not r.ok:
+            log(f"  line-by-line check: {model} {r.status_code}")
+            if r.status_code == 503:
+                time.sleep(20)
+            continue
+        fixes = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+        break
+    if not isinstance(fixes, list):
+        return 0
+    names = {str(ln.get("speaker", "")).strip().lower() for sc in story["scenes"] for ln in sc.get("lines") or []}
+    inserts, n = [], 0
+    for fx in fixes[:12]:
+        if not isinstance(fx, dict):
+            continue
+        if fx.get("id") in idx and str(fx.get("replace", "")).strip():
+            i, j = idx[fx["id"]]
+            new = str(fx["replace"]).strip()
+            if 2 <= len(new.split()) <= 30 and not re.search(r"[A-Za-z]{4,}", new):
+                story["scenes"][i]["lines"][j]["text"] = new
+                story["scenes"][i]["lines"][j]["en"] = ""
+                n += 1
+        elif fx.get("after") in idx and str(fx.get("insert", "")).strip():
+            new = str(fx["insert"]).strip()
+            spk = str(fx.get("speaker") or "narrator").strip()
+            if spk.lower() not in names:
+                spk = "narrator"
+            if 2 <= len(new.split()) <= 30 and not re.search(r"[A-Za-z]{4,}", new):
+                inserts.append((idx[fx["after"]], {"speaker": spk, "emotion": "normal", "text": new, "en": ""}))
+    for (i, j), ln in sorted(inserts, key=lambda z: z[0], reverse=True):   # from the end, so the numbers stay right
+        story["scenes"][i]["lines"].insert(j + 1, ln)
+        n += 1
+    log(f"  line-by-line check: {n} place(s) mended so every line follows the one before")
+    return n
+
+
 def ensure_ending(story, lang, cut_short=False):
     """The story must END: the mystery explained, every person's fate told, a last chilling line. The written
     ending is read once more; if it stops in the middle (a cliffhanger, an unexplained ghost, a chapter that
@@ -2200,8 +2271,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
                        chapter=(k, n_ch, final))
         chapters.append(s)
         summary += f"\nChapter {k}: {s.get('chapter_summary') or s.get('episode_summary') or ''}"
-        tail = [str(ln.get("text", "")) for ln in (s["scenes"][-1].get("lines") or [])][-3:]
-        last = " / ".join(tail)
+        tail = [f"{ln.get('speaker', '')}: {ln.get('text', '')}" for ln in (s["scenes"][-1].get("lines") or [])][-8:]
+        last = (f"[place: {s['scenes'][-1].get('place', '')}] " + " / ".join(tail))    # v89: more of the seam
         words = sum(len(str(ln.get("text", "")).split()) for sc in s["scenes"] for ln in sc.get("lines") or [])
         total += words
         log(f"Chapter {k} written: {len(s['scenes'])} scenes, {words} words (story so far {total} words, "
@@ -2254,6 +2325,10 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         continuity_bridges(story, lang)
     except Exception as e:
         log("  continuity check skipped:", str(e)[:120])
+    try:
+        line_flow_check(story, lang)
+    except Exception as e:
+        log("  line-by-line check skipped:", str(e)[:120])
     if ending == "resolve":
         try:
             ensure_ending(story, lang, cut_short=bool(STATE.pop("ending_cut", False)))
@@ -9079,7 +9154,7 @@ def promo_list(lang):
         return {}
     base = map_url() if not MOCK else (env("MAP_URL") or "https://sumonsham.github.io/horror-story-bot/map/")
     bot = extras.tg_bot_link()
-    ch = extras.tg_channel_link(ASSETS)
+    ch = channel_link()
     out = {}
     if base:
         out["map"] = {"icon": "map", "head": "বাংলার ভূতের মানচিত্র", "sub": "আপনার জেলার ভূতের গল্প এক জায়গায়",
@@ -9153,6 +9228,11 @@ def promo_monthly_post(thumb):
     return True
 
 
+def channel_link():
+    """our Telegram fan channel: the one the bot found itself, else the address you gave (13 Nov 2026)"""
+    return extras.tg_channel_link(ASSETS) or env("TG_CHANNEL_URL") or "https://t.me/dailyhorrorstory"
+
+
 def growth_links(lang):
     """the lines under every video: read the story, tell us your own experience by voice, our fan channel"""
     if lang != "bn":
@@ -9164,7 +9244,7 @@ def growth_links(lang):
     bot = extras.tg_bot_link()
     if bot and env("VIEWER_VOICE") != "0":
         out.append(f"🎙️ আপনার নিজের ভৌতিক অভিজ্ঞতা গলায় বলে পাঠান (Telegram-এ voice message) - সেটা নিয়েই গল্প হবে: {bot}")
-    ch = extras.tg_channel_link(ASSETS)
+    ch = channel_link()
     if ch:
         out.append(f"📢 নতুন গল্পের খবর সবার আগে: {ch}")
     sp = _clean_url(env("SPOTIFY_URL"))              # v87: the Spotify page itself (the feed file is for apps only)
@@ -10177,6 +10257,8 @@ def main():
         first.append(L["shout_comment"].format(names=extras.name_list(shout_names, lang, 10)))
     if not NO_BAIT:
         first.append(L["join_comment"])
+    if lang == "bn" and env("TG_CHANNEL_COMMENT") != "0":   # v89: the fan channel in every first comment
+        first.append(f"📢 নতুন গল্পের খবর সবার আগে পেতে আমাদের Telegram চ্যানেলে যোগ দিন: {channel_link()}")
     try:
         first += uniq_invites(lang)                  # v63: which district next Tuesday? + the ghost map
     except Exception as e:

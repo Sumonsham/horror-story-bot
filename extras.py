@@ -14,6 +14,7 @@ import json
 import os
 import random
 import re
+import glob
 import shutil
 import subprocess
 import sys
@@ -6796,26 +6797,45 @@ def podcast_feed(docs, base, ep, show_title, cover_src=None, lang="bn"):
                 log(f"  podcast cover made {n}x{n} px (Spotify needs 1400-3000 px, square)")
             import hashlib
             with open(cover, "rb") as f:              # a new picture = a new address, so Spotify fetches it again
-                cover_v = "?v=" + hashlib.md5(f.read()).hexdigest()[:8]
+                h8 = hashlib.md5(f.read()).hexdigest()[:8]
+            named = os.path.join(docs, f"podcast_cover_{h8}.jpg")   # (a plain .jpg address - strict directories
+            if not os.path.exists(named):                           #  refuse '?v=' after the picture's name)
+                for old in glob.glob(os.path.join(docs, "podcast_cover_*.jpg")):
+                    os.remove(old)
+                shutil.copy(cover, named)
+            cover_v = "_" + h8
         except Exception as e:
             log("  podcast cover check skipped:", str(e)[:100])
     email = env("PODCAST_EMAIL")
+    # v90: the strictest directories (JioSaavn said "rssfeed_not_validated") - plain titles without emoji, every
+    # usual iTunes tag on the show and on each episode, dates in the standard form
+    clean = lambda s_: re.sub(r"\s{2,}", " ", re.sub(r"[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F\u200d]", "", str(s_ or ""))).strip()
+    show = clean(show_title) or "Daily Horror Story"
+    about = "প্রতিদিন নতুন বাংলা ভূতের গল্প - রেডিও নাটকের মতো, রাতের অন্ধকারে শোনার জন্য। Daily Bengali horror audio stories."
+    img = f"{base}podcast_cover{cover_v}.jpg"
+    now_rfc = dt.datetime.now(dt.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
     items = "".join(
-        f"<item><title>{_esc(e['title'])}</title><description>{_esc(e.get('desc', ''))}</description>"
+        f"<item><title>{_esc(clean(e['title']))}</title><itunes:title>{_esc(clean(e['title']))}</itunes:title>"
+        f"<description>{_esc(clean(e.get('desc', '')) or clean(e['title']))}</description>"
+        f"<itunes:summary>{_esc(clean(e.get('desc', '')) or clean(e['title']))}</itunes:summary>"
+        f"<link>{_esc(base)}golpo/{_esc(e['guid'])}.html</link>"
         f"<enclosure url=\"{_esc(e['url'])}\" length=\"{int(e.get('bytes', 0))}\" type=\"audio/mpeg\"/>"
         f"<guid isPermaLink=\"false\">{_esc(e['guid'])}</guid><pubDate>{e['date']}</pubDate>"
-        f"<itunes:duration>{int(e.get('secs', 0))}</itunes:duration><itunes:explicit>false</itunes:explicit></item>\n"
+        f"<itunes:duration>{int(e.get('secs', 0))}</itunes:duration><itunes:explicit>false</itunes:explicit>"
+        f"<itunes:episodeType>full</itunes:episodeType><itunes:image href=\"{_esc(img)}\"/></item>\n"
         for e in reversed(eps))
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">
-<channel><title>{_esc(show_title)}</title><link>{_esc(base)}</link><language>{lang}</language>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel><title>{_esc(show)}</title><link>{_esc(base)}</link><language>{lang}</language>
 <atom:link href="{_esc(base)}podcast.xml" rel="self" type="application/rss+xml"/>
-<description>প্রতিদিন নতুন বাংলা ভূতের গল্প - রেডিও নাটকের মতো, রাতের অন্ধকারে শোনার জন্য।</description>
-<itunes:author>{_esc(show_title)}</itunes:author><itunes:explicit>false</itunes:explicit>
+<description>{_esc(about)}</description><itunes:summary>{_esc(about)}</itunes:summary>
+<itunes:subtitle>Daily Bengali horror audio stories</itunes:subtitle>
+<copyright>{dt.date.today().year} {_esc(show)}</copyright><lastBuildDate>{now_rfc}</lastBuildDate>
+<itunes:author>{_esc(show)}</itunes:author><itunes:explicit>false</itunes:explicit><itunes:type>episodic</itunes:type>
 <itunes:category text="Fiction"><itunes:category text="Drama"/></itunes:category>
-<itunes:image href="{_esc(base)}podcast_cover.jpg{cover_v}"/>
-<image><url>{_esc(base)}podcast_cover.jpg{cover_v}</url><title>{_esc(show_title)}</title><link>{_esc(base)}</link></image>
-{f'<itunes:owner><itunes:name>{_esc(show_title)}</itunes:name><itunes:email>{_esc(email)}</itunes:email></itunes:owner>' if email else ''}
+<itunes:image href="{_esc(img)}"/>
+<image><url>{_esc(img)}</url><title>{_esc(show)}</title><link>{_esc(base)}</link></image>
+{f'<managingEditor>{_esc(email)} ({_esc(show)})</managingEditor><itunes:owner><itunes:name>{_esc(show)}</itunes:name><itunes:email>{_esc(email)}</itunes:email></itunes:owner>' if email else ''}
 {items}</channel></rss>
 """
     with open(os.path.join(docs, "podcast.xml"), "w", encoding="utf-8") as f:
