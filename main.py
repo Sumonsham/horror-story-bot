@@ -10778,7 +10778,14 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     black = os.path.join(WORK, "tr_black.jpg")
     Image.new("RGB", (720, 1280), (0, 0, 0)).save(black)
     hook = str(story.get("thumbnail_text") or "").strip()
-    first = picks[0]
+    # v92 (Facebook's own numbers: 79% left in the first 3 seconds of a quiet opening): the trailer now OPENS on its
+    # most frightening short moment - a ghost's line, a scream, a jump scare - mid-sentence, no title first
+    if env("TRAILER_SHOCK_OPEN") != "0":
+        shock = [c for c in picks if c[1] <= 4.5] or picks
+        first = max(shock, key=score)
+        picks = [first] + [c for c in picks if c is not first]
+    else:
+        first = picks[0]
     parts.append(_video_clip(video, first[0] - 0.15, first[1] + 0.4, nxt("open"), first[3]))
     if hook:
         parts.append(_still_clip(_card(os.path.join(WORK, "tr_c1.jpg"), [hook], [64], [(255, 255, 255)]),
