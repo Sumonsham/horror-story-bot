@@ -119,7 +119,7 @@
    "comments": 0,
    "views": 0,
    "length_s": 257,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -138,7 +138,7 @@
    "yt_avg_s": 25,
    "yt_avg_pct": 31.0,
    "yt_drop_at": 10,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -153,7 +153,7 @@
    "comments": 0,
    "views": 0,
    "length_s": 781,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -175,7 +175,7 @@
    "yt_views": 4,
    "yt_avg_s": 11,
    "yt_avg_pct": 1.8,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -338,7 +338,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -366,7 +366,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -394,7 +394,7 @@
    "yt_views": 4,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -630,7 +630,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -664,7 +664,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-11T01:02+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -697,10 +697,10 @@
    "comments": 2,
    "views": 1,
    "length_s": 744,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-11T01:02+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -848,7 +848,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -882,10 +882,10 @@
    "comments": 4,
    "views": 1,
    "length_s": 1034,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 17,
+   "yt_avg_pct": 1.7,
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -919,10 +919,10 @@
    "comments": 2,
    "views": 1,
    "length_s": 956,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-11T01:02+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -1137,12 +1137,12 @@
   "stats": {
    "likes": 0,
    "comments": 2,
-   "views": 1,
+   "views": 2,
    "length_s": 1856,
-   "yt_views": 1,
+   "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   }
  },
  {
@@ -1406,10 +1406,10 @@
    "comments": 2,
    "views": 2,
    "length_s": 1791,
-   "yt_views": 1,
-   "yt_avg_s": 223,
-   "yt_avg_pct": 12.4,
-   "checked": "2026-11-10T12:31+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 677,
+   "yt_avg_pct": 37.8,
+   "checked": "2026-11-14T01:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1453,10 +1453,10 @@
    "comments": 2,
    "views": 3,
    "length_s": 2435,
-   "yt_views": 1,
+   "yt_views": 3,
    "yt_avg_s": 29,
    "yt_avg_pct": 1.2,
-   "checked": "2026-11-11T01:02+00:00"
+   "checked": "2026-11-14T01:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1718,12 +1718,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 1,
+   "views": 4,
    "length_s": 1128,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-10T12:31+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 29,
+   "yt_avg_pct": 2.6,
+   "checked": "2026-11-14T01:03+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1860,14 +1860,14 @@
   },
   "district": "bankura",
   "stats": {
-   "likes": 0,
+   "likes": 1,
    "comments": 1,
-   "views": 1,
+   "views": 11,
    "length_s": 934,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-11T01:02+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 13,
+   "yt_avg_pct": 1.4,
+   "checked": "2026-11-14T01:03+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2441,7 +2441,21 @@
     ]
    ]
   },
-  "district": "bardhaman_w"
+  "district": "bardhaman_w",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 3,
+   "length_s": 1645,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-14T01:03+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 3
+  }
  },
  {
   "date": "2026-11-12T10:11+00:00",
@@ -2613,7 +2627,21 @@
    ]
   },
   "tagline": "মধ্যরাতের রূপালী পর্দায় বন্দিনী এক অতৃপ্ত আত্মা",
-  "district": "hooghly"
+  "district": "hooghly",
+  "stats": {
+   "likes": 1,
+   "comments": 1,
+   "views": 4,
+   "length_s": 1994,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-14T01:03+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 4
+  }
  },
  {
   "date": "2026-11-13T04:01+00:00",
@@ -2758,6 +2786,24 @@
     ]
    ]
   },
-  "district": "kolkata"
+  "district": "kolkata",
+  "stats": {
+   "likes": 3,
+   "comments": 2,
+   "views": 3,
+   "length_s": 1052,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-14T01:03+00:00"
+  }
+ },
+ {
+  "date": "2026-11-14T03:06+00:00",
+  "lang": "bn",
+  "kind": "text_short",
+  "title": "শেষ যাত্রী",
+  "youtube": "zDDHcWZtddY",
+  "facebook": "1654316483088115"
  }
 ]

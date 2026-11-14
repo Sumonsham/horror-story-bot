@@ -1,23 +1,24 @@
 {
  "horror_bn": {
-  "made": "2026-11-12T01:02+00:00",
+  "made": "2026-11-14T01:05+00:00",
   "lessons": [
-   "Prioritize classic tantrik and paranormal investigator lore: Taranath Tantrik and ritual-based themes achieved the highest watch percentages (14% to 15.1%).",
-   "Familiar everyday public settings (empty classrooms, metro stations) hook viewers better than abstract curses, driving higher initial view counts.",
-   "First-person real-life horror ('sotti' tag) drives peak views (up to 8 views), outperforming detached two-part fictional setups.",
-   "Single-part or complete standalone tales retain attention far better than multi-part series (part 2 drops sharply to 0-1 views).",
-   "Keep compilation formats or 90+ minute long videos on hold until baseline traction improves, as their watch percentage collapses to near zero (0.2%)."
+   "Keep first-person narratives concise and ensure the central supernatural encounter happens early to sustain viewer retention.",
+   "Classic radio-drama formats with distinct atmospheric elements perform better when split into tighter, high-tension episodes.",
+   "Urban legends and specific regional settings (such as Kolkata locations) generate higher initial click-through interest than generic village settings.",
+   "Maintain a steady narrative pace in the middle chapters where viewer drop-off tends to spike, keeping dialogues sharp and grounded.",
+   "End episodes on sharp narrative cliffhangers involving moral dilemmas or imminent threats to drive engagement and comments."
   ],
   "titles": [
-   "Titles grounding the horror in real, identifiable places (e.g., 'কামালপুর জমিদার বাড়ি', 'টালিগঞ্জের শেষ মেট্রো') attract significantly more clicks than generic curse tropes.",
-   "Adding 'সত্য ঘটনা অবলম্বনে' (Based on true events) reliably boosts click-through and tops overall views.",
-   "Shorter, atmospheric titles perform better than cluttered serial headers with excessive episode numbering and sub-tags."
+   "Titles featuring specific, eerie imagery (e.g., blood, number of a room/train, specific local objects) outperform generic horror titles.",
+   "First-person perspectives framed as lived experiences ('that happened to me') create immediate curiosity and higher click-through intent.",
+   "Using localized Bengali place names combined with an uncanny event (like 'Tollygunge last metro' or specific district houses) captures local audience interest best."
   ],
   "requests": [
-   "District-specific folklore and regional ghost stories requested via comment prompts",
-   "Viewer-submitted true paranormal experiences (#আমার_গল্প)",
-   "Continuation of Bhairab Thakur and Madhabi Sen's spirit resolution",
-   "Riverbank/Ghat haunted tales at night (Ganga ghats)"
+   "Stories involving hidden ghosts or visual easter eggs where viewers count how many times the ghost appears",
+   "Local folklore and ghost stories specific to the viewers' own districts and towns via the map link",
+   "Continuation and resolution of mystery-driven character arcs (like Anirban's diary or Bhairab Thakur's cases)",
+   "True listener-submitted scary personal experiences (#আমার_গল্প)",
+   "Interactive moral choices and questions posed to the audience regarding the characters' decisions"
   ]
  }
 }
