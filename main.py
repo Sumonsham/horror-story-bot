@@ -9318,6 +9318,11 @@ def channel_link():
     return extras.tg_channel_link(ASSETS) or env("TG_CHANNEL_URL") or "https://t.me/dailyhorrorstory"
 
 
+def adda_link():
+    """v96: the Telegram night-adda group (13-14 Nov 2026: @dailyhorroradda)"""
+    return "" if env("ADDA_LINK") == "0" else (env("ADDA_URL") or "https://t.me/dailyhorroradda")
+
+
 def growth_links(lang):
     """the lines under every video: read the story, tell us your own experience by voice, our fan channel"""
     if lang != "bn":
@@ -9334,6 +9339,8 @@ def growth_links(lang):
         out.append(f"📢 নতুন গল্পের খবর সবার আগে: {ch}")
     if base and os.path.exists(os.path.join(MAP_DIR, "khata.html")) and env("KHATA") != "0":
         out.append(f"🔎 এই সপ্তাহের রহস্য-খাতা (প্রতিটা গল্পে একটা সূত্র লুকোনো): {base}khata.html")
+    if adda_link():
+        out.append(f"💬 গল্প নিয়ে রাতের আড্ডা (Telegram group): {adda_link()}")
     sp = _clean_url(env("SPOTIFY_URL"))              # v87: the Spotify page itself (the feed file is for apps only)
     if sp:
         out.append(f"🎧 Spotify-তে শুনুন: {sp}")
@@ -10559,7 +10566,8 @@ def main():
     if not NO_BAIT:
         first.append(L["join_comment"])
     if lang == "bn" and env("TG_CHANNEL_COMMENT") != "0":   # v89: the fan channel in every first comment
-        first.append(f"📢 নতুন গল্পের খবর সবার আগে পেতে আমাদের Telegram চ্যানেলে যোগ দিন: {channel_link()}")
+        first.append(f"📢 নতুন গল্পের খবর সবার আগে পেতে আমাদের Telegram চ্যানেলে যোগ দিন: {channel_link()}"
+                     + (f"\n💬 গল্প নিয়ে রাতের আড্ডা: {adda_link()}" if adda_link() else ""))
     try:
         first += uniq_invites(lang)                  # v63: which district next Tuesday? + the ghost map
     except Exception as e:
