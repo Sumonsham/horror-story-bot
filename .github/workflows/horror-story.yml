@@ -10,11 +10,11 @@ on:
         required: false
         default: ""
       mode:
-        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special."
+        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live."
         required: false
         default: ""
-  schedule:                 # v76: ONLY the Saturday-night YouTube Live 'ভূতের রাত' (20:30 India time) - its own queue,
-    - cron: "0 15 * * 6"    #      so it never blocks or waits for a story run
+  # v98: the Saturday YouTube Live is started by cron-job.org at 21:50 India time (mode=live) - GitHub's own clock
+  # started it after 1 AM. It has its own queue, so it never waits for a story run.
   push:                     # ONLY the website (privacy page + ghost map) is updated on a push - never a video
     branches: [main]
     paths:
@@ -26,12 +26,12 @@ permissions:
   contents: write
 
 concurrency:                # (a website update never waits for or cancels a video run)
-  group: ${{ github.event_name == 'push' && 'horror-website' || (github.event_name == 'schedule' && 'horror-live' || 'horror-story') }}
+  group: ${{ github.event_name == 'push' && 'horror-website' || (github.event.inputs.mode == 'live' && 'horror-live' || 'horror-story') }}
   cancel-in-progress: false
 
 jobs:
   post:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 360    # 6 hours (the most GitHub allows)
     env:
