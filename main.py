@@ -9310,7 +9310,7 @@ def promo_list(lang):
                           "sub": "সব ভূতের গল্প পডকাস্টে - হাঁটতে চলতে শুনুন", "sub2": "Spotify-তে আমাদের নাম লিখে খুঁজুন",
                           "link": _short_url(sp), "url": sp}
     if env("YT_LIVE") != "0":
-        out["live"] = {"icon": "live", "head": "প্রতি শনিবার রাতে লাইভ: ভূতের রাত",
+        out["live"] = {"icon": "live", "head": "প্রতি শনিবার রাত ১০টায় লাইভ: ভূতের রাত",
                        "sub": "সপ্তাহের সেরা গল্প একটানা - YouTube-এ", "sub2": "লাইভ চ্যাটে আপনার নাম পর্দায় আসবে"}
     if base and env("STORY_PAGES") != "0":
         out["web"] = {"icon": "web", "head": "গল্পগুলো পড়তেও পারেন", "sub": "প্রতিটা গল্প লেখা আকারে আমাদের ওয়েবসাইটে",
@@ -9996,6 +9996,15 @@ def weekly_live(history):
             "দেখাবে।\n\n" + "\n".join(f"{k + 1}. {t}" for k, t in enumerate(titles)) + "\n\n" + growth_links(lang))
     thumb = extras.text_card(bg, ["👻 ভূতের রাত", "লাইভ", "একটানা ভূতের গল্প"], os.path.join(WORK, "live_thumb.jpg"), FONT)
     try:
+        try:                                         # v98: the live starts at 10 PM sharp (cron-job.org starts us early)
+            hh_, mm_ = (env("LIVE_AT") or "22:00").split(":")
+            at_ = dt.datetime.now(extras.IST).replace(hour=int(hh_), minute=int(mm_), second=0, microsecond=0)
+            wait_ = (at_ - dt.datetime.now(extras.IST)).total_seconds()
+            if 0 < wait_ <= 45 * 60:
+                log(f"Live: everything ready - waiting {wait_ / 60:.0f} min until {hh_}:{mm_}")
+                time.sleep(wait_)
+        except Exception:
+            pass
         bid, rtmp, chat = extras.yt_live_create(title, desc, thumb)
     except Exception as e:
         msg = str(e)
