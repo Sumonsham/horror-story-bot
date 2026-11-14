@@ -7005,7 +7005,10 @@ def podcast_feed(docs, base, ep, show_title, cover_src=None, lang="bn"):
         f"<enclosure url=\"{_esc(e['url'])}\" length=\"{int(e.get('bytes', 0))}\" type=\"audio/mpeg\"/>"
         f"<guid isPermaLink=\"false\">{_esc(e['guid'])}</guid><pubDate>{e['date']}</pubDate>"
         f"<itunes:duration>{int(e.get('secs', 0))}</itunes:duration><itunes:explicit>false</itunes:explicit>"
-        f"<itunes:episodeType>full</itunes:episodeType><itunes:image href=\"{_esc(img)}\"/></item>\n"
+        f"<itunes:episodeType>full</itunes:episodeType><itunes:image href=\"{_esc(img)}\"/>"
+        + (f"<podcast:transcript url=\"{_esc(e['vtt'])}\" type=\"text/vtt\" language=\"{lang}\"/>" if e.get("vtt") else "")
+        + (f"<podcast:chapters url=\"{_esc(e['chapters'])}\" type=\"application/json+chapters\"/>" if e.get("chapters") else "")
+        + "</item>\n"
         for e in reversed(eps))
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:podcast="https://podcastindex.org/namespace/1.0">
@@ -7975,6 +7978,40 @@ def append_quiz(video, quiz, lang, font_path, out, bg=None):
 # =====================================================================================================================
 # v83 (13 Nov 2026): tiny written ghost stories (for the text Shorts and for 'গল্প চাই' on Telegram)
 # =====================================================================================================================
+def place_story(avoid=(), districts="", key=None):
+    """v96 (H4): one REAL, well-known place in West Bengal about which people tell ghost legends - told as folklore
+    ('লোকে বলে'), never as a proven fact, never a private home or a living person"""
+    key = key or env("GEMINI_API_KEY")
+    if not key:
+        return None
+    ask = ("Pick ONE real, publicly known place in West Bengal about which local ghost legends are widely told (an old "
+           "rajbari, a railway station, a lake, a bridge, a fort, a cemetery, an old hospital building - NOT a private "
+           "home, NOT a place named after or owned by a living person). Write 4 short sentences in pure Kolkata Bengali "
+           "(cholit): where it is and what it is, what people say happens there ('লোকে বলে...'), one eerie detail of the "
+           "legend, and a last line that makes the listener uneasy - always as folklore, never claimed as proven. "
+           "Never one of these: " + "; ".join(str(a)[:40] for a in list(avoid)[-30:]) +
+           f". District keys: {districts}. Answer ONLY JSON: {{\"title\": \"the place's name + 2-3 word hook\", "
+           "\"lines\": [4 sentences], \"district\": \"key\", \"picture\": \"ENGLISH: the place at night, "
+           "atmospheric, empty, no people, no text\"}")
+    for model in helper_models(key)[:4]:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": ask}]}],
+                                    "generationConfig": {"responseMimeType": "application/json", "temperature": 0.9}},
+                              timeout=90)
+            if not r.ok:
+                continue
+            got = load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+            lines = [str(x).strip() for x in (got or {}).get("lines") or [] if str(x).strip()]
+            if got and got.get("title") and 3 <= len(lines) <= 5:
+                return {"title": str(got["title"]).strip()[:60], "lines": lines[:4],
+                        "district": str(got.get("district") or "").strip().lower(),
+                        "picture": str(got.get("picture") or "an old abandoned rajbari at night, fog")[:300]}
+        except Exception:
+            continue
+    return None
+
+
 def micro_story(lang="bn", avoid=(), key=None):
     """a NEW 2-4 sentence ghost story with a twist (original, Kolkata Bengali), its title and an English picture idea"""
     key = key or env("GEMINI_API_KEY")

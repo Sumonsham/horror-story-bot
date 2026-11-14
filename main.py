@@ -4530,7 +4530,11 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     # voices: people in the middle; a ghost's voice drifts around the listener's head
     vL, vR = np.zeros(n), np.zeros(n)
     for start, a, is_ghost in pieces:
-        if is_ghost and SPATIAL:                      # in front of us, clear - only the cold room around it
+        if is_ghost and SPATIAL and STATE.get("binaural"):   # v96: the headphone episode - the ghost circles you
+            side = 1 if rnd.uniform() < 0.5 else -1
+            l, r = extras.spatialize(a, side * 120, -side * 120, SR)
+            l, r = extras.reverb_stereo(l, r, "room", SR, seed=idx + 7)
+        elif is_ghost and SPATIAL:                    # in front of us, clear - only the cold room around it
             l, r = extras.reverb_stereo(a, a, "room", SR, seed=idx + 7)
         else:
             l, r = a, a
@@ -6100,7 +6104,7 @@ CREATOR_RULE = (
     "reason, the ending), fill it in the creator's own spirit. Keep the creator's best lines.\n")
 
 
-PLAN_STATE = ("brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
+PLAN_STATE = ("binaural", "folk_story", "brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
               "trend_used", "crossover", "milestone", "opening", "sequel_of",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
               "district", "district_votes", "viewer_names", "arc")
@@ -6257,21 +6261,37 @@ def choose_and_write(slot_hour, history):
             used = {str(h.get("theme", "")) for h in history[-80:]}
             pool = [t for t in info["themes"] if t not in used] or info["themes"]
             theme = random.choice(pool)
-            idea = next_idea(history) if not mine and slot_hour == EVENING and cat in ("gram", "shohor", "jayga") else None
+            folk_ = None
+            if not mine and slot_hour == NOON and dt.datetime.now(extras.IST).weekday() == 6 and env("FOLK_EPISODE") != "0":
+                try:                                 # v96 (H1): Sunday 2 PM - a listener's own legend
+                    folk_ = folk_for_story()
+                except Exception as e:
+                    log("  listener's legend skipped:", str(e)[:100])
+            idea = next_idea(history) if not mine and not folk_ and slot_hour == EVENING and cat in ("gram", "shohor", "jayga") else None
             if idea:                                 # our idea list comes first (used once each)
                 theme = idea[0]
                 STATE["idea_used"] = idea[0]
                 log(f"Idea from the list: {theme}")
             # TREND STORY (v79: EVERY story): built on what is MOST WATCHED on YouTube this week in exactly this
             # story's kind (real YouTube search of the category, sorted by views) - our own new story, never a copy
-            seq_ = None if (mine or idea or cat == "sotti") else hit_for_sequel(history, lang)
+            seq_ = None if (mine or idea or folk_ or cat == "sotti") else hit_for_sequel(history, lang)
             if seq_:                                 # v82: a story people loved comes back ('... ফিরে এল')
                 theme = f"the SEQUEL of our hit story '{seq_.get('title')}'"
                 STATE["sequel_of"] = seq_.get("slot") or seq_.get("title")
                 extra_rules += sequel_rule(seq_, lang)
-            if not mine and not idea and not seq_:
+            if not mine and not idea and not seq_ and not folk_:
                 theme = trend_theme(cat, lang, history) or theme
-            if cat == "sotti" and not mine:
+            if folk_:
+                dn_ = DISTRICT[folk_["d"]][1] if folk_.get("d") in DISTRICT else ""
+                theme = f"a listener's legend from {DISTRICT.get(folk_.get('d'), ('', '', 'Bengal'))[2]}: {folk_.get('t', '')}"
+                STATE["folk_story"] = folk_.get("t")
+                extra_rules += (f"\nLISTENERS' LEGEND (our Sunday special): build a full, original story on this folk "
+                                f"legend that our listener {folk_.get('by') or 'a listener'} sent from {dn_}: "
+                                f"<<<{folk_.get('s', '')}>>> Keep the legend's place and core, invent the people and "
+                                "events (never a real person's name or address). The narrator's FIRST line thanks "
+                                f"{folk_.get('by') or 'our listener'} from {dn_} for sending this legend of their area.\n")
+                log(f"Sunday special: the listener's legend '{folk_.get('t')}' ({dn_}, from {folk_.get('by')})")
+            if cat == "sotti" and not mine and not folk_:
                 vs = []
                 try:                                 # v76: the stories viewers TOLD us by voice on Telegram first
                     vs = extras.viewer_voice_stories(ASSETS, {h.get("viewer_story_id") for h in history})
@@ -6297,6 +6317,15 @@ def choose_and_write(slot_hour, history):
                 extra_rules += CREATOR_RULE.format(text=mine["text"])
     if env("RETENTION_RULE") != "0":                 # v86: people left in the first minute - keep them
         extra_rules += RETENTION_RULE
+    now_ = dt.datetime.now(extras.IST)
+    STATE.pop("binaural", None)
+    if ((slot_hour == EVENING and now_.weekday() == int(env("BINAURAL_DAY") or 4) and now_.day <= 7
+            and env("BINAURAL") != "0") or env("BINAURAL") == "1"):                # v96 (H2): once a month - the headphone (3D) episode
+        STATE["binaural"] = True
+        extra_rules += ("\n3D HEADPHONE EPISODE: this story is mixed for headphones - write it so sounds come from "
+                        "around the listener: footsteps behind, a whisper close to one ear, a knock on the left, "
+                        "something circling. Put these as sound cues in the scenes (never more than one at a time).\n")
+        log("This is the month's 3D headphone episode")
     KHATA_HOLD.clear()
     try:                                             # v95: today's hidden clue of the weekly mystery
         if not special or special in NEW_SERIES:
@@ -9006,10 +9035,19 @@ def daily_text_short(history):
     lang = "bn"
     FONT = FONT or find_font(lang)
     avoid = [h.get("title") for h in history if h.get("kind") == "text_short"][-60:]
-    ms = extras.micro_story(lang, avoid) if not MOCK else {
+    place_day = dt.datetime.now(extras.IST).weekday() == int(env("PLACE_DAY") or 1) and env("PLACE_SHORT") != "0"
+    if place_day and not MOCK:                       # v96 (H4): Tuesday - a real haunted place of Bengal (folklore)
+        ms = extras.place_story(avoid, ", ".join(f"{k}={v[1]}" for k, v in DISTRICT.items()))
+        if ms:
+            ms["title"] = "📍 " + ms["title"]
+            STATE["place_short"] = ms.get("district")
+            log(f"  Tuesday: a haunted place of Bengal - {ms['title']}")
+    else:
+        ms = None
+    ms = ms or (extras.micro_story(lang, avoid) if not MOCK else {
         "title": "শেষ বাসের যাত্রী", "lines": ["রাত সাড়ে এগারোটার শেষ বাসে আমি একাই ছিলাম।", "কন্ডাক্টর দুটো টিকিট কাটল।",
                                              "জিজ্ঞেস করতেই বলল, আপনার পাশের দিদিরটা।", "আমার পাশের সিট ফাঁকা ছিল।"],
-        "picture": "an empty night bus interior"}
+        "picture": "an empty night bus interior"})
     if not ms:
         log("  text Short: no tiny story today (Gemini busy)")
         return False
@@ -9096,6 +9134,17 @@ def daily_text_short(history):
         except Exception as e:
             log("  text Reel skipped:", str(e)[:150])
     if rec.get("youtube") or rec.get("facebook"):
+        key_ = STATE.pop("place_short", None)
+        if key_ in DISTRICT and env("GHOST_MAP") != "0":     # the place goes on the ghost map too
+            try:
+                items = _jload(MAP_JSON, [])
+                items = items if isinstance(items, list) else []
+                items.append(_pin(ms["title"].replace("📍 ", ""), key_, lang, rec.get("facebook"), rec.get("youtube"),
+                                  dt.datetime.now(extras.IST).date().isoformat(), "ভূতুড়ে জায়গা"))
+                _jsave(MAP_JSON, items[-3000:])
+                push_now([MAP_JSON], "haunted place on the ghost map")
+            except Exception as e:
+                log("  haunted place pin skipped:", str(e)[:100])
         history.append(rec)
         return True
     return False
@@ -9367,6 +9416,52 @@ def _gem_json(prompt, temp=0.4, strong=False):
                 return extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
         except Exception:
             continue
+    return None
+
+
+def podcast_extras(guid, base):
+    """docs/podcast/<guid>.vtt (every spoken line with its time) and <guid>.chapters.json (the chapters) -
+    podcast apps show them, search them and let people jump to a chapter"""
+    part_times, segs = TIMELINE
+    out = {}
+    d_ = os.path.join(MAP_DIR, "podcast")
+    os.makedirs(d_, exist_ok=True)
+
+    def ts(x):
+        x = max(0.0, float(x))
+        return f"{int(x // 3600):02d}:{int(x % 3600 // 60):02d}:{x % 60:06.3f}"
+    cues = []
+    for s, d, _nar, tx in segs or []:
+        tx = re.sub(r"\s+", " ", extras.strip_tags(str(tx))).strip()
+        if tx and d > 0.2:
+            cues.append(f"{ts(s)} --> {ts(s + d)}\n{tx}")
+    if len(cues) >= 5:
+        with open(os.path.join(d_, f"{guid}.vtt"), "w", encoding="utf-8") as f:
+            f.write("WEBVTT\n\n" + "\n\n".join(cues) + "\n")
+        out["vtt"] = f"{base}podcast/{guid}.vtt"
+    parts = (STATE.get("timeline") or {}).get("parts") or []
+    if len(parts) >= 2:
+        chap = {"version": "1.2.0", "chapters": [{"startTime": int(t_), "title": str(l_)[:80]} for t_, l_ in parts]}
+        with open(os.path.join(d_, f"{guid}.chapters.json"), "w", encoding="utf-8") as f:
+            json.dump(chap, f, ensure_ascii=False)
+        out["chapters"] = f"{base}podcast/{guid}.chapters.json"
+    return out
+
+
+def folk_for_story():
+    """the oldest listener's legend on the map that has not become a story yet (marked as used)"""
+    items = _jload(MAP_JSON, [])
+    if not isinstance(items, list):
+        return None
+    for x in items:
+        if x.get("folk") and not x.get("used") and str(x.get("s") or "").strip():
+            x["used"] = dt.datetime.now(extras.IST).date().isoformat()
+            _jsave(MAP_JSON, items)
+            try:
+                push_now([MAP_JSON], "listener's legend becomes a story")
+            except Exception:
+                pass
+            return x
     return None
 
 
@@ -9727,10 +9822,14 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
             url = extras.gh_release_upload(mp3, os.path.basename(mp3))
             if url:
                 pub = (at or dt.datetime.now(dt.timezone.utc))
-                extras.podcast_feed(MAP_DIR, base, {
-                    "guid": story_slug(), "title": title, "url": url, "bytes": os.path.getsize(mp3),
-                    "secs": duration(video), "date": pub.strftime("%a, %d %b %Y %H:%M:%S +0000"),
-                    "desc": str(story.get("description", ""))[:600]},
+                ep_ = {"guid": story_slug(), "title": title, "url": url, "bytes": os.path.getsize(mp3),
+                       "secs": duration(video), "date": pub.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+                       "desc": str(story.get("description", ""))[:600]}
+                try:                                 # v96 (H3): the words and the chapters, for Spotify / Apple
+                    ep_.update(podcast_extras(story_slug(), base))
+                except Exception as e:
+                    log("  podcast transcript / chapters skipped:", str(e)[:100])
+                extras.podcast_feed(MAP_DIR, base, ep_,
                     env("PODCAST_TITLE") or "Daily Horror Story", thumb, lang)   # v88: the show's name in English
                 changed.append(MAP_DIR)
                 log("  podcast episode added to the feed")
@@ -10456,6 +10555,10 @@ def main():
         except Exception as e:
             log("  cards over the video skipped:", str(e)[:150])
 
+    if STATE.get("binaural") and lang == "bn" and "🎧" not in title:     # v96: the headphone episode
+        title = ("🎧 " + title)[:100]
+        story["description"] = ("🎧 আজকের গল্পটা হেডফোনে শুনুন - শব্দ আসবে আপনার চারপাশ থেকে, পেছন থেকে, কানের পাশ থেকে।\n\n"
+                                + str(story.get("description", "")))
     own = [t if t.startswith("#") else "#" + t.replace(" ", "") for t in story.get("hashtags", [])[:15]]
     seeds = ([HORROR_CATS[cat]["bn"], "ভূতের গল্প", "bhuter golpo"] if lang == "bn" else
              [HORROR_CATS[cat]["hi"], "bhoot ki kahani", "डरावनी कहानी"])
