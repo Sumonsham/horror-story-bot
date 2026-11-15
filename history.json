@@ -200,7 +200,7 @@
    "comments": 1,
    "views": 0,
    "length_s": 599,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -228,7 +228,7 @@
    "yt_views": 2,
    "yt_avg_s": 76,
    "yt_avg_pct": 15.4,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -254,7 +254,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -412,7 +412,7 @@
    "yt_views": 2,
    "yt_avg_s": 12,
    "yt_avg_pct": 0.2,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -438,10 +438,10 @@
    "comments": 2,
    "views": 1,
    "length_s": 691,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -460,7 +460,7 @@
    "yt_views": 1,
    "yt_avg_s": 22,
    "yt_avg_pct": 2.1,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -478,7 +478,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -503,12 +503,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 2,
+   "views": 3,
    "length_s": 356,
-   "yt_views": 1,
+   "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -737,7 +737,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -771,10 +771,10 @@
    "comments": 3,
    "views": 4,
    "length_s": 811,
-   "yt_views": 2,
-   "yt_avg_s": 105,
-   "yt_avg_pct": 13,
-   "checked": "2026-11-12T01:04+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 71,
+   "yt_avg_pct": 8.8,
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -1032,7 +1032,7 @@
    "yt_views": 1,
    "yt_avg_s": 1040,
    "yt_avg_pct": 100.0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -1269,10 +1269,10 @@
    "comments": 3,
    "views": 8,
    "length_s": 1912,
-   "yt_views": 6,
-   "yt_avg_s": 882,
-   "yt_avg_pct": 46.1,
-   "checked": "2026-11-12T01:04+00:00"
+   "yt_views": 8,
+   "yt_avg_s": 740,
+   "yt_avg_pct": 38.7,
+   "checked": "2026-11-15T06:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1545,7 +1545,7 @@
    "comments": 2,
    "views": 0,
    "length_s": 802,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   }
  },
  {
@@ -2011,12 +2011,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 1,
+   "views": 3,
    "length_s": 875,
-   "yt_views": 0,
+   "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2154,7 +2154,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-12T01:04+00:00"
+   "checked": "2026-11-15T06:28+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -3115,7 +3115,17 @@
    ]
   },
   "district": "nadia",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-14-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-14-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 4,
+   "length_s": 1882,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-15T06:28+00:00"
+  }
  },
  {
   "date": "2026-11-14T09:47+00:00",
@@ -3309,7 +3319,17 @@
   },
   "tagline": "কাচের বুথের ভেতর কে ডাকছে বিকুকে?",
   "district": "kolkata",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-14-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-14-20.mp4",
+  "stats": {
+   "likes": 0,
+   "comments": 1,
+   "views": 3,
+   "length_s": 1341,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-15T06:28+00:00"
+  }
  },
  {
   "date": "2026-11-14T19:42+00:00",
@@ -3326,5 +3346,179 @@
   "title": "শেষ ট্রামের যাত্রী",
   "youtube": "kx-3c-wQQpo",
   "facebook": "2686074968520371"
+ },
+ {
+  "date": "2026-11-15T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-15@14",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A night-shift security guard at a remote highway toll plaza encounters a woman in a bridal saree who asks for a lift every time the clock hits 3:00 AM.",
+  "crossover": null,
+  "opening": "flash",
+  "category": "sotti",
+  "question_post": "2026-11-15",
+  "title_b": "কার্তিক অমাবস্যার রাতে চন্দননগরের কল থেকে ফুটন্ত রক্ত বেরোলো কেন? 🩸",
+  "theme": "a viewer's own true experience",
+  "format": "a whodunit ghost mystery: three people could be behind it, the clues are hidden in the story, and the final scene reveals the answer with a twist (never stop the story to ask the listeners anything)",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "৮ ঘণ্টার সবচেয়ে ভয়ঙ্কর ঘটনা শুনে ঘুমিয়ে পড়ুন | চন্দননগরের পুরোনো বাড়ির রক্তবর্ণ",
+  "festival": null,
+  "summary": "Chapter 1: In Chapter 1, IT architect Subir Ghosh arrives at his ancestral mansion in Chandannagar on a misty Kartik Sunday to inspect the property before signing partition deeds demanded by his impatient uncle Samarish. After experiencing foul reddish iron-smelling tap water, Subir is warned by old maid Protima never to use the faucet after 2:00 AM nor go near the chained rooftop concrete tank where plumber Dibakar vanished ten years ago. At 2:15 AM, Subir opens the kitchen tap and is horrified",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "viewer",
+  "viewer_story_id": "fb_122151112857043212_2086463632041815",
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 2,
+  "facebook": "4047257205582795",
+  "youtube": "j1D2zxDmpQk",
+  "fb_reel": "1676629340834694",
+  "fb_story": "29636050292748026",
+  "fb_reel2": "1805146260691737",
+  "yt_short": "je2Mji5dt6A",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1272,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     25,
+     "শুরু"
+    ],
+    [
+     38,
+     "অধ্যায় ১: নল থেকে ফিসফিসানি"
+    ],
+    [
+     64,
+     "অধ্যায় ১: নল থেকে ফিসফিসানি"
+    ],
+    [
+     93,
+     "অধ্যায় ২: পৈতৃক ভিটেয় আগমন"
+    ],
+    [
+     132,
+     "অধ্যায় ২: পৈতৃক ভিটেয় আগমন"
+    ],
+    [
+     150,
+     "অধ্যায় ৩: কলের লাল জল"
+    ],
+    [
+     184,
+     "অধ্যায় ৩: কলের লাল জল"
+    ],
+    [
+     207,
+     "অধ্যায় ৪: ছাদের আকাশপ্রদীপ ও নিষেধাজ্ঞা"
+    ],
+    [
+     232,
+     "অধ্যায় ৪: ছাদের আকাশপ্রদীপ ও নিষেধাজ্ঞা"
+    ],
+    [
+     271,
+     "অধ্যায় ৫: রাত দুটো পনেরোর আতঙ্ক"
+    ],
+    [
+     294,
+     "অধ্যায় ৫: রাত দুটো পনেরোর আতঙ্ক"
+    ],
+    [
+     328,
+     "অধ্যায় ৫: রাত দুটো পনেরোর আতঙ্ক"
+    ],
+    [
+     370,
+     "অধ্যায় ৬: মিথ্যা छलনা ও সন্দেহ"
+    ],
+    [
+     399,
+     "অধ্যায় ৬: মিথ্যা छलনা ও সন্দেহ"
+    ],
+    [
+     419,
+     "অধ্যায় ৭: গোপন ক্লু ও ছায়ামূর্তি"
+    ],
+    [
+     441,
+     "অধ্যায় ৭: গোপন ক্লু ও ছায়ামূর্তি"
+    ],
+    [
+     480,
+     "অধ্যায় ১: ডাইয়ের বোতল ও অপরাধ স্বীকার"
+    ],
+    [
+     523,
+     "অধ্যায় ১: ডাইয়ের বোতল ও অপরাধ স্বীকার"
+    ],
+    [
+     550,
+     "অধ্যায় ২: ১০ বছর আগের রহস্য"
+    ],
+    [
+     621,
+     "অধ্যায় ৩: কালবৈশাখী ও ব্ল্যাকআউট"
+    ],
+    [
+     649,
+     "অধ্যায় ৪: অভিশপ্ত কবাট বন্ধ"
+    ],
+    [
+     698,
+     "অধ্যায় ৫: পাইপের গর্জন ও প্রেতের আবির্ভ"
+    ],
+    [
+     761,
+     "অধ্যায় ৬: সিঁড়িতে রক্তের প্লাবন"
+    ],
+    [
+     803,
+     "অধ্যায় ৭: ছাদের চিলেকোঠা ও সাবল"
+    ],
+    [
+     848,
+     "অধ্যায় ৮: ট্যাঙ্কের তালা ভাঙা"
+    ],
+    [
+     886,
+     "অধ্যায় ৯: জলের ট্যাঙ্কে কঙ্কাল"
+    ],
+    [
+     954,
+     "অধ্যায় ১০: প্রেতাত্মার বিচার"
+    ],
+    [
+     1030,
+     "অধ্যায় ১১: খুনের স্বীকারোক্তি"
+    ],
+    [
+     1090,
+     "অধ্যায় ১২: ভোরের পুলিশ ও গ্রেপ্তার"
+    ],
+    [
+     1148,
+     "অধ্যায় ১৩: অভিশপ্ত ভিটে ত্যাগ"
+    ],
+    [
+     1186,
+     "অধ্যায় ১৪: শেষ শিউরে ওঠা বাণী"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "hooghly",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-15-14.mp4"
  }
 ]
