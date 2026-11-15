@@ -959,7 +959,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-11T09:27+00:00"
+   "checked": "2026-11-15T01:02+00:00"
   }
  },
  {
@@ -993,10 +993,10 @@
    "comments": 1,
    "views": 1,
    "length_s": 1186,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-11T09:27+00:00"
+   "checked": "2026-11-15T01:02+00:00"
   }
  },
  {
@@ -1180,10 +1180,10 @@
    "comments": 2,
    "views": 4,
    "length_s": 1635,
-   "yt_views": 3,
+   "yt_views": 4,
    "yt_avg_s": 22,
    "yt_avg_pct": 1.3,
-   "checked": "2026-11-11T09:27+00:00"
+   "checked": "2026-11-15T01:02+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1223,11 +1223,11 @@
   "stats": {
    "likes": 0,
    "comments": 1,
-   "views": 8,
+   "views": 9,
    "yt_views": 8,
    "yt_avg_s": 7,
    "yt_avg_pct": 0.7,
-   "checked": "2026-11-11T09:27+00:00"
+   "checked": "2026-11-15T01:02+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1500,10 +1500,10 @@
    "comments": 1,
    "views": 4,
    "length_s": 1191,
-   "yt_views": 4,
+   "yt_views": 5,
    "yt_avg_s": 168,
    "yt_avg_pct": 14.1,
-   "checked": "2026-11-11T09:27+00:00"
+   "checked": "2026-11-15T01:02+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2808,7 +2808,17 @@
   "kind": "text_short",
   "title": "শেষ যাত্রী",
   "youtube": "zDDHcWZtddY",
-  "facebook": "1654316483088115"
+  "facebook": "1654316483088115",
+  "stats": {
+   "likes": 1,
+   "comments": 0,
+   "views": 13,
+   "length_s": 24,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-15T01:02+00:00"
+  }
  },
  {
   "date": "2026-11-14T08:31+00:00",
@@ -3308,5 +3318,13 @@
   "youtube": "0fnEOD4BpmM",
   "title": "👻 ভূতের রাত - লাইভ | একটানা ভূতের গল্প | Bhuter Golpo Live",
   "people": 0
+ },
+ {
+  "date": "2026-11-15T01:04+00:00",
+  "lang": "bn",
+  "kind": "text_short",
+  "title": "শেষ ট্রামের যাত্রী",
+  "youtube": "kx-3c-wQQpo",
+  "facebook": "2686074968520371"
  }
 ]
