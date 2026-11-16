@@ -404,12 +404,13 @@ def horror_only(words):
 
 RETENTION_RULE = (
     "\nKEEP THEM TILL THE END (our numbers: most viewers leave in the first minute):\n"
-    "- The first 3 lines are already INSIDE the fear: a sound, a touch, a voice, a wrong thing seen - no greeting, no "
-    "'today I will tell you', no slow description of the village, the weather or the house.\n"
-    "- Within the first minute the listener must have one burning question (who / what / why) that is answered only "
-    "at the very end.\n"
-    "- The first real scare comes before minute 3; after that something new happens at least every 2 minutes "
-    "(a clue, a sound, a reversal, a death, a secret) - never two calm scenes in a row.\n"
+    "- The first lines already carry unease (a sound, a smell, a wrong small thing) - no greeting, no 'today I will "
+    "tell you', no long description of the weather. But UNEASE, not horror: the ghost is NOT seen or heard clearly "
+    "in the first third of the story.\n"
+    "- Within the first two minutes the listener must have one burning question (who / what / why) that is answered "
+    "only at the very end.\n"
+    "- Something small and new is noticed every 2-3 minutes (v103: a growing pile of small wrong details, not a "
+    "string of loud shocks); the first real fright comes at about one third of the story.\n"
     "- Every chapter ends on a small hook that pulls into the next one. Never stop the story to talk to the "
     "listeners, never ask them to comment, like or vote.\n"
     "REAL SUSPENSE (v91 - make it truly frightening, like the best Bengali radio horror):\n"
@@ -455,8 +456,6 @@ def pick_language(history):
 
 
 FORMATS = [
-    "a whodunit ghost mystery: three people could be behind it, the clues are hidden in the story, and the final "
-    "scene reveals the answer with a twist (never stop the story to ask the listeners anything)",
     "classic third-person radio-drama narration",
     "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
     "a listener's letter read out by the narrator, then the events play out",
@@ -881,7 +880,7 @@ Rules and material to use:
 Return ONLY JSON (ENGLISH):
 {{"premise": "2 sentences",
  "when_where": "month, weekday, time of day it begins; the exact town/village and place",
- "characters": [{{"name": "", "gender": "male/female", "age": "", "kind": "human/ghost", "who": "relation/job/home", "wants": "", "fears": "", "secret": ""}}],
+ "characters": [{{"name": "", "gender": "male/female", "age": "", "kind": "human/ghost", "who": "relation/job/home", "wants": "", "fears": "", "secret": "ONLY for the one person whose secret is the twist; '' for everybody else"}}],
  "beats": [{{"n": 1, "step": 1, "what_happens": "", "because": "what in the previous beat causes this one", "decision": "who decides what, and WHY (or '')", "follow_up": "how and in which beat this decision is carried out or why it fails - shown, not skipped", "new_fear": "the new, fresh frightening detail of this beat (never a stock phrase)"}}],
  "clues": ["clue - beat where planted - beat where it pays off"],
  "twist": "", "resolution": "what really happened, why, and what became of every character", "last_line": ""}}
@@ -893,7 +892,7 @@ only, never their stories, names or lines):
  1 HOOK - the most frightening sound or line from later in the story, heard for a moment, not explained.
  2 THE STORYTELLER'S DOOR - the narrator sets the year, season, place and why this story is being told.
  3 ARRIVAL - who comes where, when and WHY (a believable reason: a job, a transfer, an inheritance, a wedding,
-   a shortcut, a holiday); the 3-5 people, how they are related, a little warmth and a little friction.
+   a shortcut, a holiday); the 3-4 people, how they are related, a little warmth and a little friction.
  4 THE FIRST WRONG NOTE - one small, specific strange detail; someone explains it away.
  5 THE WARNING - a local (old servant, caretaker, villager, priest) warns or tells the rule of the place
    ('never answer if someone calls your name three times after midnight'); the hero half-ignores it.
@@ -1652,7 +1651,9 @@ def edit_story(story, lang, classic=False, brief="", outline="", chapter=None):
     words0 = sum(len(str(ln.get("text", "")).split()) for sc in story.get("scenes", []) for ln in sc.get("lines", []))
     rule = ("This is a retelling of a famous classic: do NOT change its events, characters or ending - improve only "
             "the telling (suspense, dialogue, sound, pictures, language)." if classic else
-            "Improve the plot too where it is weak: a bigger, fairer twist, a cleverer ghost, a stronger ending.")
+            "Improve the plot where it is weak by making it SIMPLER and truer: cut every extra secret, extra villain, "
+            "coincidence and convenient discovery; one ghost with one reason; the ending must use only what was set "
+            "up earlier. Cut loud, overwritten lines (piles of adjectives, shouting) - quiet and exact is scarier.")
     chapter_note = ""
     if chapter:                                       # (k, n, final): this is ONE chapter of a long story
         k_, n_, fin_ = chapter
@@ -1678,7 +1679,7 @@ rewriting scenes), FRESH WORDS (no stock horror phrases - replace every worn-out
 that belongs to this place; never the same image twice), STRUCTURE (a clear beginning: one hook line, then
 WHEN it began (month, weekday, time of day), the main person's name, village/town, family, situation, WHY and
 HOW he/she came to this place - in that order; a full middle with at least three
-escalating events, a clue, a false lead and a discovery; a clear end with climax, twist, and a resolution scene
+escalating events (each one small, exact and believable - never stuffed); a clear end with climax, one fair twist and a resolution scene
 that explains the whole mystery and what became of everyone - ADD the missing scenes if the beginning, middle or
 end is thin or abrupt), and correct,
 natural {L['name']} ({'pure Kolkata cholit Bengali, correct spelling' if lang == 'bn' else 'natural correct Hindi'}).
@@ -1860,7 +1861,24 @@ MASTER_STYLE = (
     "shop sign), exact times; people are not brave or wise in every line.\n"
     "NO STOCK LINES: every story begins in its OWN way and has its own sentences - never a ready-made line that "
     "could fit any story (like 'the day had begun like any ordinary day', 'little did they know', 'that night "
-    "changed everything'): show it with this story's own concrete detail instead.\n")
+    "changed everything'): show it with this story's own concrete detail instead.\n"
+    "HOW A REAL BENGALI GHOST STORY IS BUILT (v103 - this matters more than every other rule):\n"
+    "- ONE simple spine: one ordinary person, one place, one ghost with ONE reason (what it wants never changes) "
+    "and ONE rule of how it acts. The story is about that person and that ghost - nothing else.\n"
+    "- At most 4 speaking people. ONE human secret in the whole story at most (it is the twist) - nobody else has "
+    "a hidden theft, plan or crime. No second twist, no extra villain.\n"
+    "- The proportions: first 35% = an ordinary, warm, believable life and small wrong notes that people explain "
+    "away (the ghost is NOT seen); 35-70% = the wrong notes come closer and become personal, the past is "
+    "found out step by step; 70-90% = the one terrible night, face to face; last 10% = quiet resolution and a "
+    "soft, cold last line.\n"
+    "- SET UP, THEN PAY OFF: whatever saves or dooms the hero at the end (an object, a ritual, a word, a fact) is "
+    "shown or told clearly in the first half. Nothing is found by chance just when it is needed (no newspaper "
+    "lying there, no letter that falls out) and no one 'remembers' a rule nobody said before.\n"
+    "- RESTRAINT IS WHAT FRIGHTENS: plain, exact words; at most one adjective for a thing; no piles of gore; "
+    "exclamation marks rare (about one in ten lines); people whisper and hesitate more than they shout. The "
+    "ghost speaks very little (at most 6 short lines in the whole story) and is seen only in pieces until the end.\n"
+    "- Every line must make sense to a Bengali listener: real words, real objects, nothing that only sounds "
+    "dramatic. If the storyteller opens with a frame ('I am...', 'this letter...'), the frame closes at the end.\n")
 
 
 LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 22)     # two ~22-minute stories a day (2 PM, 8 PM)
@@ -1980,13 +1998,13 @@ def continuity_bridges(story, lang):
                 sc = story["scenes"][int(fx["n"])]
             except Exception:
                 continue
-            cl = str(fx.get("close", "")).strip()
+            cl = ""                                    # v103: no added closing lines (they echoed the line before)
             if cl:
                 sc.setdefault("lines", []).append({"speaker": str(fx.get("speaker") or "narrator"), "emotion": "eerie",
                                                    "text": cl, "en": ""})
                 n += 1
             b = str(fx.get("bridge", "")).strip()
-            if b and int(fx["n"]) > 0:
+            if b and int(fx["n"]) > 0 and n < 3:
                 sc.setdefault("lines", []).insert(0, {"speaker": "narrator", "emotion": "eerie", "text": b, "en": ""})
                 n += 1
         log(f"  continuity check: {n} bridge line(s) added")
@@ -2018,11 +2036,15 @@ def line_flow_check(story, lang):
               "(8) an abrupt jump - a scene that ends without its consequence, or a time/place change nobody says "
               "aloud; (9) a FLAT, weak line at a tense moment (a plain report where the listener should feel the "
               "fear) - make it sharp, concrete and frightening; (10) a scene that loses tension (people just talk "
-              "about what we already know). "
-              "Mend each with the SMALLEST change: replace that one line, or add ONE short line after a given line. "
+              "about what we already know); (11) a word or phrase that makes no sense in real Bengali / Hindi, or a "
+              "loud, overwritten line (piles of adjectives, shouting) - say it plainly and exactly; (12) a lucky "
+              "find or a rule nobody mentioned before that solves things - fix it where it is set up; (13) a line "
+              "that only says again what the line before said - DELETE it. "
+              "Mend each with the SMALLEST change: replace that one line, delete it, or (only when something is "
+              "truly missing) add ONE short line after a given line. "
               f"New text in {LANGS[lang]['name']} (pure Kolkata cholit for Bengali), the same speaker's way of "
               "talking, max 25 words, no English, no sound tags. At most 18 fixes; [] if the story flows. "
-              "Answer ONLY JSON: [{\"id\": \"scene.line\", \"replace\": \"new text\"} or "
+              "Answer ONLY JSON: [{\"id\": \"scene.line\", \"replace\": \"new text\"} or {\"delete\": \"scene.line\"} or "
               "{\"after\": \"scene.line\", \"speaker\": \"name or narrator\", \"insert\": \"new line\"}]\n"
               + "\n".join(rows))
     fixes = None
@@ -2044,9 +2066,14 @@ def line_flow_check(story, lang):
     if not isinstance(fixes, list):
         return 0
     names = {str(ln.get("speaker", "")).strip().lower() for sc in story["scenes"] for ln in sc.get("lines") or []}
-    inserts, n = [], 0
+    inserts, deletes, n = [], set(), 0
     for fx in fixes[:18]:
         if not isinstance(fx, dict):
+            continue
+        if fx.get("delete") in idx:                   # v103: a line that only repeats - out (never a whole scene)
+            i, j = idx[fx["delete"]]
+            if sum(1 for q in story["scenes"][i]["lines"] if str(q.get("text", "")).strip()) > 1:
+                deletes.add((i, j))
             continue
         if fx.get("id") in idx and str(fx.get("replace", "")).strip():
             i, j = idx[fx["id"]]
@@ -2060,11 +2087,21 @@ def line_flow_check(story, lang):
             spk = str(fx.get("speaker") or "narrator").strip()
             if spk.lower() not in names:
                 spk = "narrator"
-            if 2 <= len(new.split()) <= 30 and not re.search(r"[A-Za-z]{4,}", new):
+            i0, j0 = idx[fx["after"]]
+            prev_ = str(story["scenes"][i0]["lines"][j0].get("text", ""))
+            # (v103: an added line must be a whole sentence of its own and must not echo the line before)
+            if 5 <= len(new.split()) <= 30 and not re.search(r"[A-Za-z]{4,}", new) and not same_said(new, prev_):
                 inserts.append((idx[fx["after"]], {"speaker": spk, "emotion": "normal", "text": new, "en": ""}))
     for (i, j), ln in sorted(inserts, key=lambda z: z[0], reverse=True):   # from the end, so the numbers stay right
         story["scenes"][i]["lines"].insert(j + 1, ln)
         n += 1
+    for i, j in sorted(deletes, reverse=True):
+        if (i, j) not in {a for a, _l in inserts}:
+            j2 = j + sum(1 for (a, b), _l in inserts if a == i and b < j)
+            story["scenes"][i]["lines"][j2]["text"] = ""          # (cleaned away with the empty lines below)
+            n += 1
+    for sc_ in story["scenes"]:
+        sc_["lines"] = [q for q in sc_.get("lines") or [] if str(q.get("text", "")).strip()]
     log(f"  line-by-line check: {n} place(s) mended so every line follows the one before")
     return n
 
