@@ -5041,8 +5041,11 @@ def split_subs(text, max_len=44):
 
 
 def write_ass(segments, path, family, size=None, fs=(52, 54), margin_v=38, max_len=44):
-    """segments: (start, dur, is_narrator, text). Narration white, dialogue yellow with the speaker's name."""
+    """segments: (start, dur, is_narrator, text). Narration white, dialogue yellow with the speaker's name.
+    v101: KARAOKE - each word lights up as it is spoken (the words still to come are dim)."""
     w_, h_ = size or (W, H)
+    kara = env("KARAOKE") != "0"
+    sec_n, sec_t = ("&H00A8A8A8", "&H00507F8C") if kara else ("&H00FFFFFF", "&H0000E6FF")
     head = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {w_}
@@ -5051,8 +5054,8 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Nar,{family},{fs[0]},&H00FFFFFF,&H00FFFFFF,&H00000000,&H90000000,-1,0,0,0,100,100,0,0,1,4,2,2,40,40,{margin_v},1
-Style: Talk,{family},{fs[1]},&H0000E6FF,&H0000E6FF,&H00000000,&H90000000,-1,0,0,0,100,100,0,0,1,4,2,2,40,40,{margin_v},1
+Style: Nar,{family},{fs[0]},&H00FFFFFF,{sec_n},&H00000000,&H90000000,-1,0,0,0,100,100,0,0,1,4,2,2,40,40,{margin_v},1
+Style: Talk,{family},{fs[1]},&H0000E6FF,{sec_t},&H00000000,&H90000000,-1,0,0,0,100,100,0,0,1,4,2,2,40,40,{margin_v},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -5063,8 +5066,17 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         who = "" if is_nar else SUB_NAME.get(text, "")
         for c, (s0, s1) in zip(chunks, extras.sub_times(text, dur, chunks)):   # in step with the real voice
             label = ("{\\c&H00FFC060&}" + who + ":{\\c&H0000E6FF&} ") if who else ""
+            body = c
+            words = c.split()
+            if kara and len(words) > 1:
+                cs = max(len(words) * 8, int((s1 - s0) * 100 * 0.92))    # (the last words never lag behind)
+                wt = [max(2, len(w_)) for w_ in words]
+                tot = float(sum(wt))
+                body = " ".join("{\\kf" + str(max(6, int(cs * x / tot))) + "}" + w_ for w_, x in zip(words, wt))
+                if who:
+                    label = "{\\k0}" + label
             rows.append(f"Dialogue: 0,{ass_time(start + s0)},{ass_time(start + s1)},"
-                        f"{'Nar' if is_nar else 'Talk'},,0,0,0,,{label}{c}")
+                        f"{'Nar' if is_nar else 'Talk'},,0,0,0,,{label}{body}")
     with open(path, "w", encoding="utf-8") as f:
         f.write(head + "\n".join(rows) + "\n")
 
@@ -6279,7 +6291,21 @@ def choose_and_write(slot_hour, history):
                 theme = f"the SEQUEL of our hit story '{seq_.get('title')}'"
                 STATE["sequel_of"] = seq_.get("slot") or seq_.get("title")
                 extra_rules += sequel_rule(seq_, lang)
-            if not mine and not idea and not seq_ and not folk_:
+            req_ = None
+            if not mine and not folk_ and not seq_ and slot_hour == EVENING and cat in ("gram", "shohor", "jayga"):
+                try:                                 # v101: what viewers asked for in the comments
+                    req_ = request_for_story()
+                except Exception as e:
+                    log("  viewers' request skipped:", str(e)[:100])
+            if req_:
+                theme = str(req_.get("topic_en") or theme)
+                STATE["request_used"] = req_.get("topic_en")
+                extra_rules += (f"\nVIEWERS ASKED FOR THIS: {req_.get('count')} of our listeners asked in the comments "
+                                f"for a story about '{req_.get('topic_en')}'. The narrator's FIRST line says warmly that "
+                                f"many of you asked for a story about {req_.get('topic_bn') or req_.get('topic_en')} - "
+                                "here it is (no names of commenters).\n")
+                log(f"Viewers' request: {req_.get('topic_en')} ({req_.get('count')} asked)")
+            if not mine and not idea and not seq_ and not folk_ and not req_:
                 theme = trend_theme(cat, lang, history) or theme
             if folk_:
                 dn_ = DISTRICT[folk_["d"]][1] if folk_.get("d") in DISTRICT else ""
@@ -8588,6 +8614,27 @@ def weekly_report(history, force=False):
     by_t = {k: v for k, v in by_t.items() if v is not None}
     if len(by_t) == 2:
         lines.append("\n⏰ গড় view: " + " | ".join(f"{k}: {v:.0f}" for k, v in by_t.items()))
+    try:                                             # v101: which DAY and TIME work best (last 4 weeks)
+        cut_ = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=28)
+        month_ = [h for h in history if not h.get("kind") and S(h) and h.get("date")
+                  and dt.datetime.fromisoformat(h["date"]) >= cut_]
+        BN_WD = ["সোম", "মঙ্গল", "বুধ", "বৃহস্পতি", "শুক্র", "শনি", "রবি"]
+        grid_ = {}
+        for h in month_:
+            sl_ = str(h.get("slot") or "")
+            if "@" not in sl_:
+                continue
+            wd_ = dt.date.fromisoformat(sl_.split("@")[0]).weekday()
+            grid_.setdefault((wd_, sl_.split("@")[1]), []).append(float(S(h).get("views") or 0))
+        ranked = sorted(((sum(v) / len(v), k) for k, v in grid_.items() if len(v) >= 2), reverse=True)
+        if len(ranked) >= 4:
+            lab_ = lambda k: f"{BN_WD[k[0]]}বার {'দুপুর ২টো' if str(k[1]) == str(NOON) else 'রাত ৮টা'}"
+            lines.append(f"📅 গত ৪ সপ্তাহে সবচেয়ে ভালো: {lab_(ranked[0][1])} (গড় {ranked[0][0]:.0f}), সবচেয়ে কম: "
+                         f"{lab_(ranked[-1][1])} (গড় {ranked[-1][0]:.0f})")
+            if ranked[0][0] >= 2 * max(1.0, ranked[-1][0]):
+                lines.append("   👉 পরামর্শ: সবচেয়ে কম চলা দিনের গল্পটা ভালো দিনে সরানো যায় - চাইলে আমাকে বলবেন")
+    except Exception as e:
+        log("  day/time advice skipped:", str(e)[:100])
     cats = {}
     for h in week:
         if S(h) and h.get("category") in HORROR_CATS:
@@ -9044,6 +9091,20 @@ def daily_text_short(history):
             log(f"  Tuesday: a haunted place of Bengal - {ms['title']}")
     else:
         ms = None
+    topic_ = ""
+    if not ms and not MOCK and env("TREND_SHORT") != "0":
+        try:                                         # v101: something horror is going viral TODAY -> today's Short
+            used_t = {str(h.get("trend_topic")) for h in history if h.get("trend_topic")}
+            hot = extras.yt_trending("horror", lang, 6, sp="CAMSAggC")
+            hot = [v for v in hot if v.get("views", 0) >= int(env("TREND_MIN_VIEWS") or 20000) and v["title"] not in used_t]
+            if hot:
+                topic_ = hot[0]["title"]
+                ms = extras.micro_story(lang, avoid, topic=topic_)
+                if ms:
+                    ms["title"] = "🔥 " + ms["title"]
+                    log(f"  today's trend: {topic_[:60]} ({hot[0]['views']:,} views today)")
+        except Exception as e:
+            log("  trend Short skipped:", str(e)[:100])
     ms = ms or (extras.micro_story(lang, avoid) if not MOCK else {
         "title": "শেষ বাসের যাত্রী", "lines": ["রাত সাড়ে এগারোটার শেষ বাসে আমি একাই ছিলাম।", "কন্ডাক্টর দুটো টিকিট কাটল।",
                                              "জিজ্ঞেস করতেই বলল, আপনার পাশের দিদিরটা।", "আমার পাশের সিট ফাঁকা ছিল।"],
@@ -9134,6 +9195,8 @@ def daily_text_short(history):
         except Exception as e:
             log("  text Reel skipped:", str(e)[:150])
     if rec.get("youtube") or rec.get("facebook"):
+        if topic_:
+            rec["trend_topic"] = topic_
         key_ = STATE.pop("place_short", None)
         if key_ in DISTRICT and env("GHOST_MAP") != "0":     # the place goes on the ghost map too
             try:
@@ -9390,6 +9453,8 @@ def growth_links(lang):
         out.append(f"🔎 এই সপ্তাহের রহস্য-খাতা (প্রতিটা গল্পে একটা সূত্র লুকোনো): {base}khata.html")
     if adda_link():
         out.append(f"💬 গল্প নিয়ে রাতের আড্ডা (Telegram group): {adda_link()}")
+    if base and os.path.exists(os.path.join(MAP_DIR, "wiki.html")):
+        out.append(f"📚 ভূতের বিশ্বকোষ - সব সিরিজ, চরিত্র আর পর্ব: {base}wiki.html")
     sp = _clean_url(env("SPOTIFY_URL"))              # v87: the Spotify page itself (the feed file is for apps only)
     if sp:
         out.append(f"🎧 Spotify-তে শুনুন: {sp}")
@@ -9666,7 +9731,8 @@ def growth_start(history):
         extras.tg_requests_answer(ASSETS, f"https://youtu.be/{last1['youtube']}" if last1 else "")
     except Exception as e:
         log("  Telegram story requests skipped:", str(e)[:100])
-    for fn_, nm_ in ((folk_process, "listeners' ghost map"), (khata_sunday, "weekly mystery"),
+    for fn_, nm_ in ((lambda: request_mining(history), "viewers' requests"),
+                     (folk_process, "listeners' ghost map"), (khata_sunday, "weekly mystery"),
                      (lambda: extras.adda_summary(ASSETS, env("GEMINI_API_KEY")), "night adda")):
         try:                                         # v95
             fn_()
@@ -9798,6 +9864,11 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
             changed.append(MAP_DIR)
         except Exception as e:
             log("  web story skipped:", str(e)[:150])
+    try:                                             # v101: the encyclopedia page
+        if base and wiki_page(history):
+            changed.append(MAP_DIR)
+    except Exception as e:
+        log("  wiki page skipped:", str(e)[:100])
     # v95: the weekly mystery's clue of this story on the website; the night adda question (8 PM story)
     try:
         if story.get("khata_clue") is not None and khata_record(story, title, results):
@@ -9825,6 +9896,21 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
                 ep_ = {"guid": story_slug(), "title": title, "url": url, "bytes": os.path.getsize(mp3),
                        "secs": duration(video), "date": pub.strftime("%a, %d %b %Y %H:%M:%S +0000"),
                        "desc": str(story.get("description", ""))[:600]}
+                try:                                 # v101: the episode's own square picture (its thumbnail)
+                    pdir_ = os.path.join(MAP_DIR, "podcast")
+                    os.makedirs(pdir_, exist_ok=True)
+                    im_ = Image.open(thumb).convert("RGB")
+                    s_ = min(im_.size)
+                    im_ = im_.crop(((im_.width - s_) // 2, (im_.height - s_) // 2, (im_.width + s_) // 2,
+                                    (im_.height + s_) // 2)).resize((1400, 1400), Image.LANCZOS)
+                    pimg_ = os.path.join(pdir_, f"{story_slug()}.jpg")
+                    for q_ in (85, 75, 65):
+                        im_.save(pimg_, quality=q_, optimize=True)
+                        if os.path.getsize(pimg_) <= 500_000:
+                            break
+                    ep_["image"] = f"{base}podcast/{story_slug()}.jpg"
+                except Exception as e:
+                    log("  episode picture skipped:", str(e)[:100])
                 try:                                 # v96 (H3): the words and the chapters, for Spotify / Apple
                     ep_.update(podcast_extras(story_slug(), base))
                 except Exception as e:
@@ -10550,6 +10636,12 @@ def main():
                 log(f"  'last episode' card: {prev_ep['title'][:60]}")
         except Exception as e:
             log("  last-episode card skipped:", str(e)[:150])
+    if lang == "bn" and env("LISTEN_BADGE") != "0" and (env("SPOTIFY_URL") or env("APPLE_PODCAST") != "0"):
+        try:                                         # v101: 'also on Spotify / Apple Podcasts' at the start
+            cards_.append((extras.listen_badge_png((W, H), os.path.join(WORK, "listen_badge.png"), FONT,
+                                                   os.path.join(ASSETS, "badges"), lang), 6.0, 6.0))
+        except Exception as e:
+            log("  listen badge skipped:", str(e)[:100])
     try:                                             # v84: a small card for one of our features (every 2nd video)
         pc_ = promo_card_for(lang, duration(video))
         if pc_:
@@ -10869,6 +10961,214 @@ def make_series_full(history):
             log("  full story skipped:", str(e)[:200])
 
 
+# ===================================================================================================== v101
+def wiki_page(history):
+    """docs/wiki.html - 'ভূতের বিশ্বকোষ': every series with its people and all its episodes in order, and every
+    district with its stories, listeners' legends and haunted places. Rebuilt after each story."""
+    import html
+    if MOCK or env("WIKI") == "0":
+        return False
+    e = lambda s: html.escape(str(s or ""))
+    def links_of(h):
+        o = ""
+        if h.get("youtube"):
+            o += f'<a href="https://youtu.be/{e(h["youtube"])}">▶ YouTube</a> '
+        if h.get("facebook"):
+            o += f'<a href="https://www.facebook.com/{e(h["facebook"])}">▶ Facebook</a>'
+        return o
+    eps = lambda sp: [h for h in history if h.get("special") == sp and not h.get("kind") and (h.get("youtube") or h.get("facebook"))]
+    nav, body = [], ""
+    series = [(sp, head, about, []) for sp, head, about in CASE_SERIES] + \
+             [(k, f"{v.get('icon', '')} {v['bn']}", v.get("about", ""), v.get("cast") or []) for k, v in NEW_SERIES.items()]
+    for sp, head, about, cast in series:
+        rows = eps(sp)
+        if not rows and not cast:
+            continue
+        nav.append(f'<a href="#{e(sp)}">{e(head)}</a>')
+        people = "".join(f"<li><b>{e(c.get('name_local') or c.get('name'))}</b></li>" for c in cast)
+        lst = "".join(f"<li>{e(re.sub(r'[|].*$', '', str(h.get('title', ''))).strip())} <small>{e(str(h.get('date', ''))[:10])}"
+                      f"</small><br>{links_of(h)}</li>" for h in rows)
+        body += (f'<section id="{e(sp)}"><h2>{e(head)}</h2><p class="a">{e(about)}</p>'
+                 + (f"<h3>চরিত্র</h3><ul>{people}</ul>" if people else "")
+                 + f"<h3>সব পর্ব ({len(rows)})</h3><ol>{lst or '<li>প্রথম পর্ব আসছে</li>'}</ol></section>")
+    items = _jload(MAP_JSON, [])
+    by_d = {}
+    for x in items if isinstance(items, list) else []:
+        by_d.setdefault(x.get("dn") or "", []).append(x)
+    dsec = ""
+    for dn, xs in sorted(by_d.items(), key=lambda kv: -len(kv[1])):
+        if not dn:
+            continue
+        li = ""
+        for x in xs:
+            kind_ = "🗺️ শ্রোতার লোককথা" if x.get("folk") else ("📍 ভূতুড়ে জায়গা" if x.get("cat") == "ভূতুড়ে জায়গা" else "👻 গল্প")
+            lk = (f'<a href="{e(x["yt"])}">▶ YouTube</a> ' if x.get("yt") else "") + (f'<a href="{e(x["fb"])}">▶ Facebook</a>' if x.get("fb") else "")
+            li += f"<li>{kind_}: {e(x.get('t'))}" + (f"<br><small>{e(x.get('s'))}</small>" if x.get("s") else "") + f"<br>{lk}</li>"
+        dsec += f"<details><summary>{e(dn)} ({len(xs)})</summary><ul>{li}</ul></details>"
+    page = ("<!doctype html><html lang='bn'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,"
+            "initial-scale=1'><title>ভূতের বিশ্বকোষ - Daily Horror Story</title><meta name='description' content='বাংলা "
+            "ভূতের গল্পের সব সিরিজ, চরিত্র, পর্ব আর জেলা ধরে ধরে গল্প।'><style>body{margin:0;background:#0b0b10;color:#f2efe9;"
+            "font-family:'Noto Sans Bengali',system-ui,sans-serif}main{max-width:860px;margin:0 auto;padding:16px}"
+            "h1{color:#ffcf4a}h2{color:#ffcf4a;border-bottom:1px solid #333;padding-bottom:6px}a{color:#ffd9d9}.a{color:#a9a3b5}"
+            "li{margin:8px 0}nav a{display:inline-block;margin:4px 8px 4px 0;background:#16161f;padding:6px 10px;"
+            "border-radius:8px;text-decoration:none}details{background:#16161f;margin:8px 0;padding:10px;border-radius:10px}"
+            "summary{cursor:pointer;font-weight:700}</style></head><body><main><h1>📚 ভূতের বিশ্বকোষ</h1>"
+            "<p class='a'>আমাদের সব সিরিজ, তাদের চরিত্র আর সব পর্ব - আর বাংলার প্রতিটা জেলার গল্প, শ্রোতাদের লোককথা ও "
+            f"ভূতুড়ে জায়গা।</p><nav>{''.join(nav)}<a href='#district'>🗺️ জেলা ধরে</a></nav>{body}"
+            f"<section id='district'><h2>🗺️ জেলা ধরে</h2>{dsec}</section><p><a href='./'>← ভূতের মানচিত্র</a> · "
+            "<a href='cases.html'>📁 কেস ফাইল</a> · <a href='golpo/'>📖 সব গল্প</a></p></main></body></html>")
+    os.makedirs(MAP_DIR, exist_ok=True)
+    pth = os.path.join(MAP_DIR, "wiki.html")
+    old = open(pth, encoding="utf-8").read() if os.path.exists(pth) else ""
+    if old == page:
+        return False
+    with open(pth, "w", encoding="utf-8") as f:
+        f.write(page)
+    return True
+
+
+REQ_FILE = os.path.join(ASSETS, "requests.json")
+
+
+def request_mining(history):
+    """once a week: what viewers ASKED FOR on their own in the comments ('শ্মশান নিয়ে গল্প বলুন') -> a list of
+    topics with how many asked; the 8 PM story takes the most-asked one (and says so)"""
+    if MOCK or env("VIEWER_REQUESTS") == "0":
+        return False
+    rq = _jload(REQ_FILE, {}) or {}
+    wk = f"{dt.datetime.now(extras.IST).isocalendar()[0]}-W{dt.datetime.now(extras.IST).isocalendar()[1]:02d}"
+    if rq.get("week") == wk:
+        return False
+    texts = []
+    for h in [h for h in history if not h.get("kind") and (h.get("facebook") or h.get("youtube"))][-14:]:
+        try:
+            texts += [c for c in extras.comment_texts(h.get("facebook"), h.get("youtube")) if 6 <= len(c) <= 300][:40]
+        except Exception:
+            pass
+    rq["week"] = wk
+    if len(texts) < 5:
+        _jsave(REQ_FILE, rq)
+        return False
+    got = _gem_json("These are viewers' comments under our Bengali horror stories. Find ONLY the story topics that "
+                    "viewers explicitly ASKED us to make (e.g. 'please tell a story about a cremation ground'), merge "
+                    "the same wishes, count how many different comments asked for each. Ignore praise, questions and "
+                    "anything else. Answer ONLY JSON: [{\"topic_en\": \"short English topic\", \"topic_bn\": \"the same "
+                    "in simple Bengali (3-8 words)\", \"count\": n}] ([] if nobody asked)\n" +
+                    "\n".join(f"- {x[:300]}" for x in texts[:300]))
+    old = {str(x.get("topic_en", "")).lower(): x for x in rq.get("items") or []}
+    for x in got if isinstance(got, list) else []:
+        k = str(x.get("topic_en", "")).strip().lower()
+        if not k:
+            continue
+        if k in old:
+            old[k]["count"] = int(old[k].get("count", 0)) + int(x.get("count") or 1)
+        else:
+            old[k] = {"topic_en": x.get("topic_en"), "topic_bn": x.get("topic_bn"), "count": int(x.get("count") or 1)}
+    rq["items"] = sorted(old.values(), key=lambda x: -int(x.get("count") or 0))[:40]
+    _jsave(REQ_FILE, rq)
+    try:
+        push_now([REQ_FILE], "viewers' story requests")
+    except Exception:
+        pass
+    log(f"  viewers' requests this week: {len(got) if isinstance(got, list) else 0} topic(s)")
+    return True
+
+
+def request_for_story():
+    rq = _jload(REQ_FILE, {}) or {}
+    for x in rq.get("items") or []:
+        if not x.get("used") and int(x.get("count") or 0) >= int(env("REQUEST_MIN") or 2):
+            x["used"] = dt.datetime.now(extras.IST).date().isoformat()
+            _jsave(REQ_FILE, rq)
+            try:
+                push_now([REQ_FILE], "a viewers' request becomes a story")
+            except Exception:
+                pass
+            return x
+    return None
+
+
+DFULL_FILE = os.path.join(ASSETS, "district_full.json")
+
+
+def district_full(history, L, lang="bn"):
+    """second Sunday of the month: ONE district's stories joined into one long video ('পুরুলিয়ার ভূতের গল্প') -
+    people search their own district's name. No new voice."""
+    if MOCK or DRY_RUN or env("DISTRICT_FULL") == "0":
+        return False
+    done = _jload(DFULL_FILE, {}) or {}
+    month = dt.datetime.now(extras.IST).strftime("%Y-%m")
+    if done.get("month") == month:
+        return False
+    items = _jload(MAP_JSON, [])
+    by_d = {}
+    for x in items if isinstance(items, list) else []:
+        if x.get("fb") and not x.get("folk") and x.get("cat") != "ভূতুড়ে জায়গা" and x.get("d") in DISTRICT:
+            by_d.setdefault(x["d"], []).append(x)
+    used = set(done.get("used") or [])
+    cands = sorted(((len(v), k) for k, v in by_d.items() if len(v) >= 3 and k not in used), reverse=True)
+    if not cands:
+        return False
+    key = cands[0][1]
+    dn = DISTRICT[key][1]
+    clips, chapters, t_ = [], [], 0.0
+    for x in by_d[key][:6]:
+        if t_ > 75 * 60:
+            break
+        try:
+            vid = re.sub(r".*[=/]", "", x["fb"])
+            src, _ = extras.fb_video_source(vid)
+            if not src:
+                continue
+            raw = extras.download(src, os.path.join(WORK, f"draw_{len(clips)}.mp4"))
+            c = extras.normalize_clip(raw, os.path.join(WORK, f"d_{len(clips):02d}.mp4"))
+            os.remove(raw)
+            chapters.append((t_, x.get("t", "")))
+            t_ += duration(c)
+            clips.append(c)
+        except Exception as e:
+            log("  one district story skipped:", str(e)[:100])
+    if len(clips) < 2:
+        return False
+    lst = os.path.join(WORK, "district.txt")
+    with open(lst, "w") as f:
+        f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
+    video = os.path.join(WORK, "district_full.mp4")
+    run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", "-movflags", "+faststart", video])
+    fr = os.path.join(WORK, "district_frame.jpg")
+    run(["ffmpeg", "-y", "-ss", f"{min(60, t_ / 4):.1f}", "-i", video, "-frames:v", "1", fr])
+    thumb = os.path.join(WORK, "district_thumb.jpg")
+    try:
+        extras.poster_thumbnail(fr, f"{dn}-এর ভূত", f"{len(clips)}টা গল্প একটানা", thumb, "horror", FONT)
+    except Exception:
+        make_thumbnail(fr, f"{dn}-এর ভূতের গল্প", thumb, L["label"])
+    title = f"{dn}-এর ভূতের গল্প | {len(clips)}টা গল্প একটানা | Bengali Horror Stories"[:95]
+    chap = L["chapters"] + "\n" + "\n".join(f"{extras.fmt_time(s)} {n_}" for s, n_ in chapters)
+    tags = ["#ভূতেরগল্প", f"#{dn.replace(' ', '')}", "#BhuterGolpo", "#BengaliHorrorStory"]
+    description = f"{title}\n\n{dn} জেলার লোককথা আর ভূতের গল্প এক জায়গায়।\n\n{chap}\n\n{L['ai_note']}\n\n{' '.join(tags)}"
+    res = {}
+    try:
+        res["facebook"] = post_to_facebook(video, thumb, title, description)
+    except Exception as e:
+        log("  district video (Facebook) skipped:", str(e)[:150])
+    if youtube_ready() and extras.yt_extra_ok():
+        try:
+            res["youtube"] = post_to_youtube(video, thumb, title, description, tags, lang)
+        except Exception as e:
+            log("  district video (YouTube) skipped:", str(e)[:150])
+    if res:
+        history.append({"date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "lang": lang,
+                        "kind": "district_full", "title": title, **res})
+        save_history(history)
+    _jsave(DFULL_FILE, {"month": month, "used": sorted(used | {key})})
+    push_now([DFULL_FILE], "district video")
+    for c in clips + [video]:
+        if os.path.exists(c):
+            os.remove(c)
+    log(f"District video: {title}")
+    return bool(res)
+
+
 def make_compilation(history):
     """Sunday special: this week's stories (one language) joined into one long video with chapters.
     First, every big story finished this week is posted as one full video."""
@@ -10877,6 +11177,11 @@ def make_compilation(history):
         make_series_full(history)
     except Exception as e:
         log("  full stories skipped:", str(e)[:200])
+    if 8 <= dt.datetime.now(extras.IST).day <= 14:     # v101: second Sunday - one district's stories in one video
+        try:
+            district_full(history, LANGS["bn"], "bn")
+        except Exception as e:
+            log("  district video skipped:", str(e)[:150])
     if env("MARATHON") != "0" and dt.datetime.now(extras.IST).day <= 7:   # v63: first Sunday of the month
         try:
             if make_marathon(history):
@@ -11208,6 +11513,47 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     return out
 
 
+def trilogy_windows(segs, part_times, n=3, max_len=48.0):
+    """n back-to-back pieces of the story (from its real start), each ending at the end of a line - only the first
+    ~60% of the story (never the ending)"""
+    if len(part_times) < 3 or not segs:
+        return []
+    st = part_times[min(STORY_PART[0], len(part_times) - 2)]
+    limit = st + (part_times[-1] - st) * 0.6
+    out, cur = [], max(0.0, st - 0.2)
+    for _ in range(n):
+        end = cur
+        for s, d, *_r in segs:
+            if s >= cur and s + d <= limit and s + d - cur <= max_len:
+                end = s + d
+        if end - cur < 20:
+            break
+        out.append((cur, end + 0.4))
+        cur = end + 0.05
+    return out if len(out) == n else []
+
+
+def reel_trilogy(video, story, title, L, fb_full):
+    """v101: the 8 PM story's gripping beginning as 3 Facebook Reels on the next 3 days (12:30 PM), each ending on a
+    cliffhanger and pointing to the full story"""
+    wins = trilogy_windows(TIMELINE[1], TIMELINE[0])
+    if not wins:
+        raise RuntimeError("story too short for 3 pieces")
+    clean = re.sub(r"\s*\|.*$", "", title).strip()
+    ids = []
+    base_day = dt.datetime.now(extras.IST).replace(hour=12, minute=30, second=0, microsecond=0)
+    for k, (s, e) in enumerate(wins, 1):
+        out = os.path.join(WORK, f"trilogy_{k}.mp4")
+        extras.make_teaser(video, s, e, out, FONT, clean, (f"পর্ব {k}/৩ - পুরো গল্প link-এ" if L.get("name") == "Bengali"
+                                                        else f"भाग {k}/3 - पूरी कहानी link में"), WORK,
+                           tagline=str(story.get("tagline") or ""), colors=((255, 230, 0), (150, 0, 20)))
+        desc = (f"{clean} - পর্ব {k}/৩ 👻\n\n" + ("▶ বাকিটা কাল এই সময়ে - " if k < 3 else "") +
+                f"পুরো গল্প এখনই শুনুন: {fb_full}")
+        ids.append(extras.fb_post_reel(out, desc, at=base_day + dt.timedelta(days=k)))
+    log(f"Reel trilogy: 3 parts scheduled for the next 3 days at 12:30 PM ({', '.join(str(i) for i in ids)})")
+    return ids
+
+
 def grow(video, story, title, lang, L, tags, results, history, page):
     """Extra reach after the main post: Reel + Short teaser, first comment, playlist. Never stops the run."""
     out = {}
@@ -11261,7 +11607,14 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 log("Shared to Facebook Story:", out["fb_story"])
         except Exception as e:
             log("  Facebook Story skipped:", str(e)[:200])
-        if env("SECOND_REEL") != "0":                # a second Reel from another moment, 2 hours later
+        trilogy = STATE.get("slot_hour") == EVENING and env("REEL_TRILOGY") != "0"
+        if trilogy:
+            try:                                     # v101: the story's gripping start as 3 Reels on 3 days
+                out["fb_trilogy"] = reel_trilogy(video, story, title, L, fb_full)
+            except Exception as e:
+                log("  Reel trilogy skipped:", str(e)[:200])
+                trilogy = False
+        if env("SECOND_REEL") != "0" and not trilogy:   # a second Reel from another moment, 2 hours later
             try:
                 pt_, sg_ = TIMELINE[0], TIMELINE[1]
                 s2, e2 = extras.pick_window(sg_, pt_, max(2, (len(pt_) * 3) // 5))
