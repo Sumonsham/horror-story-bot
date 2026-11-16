@@ -2966,6 +2966,7 @@ SPK_VOICED = {}                 # seconds of speech per letter of every voice (p
 
 
 CUT_HOW = [""]                  # how the last recording was cut: "count" (as many clear pauses as line ends) / "length"
+SUSPECT_NEIGH = {}              # v102: line file -> ("short"/"long", the lines next to it in the same recording)
 SUSPECT = []                    # (how far off, line file) - lines whose length does not fit their words (maybe cut wrong)
 TTS_SPARE = [0]                 # requests of today's share that are free for asking a recording again
 SAMPLE = {"dir": None, "max": 16}   # a few raw recordings + their text are kept, to tune the cutting on REAL sound
@@ -3494,6 +3495,10 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45, max_requests=None)
                     r_ = voiced[k] / (lchars[k] * ref)
                     if (r_ > 1.45 and voiced[k] - lchars[k] * ref >= 1.0) or r_ < 0.62:
                         SUSPECT.append((abs(math.log(r_)) + (0.15 if how == "length" else 0), ln))
+                        # v102: a line too SHORT lost words to the line next to it in this recording - making it
+                        # again alone would put those words in TWICE, so its neighbours are made again with it
+                        SUSPECT_NEIGH[ln] = ("short" if r_ < 1 else "long",
+                                             [lines[q] for q in (k - 1, k + 1) if 0 <= q < len(lines)])
                         odd += 1
             SPK_VOICED[vk] = ref if vk not in SPK_VOICED else SPK_VOICED[vk] * 0.6 + ref * 0.4
         if chars >= 60 and not broken:

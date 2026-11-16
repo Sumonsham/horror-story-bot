@@ -2013,10 +2013,15 @@ def line_flow_check(story, lang):
               "Read it like a strict film editor. Find ONLY real breaks in the flow: (1) a reply that does not fit "
               "the line before it; (2) a line or event that comes from nowhere; (3) a person who knows something he "
               "was never told; (4) a person, object or place used before it was introduced; (5) a dead or absent "
-              "person speaking; (6) a fact that contradicts an earlier line; (7) the same thing told twice. "
+              "person speaking; (6) a fact that contradicts an earlier line; (7) the same thing told twice (anywhere in the "
+              "story, also in other words - replace the later one with something NEW that moves the story on); "
+              "(8) an abrupt jump - a scene that ends without its consequence, or a time/place change nobody says "
+              "aloud; (9) a FLAT, weak line at a tense moment (a plain report where the listener should feel the "
+              "fear) - make it sharp, concrete and frightening; (10) a scene that loses tension (people just talk "
+              "about what we already know). "
               "Mend each with the SMALLEST change: replace that one line, or add ONE short line after a given line. "
               f"New text in {LANGS[lang]['name']} (pure Kolkata cholit for Bengali), the same speaker's way of "
-              "talking, max 25 words, no English, no sound tags. At most 12 fixes; [] if the story flows. "
+              "talking, max 25 words, no English, no sound tags. At most 18 fixes; [] if the story flows. "
               "Answer ONLY JSON: [{\"id\": \"scene.line\", \"replace\": \"new text\"} or "
               "{\"after\": \"scene.line\", \"speaker\": \"name or narrator\", \"insert\": \"new line\"}]\n"
               + "\n".join(rows))
@@ -2040,7 +2045,7 @@ def line_flow_check(story, lang):
         return 0
     names = {str(ln.get("speaker", "")).strip().lower() for sc in story["scenes"] for ln in sc.get("lines") or []}
     inserts, n = [], 0
-    for fx in fixes[:12]:
+    for fx in fixes[:18]:
         if not isinstance(fx, dict):
             continue
         if fx.get("id") in idx and str(fx.get("replace", "")).strip():
@@ -2088,7 +2093,7 @@ def ensure_ending(story, lang, cut_short=False):
               "person, no new event. Then the narrator's resolution and one last chilling line. "
               f"Lines in {LANGS[lang]['name']} (Bengali: pure Kolkata cholit). Answer ONLY JSON: "
               "{\"complete\": false, \"lines\": [{\"speaker\": name or \"narrator\", \"emotion\": one word, "
-              "\"text\": line, \"en\": english}], \"ending_line\": last chilling line}")
+              "\"text\": line, \"en\": english}], \"ending_line\": last chilling line (NOT also one of the lines)}")
     for model in gemini_models(key)[:2]:
         try:
             r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
@@ -2334,6 +2339,8 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     for k in ("ending_line", "next_story", "comment_question", "guess", "mystery_answer", "episode_summary"):
         if end.get(k):
             story[k] = end[k]
+    if chapters[0].get("cold_open"):                 # v102: the new opening line is written with the first chapter
+        story["cold_open"] = chapters[0]["cold_open"]
     story["summary"] = summary.strip()
     try:
         fix_language(story, lang)
@@ -2343,15 +2350,15 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
         continuity_bridges(story, lang)
     except Exception as e:
         log("  continuity check skipped:", str(e)[:120])
-    try:
-        line_flow_check(story, lang)
-    except Exception as e:
-        log("  line-by-line check skipped:", str(e)[:120])
-    if ending == "resolve":
+    if ending == "resolve":                           # v102: the closing first, so the line check reads it too
         try:
             ensure_ending(story, lang, cut_short=bool(STATE.pop("ending_cut", False)))
         except Exception as e:
             log("  ending check skipped:", str(e)[:120])
+    try:
+        line_flow_check(story, lang)
+    except Exception as e:
+        log("  line-by-line check skipped:", str(e)[:120])
     words = sum(len(str(ln.get("text", "")).split()) for sc in story["scenes"] for ln in sc.get("lines") or [])
     log(f"LONG STORY: {len(chapters)} chapters, {len(story['scenes'])} scenes, {words} words "
         f"(~{words / wpm:.0f} minutes of video)")
@@ -2690,7 +2697,8 @@ Return ONLY JSON with exactly these keys:
                            "people": [{{"name": "a character name exactly as in characters", "pose": "lying / sitting / standing / crouching / hiding / running / frozen / floating ...", "doing": "exactly what the body and HANDS do, e.g. 'gripping the lantern with both hands'", "where": "left / middle / right of the frame, and on or near what (in the doorway, under the bed, behind the tree)", "feeling": "facial expression and emotion, e.g. 'wide eyes, frozen in terror'"}}],
                            "characters": ["names VISIBLE in this picture, in order from LEFT to RIGHT; [] if only a place or object is shown"]}}}}]
  }}],
- "ending_line": "one short {L['name']} line from the narrator that leaves a chill",
+ "ending_line": "one short {L['name']} line from the narrator that leaves a chill - NOT a line already in the last scene",
+ "cold_open": {{"speaker": "who says it (usually the ghost, or a terrified character)", "text": "{L['name']}: ONE NEW line (max 14 words) heard in the very first seconds before the title - a threat, a cry, a chilling question from the scariest moment. It must NOT be any line of the story (different words, never a copy) and never tell the ending"}},
  "comment_question": "one short {L['name']} question to viewers that makes them comment (e.g. 'आप होते तो क्या करते?'), with 1 emoji",
  "mystery_answer": "only for a which-suspect mystery: the right number (1, 2 or 3) as asked in the story; otherwise 0",
  "teaser_scene": "number: the scene (1 = first) where the most gripping 50 seconds START - used for the Reel/Short teaser",
@@ -3535,6 +3543,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         total_need = sum(need.values())
         extras.TTS_SPARE[0] = max(0, left - total_need)
         del extras.SUSPECT[:]
+        extras.SUSPECT_NEIGH.clear()
         if VOICE_CONTEXT[0] == "main" and env("VOICE_SAMPLES") != "0":   # a few raw recordings for tuning the cutting
             extras.SAMPLE["dir"] = VOICE_SAMPLES
         log(f"  today's free voice requests left: {left}; the whole cast needs {total_need} "
@@ -3565,49 +3574,63 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         # of the neighbouring line got into them) are made again ALONE, the worst first. A line alone needs no cutting.
         by_out = {it["out"]: it for _t, it in pairs_of(set(gem))}
         fixed_n, seen_ = 0, set()
+
+        def unit_of(ln_):
+            """v102: the lines to make again TOGETHER. A line that came out too short lost words to the line next to
+            it - made again alone, those words would be heard TWICE (once at the end of its neighbour, once in the
+            new recording). So a short line is only made again together with its neighbours."""
+            kind, nb = extras.SUSPECT_NEIGH.get(ln_, ("long", []))
+            u = [ln_] + ([q for q in nb if q in by_out] if kind == "short" else [])
+            return [q for q in dict.fromkeys(u) if q not in seen_]
+
+        def remake(unit, maker, tag):
+            outs = {}
+            try:
+                for q in unit:
+                    it = by_out[q]
+                    tmp_ = it["out"] + f".{tag}.wav"
+                    if not (maker(it, tmp_) and os.path.exists(tmp_) and os.path.getsize(tmp_) > 2000):
+                        raise RuntimeError("no recording")
+                    outs[q] = tmp_
+                for q, tmp_ in outs.items():         # all or nothing: never half a fix (that makes a repeat)
+                    os.replace(tmp_, by_out[q]["out"])
+                return len(unit)
+            except Exception as e:
+                log(f"  doubtful line(s) left as they were ({tag}):", str(e)[:100])
+                return 0
+            finally:
+                for tmp_ in outs.values():
+                    if os.path.exists(tmp_):
+                        os.remove(tmp_)
+
+        def gem_make(it, tmp_):
+            extras.TTS_USED[0] += 1
+            return extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
+                                     + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], tmp_, SR)
+
         for _dev, ln_ in sorted(extras.SUSPECT, key=lambda z: -z[0]):
             if extras.TTS_USED[0] >= left or not extras.gemini_quota_left() or extras.TTS_STATE["off"]:
                 break
-            it = by_out.get(ln_)
-            if not it or ln_ in seen_:
+            if ln_ not in by_out or ln_ in seen_:
                 continue
-            seen_.add(ln_)
-            tmp_ = it["out"] + ".alone.wav"
-            extras.TTS_USED[0] += 1
-            try:
-                if extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
-                                     + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], tmp_, SR) \
-                        and os.path.exists(tmp_) and os.path.getsize(tmp_) > 2000:
-                    os.replace(tmp_, it["out"])
-                    fixed_n += 1
-            except Exception as e:
-                log("  a doubtful line could not be made again:", str(e)[:100])
-            finally:
-                if os.path.exists(tmp_):
-                    os.remove(tmp_)
-        # v91: doubtful lines that are still left (no Gemini request free): ONE line in the Chirp voice of the same
-        # name - a line alone can never come out twice
+            unit = unit_of(ln_)
+            if extras.TTS_USED[0] + len(unit) > left:
+                continue                              # (not enough left for the whole unit: Chirp below)
+            seen_.update(unit)
+            fixed_n += remake(unit, gem_make, "alone")
+        # v91: doubtful lines that are still left (no Gemini request free): in the Chirp voice of the same name -
+        # a line alone can never come out twice (v102: a short line together with its neighbours)
         chirp_fixed = 0
         if extras.chirp_ok(TTS_USAGE) and env("SUSPECT_CHIRP") != "0":
             for _dev, ln_ in sorted(extras.SUSPECT, key=lambda z: -z[0]):
-                if ln_ in seen_ or _dev < 0.45:       # only a line clearly read twice (or missing half its words)
+                if ln_ in seen_ or ln_ not in by_out or _dev < 0.45:   # only a line clearly read twice / cut short
                     continue
-                it = by_out.get(ln_)
-                if not it:
-                    continue
-                seen_.add(ln_)
-                tmp_ = it["out"] + ".chirp.wav"
-                try:
-                    if extras.chirp_tts(it["plain"], it["voice"], tmp_, SR, TTS_USAGE, lang) and os.path.getsize(tmp_) > 2000:
-                        os.replace(tmp_, it["out"])
-                        chirp_fixed += 1
-                except Exception as e:
-                    log("  a doubtful line could not get the Chirp voice:", str(e)[:100])
-                finally:
-                    if os.path.exists(tmp_):
-                        os.remove(tmp_)
+                unit = unit_of(ln_)
+                seen_.update(unit)
+                chirp_fixed += remake(unit, lambda it, tmp_: extras.chirp_tts(it["plain"], it["voice"], tmp_, SR,
+                                                                             TTS_USAGE, lang), "chirp")
             if chirp_fixed:
-                log(f"  {chirp_fixed} doubtful line(s) made again alone in the Chirp voice (nothing heard twice)")
+                log(f"  {chirp_fixed} doubtful line(s) made again in the Chirp voice (nothing heard twice)")
         log(f"  recordings cut with the machine reading: {extras.CUT_STATS[0]}, by the length of the words only: "
             f"{extras.CUT_STATS[1]}; doubtful lines: {len({l_ for _d, l_ in extras.SUSPECT})}, made again alone: {fixed_n}")
         if extras.SAMPLE.get("dir") and os.path.isdir(VOICE_SAMPLES):
@@ -10551,7 +10574,7 @@ def main():
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
-    hk = None if env("HOOK_OPEN") == "0" else pick_hook(scenes, story)
+    hk = None if env("HOOK_OPEN") == "0" else cold_open_hook(scenes, story, lang)
     cold = False
     if hk:                                         # 1) the gripping moment, 2) the title, 3) the story from its start
         hi, hlines = hk
@@ -10576,8 +10599,12 @@ def main():
     vote_text = ""
     if not NO_BAIT and choice and choice.get("question") and choice.get("option1") and choice.get("option2"):
         vote_text = L["vote_line"].format(q=choice["question"], o1=choice["option1"], o2=choice["option2"])
-    if story.get("ending_line"):
-        end_lines.append({"speaker": "narrator", "text": story["ending_line"]})
+    if story.get("ending_line"):                     # v102: never when the story already ends with these words
+        tail_ = [x for sc in scenes[-2:] for ln in sc.get("lines") or [] for x in split_sentences(str(ln.get("text", "")))]
+        if any(same_said(x, tail_s) for x in split_sentences(str(story["ending_line"])) for tail_s in tail_):
+            log("  the last line is already in the story - not said again")
+        else:
+            end_lines.append({"speaker": "narrator", "text": story["ending_line"]})
     if vote_text:
         end_lines.append({"speaker": "narrator", "text": vote_text})
     if hidden and not NO_BAIT:
@@ -10607,6 +10634,10 @@ def main():
     rest = end_lines[1:] + [{"speaker": "narrator", "text": (L["outro_short"] if asked else L["outro"]).format(page=page)}]
     parts.append({"image": last_img, "lines": rest, "sounds": ["wind"], "mood": "creepy", "voices": voices})
 
+    try:
+        no_line_twice(parts)
+    except Exception as e:
+        log("  repeat check of the whole video skipped:", str(e)[:100])
     STING_AT[0] = 1 if cold else 0      # the show's sound with the title, right after the hook
     HOOK_TEXT[0] = str(story.get("thumbnail_text") or "").strip()
     video = os.path.join(WORK, "final.mp4")
@@ -11350,6 +11381,104 @@ def _video_clip(video, st, dur, out, text=""):
          "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-c:a", "aac", "-b:a", "160k",
          "-ar", "44100", "-ac", "2", "-t", f"{dur:.2f}", out])
     return out
+
+
+def _said_key(s):
+    return re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", extras.strip_tags(str(s)))
+
+
+def same_said(a, b):
+    """v102: two sentences that a listener hears as the SAME thing (a few words changed is still the same)"""
+    from difflib import SequenceMatcher
+    ka, kb = (_said_key(a), _said_key(b)) if not isinstance(a, tuple) else (a[0], b[0])
+    if len(ka) < 14 or len(kb) < 14:
+        return False
+    short, long_ = sorted((ka, kb), key=len)
+    return (len(short) >= 18 and short in long_) or SequenceMatcher(None, ka, kb).ratio() >= 0.8
+
+
+def cold_open_hook(scenes, story, lang):
+    """v102: THE OPENING IS NEVER A COPY. The video used to open with a line taken from the middle of the story -
+    so it was heard twice (16 Nov 2026: 'ek line 2 bar'). Now the gripping moment is chosen the same way, but the
+    line heard at the start is a NEW line in the same voice (the writer's "cold_open", or written now): when the
+    story gets there, everything is heard for the first time."""
+    hk = pick_hook(scenes, story)
+    if not hk:
+        return None
+    hi, take = hk
+    said = [x for sc in scenes for ln in sc.get("lines") or [] for x in split_sentences(str(ln.get("text", "")))]
+    ok_ = lambda tx: (6 <= len(_said_key(tx)) and len(tx) <= 120
+                      and not any(same_said(tx, s_) for s_ in said)
+                      and not any(same_said(s1, s_) for s1 in split_sentences(tx) for s_ in said))
+    base = dict(take[0])
+    co = story.get("cold_open")
+    text = ""
+    if isinstance(co, dict) and str(co.get("text", "")).strip():
+        text = str(co["text"]).strip()
+        names_ = {str(c.get("name", "")).lower(): c.get("name") for c in story.get("characters") or [] if isinstance(c, dict)}
+        if str(co.get("speaker", "")).lower() in names_:          # (only a person of the story - its voice exists)
+            base["speaker"] = names_[str(co["speaker"]).lower()]
+        elif str(co.get("speaker", "")).lower().startswith("narrat"):
+            base["speaker"] = "narrator"
+    elif isinstance(co, str):
+        text = co.strip()
+    if not (text and ok_(text)):
+        text = ""
+        ans = _gem_json(
+            f"A {LANGS[lang]['name']} horror audio story. Its most gripping moment is this line by "
+            f"{base.get('speaker', 'narrator')}: \"{extras.strip_tags(str(take[0].get('text', '')))}\""
+            + (f" (and the answer: \"{extras.strip_tags(str(take[1].get('text', '')))}\")" if len(take) > 1 else "")
+            + f"\nStory so far: {str(story.get('summary') or story.get('description') or '')[:900]}\n"
+            "Write ONE NEW line for the very first seconds of the video (before the title), spoken by the SAME "
+            "person, that makes people stay: a threat, a terrified cry, a question that chills. Max 14 words. It must "
+            "NOT repeat or copy any line of the story (different words), must not tell the ending. "
+            + ("Pure Kolkata cholit Bengali. " if lang == "bn" else "")
+            + 'Answer ONLY JSON: {"text": "the line"}', temp=0.8, strong=True)
+        if isinstance(ans, dict) and ok_(str(ans.get("text", "")).strip()):
+            text = str(ans["text"]).strip()
+    if not text:
+        log("  opening: no new line - the video starts with the title (no line is ever heard twice)")
+        return None
+    for k in ("voice_text", "sfx", "en"):
+        base.pop(k, None)
+    base["text"] = text
+    log(f"  opening (a new line, not a copy): {text[:80]}")
+    return hi, [base]
+
+
+def no_line_twice(parts):
+    """v102: the last safety net before the voices - over the WHOLE video (opening, story, ending, what comes next):
+    a sentence that the listener has already heard is taken out (only that sentence; a line left empty goes, with
+    its picture)."""
+    heard, removed = [], 0
+    for p in parts:
+        lines, shots = p.get("lines") or [], p.get("shots")
+        keep_l, keep_s = [], []
+        for k, ln in enumerate(lines):
+            tx = str(ln.get("text", ""))
+            sents = split_sentences(tx) or [tx]
+            keep = []
+            for s_ in sents:
+                ks = (_said_key(s_),)
+                if len(ks[0]) >= 14 and any(same_said(ks, h) for h in heard):
+                    removed += 1
+                    continue
+                keep.append(s_)
+                heard.append(ks)
+            if len(keep) != len(sents):
+                ln["text"] = " ".join(keep).strip()
+                ln.pop("voice_text", None)
+            if str(ln.get("text", "")).strip() or not tx.strip():
+                keep_l.append(ln)
+                if shots is not None:
+                    keep_s.append(shots[k] if k < len(shots) else None)
+        if len(keep_l) != len(lines):
+            p["lines"] = keep_l or [{"speaker": "narrator", "text": "..."}]
+            if shots is not None:
+                p["shots"] = keep_s
+    if removed:
+        log(f"  {removed} sentence(s) heard earlier in the video taken out (no line is said twice)")
+    return removed
 
 
 def pick_hook(scenes, story):
