@@ -8579,15 +8579,15 @@ def _tg_text(text):
 
 
 # ----------------------------------------------------------------- 1) tomorrow's stories at night + the title list
-def write_tomorrow(history):
+def write_tomorrow(history, day=None):
     """YOUR WISH (9 Nov 2026): right after the 8 PM video, TOMORROW's 2 PM and 8 PM stories are written (as if it
     were tomorrow morning - tomorrow's programme, festival, moon and series part) and their titles come to you on
     Telegram by 9 PM:  1 = 2 PM, 2 = 8 PM. A picture you send with '1' / '2' becomes that video's thumbnail.
     (If this fails, the morning run writes them as before and sends the list then.)"""
-    if DRY_RUN or env("NIGHT_WRITE") == "0":
+    if DRY_RUN or (env("NIGHT_WRITE") == "0" and env("MODE") != "write"):
         return []
     now = dt.datetime.now(extras.IST)
-    day = (now + dt.timedelta(days=1)).date()
+    day = day or (now + dt.timedelta(days=1)).date()
     at = dt.datetime(day.year, day.month, day.day, 6, 30, tzinfo=extras.IST)
     if not MOCK:
         try:                                         # stories you sent on Telegram until now
@@ -8625,11 +8625,33 @@ def write_tomorrow(history):
     return done
 
 
+def write_day_stories(history):
+    """v110 (your wish, 17 Nov 2026): a run of its own at 2 AM (cron-job.org, Request body
+    {"ref":"main","inputs":{"mode":"write"}}) writes the day's 2 PM and 8 PM stories - nothing else: no voice, no
+    video, no post. They are saved in the repo; the morning teaser run and the 2 PM / 8 PM runs use them as they
+    are. The titles (with what to write on your thumbnails) come to you on Telegram."""
+    now = dt.datetime.now(extras.IST)
+    day = (now + dt.timedelta(days=1)).date() if now.hour >= 18 else now.date()   # (started before midnight: tomorrow)
+    log(f"=== WRITING RUN: the stories of {day.isoformat()} (2 PM and 8 PM) - nothing is posted ===")
+    done = write_tomorrow(history, day=day)
+    plans = _jload(PLANS_FILE, {})
+    for h in (NOON, EVENING):
+        k = f"{day.isoformat()}@{h}"
+        p = plans.get(k) if isinstance(plans, dict) else None
+        log(f"  {SLOT_BN[h]}: " + (f"'{_plan_title(p)}' saved" if isinstance(p, dict) and p.get("story") else
+                                   "NOT written - the morning run will write it"))
+    if len(done) < 2 and not MOCK:
+        _tg_text(f"⚠️ রাতের লেখার run: {2 - len(done)}টা গল্প লেখা যায়নি - সকালের run সেটা লিখবে।")
+    return done
+
+
 def chatgpt_prompt(plan, tall=False):
     """what you paste into ChatGPT for this story's thumbnail picture (your formula, this story's ghost and place)"""
     story = _story_cast(plan)
     t_prompt = thumb_plan(story, Cast(story), plan.get("special"), plan.get("cat"))[0]
     if tall:
+        t_prompt = re.sub(r"16\s*:\s*9\s*landscape|landscape\s*16\s*:\s*9|16\s*:\s*9", "9:16 tall portrait", t_prompt)
+        t_prompt = re.sub(r"\bwide landscape\b|\blandscape\b", "tall portrait", t_prompt)
         return (t_prompt + " Make it ONE photorealistic image in tall portrait format (9:16, for a phone screen): the "
                 "ghost and the main person in the middle, empty dark space in the top third for big words. Keep the "
                 "faces away from the very top and bottom edges.")
@@ -11013,6 +11035,8 @@ def main():
     if extras.bot_paused(MY_STORIES) and not MOCK:
         log("PAUSED from Telegram ('বন্ধ') - no video this time. Send 'চালু' to start again.")
         return
+    if env("MODE") == "write":                       # v110: the 2 AM run - ONLY the day's two stories, written + saved
+        return write_day_stories(history)
     global SLOT
     SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
@@ -11719,7 +11743,9 @@ def main():
             log("  growth steps skipped:", str(e)[:200])
     page_name = env(f"PAGE_NAME_{lang.upper()}") or "Daily Horror Story"
     extras.telegram(extras.report_text(page_name, title, results, history))
-    if slot_hour == EVENING and env("MODE") not in ("amavasya", "compilation") and SLOT and \
+    # v110: the day's stories are written by their OWN run at 2 AM (mode=write); writing them after the 8 PM video
+    # only when switched on (NIGHT_WRITE = 1)
+    if slot_hour == EVENING and env("NIGHT_WRITE") == "1" and env("MODE") not in ("amavasya", "compilation") and SLOT and \
             str(SLOT).startswith(dt.datetime.now(extras.IST).date().isoformat()):
         try:                                         # v68: tomorrow's two stories now + their titles to you by 9 PM
             write_tomorrow(history)
