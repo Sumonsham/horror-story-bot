@@ -5971,9 +5971,16 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
     finally:
         os.environ.pop("TTS_SPEAKERS_PER_REQUEST", None)
         VOICE_CONTEXT[0] = "main"
-    extras.make_teaser(wide, 0.0, duration(wide), out_portrait, FONT, title, when, WORK,
-                       tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""),
-                       colors=((255, 230, 0), (200, 0, 20)))
+    # v108 (Facebook: 80% gone by the 2nd second of the morning teaser): no silent first second, and the BIG
+    # frightening words of the thumbnail on top ('ওই চরে যেও না!') - those Reels got the most views - title small
+    t0_ = 0.0
+    try:
+        if TIMELINE[1]:
+            t0_ = max(0.0, float(TIMELINE[1][0][0]) - 0.1)
+    except Exception:
+        t0_ = 0.0
+    extras.make_teaser(wide, t0_, duration(wide), out_portrait, FONT, reel_words(story, title), when, WORK,
+                       tagline=title, colors=((255, 230, 0), (200, 0, 20)))
     return title, when, story
 
 
@@ -10986,7 +10993,7 @@ def main():
                     "question_post": extras.fb_question_post(
                         history, "horror", lang, photo=(HIDDEN_PICS[0] if HIDDEN_PICS else None),
                         link=(f"https://www.facebook.com/watch/?v={results['facebook']}" if results.get("facebook") else "")
-                    ) if not (MOCK or DRY_RUN) else None,
+                    ) if not (MOCK or DRY_RUN) and env("QUESTION_POST") == "1" else None,
                     "title_b": (str(story.get("title_b") or "").strip()[:85] + (f" | {L['part'].format(n=part)}" if part else "")) or None,
                     "theme": theme, "format": fmt, "part": part, "continues": continues, "series_id": series_id, "title": title, "festival": festival,
                     "summary": str(story.get("summary") or story.get("description") or "")[:500] or None,
@@ -11521,7 +11528,7 @@ def _video_clip(video, st, dur, out, text=""):
     if top_t:                                       # the story's title and tag line at the top, all through
         d0 = ImageDraw.Draw(img)
         y0 = 34
-        for t_, sz_, col_ in ((top_t, 56, (255, 215, 0, 255)), (top_s, 38, (255, 255, 255, 255))):
+        for t_, sz_, col_ in ((top_t, 84, (255, 215, 0, 255)), (top_s, 36, (255, 255, 255, 255))):
             if not t_:
                 continue
             rows_, f_, s_ = extras._fit_text(d0, extras.no_tofu(t_), FONT, VW - 70, sz_, lines_max=2)
@@ -11683,9 +11690,25 @@ def pick_hook(scenes, story):
     return i, take
 
 
+def reel_words(story, title):
+    """v108: the BIG words on top of a Reel - the thumbnail's frightening words ('গাছ থেকে ঝুলছে ওটা কে?'): on our page
+    the Reels with these got 200-420 views, the ones with only the title 4-150"""
+    try:
+        w = str(extras.thumb_words(story, title) or "").strip()
+    except Exception:
+        w = ""
+    return w or re.sub(r"\s*\|.*$", "", title).strip()
+
+
+def link_place(L):
+    """where the Reel sends people for the full story (v108: the link is in the first comment, not the caption)"""
+    if env("REEL_LINK_IN_CAPTION") == "1":
+        return L["link_below"]
+    return "পুরো গল্পের লিংক কমেন্টে" if L.get("name") == "Bengali" else "पूरी कहानी का लिंक कमेंट में"
+
+
 def make_trailer(video, story, title, lang, L, out, slot_hour, special):
-    STATE["trailer_top"] = (re.sub(r"\s*\|.*$", "", title).strip(),
-                            str(story.get("tagline") or story.get("thumbnail_text") or "").strip())
+    STATE["trailer_top"] = (reel_words(story, title), re.sub(r"\s*\|.*$", "", title).strip())
     """A cinema-trailer Reel (under a minute): a quiet cold open, title cards, quick cuts of the scariest moments
     with hits in between, a held breath ... then the ghost's face, and the show's title card with the time."""
     np = _np()
@@ -11796,7 +11819,7 @@ def make_trailer(video, story, title, lang, L, out, slot_hour, special):
     if special == "karna" or special in NEW_SERIES:
         show = series_label(special, L)
     clean = re.sub(r"[^\w\sऀ-ॿঀ-৿,।!?'-]", "", title).strip()
-    final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["follow"], L["link_below"]], [50, 66, 46, 40, 40],
+    final = _card(os.path.join(WORK, "tr_c3.jpg"), [show, clean, when if when else "", L["follow"], link_place(L)], [50, 66, 46, 40, 40],
                   [(200, 200, 200), (255, 225, 0), (255, 60, 60), (255, 255, 255), (120, 220, 255)], bg=ghost_img)
     parts.append(_still_clip(final, signature_sting(), 3.4, nxt("title")))
     lst = os.path.join(WORK, "trailer.txt")
@@ -11862,8 +11885,8 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         except Exception as e:
             log("  trailer not made, plain teaser:", str(e)[:200])
             st, en = extras.pick_window(segs, part_times, story.get("teaser_scene") or 2)
-            extras.make_teaser(video, st, en, teaser, FONT, re.sub(r"\s*\|.*$", "", title).strip(), L["cta"], WORK, tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""),
-                               colors=((255, 230, 0), (200, 0, 20)))
+            extras.make_teaser(video, st, en, teaser, FONT, reel_words(story, title), link_place(L), WORK,
+                               tagline=re.sub(r"\s*\|.*$", "", title).strip(), colors=((255, 230, 0), (200, 0, 20)))
             log(f"Teaser ready ({en - st:.0f} s, from {st:.0f} s)")
     except Exception as e:
         log("  teaser skipped:", str(e)[:200])
@@ -11873,6 +11896,15 @@ def grow(video, story, title, lang, L, tags, results, history, page):
     question = str(story.get("comment_question", "")).strip()
     fb_full = f"https://www.facebook.com/watch/?v={results['facebook']}" if results.get("facebook") else page
     short_desc = f"{title}\n\n{L['full_link']} {fb_full}\n\n{' '.join(tags[:5])}"   # the FULL story's own link
+    # v108: a Reel that sends people away is watched less - no link in the Reel's words (the frightening line +
+    # 3 hashtags); the full story's link becomes the Reel's first comment (posted once the Reel is live)
+    if env("REEL_LINK_IN_CAPTION") != "1":
+        short_desc = "\n\n".join(x for x in (reel_words(story, title), re.sub(r"\s*\|.*$", "", title).strip(),
+                                              " ".join(tags[:3])) if x)
+
+    def link_comment(rid):
+        if rid and env("REEL_LINK_IN_CAPTION") != "1":
+            extras.PENDING.append({"id": str(rid), "text": f"{L['full_link']} {fb_full}"})
     if teaser and env("FB_REELS") != "0":
         try:
             pub = extras.PUBLISH.get("at")
@@ -11893,6 +11925,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
             else:
                 out["fb_reel"] = extras.fb_post_reel(teaser, short_desc)
                 log("Posted Facebook Reel:", out["fb_reel"])
+            link_comment(out.get("fb_reel"))
         except Exception as e:
             log("  Facebook Reel skipped:", str(e)[:200])
         try:                                     # the teaser on the page Story too (24 h, top of the feed)
@@ -11901,14 +11934,16 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 log("Shared to Facebook Story:", out["fb_story"])
         except Exception as e:
             log("  Facebook Story skipped:", str(e)[:200])
-        trilogy = STATE.get("slot_hour") == EVENING and env("REEL_TRILOGY") != "0"
+        # v108 (followers were leaving: ~12 posts a day, 3-4 Reels of the SAME story): one Reel per story - the
+        # second Reel and the 3-day Reel series only when switched on (REEL_TRILOGY = 1, SECOND_REEL = 1)
+        trilogy = STATE.get("slot_hour") == EVENING and env("REEL_TRILOGY") == "1"
         if trilogy:
             try:                                     # v101: the story's gripping start as 3 Reels on 3 days
                 out["fb_trilogy"] = reel_trilogy(video, story, title, L, fb_full)
             except Exception as e:
                 log("  Reel trilogy skipped:", str(e)[:200])
                 trilogy = False
-        if env("SECOND_REEL") != "0" and not trilogy:   # a second Reel from another moment, 2 hours later
+        if env("SECOND_REEL") == "1" and not trilogy:   # a second Reel from another moment, 2 hours later
             try:
                 pt_, sg_ = TIMELINE[0], TIMELINE[1]
                 s2, e2 = extras.pick_window(sg_, pt_, max(2, (len(pt_) * 3) // 5))

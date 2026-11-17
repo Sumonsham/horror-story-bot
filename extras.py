@@ -186,7 +186,7 @@ def make_teaser(video, start, end, out, font_path, hook_text, cta_text, workdir,
     hook_text, cta_text = no_tofu(hook_text), no_tofu(cta_text)
     ov = Image.new("RGBA", (VW, VH), (0, 0, 0, 0))
     d = ImageDraw.Draw(ov)
-    lines, f, size = _fit_text(d, hook_text, font_path, VW - 70, 78, lines_max=2)
+    lines, f, size = _fit_text(d, hook_text, font_path, VW - 60, int(env("REEL_TOP_SIZE") or 92), lines_max=2)
     y = 36
     for l in lines:
         tw = d.textlength(l, font=f)
@@ -201,12 +201,13 @@ def make_teaser(video, start, end, out, font_path, hook_text, cta_text, workdir,
             d.text(((VW - tw) / 2, y), l, font=tf_, fill=(255, 255, 255, 255), stroke_width=max(3, ts // 12),
                    stroke_fill=(0, 0, 0, 255))
             y += int(ts * 1.3)
-    cl, cf, cs = _fit_text(d, cta_text, font_path, VW - 110, 46, lines_max=1)
-    tw = d.textlength(cl[0], font=cf)
-    by = VH - 185
-    d.rounded_rectangle([(VW - tw) / 2 - 30, by - 14, (VW + tw) / 2 + 30, by + cs * 1.35 + 10], radius=26,
-                        fill=band_col + (240,), outline=(255, 255, 255, 255), width=3)
-    d.text(((VW - tw) / 2, by), cl[0], font=cf, fill=(255, 255, 255, 255))
+    if str(cta_text or "").strip():                # (v108: no band at all when there is nothing to send people to)
+        cl, cf, cs = _fit_text(d, cta_text, font_path, VW - 110, 46, lines_max=1)
+        tw = d.textlength(cl[0], font=cf)
+        by = VH - 185
+        d.rounded_rectangle([(VW - tw) / 2 - 30, by - 14, (VW + tw) / 2 + 30, by + cs * 1.35 + 10], radius=26,
+                            fill=band_col + (240,), outline=(255, 255, 255, 255), width=3)
+        d.text(((VW - tw) / 2, by), cl[0], font=cf, fill=(255, 255, 255, 255))
     png = os.path.join(workdir, "teaser_overlay.png")
     ov.save(png)
     dur = max(5.0, end - start)
