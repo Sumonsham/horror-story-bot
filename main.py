@@ -3572,12 +3572,21 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         sizes_ = ((6, 700), (8, 900), (10, 1100), (12, 1300), (16, 1500), (20, 1700), (26, 1900))
         if env("TTS_MAX_PIECES"):
             sizes_ = tuple(x for x in sizes_ if x[0] <= int(env("TTS_MAX_PIECES"))) or sizes_[:1]
+        # v105: ONE STORY TAKES AT MOST ~14 REQUESTS (before, a story took every request that was free - 24 on
+        # 17 Nov - and the next video had none left). Bigger recordings, fewer requests; the twice-check after the
+        # voices (v104) catches what a bigger recording gets wrong. Never so few that a character loses Gemini.
+        real_left = left
+        if VOICE_CONTEXT[0] == "main":
+            left = min(left, int(env("STORY_MAX_REQ") or 14))
         for n_, c_ in sizes_:
             extras.TTS_PLAN.update(pieces=n_, chars=c_)
             need = need_of()
-            if sum(need.values()) <= int(left * 0.8):
+            if sum(need.values()) <= int(left * 0.85):
                 break
         total_need = sum(need.values())
+        if total_need + 1 > left:                      # (the biggest size still needs more: the whole cast first)
+            left = min(real_left, total_need + 1)
+        log(f"  this story may use {left} of the {real_left} free voice requests")
         extras.TTS_SPARE[0] = max(0, left - total_need)
         del extras.SUSPECT[:]
         extras.SUSPECT_NEIGH.clear()
@@ -3743,6 +3752,53 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         extras.telegram(f"⚠️ Daily Horror Story: Gemini's free voice limit was not enough today - {', '.join(waiting)} "
                         "got the free voice in this video.")
         prepare_free_voices(rest, voices, lang, keep=True)
+    if env("TWICE_CHECK") != "0":                     # v104: the finished voices are listened to - nothing twice
+        try:
+            story_order = [z for z in sorted(zip(todo, items), key=lambda z: (z[0][0], z[0][1])) if made(z[1])]
+            lines_ = [{"out": it["out"], "plain": it["plain"], "voice": it["voice"]} for _t, it in story_order]
+            extras.fix_heard_twice(lines_)
+            # then Gemini LISTENS to every voice with the script: each line where words are heard twice is
+            # mended - cut by sound, or (when the sound cannot find the place) made again ALONE
+            heard = extras.listen_for_repeats(lines_, LANGS[lang]["name"])
+            remade, gem_again = 0, 0
+            for k in sorted(heard)[:int(env("TWICE_MAX_FIX") or 12)]:
+                x = lines_[k]
+                prev = next((y for y in reversed(lines_[max(0, k - 6):k]) if y["voice"] == x["voice"]), None)
+                log(f"  heard twice: '{heard[k][:50]}' in '{x['plain'][:40]}...'")
+                if extras.cut_repeat_loose(x, prev):
+                    continue
+                it = story_order[k][1]
+                tmp_ = it["out"] + ".again.wav"
+                ok_ = False
+                try:
+                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again < int(env("TWICE_GEM_MAX") or 3)
+                            and extras.tts_budget_left(TTS_USAGE) - extras.TTS_USED[0] > voice_reserve()):
+                        gem_again += 1
+                        off_ = extras.TTS_STATE["off"]
+                        extras.TTS_STATE["off"] = False
+                        extras.TTS_USED[0] += 1
+                        try:
+                            ok_ = extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
+                                                    + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], tmp_, SR,
+                                                    max_tries=1)
+                        finally:
+                            extras.TTS_STATE["off"] = off_ or extras.TTS_STATE["off"]
+                    if not ok_ and extras.chirp_ok(TTS_USAGE):
+                        ok_ = extras.chirp_tts(it["plain"], it["voice"], tmp_, SR, TTS_USAGE, lang)
+                    if ok_ and os.path.exists(tmp_) and os.path.getsize(tmp_) > 2000:
+                        os.replace(tmp_, it["out"])
+                        extras.fix_heard_twice([x])          # (the new recording is checked as well)
+                        remade += 1
+                finally:
+                    if os.path.exists(tmp_):
+                        os.remove(tmp_)
+            if heard:
+                log(f"  listening check: {len(heard)} line(s) had words twice - {remade} made again alone, "
+                    "the rest cut")
+            if extras.TTS_USED[0]:
+                extras.tts_budget_use(TTS_USAGE)
+        except Exception as e:
+            log("  twice-check skipped:", str(e)[:120])
     GEMINI_READY = all((i, j) in GEMINI_CACHE for (i, j, _ln) in todo)
     STATE["all_gemini"] = GEMINI_READY and not waiting    # every line in the Gemini voice (the length can be learned)
     return GEMINI_READY
