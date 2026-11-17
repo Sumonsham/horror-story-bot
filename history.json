@@ -338,7 +338,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -366,7 +366,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -394,7 +394,7 @@
    "yt_views": 4,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -630,7 +630,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -664,7 +664,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -700,7 +700,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -848,7 +848,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -885,7 +885,7 @@
    "yt_views": 1,
    "yt_avg_s": 17,
    "yt_avg_pct": 1.7,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -922,7 +922,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -1142,7 +1142,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   }
  },
  {
@@ -1409,7 +1409,7 @@
    "yt_views": 3,
    "yt_avg_s": 677,
    "yt_avg_pct": 37.8,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1456,7 +1456,7 @@
    "yt_views": 3,
    "yt_avg_s": 29,
    "yt_avg_pct": 1.2,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1720,10 +1720,10 @@
    "comments": 2,
    "views": 4,
    "length_s": 1128,
-   "yt_views": 3,
+   "yt_views": 4,
    "yt_avg_s": 29,
    "yt_avg_pct": 2.6,
-   "checked": "2026-11-14T01:03+00:00"
+   "checked": "2026-11-17T05:11+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1862,12 +1862,12 @@
   "stats": {
    "likes": 1,
    "comments": 1,
-   "views": 11,
+   "views": 13,
    "length_s": 934,
-   "yt_views": 4,
-   "yt_avg_s": 13,
-   "yt_avg_pct": 1.4,
-   "checked": "2026-11-14T01:03+00:00"
+   "yt_views": 13,
+   "yt_avg_s": 52,
+   "yt_avg_pct": 5.7,
+   "checked": "2026-11-17T05:11+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2445,12 +2445,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 3,
+   "views": 2,
    "length_s": 1645,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "yt_views": 2,
+   "yt_avg_s": 34,
+   "yt_avg_pct": 2.1,
+   "checked": "2026-11-17T05:11+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2633,10 +2633,10 @@
    "comments": 1,
    "views": 4,
    "length_s": 1994,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "yt_views": 5,
+   "yt_avg_s": 13,
+   "yt_avg_pct": 0.7,
+   "checked": "2026-11-17T05:11+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2790,12 +2790,12 @@
   "stats": {
    "likes": 3,
    "comments": 2,
-   "views": 3,
+   "views": 2,
    "length_s": 1052,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-14T01:03+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 421,
+   "yt_avg_pct": 40.0,
+   "checked": "2026-11-17T05:11+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3546,7 +3546,21 @@
   },
   "hook_style": "voice",
   "district": "hooghly",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-15-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-15-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 2,
+   "length_s": 1272,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-17T05:11+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 2
+  }
  },
  {
   "date": "2026-11-15T09:34+00:00",
@@ -3704,7 +3718,23 @@
   },
   "hook_style": "sound",
   "district": "bankura",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-15-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-15-20.mp4",
+  "stats": {
+   "likes": 0,
+   "comments": 1,
+   "views": 1,
+   "length_s": 1232,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-17T05:11+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 1,
+   "at": "2026-11-17T05:12+00:00",
+   "thumb": true
+  }
  },
  {
   "date": "2026-11-16T01:06+00:00",
@@ -3712,7 +3742,17 @@
   "kind": "text_short",
   "title": "নিঝুম বারান্দার ছায়া",
   "youtube": "tG3vq_J3DIM",
-  "facebook": "1684410193094364"
+  "facebook": "1684410193094364",
+  "stats": {
+   "likes": 2,
+   "comments": 0,
+   "views": 4,
+   "length_s": 21,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-17T05:11+00:00"
+  }
  },
  {
   "date": "2026-11-16T04:03+00:00",
@@ -3866,6 +3906,191 @@
   },
   "hook_style": "voice",
   "district": "kolkata",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-16-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-16-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 1,
+   "views": 2,
+   "length_s": 1070,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-17T05:11+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 2
+  }
+ },
+ {
+  "date": "2026-11-17T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-17@14",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A lonely night-guard trapped inside an abandoned rural brick kiln as a sudden summer storm brings out a shapeshifting entity seeking a lost child.",
+  "crossover": null,
+  "opening": "flash",
+  "category": "gram",
+  "question_post": "2026-11-17",
+  "title_b": "রাতের অন্ধকার ইঁটভাটা ও শাঁকচুন্নির অভিশাপ 🩸",
+  "theme": "A lonely night-guard trapped inside an abandoned rural brick kiln as a sudden summer storm brings out a shapeshifting entity seeking a lost child.",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "আমতার অভিশপ্ত ইঁটভাটা | Bengali Horror Story 🕯️",
+  "festival": null,
+  "summary": "Chapter 1: In Chapter 1, Gouranga Das takes a lonely night-guard job at an abandoned brick kiln along the Damodar River in Amta, Howrah, to pay his brother's overdue school fees. Scrap supervisor Subhash Babu hands him keys and lantern, strictly forbidding him from unlocking the subterranean furnace trench before locking the outer gate. Gouranga discovers fresh wet barefoot footprints in river silt leading into a brick corridor that vanish into a solid wall. Bishu da drops off tea and warns him ",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook": "1108606121979191",
+  "youtube": "Ryd1j4JEwsw",
+  "fb_reel": "2343163466441482",
+  "fb_story": "992738056729522",
+  "fb_reel2": "4789654241321111",
+  "yt_short": "9tUXPgP6SH4",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 1079,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     10,
+     "শুরু"
+    ],
+    [
+     20,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     72,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     108,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     145,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     200,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     242,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     279,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     301,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     348,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     392,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     415,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     459,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     504,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     539,
+     "অধ্যায় ১: নিঝুম ইঁটভাটা"
+    ],
+    [
+     572,
+     "রহস্যময় ফোন"
+    ],
+    [
+     614,
+     "সুভাষের স্বীকারোক্তি"
+    ],
+    [
+     652,
+     "অভিশপ্ত চাবি"
+    ],
+    [
+     695,
+     "অন্ধকার"
+    ],
+    [
+     710,
+     "নিশির ডাক"
+    ],
+    [
+     741,
+     "সাবধানবাণী"
+    ],
+    [
+     773,
+     "কাদার বৃষ্টি"
+    ],
+    [
+     820,
+     "পালানো"
+    ],
+    [
+     846,
+     "কোণঠাসা"
+    ],
+    [
+     877,
+     "মুখোমুখি"
+    ],
+    [
+     913,
+     "তালা খোলা"
+    ],
+    [
+     949,
+     "হাড়ের সন্ধান"
+    ],
+    [
+     988,
+     "বিদায়"
+    ],
+    [
+     1019,
+     "পাপের শাস্তি"
+    ],
+    [
+     1031,
+     "শেষ কথা"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "district_week": "howrah",
+  "district": "howrah",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-17-14.mp4"
  }
 ]
