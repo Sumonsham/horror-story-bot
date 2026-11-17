@@ -8235,12 +8235,28 @@ def write_tomorrow(history):
     return done
 
 
-def chatgpt_prompt(plan):
+def chatgpt_prompt(plan, tall=False):
     """what you paste into ChatGPT for this story's thumbnail picture (your formula, this story's ghost and place)"""
     story = _story_cast(plan)
     t_prompt = thumb_plan(story, Cast(story), plan.get("special"), plan.get("cat"))[0]
+    if tall:
+        return (t_prompt + " Make it ONE photorealistic image in tall portrait format (9:16, for a phone screen): the "
+                "ghost and the main person in the middle, empty dark space in the top third for big words. Keep the "
+                "faces away from the very top and bottom edges.")
     return (t_prompt + " Make it ONE photorealistic image in wide landscape format (16:9). Keep the faces away from "
             "the very top and bottom edges.")
+
+
+def thumb_text_for(plan):
+    """v106: the words for YOUR thumbnail - the same words the bot would put on it (big line + small line)"""
+    story = _story_cast(plan)
+    lang = plan.get("lang") if plan.get("lang") in LANGS else "bn"
+    big = extras.thumb_words(story, _plan_title(plan))
+    try:
+        small = _thumb_small(plan, int(plan.get("part") or 0), plan.get("special"), lang, bool(story.get("true_label")))
+    except Exception:
+        small = ""
+    return str(big or "").strip(), str(small or "").strip()
 
 
 def send_title_list(day):
@@ -8264,14 +8280,20 @@ def send_title_list(day):
         lines.append(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(p)}")
         if (p.get("state") or {}).get("trend_used"):
             lines.append("   🔥 YouTube-এ এই সপ্তাহে সবচেয়ে বেশি দেখা বিষয় নিয়ে নতুন গল্প")
-    lines += ["", "নিজের thumbnail দিতে চাইলে: নিচের message-এর লেখাটা ChatGPT-তে paste করে ছবি বানান, তারপর ছবিটা "
-              "এখানে পাঠান - ছবির নিচে লিখুন 1 (দুপুরের) বা 2 (রাতের)। বাংলা লেখাটা bot নিজেই বসিয়ে দেবে।",
+    lines += ["", "নিজের thumbnail দিতে চাইলে প্রতিটা গল্পের জন্য ২টো ছবি: একটা চওড়া (16:9 - মূল ভিডিও) আর একটা লম্বা "
+              "(9:16 - Reel/Short)। নিচের message-গুলোয় প্রতিটা গল্পের লেখা আর ChatGPT-র লেখা আছে।",
+              "ছবি পাঠানোর সময় নিচে শুধু লিখুন 1 (দুপুরের) বা 2 (রাতের) - কোনটা চওড়া কোনটা লম্বা, bot নিজেই বুঝবে। "
+              "ছবিতে লেখা থাকলে bot সেটাই হুবহু দেবে; লেখা না থাকলে নিজে বসিয়ে দেবে।",
               "⏰ 1-এর ছবি সকাল ৮টার মধ্যে, 2-এর ছবি বিকেল ৪টের মধ্যে (রাতেই পাঠানো সবচেয়ে ভালো)। কিছু না পাঠালে "
               "bot নিজের thumbnail দেবে।"]
     ok = _tg_text("\n".join(lines))
     for h, p in items:
         try:
-            _tg_text(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]} - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p)}")
+            big, small = thumb_text_for(p)
+            _tg_text(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(p)}\n\n✍️ thumbnail-এ লিখুন:\n"
+                     f"বড় করে: {big}" + (f"\nছোট করে: {small}" if small else ""))
+            _tg_text(f"{SLOT_NO[h]}️⃣ চওড়া ছবি (16:9) - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p)}")
+            _tg_text(f"{SLOT_NO[h]}️⃣ লম্বা ছবি (9:16) - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p, tall=True)}")
         except Exception as e:
             log("  ChatGPT idea not sent:", str(e)[:100])
     if ok:
@@ -8431,13 +8453,23 @@ def thumb_inbox():
         if not _tg_download(tok, fid, path):
             seen.discard(uid)                        # (tried again next time)
             continue
+        try:                                         # v106: a tall picture = the phone (Reel / Short) thumbnail
+            with Image.open(path) as im_:
+                o_ = "p" if im_.height > im_.width * 1.15 else "l"
+        except Exception:
+            o_ = "l"
         idx["items"].append({"id": uid, "h": h, "sent": int(sent_at.timestamp()), "slot": target,
-                             "file": os.path.basename(path), "used": None})
+                             "file": os.path.basename(path), "used": None, "o": o_})
         p = plans.get(target) or {}
         d = target.split("@")[0]
         day_w = "আজ" if d == dt.datetime.now(extras.IST).date().isoformat() else "কাল"
-        _tg_text(f"✅ ছবি পেয়েছি - {day_w} {SLOT_BN[h]}-র ভিডিও" + (f" '{_plan_title(p)}'" if p.get("story") else "")
-                 + "-র thumbnail এটাই হবে। (আরেকটা পাঠালে নতুনটাই নেওয়া হবে)")
+        have_ = {it.get("o", "l") for it in idx["items"] if it.get("slot") == target and not it.get("used")}
+        miss_ = ("" if {"l", "p"} <= have_ else
+                 ("\n(লম্বা ছবিটা এখনো বাকি - সেটাও পাঠান, নিচে " + str(SLOT_NO[h]) + " লিখে)" if "p" not in have_ else
+                  "\n(চওড়া ছবিটা এখনো বাকি - সেটাও পাঠান, নিচে " + str(SLOT_NO[h]) + " লিখে)"))
+        _tg_text(f"✅ {'লম্বা (Reel/Short)' if o_ == 'p' else 'চওড়া (ভিডিও)'} ছবি পেয়েছি - {day_w} {SLOT_BN[h]}-র ভিডিও"
+                 + (f" '{_plan_title(p)}'" if p.get("story") else "")
+                 + f"-র {'Reel/Short-এর' if o_ == 'p' else 'মূল'} thumbnail এটাই হবে। (আরেকটা পাঠালে নতুনটাই নেওয়া হবে)" + miss_)
         log(f"  your thumbnail from Telegram for {target}")
         got += 1
     idx["seen"] = sorted(seen)
@@ -8447,10 +8479,11 @@ def thumb_inbox():
     return got
 
 
-def user_thumb_for(slot):
-    """your newest picture for this video (or None)"""
+def user_thumb_for(slot, orient=None):
+    """your newest picture for this video (or None); orient 'l' = wide (16:9), 'p' = tall (9:16)"""
     idx = _ut_index()
     cands = [it for it in idx["items"] if it.get("slot") == slot and not it.get("used")
+             and (orient is None or it.get("o", "l") == orient)
              and os.path.exists(os.path.join(USER_THUMBS, str(it.get("file"))))]
     if not cands:
         return None
@@ -8476,6 +8509,25 @@ def fit_16x9(src, out, W=1280, H=720):
     big = img.resize((max(W, int(img.width * s + 0.5)), max(H, int(img.height * s + 0.5))), Image.LANCZOS)
     x, y = (big.width - W) // 2, (big.height - H) // 2
     if 1.45 <= r <= 2.0:
+        big.crop((x, y, x + W, y + H)).save(out, quality=95)
+        return out
+    bg = ImageEnhance.Brightness(big.crop((x, y, x + W, y + H)).filter(ImageFilter.GaussianBlur(28))).enhance(0.55)
+    f = min(W / img.width, H / img.height)
+    fg = img.resize((int(img.width * f), int(img.height * f)), Image.LANCZOS)
+    bg.paste(fg, ((W - fg.width) // 2, (H - fg.height) // 2))
+    bg.save(out, quality=95)
+    return out
+
+
+def fit_9x16(src, out, W=1080, H=1920):
+    """any picture -> 1080x1920 (the Reel / Short cover): nearly 9:16 is cut a little; others on a blurred copy"""
+    from PIL import ImageEnhance
+    img = Image.open(src).convert("RGB")
+    r = img.width / img.height
+    s = max(W / img.width, H / img.height)
+    big = img.resize((max(W, int(img.width * s + 0.5)), max(H, int(img.height * s + 0.5))), Image.LANCZOS)
+    x, y = (big.width - W) // 2, (big.height - H) // 2
+    if 0.5 <= r <= 0.66:
         big.crop((x, y, x + W, y + H)).save(out, quality=95)
         return out
     bg = ImageEnhance.Brightness(big.crop((x, y, x + W, y + H)).filter(ImageFilter.GaussianBlur(28))).enhance(0.55)
@@ -8525,21 +8577,41 @@ def apply_user_thumb(slot, thumb, words, small, kind):
     """YOUR picture from Telegram becomes the video's thumbnail. Without words on it, the bot puts the Bengali words
     on it in the channel's style; with words, it is used as it is. The bot's own thumbnail becomes the second one
     (used only if the video gets few views)."""
-    src = user_thumb_for(slot) if slot else None
+    land = user_thumb_for(slot, "l") if slot else None
+    tall = user_thumb_for(slot, "p") if slot else None
+    src = land or tall
     if not src:
         return False
     fitted = fit_16x9(src, os.path.join(WORK, "user_thumb_16x9.jpg"))
     if os.path.exists(thumb):
         shutil.copy(thumb, os.path.join(WORK, "thumbnail_b.jpg"))
     port = os.path.join(WORK, "thumbnail_portrait.jpg")
+    if tall:                                          # v106: YOUR tall picture for the Reel / Short
+        try:
+            if image_has_text(tall):
+                fit_9x16(tall, port)
+                log("YOUR tall thumbnail from Telegram (with its own words) is used for the Reel / Short")
+            else:
+                extras.title_poster(fit_16x9(tall, os.path.join(WORK, "user_tall_16x9.jpg")), words, port, kind,
+                                    small=small, portrait=True, fallback_font=FONT)
+                log("YOUR tall thumbnail from Telegram is used for the Reel / Short, with the words")
+        except Exception as e:
+            log("  your tall thumbnail could not be used:", str(e)[:100])
+        if not land:                                  # only the tall one came: the wide one is made from it
+            if image_has_text(tall):
+                shutil.copy(fitted, thumb)
+            else:
+                extras.title_poster(fitted, words, thumb, kind, small=small, fallback_font=FONT)
+            return True
     if image_has_text(src):
         shutil.copy(fitted, thumb)
-        if os.path.exists(port):
+        if os.path.exists(port) and not tall:
             os.remove(port)                          # (the 9:16 one is then made from your picture)
         log("YOUR thumbnail from Telegram (with its own words) is used")
     else:
         extras.title_poster(fitted, words, thumb, kind, small=small, fallback_font=FONT)
-        extras.title_poster(fitted, words, port, kind, small=small, portrait=True, fallback_font=FONT)
+        if not tall:
+            extras.title_poster(fitted, words, port, kind, small=small, portrait=True, fallback_font=FONT)
         log(f"YOUR thumbnail from Telegram is used, with the words '{words}'")
     return True
 

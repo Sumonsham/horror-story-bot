@@ -5202,7 +5202,7 @@ def fb_caption(description, limit=390):
     note = [p for p in rest if p.startswith("🔁")][:1] + note      # "share + follow" always stays
     rest = [p for p in rest if p not in note]
     out = [head[:150]]
-    tags = tags[:5]                     # Facebook: fewer than 6 hashtags = better quality signal
+    tags = tags[:int(env("FB_TAGS") or 3)]   # v106: Facebook's own advice (17 Nov 2026): 2-3 hashtags = ~60% more views
     tag_room = min(75, len(" ".join(tags)) + 2) if tags else 0          # keep space for the 5 hashtags
     room = lambda: limit - tag_room - len("\n\n".join(out + note)) - 4
     for p in rest:
