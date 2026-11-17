@@ -2011,6 +2011,57 @@ def continuity_bridges(story, lang):
         return
 
 
+def listener_judge(story, lang, pass_mark=7.0):
+    """v109: a strict listener (a Sunday Suspense fan) reads the finished story once and scores it - fear, flow
+    (one story, nothing patched in), logic, the ending, the language. Below the pass mark, the lines it names as
+    weak are rewritten (at most 20, never the plot). The score is noted for your weekly report / Telegram."""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return None
+    rows, idx = [], {}
+    for i, sc in enumerate(story.get("scenes") or []):
+        rows.append(f"--- scene {i}")
+        for j, ln in enumerate(sc.get("lines") or []):
+            tx = str(ln.get("text", "")).strip()
+            if tx:
+                rows.append(f"{i}.{j} {ln.get('speaker', 'narrator')}: {extras.strip_tags(tx)[:300]}")
+                idx[f"{i}.{j}"] = (i, j)
+    ans = _gem_json(
+        f"You are a very demanding listener of Bengali radio horror (Sunday Suspense). Read this {LANGS[lang]['name']} "
+        "story (scene.line speaker: text) and score it honestly 1-10 on: fear (real dread, not loud words), flow (it "
+        "feels like ONE story told by one person - nothing cut out, patched in or jumping), logic (no coincidence, "
+        "no lucky find, people act like real people), ending (fair, complete, chilling), language (natural, exact "
+        "words). Then list the WEAKEST lines (at most 20) and give for each a better line - the same speaker, the "
+        "same plot, max 30 words, "
+        + ("pure Kolkata cholit Bengali" if lang == "bn" else "natural Hindi")
+        + ". Answer ONLY JSON: {\"scores\": {\"fear\": n, \"flow\": n, \"logic\": n, \"ending\": n, "
+        "\"language\": n}, \"overall\": n, \"worst\": \"one sentence: the biggest weakness\", "
+        "\"fixes\": [{\"id\": \"scene.line\", \"replace\": \"better line\"}]}\n" + "\n".join(rows),
+        temp=0.3, strong=True)
+    if not isinstance(ans, dict):
+        return None
+    try:
+        overall = float(ans.get("overall") or 0)
+    except (TypeError, ValueError):
+        overall = 0.0
+    STATE["listener_score"] = overall
+    log(f"  listener's score: {overall}/10 {ans.get('scores') or ''} - {str(ans.get('worst') or '')[:120]}")
+    if overall >= pass_mark:
+        return overall
+    n = 0
+    for fx in (ans.get("fixes") or [])[:20]:
+        if isinstance(fx, dict) and fx.get("id") in idx and str(fx.get("replace", "")).strip():
+            new = str(fx["replace"]).strip()
+            if 2 <= len(new.split()) <= 34 and not re.search(r"[A-Za-z]{4,}", new):
+                i, j = idx[fx["id"]]
+                ln = story["scenes"][i]["lines"][j]
+                ln["text"], ln["en"] = new, ""
+                ln.pop("voice_text", None)
+                n += 1
+    log(f"  the listener found the story weak ({overall}/10) - {n} weak line(s) rewritten")
+    return overall
+
+
 def line_flow_check(story, lang):
     """v89: the joined story read LINE BY LINE as one film (the scene check only sees how scenes start and end):
     an answer that does not answer, a line that comes from nowhere, someone who knows what he cannot know, a thing
@@ -2161,9 +2212,260 @@ def ensure_ending(story, lang, cut_short=False):
         return
 
 
+def _gem_call(prompt, json_mode=False, temp=0.9, max_tokens=60000, rounds=2):
+    """one request to the strong Gemini writing models (the next model when one is busy / used up); text or None"""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return None
+    gen = {"temperature": temp, "maxOutputTokens": max_tokens}
+    if json_mode:
+        gen["responseMimeType"] = "application/json"
+    for rnd in range(rounds):
+        for model in gemini_models(key)[:4]:
+            if model in TEXT_DAY_OUT:
+                continue
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": gen},
+                                  timeout=420)
+                if not r.ok:
+                    log(f"  writer: {model} {r.status_code}")
+                    continue
+                parts_ = r.json()["candidates"][0]["content"]["parts"]
+                txt = "".join(p_.get("text", "") for p_ in parts_ if not p_.get("thought"))
+                if txt.strip():
+                    return txt
+            except Exception as e:
+                log(f"  writer: {model} {str(e)[:100]}")
+        if rnd + 1 < rounds:
+            time.sleep(60)
+    return None
+
+
+SCRIPT_FORMAT = """
+WRITE THE STORY AS A PLAIN SCRIPT (no JSON), exactly in this form:
+TITLE: <the title>
+### SCENE | <ENGLISH: where we are, time of day, light> | <mood: one of {moods}>
+narrator: <words>
+<Character name in English letters>: <words>
+...
+### SCENE | ...
+Rules of the form: one spoken line per row; the speaker is "narrator" or a character's name in English letters
+(always the same spelling for one person); only the spoken words after the colon - no stage directions, no
+brackets, no English inside the spoken words; 4-8 lines per scene. Write the WHOLE story from its first line to its
+last line in one go, as ONE author telling ONE story - every scene growing out of the one before."""
+
+
+def _parse_script(txt):
+    """'### SCENE | place | mood' + 'speaker: words' rows -> (title, [scene dicts])"""
+    title, scenes, cur = "", [], None
+    for raw in str(txt or "").splitlines():
+        row = raw.strip().strip("*").strip()
+        if not row:
+            continue
+        if row.upper().startswith("TITLE:"):
+            title = row.split(":", 1)[1].strip()
+            continue
+        if row.startswith("###"):
+            bits = [b.strip() for b in row.lstrip("#").split("|")]
+            cur = {"place": bits[1] if len(bits) > 1 else "", "mood": (bits[2] if len(bits) > 2 else "creepy").lower(),
+                   "lines": []}
+            scenes.append(cur)
+            continue
+        m = re.match(r"^([A-Za-z][A-Za-z .'-]{0,40}|narrator|Narrator)\s*:\s*(.+)$", row)
+        if not m:
+            if cur and cur["lines"] and re.search(r"[ঀ-৿ऀ-ॿ]", row):      # a line that went on to the next row
+                cur["lines"][-1]["text"] += " " + row
+            continue
+        if cur is None:
+            cur = {"place": "", "mood": "creepy", "lines": []}
+            scenes.append(cur)
+        spk = m.group(1).strip()
+        cur["lines"].append({"speaker": "narrator" if spk.lower() == "narrator" else spk, "text": m.group(2).strip()})
+    scenes = [s for s in scenes if s["lines"]]
+    return title, scenes
+
+
+def _script_text(title, scenes):
+    out = [f"TITLE: {title}"]
+    for s in scenes:
+        out.append(f"### SCENE | {s.get('place', '')} | {s.get('mood', 'creepy')}")
+        out += [f"{ln['speaker']}: {ln['text']}" for ln in s["lines"]]
+    return "\n".join(out)
+
+
+def _words(scenes):
+    return sum(len(str(ln.get("text", "")).split()) for s in scenes for ln in s.get("lines") or [])
+
+
+def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start", part=0):
+    """v109 (16-17 Nov 2026: 'it does not feel like one story - bits cut from here and there and joined'): the story
+    is written by ONE author in ONE go as a plain script - not chapter by chapter, not as a big JSON in which the
+    writing drowns in picture and sound fields. One editor then reads the WHOLE script once. Only after that are
+    the pictures, sounds and voices planned - with the words fixed, nothing in the story is changed by that step."""
+    L = LANGS[lang]
+    sc = length_scale()
+    STATE["len_scale"] = sc
+    wpm = 120 * sc
+    target = int(LONG_MIN * wpm)
+    base = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules, prompt_only=True,
+                      length=(f"- LENGTH: ONE long, slow-burning story of about {int(LONG_MIN)} minutes: about {target} "
+                              f"spoken words ({max(14, target // 110)} to {max(18, target // 80)} scenes). The length "
+                              "comes from living each moment fully - real talk, doubt, small real details - never from "
+                              "extra events or repeated scares."))
+    rules = base.split("Return ONLY JSON with exactly these keys:")[0]
+    if opening == "recap":
+        rules += ("\nThis is a NEW PART of a series: the narrator opens with a short recap (3-4 lines) of where the last "
+                  "part ended, then the story goes on from that exact moment.")
+    rules += ("\nTHE ENDING: " + ("this part stops at its big turning point on a strong cliffhanger - the mystery is "
+                                   "NOT solved yet." if ending == "cliffhanger" else
+                                   "the climax, ONE fair twist, a calm resolution that explains everything and what "
+                                   "became of every person, then one quiet chilling last line."))
+    fmt_rule = SCRIPT_FORMAT.replace("{moods}", ", ".join(MOODS))
+    txt = _gem_call(rules + fmt_rule, temp=1.0)
+    if txt and re.search(r'"unknown"\s*:\s*true|^\s*UNKNOWN', txt[:400], re.I):
+        raise ClassicUnknown()
+    title, scenes = _parse_script(txt)
+    if not scenes:
+        raise RuntimeError("the whole-story writer gave no script")
+    log(f"Whole story written in one go: {len(scenes)} scenes, {_words(scenes)} words (target {target})")
+    tries = 0
+    while _words(scenes) < target * 0.8 and tries < 2:
+        tries += 1                                    # too short: the SAME author goes on from where it stopped
+        more = _gem_call(rules + fmt_rule + "\n\nTHE STORY SO FAR (already written - do NOT repeat or rewrite it):\n"
+                         + _script_text(title, scenes) + "\n\nThe story above stopped too early or is too thin. If it "
+                         "has NOT reached its ending, continue it from its very last line to the end, in the same form "
+                         "(start with '### SCENE'). If it HAS ended, answer only: DONE", temp=0.9)
+        if not more or more.strip().upper().startswith("DONE"):
+            break
+        _t2, add = _parse_script(more)
+        if not add:
+            break
+        scenes += add
+        log(f"  the story went on: now {len(scenes)} scenes, {_words(scenes)} words")
+    if _words(scenes) < target * 0.55:
+        raise RuntimeError(f"whole story too short ({_words(scenes)} words)")
+    # ONE editor reads the WHOLE script once (plain text: the editor works on the story, not on JSON fields)
+    if env("EDITOR") != "0":
+        ed = _gem_call(
+            f"You are the chief editor of the best Bengali radio-horror show (Sunday Suspense quality). Here is ONE "
+            f"complete {L['name']} horror script. Read it as a listener, from the first line to the last, and make it "
+            "ONE seamless story: every scene must grow out of the one before (cause and effect, or a clear spoken "
+            "bridge of time and place); nothing may feel cut out or patched in; no sentence or event is said twice; "
+            "no coincidence or lucky find solves anything (whatever matters at the end is set up earlier); every person "
+            "acts like a real person; plain, exact, natural "
+            + ("Kolkata cholit Bengali" if lang == "bn" else "Hindi")
+            + " - quiet and precise is more frightening than loud. Keep the same people, names, plot, scenes and "
+            "about the same length (never shorter). Return the WHOLE improved script in EXACTLY the same form "
+            "(TITLE:, ### SCENE | place | mood, speaker: words) and nothing else.\n\n" + _script_text(title, scenes),
+            temp=0.6)
+        t2, sc2 = _parse_script(ed)
+        if sc2 and _words(sc2) >= _words(scenes) * 0.88 and len(sc2) >= len(scenes) * 0.7:
+            log(f"  the editor read the whole story once: {_words(scenes)} -> {_words(sc2)} words")
+            title, scenes = (t2 or title), sc2
+        else:
+            log("  the editor's version was incomplete - the author's version stays")
+    # THE PLAN FOR PICTURES / SOUNDS / VOICES - the words are fixed (each line keeps its id)
+    tmpl = "Return ONLY JSON with exactly these keys:" + base.split("Return ONLY JSON with exactly these keys:")[1]
+    script = _script_text(title, scenes)
+    top = None
+    for _ in range(2):
+        top = extras.load_json_loose(_gem_call(
+            "Here is a FINISHED " + L["name"] + " horror script. Do NOT change, add or remove any story line.\n" + script
+            + "\n\nFill in everything ELSE for this exact story. " + tmpl
+            + "\nIMPORTANT: leave \"scenes\" OUT of your answer (the scenes are done separately) and use \"title\": "
+            + json.dumps(title, ensure_ascii=False) + ". Every speaking person of the script must be in \"characters\" "
+            "with exactly the name used in the script.", json_mode=True, temp=0.5) or "{}")
+        if isinstance(top, dict) and top.get("characters"):
+            break
+    if isinstance(top, dict) and top.get("unknown"):
+        raise ClassicUnknown()
+    if not isinstance(top, dict) or not top.get("characters"):
+        raise RuntimeError("no story details for the whole script")
+    story = dict(top)
+    story["title"] = story.get("title") or title
+    line_keys = ("en", "emotion", "delivery", "voice_text", "sfx", "jump_scare", "ghost_laugh", "image")
+    scene_keys = ("follows_from", "characters", "action", "place", "mood", "ambience", "chapter")
+    step = 8
+    out_scenes = []
+    for a in range(0, len(scenes), step):
+        chunk = [{"n": a + i + 1, "lines": [{"id": f"{a + i}.{j}", "speaker": ln["speaker"], "text": ln["text"]}
+                                            for j, ln in enumerate(s["lines"])]} for i, s in enumerate(scenes[a:a + step])]
+        meta = None
+        for _ in range(2):
+            meta = extras.load_json_loose(_gem_call(
+                "A finished " + L["name"] + " horror script (for context):\n" + script + "\n\nFor the scenes below, "
+                "fill in the scene and line fields of this format (copy each line's \"id\" exactly; never change, add "
+                "or remove a line; \"voice_text\" = the same words + at most 2 sound tags):\n"
+                + tmpl.split('"scenes": [')[1].split(' "ending_line"')[0]
+                + "\nEvery scene object also has \"chapter\": \"2-4 word " + L["name"] + " chapter name\".\n"
+                "Answer ONLY JSON: {\"scenes\": [...the same scenes, in order, each with its \"lines\" (each with its "
+                "\"id\")]}\nSCENES:\n" + json.dumps(chunk, ensure_ascii=False), json_mode=True, temp=0.5) or "{}")
+            if isinstance(meta, dict) and meta.get("scenes"):
+                break
+        got = {}
+        for ms in (meta or {}).get("scenes") or [] if isinstance(meta, dict) else []:
+            for ml in ms.get("lines") or []:
+                if isinstance(ml, dict) and ml.get("id"):
+                    got[str(ml["id"])] = (ms, ml)
+        for i, s in enumerate(scenes[a:a + step]):
+            si = a + i
+            new_s = {"place": s.get("place", ""), "mood": s.get("mood", "creepy"), "lines": []}
+            ms0 = next((got[f"{si}.{j}"][0] for j in range(len(s["lines"])) if f"{si}.{j}" in got), {})
+            for k_ in scene_keys:
+                if ms0.get(k_) not in (None, "", []):
+                    new_s[k_] = ms0[k_]
+            new_s["mood"] = new_s.get("mood") if new_s.get("mood") in MOODS else "creepy"
+            for j, ln in enumerate(s["lines"]):
+                ml = got.get(f"{si}.{j}", ({}, {}))[1]
+                nl = {"speaker": ln["speaker"], "text": ln["text"]}      # THE WORDS STAY THE AUTHOR'S
+                for k_ in line_keys:
+                    if ml.get(k_) not in (None, "", []):
+                        nl[k_] = ml[k_]
+                if nl.get("voice_text") and _said_key(nl["voice_text"]) != _said_key(ln["text"]):
+                    nl.pop("voice_text")              # (different words in the voice: never)
+                new_s["lines"].append(nl)
+            out_scenes.append(new_s)
+        log(f"  pictures and sounds planned for scenes {a + 1}-{min(len(scenes), a + step)}")
+    story["scenes"] = out_scenes
+    story.setdefault("summary", str(story.get("description") or "")[:600])
+    names = {str(c.get("name", "")).lower() for c in story.get("characters") or [] if isinstance(c, dict)}
+    for s in story["scenes"]:                         # a speaker the details forgot: the storyteller's voice
+        for ln in s["lines"]:
+            if ln["speaker"] != "narrator" and ln["speaker"].lower() not in names:
+                first = ln["speaker"].split()[0].lower()
+                match = next((c["name"] for c in story["characters"] if str(c.get("name", "")).split()[0].lower() == first), None)
+                ln["speaker"] = match or "narrator"
+    try:
+        fix_language(story, lang)
+    except Exception as e:
+        log("  language check skipped:", str(e)[:120])
+    if ending == "resolve":
+        try:
+            ensure_ending(story, lang)
+        except Exception as e:
+            log("  ending check skipped:", str(e)[:120])
+    try:
+        line_flow_check(story, lang)
+    except Exception as e:
+        log("  line-by-line check skipped:", str(e)[:120])
+    log(f"WHOLE STORY: {len(story['scenes'])} scenes, {_words(story['scenes'])} words (~{_words(story['scenes']) / wpm:.0f} "
+        "minutes), written in one piece")
+    return story
+
+
 def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start", part=0):
     """ONE long story (about LONG_MIN minutes) written chapter by chapter from the master outline, each chapter
-    continuing exactly where the last one stopped and checked by the editor, then joined into one script."""
+    continuing exactly where the last one stopped and checked by the editor, then joined into one script.
+    v109: first it is written in ONE piece (write_whole_story); the chapters are only the fallback."""
+    if env("ONE_PASS") != "0" and not MOCK:
+        try:
+            return write_whole_story(lang, theme, history, fmt, extra_rules, classic=classic, ending=ending,
+                                     opening=opening, part=part)
+        except ClassicUnknown:
+            raise
+        except Exception as e:
+            log("  whole-story writing failed - chapter by chapter instead:", str(e)[:200])
     # TWO halves (not 4-5 small chapters): every join is a place where a story can lose its thread, so a ~22-minute
     # story is written as two big halves - the first ends on the midpoint cliffhanger, the second finishes it
     n_ch = 2 if LONG_MIN <= 26 else max(2, round(LONG_MIN / 11))
@@ -2528,12 +2830,13 @@ def chapter_prompt(prompt, extra_rules):
     return p
 
 
-def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2, length=None, min_w=None):
+def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2, length=None, min_w=None,
+               prompt_only=False):
     """part=0: one complete story; part=1: first half of a 2-part series (ends on a cliffhanger);
     part=2: the final part, continuing `prev` (saved from part 1)."""
-    if MOCK:
+    if MOCK and not prompt_only:
         return mock_story(lang)
-    key = need_env("GEMINI_API_KEY")
+    key = env("GEMINI_API_KEY") if prompt_only else need_env("GEMINI_API_KEY")
     L = LANGS[lang]
     old_titles = [h["title"] for h in history[-60:] if h.get("lang") == lang]
     fmt = fmt or random.choice(FORMATS)
@@ -2746,6 +3049,8 @@ Return ONLY JSON with exactly these keys:
 Every scene object also has "chapter": "2-4 word {L['name']} chapter name for YouTube chapters".
 """
     prompt = chapter_prompt(prompt, extra_rules)      # a chapter of a long story is NOT a whole story
+    if prompt_only:
+        return prompt
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json",
                                  "maxOutputTokens": 60000}}
@@ -3756,24 +4061,17 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         try:
             story_order = [z for z in sorted(zip(todo, items), key=lambda z: (z[0][0], z[0][1])) if made(z[1])]
             lines_ = [{"out": it["out"], "plain": it["plain"], "voice": it["voice"]} for _t, it in story_order]
-            extras.fix_heard_twice(lines_)
-            # then Gemini LISTENS to every voice with the script: each line where words are heard twice is
-            # mended - cut by sound, or (when the sound cannot find the place) made again ALONE
-            heard = extras.listen_for_repeats(lines_, LANGS[lang]["name"])
-            remade, gem_again = 0, 0
-            for k in sorted(heard)[:int(env("TWICE_MAX_FIX") or 12)]:
-                x = lines_[k]
-                prev = next((y for y in reversed(lines_[max(0, k - 6):k]) if y["voice"] == x["voice"]), None)
-                log(f"  heard twice: '{heard[k][:50]}' in '{x['plain'][:40]}...'")
-                if extras.cut_repeat_loose(x, prev):
-                    continue
+            gem_again = [0]
+
+            def remake_(k):
+                """one line made again ALONE: Gemini while today's share allows (at most 4), else Chirp"""
                 it = story_order[k][1]
                 tmp_ = it["out"] + ".again.wav"
                 ok_ = False
                 try:
-                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again < int(env("TWICE_GEM_MAX") or 3)
+                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again[0] < int(env("TWICE_GEM_MAX") or 4)
                             and extras.tts_budget_left(TTS_USAGE) - extras.TTS_USED[0] > voice_reserve()):
-                        gem_again += 1
+                        gem_again[0] += 1
                         off_ = extras.TTS_STATE["off"]
                         extras.TTS_STATE["off"] = False
                         extras.TTS_USED[0] += 1
@@ -3787,14 +4085,12 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                         ok_ = extras.chirp_tts(it["plain"], it["voice"], tmp_, SR, TTS_USAGE, lang)
                     if ok_ and os.path.exists(tmp_) and os.path.getsize(tmp_) > 2000:
                         os.replace(tmp_, it["out"])
-                        extras.fix_heard_twice([x])          # (the new recording is checked as well)
-                        remade += 1
+                        return True
+                    return False
                 finally:
                     if os.path.exists(tmp_):
                         os.remove(tmp_)
-            if heard:
-                log(f"  listening check: {len(heard)} line(s) had words twice - {remade} made again alone, "
-                    "the rest cut")
+            extras.voice_verify(lines_, LANGS[lang]["name"], remake_)
             if extras.TTS_USED[0]:
                 extras.tts_budget_use(TTS_USAGE)
         except Exception as e:
@@ -5586,6 +5882,7 @@ def post_to_facebook(video, thumb, title, description):
                                                        "description": description, **fb_when()},
                                             files={"thumb": ("thumb.jpg", th, "image/jpeg")}, timeout=300))
             if jf.get("success") or jf.get("id"):
+                extras.feed_note("video", extras.PUBLISH.get("at"))
                 return js.get("video_id") or jf.get("id") or sid
             raise RuntimeError(str(jf)[:300])
         except PermissionError:
@@ -5908,6 +6205,66 @@ def pick_moments(scenes, story, n=4):
     return out
 
 
+def _slide(img_path, out, top="", bottom="", top_size=88, bright=0.72):
+    """a 9:16 picture slide: the picture fills the screen, big words on top, a line of the story below"""
+    from PIL import ImageEnhance
+    VW, VH = 720, 1280
+    img = Image.open(img_path).convert("RGB")
+    s = max(VW / img.width, VH / img.height)
+    img = img.resize((int(img.width * s) + 1, int(img.height * s) + 1))
+    img = img.crop(((img.width - VW) // 2, (img.height - VH) // 2, (img.width - VW) // 2 + VW, (img.height - VH) // 2 + VH))
+    img = ImageEnhance.Brightness(img).enhance(bright)
+    d = ImageDraw.Draw(img)
+    if top:
+        rows, f, sz = extras._fit_text(d, extras.no_tofu(top), FONT, VW - 60, top_size, lines_max=2)
+        y = 60
+        for r in rows:
+            tw = d.textlength(r, font=f)
+            d.text(((VW - tw) / 2, y), r, font=f, fill=(255, 215, 0), stroke_width=max(4, sz // 11), stroke_fill=(0, 0, 0))
+            y += int(sz * 1.25)
+    if bottom:
+        rows, f, sz = extras._fit_text(d, extras.no_tofu(bottom), FONT, VW - 70, 50, lines_max=3)
+        y = int(VH * 0.74)
+        for r in rows:
+            tw = d.textlength(r, font=f)
+            d.text(((VW - tw) / 2, y), r, font=f, fill=(255, 255, 255), stroke_width=4, stroke_fill=(0, 0, 0))
+            y += int(sz * 1.3)
+    img.save(out, quality=92)
+    return out
+
+
+def voiceless_teaser(parts, story, title, when, out):
+    """v109: the morning teaser WITHOUT any voice (it used 4-6 of the day's Gemini voice requests): the story's
+    pictures, the frightening words big from the first frame, its scariest lines as text, heartbeats and hits -
+    then the title and when it comes. The voices are kept for the full stories."""
+    np = _np()
+    rnd = np.random.default_rng(11)
+    pics = [p_["image"] for p_ in parts if p_.get("image") and os.path.exists(p_["image"])]
+    if len(pics) < 2:
+        raise RuntimeError("no pictures")
+    lines = [extras.strip_tags(str(p_["lines"][0].get("text", ""))) for p_ in parts[:-1] if p_.get("lines")]
+    big = reel_words(story, title)
+    clips, k = [], 0
+    hit = synth("scare_hit", int(SR * 1.6), rnd)
+    beat = synth("heartbeat", int(SR * 3.2), rnd) * 0.7
+    for i, pic in enumerate(pics[:5]):
+        k += 1
+        sl = _slide(pic, os.path.join(WORK, f"vt_{k}.jpg"), top=big, bottom=lines[i] if i < len(lines) else "")
+        snd = hit.copy() if i == 0 else beat.copy()
+        clips.append(_still_clip(sl, snd, 2.0 if i == 0 else 3.0, os.path.join(WORK, f"vt_{k}.mp4"), zoom=True))
+    k += 1
+    end = _card(os.path.join(WORK, "vt_end.jpg"), [re.sub(r"\s*\|.*$", "", title).strip(), when], [66, 58],
+                [(255, 225, 0), (255, 60, 60)], bg=pics[-1])
+    clips.append(_still_clip(end, signature_sting(), 3.0, os.path.join(WORK, f"vt_{k}.mp4")))
+    lst = os.path.join(WORK, "vt.txt")
+    with open(lst, "w") as f:
+        f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
+    run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c:v", "libx264", "-preset", "veryfast", "-crf", "22",
+         "-r", str(FPS), "-c:a", "aac", "-b:a", "160k", "-ac", "2", "-movflags", "+faststart", out])
+    log(f"Teaser WITHOUT voices ready ({len(clips)} pictures) - no Gemini voice used")
+    return out
+
+
 def make_plan_teaser(plan, slot_hour, out_portrait):
     """A teaser (under a minute) for a story written this morning: its most gripping moments with pictures and
     voices, then the title and only the time of day ('আজ রাতে') - never a clock time."""
@@ -5963,6 +6320,12 @@ def make_plan_teaser(plan, slot_hour, out_portrait):
     HOOK_TEXT[0] = str(story.get("tagline") or story.get("thumbnail_text") or "").strip()
     cat = plan.get("cat") or category_of(slot_hour)
     STATE["top_text"] = (f"{SHOW_NAME[lang].get(slot_hour, SHOW_NAME[lang][EVENING])} · {HORROR_CATS[cat][lang]}", title)
+    if env("MORNING_TEASER_VOICE") != "1":           # v109: no Gemini voice for the morning teaser
+        try:
+            voiceless_teaser(parts, story, title, when, out_portrait)
+            return title, when, story
+        except Exception as e:
+            log("  teaser without voices failed - the spoken one:", str(e)[:150])
     wide = os.path.join(WORK, "teaser_wide.mp4")
     os.environ["TTS_SPEAKERS_PER_REQUEST"] = "2"      # a teaser has only a few short lines: fewer voice requests
     VOICE_CONTEXT[0] = "teaser"
@@ -6064,7 +6427,11 @@ def morning_teasers(history):
                     f"{title}\n\n{when} पूरी कहानी - {page} को फ़ॉलो कीजिए।") + "\n\n" + " ".join(tags)
             if env("FB_REELS") != "0":
                 try:
-                    log("Facebook teaser Reel:", extras.fb_post_reel(reel, desc, at=at))
+                    extras.FEED["priority"] = True       # (the day's teaser always goes)
+                    try:
+                        log("Facebook teaser Reel:", extras.fb_post_reel(reel, desc, at=at))
+                    finally:
+                        extras.FEED["priority"] = False
                     if env("MORNING_STORY") != "0":   # and on the page Story (24 hours at the top of the feed)
                         try:
                             sid = extras.fb_post_story(reel)
@@ -6242,7 +6609,7 @@ CREATOR_RULE = (
 PLAN_STATE = ("binaural", "folk_story", "brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
               "trend_used", "crossover", "milestone", "opening", "sequel_of",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
-              "district", "district_votes", "viewer_names", "arc")
+              "district", "district_votes", "viewer_names", "arc", "len_arm", "listener_score")
 
 
 def length_scale():
@@ -6585,6 +6952,11 @@ def choose_and_write(slot_hour, history):
 
     if special != "classic":
         extra_rules += MASTER_STYLE
+    wish_ = "" if MOCK else user_wish(slot_hour)
+    if wish_:                                         # v109: you asked for a different story
+        extra_rules += ("\nTHE OWNER OF THE CHANNEL REJECTED THE STORY WRITTEN BEFORE FOR THIS TIME. Write a completely "
+                        f"different, much better story. His wish (follow it): {wish_}\n")
+        log(f"  your wish for this story: {wish_}")
     if special == "karna":
         subject, ck = ("Karna Pishachini (কর্ণপিশাচিনী) in Bengali and Indian tantric belief: the yogini, her sadhana, "
                        "her nature, look and rules"), "karna_pishachini"
@@ -6651,6 +7023,11 @@ def choose_and_write(slot_hour, history):
     if not saved:
         story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""),
                            outline=STATE.get("outline", ""))
+    if special != "classic" and env("LISTENER_JUDGE") != "0":
+        try:                                          # v109: a strict listener scores it - a weak story is mended
+            listener_judge(story, lang)
+        except Exception as e:
+            log("  listener check skipped:", str(e)[:150])
     if STATE.get("creator_true"):                      # 'সত্য ঘটনা অবলম্বনে' everywhere
         extras.mark_true_story(story, lang)
     if "khata_clue" in KHATA_HOLD and isinstance(story, dict) and not from_saved_:   # v95: the hidden clue goes with the story
@@ -8225,6 +8602,12 @@ def write_tomorrow(history):
             log(f"=== Writing TOMORROW's story for {SLOT_BN[h]} ({key}) ===")
             STATE.clear()
             SCRIPTS.clear()
+            global LONG_MIN
+            arm_ = length_arm(day.isoformat(), h, history)
+            if arm_:
+                LONG_MIN = minutes_for(arm_, SLOT_MINUTES.get(h, LONG_MIN))
+                STATE["len_arm"] = arm_
+                log(f"  length test: this story is {'SHORT' if arm_ == 'short' else 'LONG'} ({LONG_MIN:.0f} min)")
             try:
                 with pretend_now(at):
                     plan = choose_and_write(h, hist2)
@@ -8266,6 +8649,92 @@ def thumb_text_for(plan):
     return str(big or "").strip(), str(small or "").strip()
 
 
+CHANGE_FILE = os.path.join(HERE, "assets", "change_requests.json")
+
+
+def change_requests(history):
+    """v109: YOUR 'no' to a story. After the evening list you can write on Telegram '1 বদলাও' (the 2 PM story) or
+    '2 বদলাও' (8 PM), and after it, if you like, what you want ('2 বদলাও, গ্রামের গল্প চাই'). That story is thrown
+    away and written again (with your wish) by the next run. Returns how many requests were taken."""
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    if MOCK or DRY_RUN or not tok or not chat or env("CHANGE_REQUESTS") == "0":
+        return 0
+    try:
+        r = requests.get(f"https://api.telegram.org/bot{tok}/getUpdates",
+                         params={"allowed_updates": json.dumps(extras.TG_UPDATES)}, timeout=30).json()
+    except Exception as e:
+        log("  change requests: Telegram not read -", str(e)[:100])
+        return 0
+    data = _jload(CHANGE_FILE, {})
+    data = data if isinstance(data, dict) else {}
+    seen = set(data.get("seen") or [])
+    notes = data.get("notes") or {}
+    plans, got = _jload(PLANS_FILE, {}), 0
+    done_slots = {h.get("slot") for h in history if h.get("slot")}
+    for u in r.get("result") or []:
+        m = u.get("message") or {}
+        uid = u.get("update_id")
+        if uid in seen or str((m.get("chat") or {}).get("id")) != str(chat):
+            continue
+        txt = str(m.get("text") or "").strip()
+        mm = re.match(r"^\s*([12১২])\s*[-:,.]?\s*(বদলাও|বদলান|বদলে দাও|বাদ|change|badlao|bodlao|bodlau|badlau)\b[\s,.:-]*(.*)$",
+                      txt, re.I | re.S)
+        if not mm:
+            continue
+        seen.add(uid)
+        h = NOON if mm.group(1) in "1১" else EVENING
+        wish = mm.group(3).strip()[:300]
+        keys = sorted(k for k in plans if k.endswith(f"@{h}") and k not in done_slots
+                      and k.split("@")[0] >= dt.datetime.now(extras.IST).date().isoformat())
+        if not keys:
+            _tg_text(f"🔁 {SLOT_BN[h]}-র কোনো লেখা গল্প এখন বাকি নেই - তাই বদলানোর কিছু নেই।")
+            continue
+        k = keys[0]
+        old = _plan_title(plans[k])
+        plans.pop(k, None)
+        notes[k] = wish or "the owner did not like the story: write a completely different, better one"
+        got += 1
+        _tg_text(f"🔁 ঠিক আছে - '{old}' বাদ। {SLOT_BN[h]}-র জন্য নতুন গল্প লেখা হবে"
+                 + (f" (আপনার কথামতো: {wish})" if wish else "") + "। নতুন নাম লেখা হলে জানিয়ে দেব।")
+        log(f"  your change request: {k} will be written again" + (f" ({wish})" if wish else ""))
+    data["seen"] = sorted(seen)[-300:]
+    data["notes"] = notes
+    if got or seen != set(data.get("seen") or []):
+        _jsave(CHANGE_FILE, data)
+    if got:
+        _jsave(PLANS_FILE, plans)
+        push_now([PLANS_FILE, CHANGE_FILE], "your change request")
+    return got
+
+
+def user_wish(slot_hour):
+    """the wish you sent with 'বদলাও' for the next story of this time (taken once)"""
+    data = _jload(CHANGE_FILE, {})
+    notes = (data.get("notes") or {}) if isinstance(data, dict) else {}
+    k = next((k for k in sorted(notes) if k.endswith(f"@{slot_hour}")), None)
+    if not k:
+        return ""
+    wish = notes.pop(k)
+    data["notes"] = notes
+    _jsave(CHANGE_FILE, data)
+    return wish
+
+
+def story_peek(plan):
+    """what the story is about + how it starts and ends - for your 'yes / change' on Telegram"""
+    st = plan.get("story") or {}
+    desc = re.sub(r"\s+", " ", str(st.get("description") or "")).strip()[:300]
+    lines = [extras.strip_tags(str(ln.get("text", ""))) for sc in (st.get("scenes") or [])[:2]
+             for ln in sc.get("lines") or []][:3]
+    last = [extras.strip_tags(str(ln.get("text", ""))) for ln in ((st.get("scenes") or [{}])[-1].get("lines") or [])][-1:]
+    out = [desc] if desc else []
+    if lines:
+        out.append("শুরু: " + " / ".join(x[:120] for x in lines))
+    if last:
+        out.append("শেষ লাইন: " + last[0][:160])
+    return "\n".join(out)
+
+
 def send_title_list(day):
     """The day's titles on Telegram:  1 = 2 PM, 2 = 8 PM  (+ for each, what to paste into ChatGPT)."""
     plans = _jload(PLANS_FILE, {})
@@ -8297,7 +8766,9 @@ def send_title_list(day):
     for h, p in items:
         try:
             big, small = thumb_text_for(p)
-            _tg_text(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(p)}\n\n✍️ thumbnail-এ লিখুন:\n"
+            _tg_text(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(p)}\n\n{story_peek(p)}\n\n"
+                     f"গল্প পছন্দ না হলে লিখুন: {SLOT_NO[h]} বদলাও (চাইলে পরে কী চান, যেমন '{SLOT_NO[h]} বদলাও, "
+                     "গ্রামের গল্প চাই')\n\n✍️ thumbnail-এ লিখুন:\n"
                      f"বড় করে: {big}" + (f"\nছোট করে: {small}" if small else ""))
             _tg_text(f"{SLOT_NO[h]}️⃣ চওড়া ছবি (16:9) - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p)}")
             _tg_text(f"{SLOT_NO[h]}️⃣ লম্বা ছবি (9:16) - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p, tall=True)}")
@@ -8758,6 +9229,154 @@ def morning_prepare(day, history):
 
 
 # ----------------------------------------------------------------- 4) the Sunday report on Telegram
+LEN_FILE = os.path.join(HERE, "assets", "len_test.json")
+FOLLOW_FILE = os.path.join(HERE, "assets", "followers.json")
+WATCH_FILE = os.path.join(HERE, "assets", "watchdog.json")
+
+
+def length_arm(day_iso, h, history=None):
+    """v109 (H4): two weeks of a fair test - one day the 2 PM story is SHORT (~11 min) and the 8 PM long, the next day
+    the other way round. Then the bot keeps the length that was watched more (views + how long). 'short' / 'long' /
+    None (no test)."""
+    if env("LEN_TEST") == "0" or os.environ.get("HORROR_MINUTES"):
+        return None
+    d = _jload(LEN_FILE, {})
+    d = d if isinstance(d, dict) else {}
+    if d.get("winner"):
+        return d["winner"]
+    if not d.get("start"):
+        d["start"] = day_iso
+        if not MOCK:
+            _jsave(LEN_FILE, d)
+    days = (dt.date.fromisoformat(day_iso) - dt.date.fromisoformat(d["start"])).days
+    if days >= int(env("LEN_TEST_DAYS") or 14) and history is not None:
+        w = length_winner(history)
+        if w:
+            d["winner"] = w
+            if not MOCK:
+                _jsave(LEN_FILE, d)
+                push_now([LEN_FILE], "story length test decided")
+            return w
+    return "short" if (days + (1 if h == EVENING else 0)) % 2 else "long"
+
+
+def length_winner(history):
+    """the arm whose stories were watched more (Facebook + YouTube views, and minutes watched) - or None"""
+    arms = {"short": [], "long": []}
+    for h in history[-80:]:
+        st = h.get("stats") or {}
+        if h.get("len_arm") in arms and st.get("checked"):
+            mins = (float(st.get("avg_watch_ms") or 0) / 60000.0)
+            arms[h["len_arm"]].append(float(st.get("fb_views") or 0) + float(st.get("views") or 0) * 1.5 + mins * 50)
+    if min(len(v) for v in arms.values()) < 4:
+        return None
+    a = {k: sum(v) / len(v) for k, v in arms.items()}
+    win = "short" if a["short"] > a["long"] * 1.1 else "long"
+    _tg_text(f"📏 গল্পের দৈর্ঘ্যের পরীক্ষা শেষ: ছোট গল্প (~{env('SHORT_MINUTES') or 11} মিনিট) গড় ফল {a['short']:.0f}, "
+             f"লম্বা গল্প গড় {a['long']:.0f}। এখন থেকে {'ছোট' if win == 'short' else 'লম্বা'} গল্পই হবে।")
+    return win
+
+
+def minutes_for(arm, default):
+    return float(env("SHORT_MINUTES") or 11) if arm == "short" else default
+
+
+def follower_watch(history):
+    """v109 (H5): once a day the page's follower count is noted. When followers DROP, you get a Telegram note with
+    what went on the page the day before - so we see which kind of post makes people leave."""
+    page, token = env("FB_PAGE_ID"), env("FB_PAGE_TOKEN")
+    if MOCK or DRY_RUN or not (page and token) or env("FOLLOWER_WATCH") == "0":
+        return None
+    today = dt.datetime.now(extras.IST).date()
+    d = _jload(FOLLOW_FILE, {})
+    d = d if isinstance(d, dict) else {}
+    if today.isoformat() in d:
+        return None
+    try:
+        js = requests.get(f"{extras.GRAPH}/{page}", params={"fields": "followers_count,fan_count",
+                                                             "access_token": token}, timeout=30).json()
+        n = int(js.get("followers_count") or js.get("fan_count") or 0)
+    except Exception as e:
+        log("  follower count not read:", str(e)[:100])
+        return None
+    if not n:
+        return None
+    prev = sorted(k for k in d if k < today.isoformat())
+    d[today.isoformat()] = n
+    keep = (today - dt.timedelta(days=60)).isoformat()
+    _jsave(FOLLOW_FILE, {k: v for k, v in d.items() if k >= keep})
+    push_now([FOLLOW_FILE], "followers noted")
+    if prev:
+        last = int(d[prev[-1]])
+        diff = n - last
+        log(f"  followers: {n} ({'+' if diff >= 0 else ''}{diff} since {prev[-1]})")
+        if diff <= -max(3, int(last * 0.01)):
+            y = (today - dt.timedelta(days=1)).isoformat()
+            fl = _jload(extras.FEED_FILE, {})
+            kinds = (fl.get(y) or []) if isinstance(fl, dict) else []
+            names = {"main:video": "গল্পের ভিডিও", "main:reel": "Reel", "reel": "বাড়তি Reel", "photo": "ছবি-পোস্ট",
+                     "question": "প্রশ্ন-পোস্ট"}
+            cnt = {}
+            for k_ in kinds:
+                cnt[names.get(k_, k_)] = cnt.get(names.get(k_, k_), 0) + 1
+            ttl = [str(h.get("title", ""))[:40] for h in history if str(h.get("date", ""))[:10] == y and h.get("title")]
+            _tg_text(f"⚠️ follower কমেছে: {last} → {n} ({diff})।\nগতকাল পেজে গিয়েছিল: "
+                     + (", ".join(f"{v}টা {k_}" for k_, v in cnt.items()) or "হিসেব নেই")
+                     + (f"\nগল্প: {' | '.join(ttl[:3])}" if ttl else ""))
+    return n
+
+
+def watchdog(history):
+    """v109 (X1): 16 Nov the 8 PM story never came and nobody knew. Every run looks back: a story of the last
+    two days that should be out but is not -> one Telegram note (what to check)."""
+    if MOCK or DRY_RUN or env("WATCHDOG") == "0":
+        return []
+    now = dt.datetime.now(extras.IST)
+    posted = {h.get("slot") for h in history if h.get("slot") and (h.get("facebook") or h.get("youtube"))}
+    data = _jload(WATCH_FILE, {})
+    data = data if isinstance(data, dict) else {}
+    told = set(data.get("told") or [])
+    miss = []
+    for back in (1, 0):
+        day = (now - dt.timedelta(days=back)).date()
+        for h in (NOON, EVENING):
+            key = f"{day.isoformat()}@{h}"
+            due = dt.datetime(day.year, day.month, day.day, h, 30, tzinfo=extras.IST)
+            if now > due + dt.timedelta(minutes=30) and key not in posted and key not in told:
+                miss.append(key)
+    if miss:
+        _tg_text("⚠️ এই গল্প(গুলো) পেজে যায়নি: " + ", ".join(
+            f"{k.split('@')[0]} {SLOT_BN[int(k.split('@')[1])]}" for k in miss)
+            + "\nদেখে নিন: GitHub → horror-story-bot → Actions-এ ওই সময়ের run লাল কিনা, আর cron-job.org-এ job চলেছিল কিনা।")
+        told |= set(miss)
+        data["told"] = sorted(told)[-40:]
+        _jsave(WATCH_FILE, data)
+        push_now([WATCH_FILE], "missed story noted")
+    return miss
+
+
+def growth_week_lines(history, week, S, avg):
+    """v109 (X2): the weekly report's new lines - followers, the listener's scores, the length test, extra posts"""
+    out = []
+    d = _jload(FOLLOW_FILE, {})
+    if isinstance(d, dict) and len(d) >= 2:
+        ks = sorted(d)
+        old = next((d[k] for k in ks if k >= (dt.date.fromisoformat(ks[-1]) - dt.timedelta(days=7)).isoformat()), d[ks[0]])
+        out.append(f"👥 follower: {old} → {d[ks[-1]]} ({int(d[ks[-1]]) - int(old):+d} এই সপ্তাহে)")
+    sc = [float(h.get("listener_score")) for h in week if h.get("listener_score")]
+    if sc:
+        out.append(f"🎧 শ্রোতা-বিচারকের গড় নম্বর: {sum(sc) / len(sc):.1f}/10")
+    ar = {a: avg([h for h in week if h.get("len_arm") == a]) for a in ("short", "long")}
+    if all(v is not None for v in ar.values()):
+        out.append(f"📏 ছোট গল্পে গড় view {ar['short']:.0f}, লম্বা গল্পে {ar['long']:.0f} (পরীক্ষা চলছে)")
+    fl = _jload(extras.FEED_FILE, {})
+    if isinstance(fl, dict) and fl:
+        n_ = [len(v) for k, v in fl.items() if k >= (dt.datetime.now(extras.IST).date() - dt.timedelta(days=7)).isoformat()]
+        if n_:
+            out.append(f"📰 পেজে দিনে গড়ে {sum(n_) / len(n_):.1f}টা পোস্ট")
+    return out
+
+
 def weekly_report(history, force=False):
     """SUNDAY NIGHT (with the weekly compilation): the week in numbers on Telegram - views, the best stories, which
     time and which kind of story worked, your thumbnails vs the bot's, how much people watched and where they
@@ -8856,6 +9475,10 @@ def weekly_report(history, force=False):
                 leave.append(f"'{lab}' ({int(sec // 60)}:{int(sec % 60):02d})")
     if leave:
         lines.append("📉 বেশিরভাগ দর্শক যেখানে ছেড়ে গেছেন: " + ", ".join(leave[:3]))
+    try:                                              # v109: what the new things did this week
+        lines += growth_week_lines(history, week, S, avg)
+    except Exception as e:
+        log("  week's extra lines skipped:", str(e)[:100])
     les = (_jload(os.path.join(HERE, "assets", "lessons.json"), {}).get("horror_bn") or {})
     tips = [str(x) for x in (les.get("lessons") or [])[:3]]
     if tips:
@@ -10301,10 +10924,13 @@ def weekly_live(history):
     extras.tg_channel_post(ASSETS, f"🔴 এখন লাইভ - ভূতের রাত! একটানা সপ্তাহের সেরা গল্প:\n{link}", thumb)
     try:
         if env("FB_PAGE_TOKEN"):
+            extras.FEED["priority"] = True           # (the live notice always goes)
             extras.fb_photo(thumb, f"🔴 এখন YouTube-এ লাইভ - ভূতের রাত! একটানা সপ্তাহের সেরা ভূতের গল্প, চ্যাটে আপনার নাম "
                                    f"লিখলে পর্দায় দেখাবে 👻\n{link}")
     except Exception:
         pass
+    finally:
+        extras.FEED["priority"] = False
     starts, t = [], 0.0
     for c in clips:
         starts.append(t)
@@ -10367,6 +10993,16 @@ def main():
             creator_inbox(bot_status)   # (Telegram keeps a message only 24 hours) + your commands
         except Exception as e:
             log("  Telegram stories not read:", str(e)[:120])
+    if not MOCK and not DRY_RUN:
+        try:                                         # v109: '1 বদলাও' / '2 বদলাও' from Telegram
+            change_requests(history)
+        except Exception as e:
+            log("  change requests skipped:", str(e)[:120])
+        for fn_, nm_ in ((watchdog, "missed-story check"), (follower_watch, "follower count")):
+            try:                                     # v109
+                fn_(history)
+            except Exception as e:
+                log(f"  {nm_} skipped:", str(e)[:120])
     if not MOCK and not DRY_RUN:
         try:                                         # v76: YouTube replies, fan channel, viewers' voices, milestones
             growth_start(history)
@@ -10433,6 +11069,12 @@ def main():
         VHS, LONG_MIN = bool(plan.get("vhs")), float(plan.get("long_min") or LONG_MIN)
         plan["shout_names"], plan["shout_ids"] = right_answers(history)
     else:
+        arm_ = length_arm(dt.datetime.now(extras.IST).date().isoformat(), slot_hour, history) \
+            if env("MODE") not in ("amavasya",) else None
+        if arm_:
+            LONG_MIN = minutes_for(arm_, LONG_MIN)
+            STATE["len_arm"] = arm_
+            log(f"  length test: this story is {'SHORT' if arm_ == 'short' else 'LONG'} ({LONG_MIN:.0f} min)")
         plan = choose_and_write(slot_hour, history)
         if SLOT and not MOCK:                          # a re-run after a failure uses this story, no new writing
             try:
@@ -10987,6 +11629,7 @@ def main():
                     "source": STATE.get("source_name") or (prev or {}).get("source") or None,
                     "idea_used": STATE.get("idea_used"),
                     "trend_used": STATE.get("trend_used"),
+                    "len_arm": STATE.get("len_arm"), "listener_score": STATE.get("listener_score"),
                     "crossover": STATE.get("crossover") or None,
                     "opening": STATE.get("opening"),
                     "category": STATE.get("category"),
@@ -11906,6 +12549,7 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         if rid and env("REEL_LINK_IN_CAPTION") != "1":
             extras.PENDING.append({"id": str(rid), "text": f"{L['full_link']} {fb_full}"})
     if teaser and env("FB_REELS") != "0":
+        extras.FEED["priority"] = True               # (the story's own Reel always goes - FEED_CAP is for extras)
         try:
             pub = extras.PUBLISH.get("at")
             now_ = dt.datetime.now(extras.IST)
@@ -11928,6 +12572,8 @@ def grow(video, story, title, lang, L, tags, results, history, page):
             link_comment(out.get("fb_reel"))
         except Exception as e:
             log("  Facebook Reel skipped:", str(e)[:200])
+        finally:
+            extras.FEED["priority"] = False
         try:                                     # the teaser on the page Story too (24 h, top of the feed)
             out["fb_story"] = extras.fb_post_story(teaser)
             if out["fb_story"]:
@@ -12120,7 +12766,16 @@ def day_report():
         log("  daily report skipped:", str(e)[:120])
 
 
+def _push_feed_log():
+    try:
+        push_now([extras.FEED_FILE], "page posts noted")
+    except Exception:
+        pass
+
+
 if __name__ == "__main__":
+    import atexit
+    atexit.register(_push_feed_log)
     try:
         main()
     except SystemExit as e:                          # a stop with a reason -> the reason in Bengali on Telegram
