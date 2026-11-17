@@ -9728,6 +9728,77 @@ def daily_monitor(history):
     return True
 
 
+def seo_backfill(max_n=4):
+    """v111: the story pages made BEFORE the search words: their words are added (a few pages per run)"""
+    gdir = os.path.join(MAP_DIR, "golpo")
+    lp = os.path.join(gdir, "list.json")
+    lst = _jload(lp, [])
+    if MOCK or DRY_RUN or not isinstance(lst, list) or env("SEO_BACKFILL") == "0":
+        return 0
+    n = 0
+    for x in lst:
+        if n >= max_n or x.get("seo"):
+            continue
+        f = os.path.join(gdir, f"{x.get('slug')}.html")
+        if not os.path.exists(f):
+            continue
+        html = open(f, encoding="utf-8").read()
+        if 'class="seo"' in html:
+            x["seo"] = True
+            continue
+        body = re.sub(r"<[^>]+>", " ", (re.search(r"<article>(.*?)</article>", html, re.S) or [None, ""])[1])
+        sw = story_search_words({"description": re.sub(r"\s+", " ", body)[:900]}, str(x.get("title", "")), "bn")
+        if not (sw.get("bn") or sw.get("en")):
+            continue
+        block = extras.seo_block(sw)
+        html = html.replace("</article>", "</article>" + block, 1).replace("</style>", extras.SEO_CSS + "</style>", 1)
+        if sw.get("title_en"):
+            html = re.sub(r"</title>", f" | {extras._esc(sw['title_en'])}</title>", html, count=1)
+        kws = ", ".join(sw.get("bn", []) + sw.get("en", []))
+        html = html.replace('<link rel="canonical"', f'<meta name="keywords" content="{extras._esc(kws)}"><link rel="canonical"', 1)
+        with open(f, "w", encoding="utf-8") as fh:
+            fh.write(html)
+        x["seo"] = True
+        n += 1
+    if n:
+        _jsave(lp, lst)
+        push_now([MAP_DIR], "search words on older story pages")
+        log(f"  search words added to {n} older story page(s)")
+    return n
+
+
+def story_search_words(story, title, lang):
+    """v111 (your idea, 18 Nov 2026): the words people really type for THIS story - its places and its ghost, in
+    Bengali, in English and in Bengali written with English letters ('bagbazar ghat bhuter golpo', 'durgapur
+    paranormal', 'চিত্রালয় সিনেমা দুর্গাপুর'), plus an English title and summary. They go on the story's web page (as
+    readable text - Google reads what is ON the page) and into the YouTube tags and description."""
+    if isinstance(story.get("_search"), dict):
+        return story["_search"]
+    places = ", ".join(x for x in (str(story.get("setting") or ""), str(STATE.get("district") or "")) if x)[:300]
+    ans = _gem_json(
+        f"A {LANGS[lang]['name']} horror story. Title: {title}. What happens: "
+        f"{str(story.get('description') or story.get('summary') or '')[:700]}. Places: {places}.\n"
+        "Write the words REAL people would type into Google or YouTube to find THIS story: the real town / area / "
+        "street / building names in it, the ghost or belief, 'horror', 'ghost', 'paranormal', 'haunted', 'bhuter "
+        "golpo'. Combine the PLACE with the horror word (e.g. 'bagbazar ghat horror', 'bagbazar bhuter golpo', "
+        "'durgapur paranormal', 'চিত্রালয় সিনেমা দুর্গাপুর', 'বাগবাজার ভূতের গল্প'). Only real places of the story - never a "
+        "place that is not in it. Answer ONLY JSON: {\"bn\": [8-12 Bengali search phrases], \"en\": [10-15 English "
+        "phrases, some in Bengali written with English letters], \"title_en\": \"the story's title in English\", "
+        "\"summary_en\": \"2-3 English sentences: what the story is about (no ending)\"}", temp=0.4)
+    out = {"bn": [], "en": [], "title_en": "", "summary_en": ""}
+    if isinstance(ans, dict):
+        clean = lambda xs: [re.sub(r"\s+", " ", str(x)).strip()[:60] for x in (xs or []) if str(x).strip()]
+        out["bn"] = list(dict.fromkeys(clean(ans.get("bn"))))[:12]
+        out["en"] = list(dict.fromkeys(x.lower() for x in clean(ans.get("en"))))[:15]
+        out["title_en"] = str(ans.get("title_en") or "").strip()[:110]
+        out["summary_en"] = str(ans.get("summary_en") or "").strip()[:500]
+    out["bn"] += [w for w in ("ভূতের গল্প", "বাংলা ভূতের গল্প") if w not in out["bn"]]
+    out["en"] += [w for w in ("bhuter golpo", "bengali horror story") if w not in out["en"]]
+    story["_search"] = out
+    log(f"  search words: {', '.join(out['bn'][:4] + out['en'][:4])}")
+    return out
+
+
 def story_slug():
     s = str(SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H"))
     return re.sub(r"[^0-9A-Za-z-]", "-", s)
@@ -10692,7 +10763,7 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
         try:
             when_d = (at or dt.datetime.now(dt.timezone.utc)).astimezone(extras.IST).date().isoformat()
             extras.story_page(MAP_DIR, story_slug(), title, extras.story_text(story, names), results.get("youtube"),
-                              results.get("facebook"), base, lang, when_d)
+                              results.get("facebook"), base, lang, when_d, seo=story_search_words(story, title, lang))
             changed.append(MAP_DIR)
             log(f"  story web page: {base}golpo/{story_slug()}.html")
         except Exception as e:
@@ -11020,7 +11091,8 @@ def main():
             change_requests(history)
         except Exception as e:
             log("  change requests skipped:", str(e)[:120])
-        for fn_, nm_ in ((watchdog, "missed-story check"), (follower_watch, "follower count")):
+        for fn_, nm_ in ((watchdog, "missed-story check"), (follower_watch, "follower count"),
+                         (lambda h_: seo_backfill(), "search words for older pages")):
             try:                                     # v109
                 fn_(history)
             except Exception as e:
@@ -11584,7 +11656,15 @@ def main():
     kw = next((w for w in seo_words if w.lower() not in title.lower() and len(title) + 3 + len(w) <= 100), "")
     if kw:
         yt_title = f"{title} | {kw}"
-    yt_tags = [w for w in seo_words] + tags
+    try:                                             # v111: THIS story's own search words (places, Bengali + English)
+        sw_ = story_search_words(story, title, lang)
+        yt_tags = list(dict.fromkeys(sw_.get("en", [])[:8] + sw_.get("bn", [])[:6] + list(seo_words) + tags))
+        if sw_.get("en") or sw_.get("bn"):
+            yt_description = yt_description.replace(
+                f"\n\n{ai_note}", "\n\n🔎 " + ", ".join((sw_.get("bn", [])[:6] + sw_.get("en", [])[:8])) + f"\n\n{ai_note}", 1)
+    except Exception as e:
+        log("  story search words skipped:", str(e)[:100])
+        yt_tags = [w for w in seo_words] + tags
     try:                                             # v77: the safety check before every upload
         yt_title, yt_description, yt_tags, n1 = extras.safety_check(yt_title, yt_description, yt_tags, "horror")
         title, description, _t, n2 = extras.safety_check(title, description, [], "horror")
