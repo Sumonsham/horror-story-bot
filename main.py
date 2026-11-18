@@ -141,8 +141,8 @@ LANGS = {
         "show_21": "রাতের ভয়", "show_13": "দুপুরের ভয়",
         "title_21": "রাতের ভয়... {title}।", "title_13": "দুপুরের ভয়... {title}।",
         "next_generic": "আর কাল রাতে... আবার আসছে নতুন এক ভয়ের গল্প, আরও গভীর, আরও অন্ধকার। অবশ্যই আসবেন।",
-        "tonight_title": "আর আজ রাতে... আজকের বড় গল্প, '{title}'। {hook} আধ ঘণ্টার গল্প... আলো নিভিয়ে শুনবেন, মিস করবেন না।",
-        "tonight_long": "আর আজ রাতে... আজকের বড় গল্প, পুরো আধ ঘণ্টার। আলো নিভিয়ে, হেডফোন কানে দিয়ে... অবশ্যই শুনবেন।",
+        "tonight_title": "আর আজ রাতে... আজকের বড় গল্প, '{title}'। {hook} লম্বা গল্প... আলো নিভিয়ে শুনবেন, মিস করবেন না।",
+        "tonight_long": "আর আজ রাতে... আজকের বড় গল্প। আলো নিভিয়ে, হেডফোন কানে দিয়ে... অবশ্যই শুনবেন।",
         "title_karna": "কর্ণপিশাচিনী... {title}।", "title_classic": "বিখ্যাত ভূতের গল্প... {writer} লেখা... '{title}'।",
         "open_21": "রাত নামল... ঘরের আলোটা নিভিয়ে দিন, হেডফোনটা কানে দিন... শুরু হচ্ছে 'রাতের ভয়'।",
         "open_13": "শুরু হচ্ছে 'দুপুরের ভয়'... হেডফোনটা কানে দিন... আর যদি একা থাকেন, তাহলে একটু সাবধানে শুনবেন।",
@@ -2011,6 +2011,43 @@ def continuity_bridges(story, lang):
         return
 
 
+TRUE_CLAIM_RX = re.compile(
+    r"\s*[|·,-]?\s*(?:সত্য(?:ি)?\s*ঘটনা(?:\s*অবলম্বনে)?|বাস্তব\s*ঘটনা|সত্যি\s*কাহিনি|real\s+(?:story|incident|event)s?|"
+    r"true\s+(?:story|incident|event)s?|\btrue\b|सच्ची\s*घटना(?:\s*पर\s*आधारित)?)\s*", re.I)
+LONG_CLAIM_RX = re.compile(r"\s*[|·,-]?\s*(?:[০-৯0-9]+|এক|দুই|তিন|আট|সারা|সারা\s*রাত)\s*(?:ঘণ্টা(?:র)?|ঘন্টা(?:র)?|hours?|hrs?|"
+                           r"घंटे|घंटा)[^|।]*", re.I)
+
+
+def honest_meta(story, lang, minutes=None):
+    """v112 (monetisation: 'misleading metadata' is a top reason Facebook / YouTube refuse a page): the title, the
+    second title, the tag line, the thumbnail words and the description may not promise what the video does not
+    hold - no 'সত্য ঘটনা / True story' on a story that is not one of YOUR true stories, no '৮ ঘণ্টার...' on a
+    22-minute video. Returns how many fields were changed."""
+    minutes = float(minutes or LONG_MIN)
+    n = 0
+    for k in ("title", "title_b", "tagline", "thumbnail_text", "description", "episode_name"):
+        v = str(story.get(k) or "")
+        if not v:
+            continue
+        new = v
+        if not story.get("true_label"):
+            new = TRUE_CLAIM_RX.sub(" ", new)
+        if minutes < 55:                              # (a claim of hours on a video under an hour)
+            new = LONG_CLAIM_RX.sub(" ", new)
+        new = re.sub(r"\s{2,}", " ", re.sub(r"(\s*\|\s*)+", " | ", new))
+        new = re.sub(r":\s*\|\s*", ": ", new)
+        new = re.sub(r"^[\s.…|·,:;!-]+", "", new).strip(" |·,-")
+        if new != v and len(new) >= 4:
+            story[k] = new
+            n += 1
+        elif new != v and k != "title" and not re.sub(r"[\W_]", "", new):
+            story[k] = ""                             # (nothing true was left in it)
+            n += 1
+    if n:
+        log(f"  honest titles: {n} field(s) cleaned of claims the video does not hold")
+    return n
+
+
 def listener_judge(story, lang, pass_mark=7.0):
     """v109: a strict listener (a Sunday Suspense fan) reads the finished story once and scores it - fear, flow
     (one story, nothing patched in), logic, the ending, the language. Below the pass mark, the lines it names as
@@ -3000,7 +3037,7 @@ Story rules:
 
 Return ONLY JSON with exactly these keys:
 {{
- "title": "chilling {L['name']} title, max 60 characters, 1 emoji",
+ "title": "chilling {L['name']} title, max 60 characters, 1 emoji - it must be TRUE to the video: never 'true story / সত্য ঘটনা' and never a length ('৮ ঘণ্টা', 'সারা রাত')",
  "tagline": "{L['name']} tag line for the thumbnail and Reel, max 8 words: a chilling promise or question under the title (e.g. 'সেই রাতে দরজা খুলেছিল কে?')",
  "title_b": "a SECOND, different {L['name']} title for the same story (another hook, e.g. a question), max 60 characters, 1 emoji - used if the first title gets few clicks",
  "thumbnail_text": "2-4 BIG {L['name']} words that create an unbearable curiosity gap or warning (e.g. 'রাত ১২টায় দরজা খুলো না!', 'ও এখনো ফেরেনি...', 'কে ডাকছে?') - never just the title",
@@ -4887,6 +4924,13 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             cues.append((t - 1.35, synth("heartbeat", int(SR * 1.3), rnd) * 0.45, 0.8, "heartbeat"))
             cues.append((t, synth("scare_hit", int(SR * 2.5), rnd), 1.0, "scare_hit"))
             t += 0.45
+        if ln.get("pre_audio") and os.path.exists(str(ln["pre_audio"])):
+            try:                                      # v112: YOUR own voice (from Telegram) before this line
+                ov = read_wav(ln["pre_audio"])
+                cues.append((t, ov, 1.0, "owner_voice"))
+                t += len(ov) / SR + 0.4
+            except Exception as e:
+                log("    your voice clip skipped:", str(e)[:80])
         spec = voices.for_speaker(ln.get("speaker", "narrator"))
         if spec[3] and not ln.get("_revealed", True):  # the ghost is not known yet: a plain human voice
             spec = (spec[0], spec[1], spec[2], False)
@@ -5909,6 +5953,8 @@ def post_to_youtube(video, thumb, title, description, tags, lang, localizations=
                     "tags": [t.lstrip("#") for t in tags][:15], "categoryId": "24",
                     "defaultLanguage": lang, "defaultAudioLanguage": lang},
         "status": {"privacyStatus": env("YT_PRIVACY") or "public", "selfDeclaredMadeForKids": False,
+                   # v112: honest 'altered or synthetic content' label (AI voices and pictures) - YouTube asks for it
+                   "containsSyntheticMedia": env("YT_SYNTHETIC") != "0",
                    "containsSyntheticMedia": True},
     }
     at = extras.publish_time()
@@ -7030,6 +7076,7 @@ def choose_and_write(slot_hour, history):
             log("  listener check skipped:", str(e)[:150])
     if STATE.get("creator_true"):                      # 'সত্য ঘটনা অবলম্বনে' everywhere
         extras.mark_true_story(story, lang)
+    honest_meta(story, lang)                          # v112: no title / thumbnail word that the video does not hold
     if "khata_clue" in KHATA_HOLD and isinstance(story, dict) and not from_saved_:   # v95: the hidden clue goes with the story
         story["khata_clue"] = KHATA_HOLD["khata_clue"]
     plan = {k: v for k, v in locals().items() if k in ('cat', 'classic', 'festival', 'fmt', 'lang', 'outline', 'part', 'prev', 'shout_ids', 'shout_names', 'special', 'story', 'theme', 'total', 'viewer')}
@@ -8781,17 +8828,16 @@ def send_title_list(day):
     lines += ["", "নিজের thumbnail দিতে চাইলে প্রতিটা গল্পের জন্য ২টো ছবি: একটা চওড়া (16:9 - মূল ভিডিও) আর একটা লম্বা "
               "(9:16 - Reel/Short)। নিচের message-গুলোয় প্রতিটা গল্পের লেখা আর ChatGPT-র লেখা আছে।",
               "ছবি পাঠানোর সময় নিচে শুধু লিখুন 1 (দুপুরের) বা 2 (রাতের) - কোনটা চওড়া কোনটা লম্বা, bot নিজেই বুঝবে। "
-              "ছবিতে লেখা থাকলে bot সেটাই হুবহু দেবে; লেখা না থাকলে নিজে বসিয়ে দেবে।",
+              "ছবির লেখা আপনি নিজে বসাবেন - bot আপনার ছবি হুবহু দেবে, তার উপর কিছু লিখবে না।",
               "⏰ 1-এর ছবি সকাল ৮টার মধ্যে, 2-এর ছবি বিকেল ৪টের মধ্যে (রাতেই পাঠানো সবচেয়ে ভালো)। কিছু না পাঠালে "
               "bot নিজের thumbnail দেবে।"]
     ok = _tg_text("\n".join(lines))
     for h, p in items:
         try:
-            big, small = thumb_text_for(p)
+            # (v112: the words on the thumbnail are YOURS - the bot no longer suggests any)
             _tg_text(f"{SLOT_NO[h]}️⃣ {SLOT_BN[h]}: {_plan_title(p)}\n\n{story_peek(p)}\n\n"
                      f"গল্প পছন্দ না হলে লিখুন: {SLOT_NO[h]} বদলাও (চাইলে পরে কী চান, যেমন '{SLOT_NO[h]} বদলাও, "
-                     "গ্রামের গল্প চাই')\n\n✍️ thumbnail-এ লিখুন:\n"
-                     f"বড় করে: {big}" + (f"\nছোট করে: {small}" if small else ""))
+                     "গ্রামের গল্প চাই')")
             _tg_text(f"{SLOT_NO[h]}️⃣ চওড়া ছবি (16:9) - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p)}")
             _tg_text(f"{SLOT_NO[h]}️⃣ লম্বা ছবি (9:16) - ChatGPT-তে এটা paste করুন:\n\n{chatgpt_prompt(p, tall=True)}")
         except Exception as e:
@@ -8873,6 +8919,93 @@ def _thumb_target(h, sent_at, idx):
         except ValueError:
             pass
     return None
+
+
+OWNER_DIR = os.path.join(HERE, "assets", "owner_voice")
+
+
+def owner_voice_inbox():
+    """v112: YOUR short voice messages on Telegram (2-20 seconds) are kept as the channel's own greetings - a real
+    person in every video (Facebook and YouTube both check that a page is not mass-produced). 'আমার গলা মুছে দাও'
+    removes them all. Returns how many new clips were taken."""
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    if MOCK or DRY_RUN or not tok or not chat or env("OWNER_VOICE") == "0":
+        return 0
+    try:
+        r = requests.get(f"https://api.telegram.org/bot{tok}/getUpdates",
+                         params={"allowed_updates": json.dumps(extras.TG_UPDATES)}, timeout=30).json()
+    except Exception as e:
+        log("  your voice clips: Telegram not read -", str(e)[:100])
+        return 0
+    os.makedirs(OWNER_DIR, exist_ok=True)
+    stp = os.path.join(OWNER_DIR, "state.json")
+    st = _jload(stp, {})
+    st = st if isinstance(st, dict) else {}
+    seen = set(st.get("seen") or [])
+    got, changed = 0, False
+    for u in r.get("result") or []:
+        m, uid = u.get("message") or {}, u.get("update_id")
+        if uid in seen or str((m.get("chat") or {}).get("id")) != str(chat):
+            continue
+        txt = str(m.get("text") or "").strip()
+        if re.search(r"গলা\s*মুছে\s*দাও|গলা\s*মুছুন|voice\s*delete", txt, re.I):
+            seen.add(uid)
+            for f in os.listdir(OWNER_DIR):
+                if f.endswith((".ogg", ".mp3", ".m4a", ".wav")):
+                    os.remove(os.path.join(OWNER_DIR, f))
+            st["used"] = []
+            changed = True
+            _tg_text("🗑️ আপনার সব গলার clip মুছে দিলাম। এখন থেকে ভিডিওতে আপনার গলা থাকবে না (নতুন পাঠালে আবার থাকবে)।")
+            continue
+        v = m.get("voice") or m.get("audio") or {}
+        if not v.get("file_id"):
+            continue
+        dur = int(v.get("duration") or 0)
+        if not (2 <= dur <= 20):
+            continue                                  # (longer voices are viewers' / your stories - not greetings)
+        seen.add(uid)
+        changed = True
+        ext = ".ogg" if m.get("voice") else os.path.splitext(str(v.get("file_name") or "a.mp3"))[1] or ".mp3"
+        path = os.path.join(OWNER_DIR, f"v{uid}{ext}")
+        if not _tg_download(tok, v["file_id"], path):
+            seen.discard(uid)
+            continue
+        got += 1
+    if changed:
+        st["seen"] = sorted(seen)[-500:]
+        _jsave(stp, st)
+        push_now([OWNER_DIR], "your voice clips")
+    if got:
+        n_ = len([f for f in os.listdir(OWNER_DIR) if f.endswith((".ogg", ".mp3", ".m4a", ".wav"))])
+        _tg_text(f"✅ আপনার গলার {got}টা clip পেয়েছি (মোট {n_}টা)। প্রতিটা গল্পের শুরুতে এর একটা করে বাজবে, ঘুরিয়ে ঘুরিয়ে।")
+        log(f"  your voice clips: {got} new")
+    return got
+
+
+def owner_intro_wav():
+    """one of YOUR clips (the one used longest ago), cleaned (silence cut, even loudness) as a wav - or None"""
+    if not os.path.isdir(OWNER_DIR) or env("OWNER_VOICE") == "0":
+        return None
+    clips = sorted(f for f in os.listdir(OWNER_DIR) if f.endswith((".ogg", ".mp3", ".m4a", ".wav")))
+    if not clips:
+        return None
+    stp = os.path.join(OWNER_DIR, "state.json")
+    st = _jload(stp, {})
+    st = st if isinstance(st, dict) else {}
+    used = [u for u in (st.get("used") or []) if u in clips]
+    pick = next((c for c in clips if c not in used), None) or (used[0] if used else clips[0])
+    used = [u for u in used if u != pick] + [pick]
+    st["used"] = used
+    out = os.path.join(WORK, "owner_intro.wav")
+    run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(OWNER_DIR, pick), "-af",
+         "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
+         "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
+         "highpass=f=70,loudnorm=I=-18:TP=-2,afade=t=in:d=0.05", "-ar", str(SR), "-ac", "1", out])
+    if not MOCK:
+        _jsave(stp, st)
+        push_now([stp], "your voice clip used")
+    log(f"  your own voice opens the story ({pick})")
+    return out
 
 
 def _tg_download(tok, fid, path):
@@ -9068,6 +9201,14 @@ def _vision(prompt, images, max_side=768):
 
 
 def image_has_text(path):
+    """(v112: your thumbnails are ALWAYS used exactly as you sent them - you write the words yourself; the bot puts
+    its words on them only with USER_THUMB_WORDS = 1)"""
+    if env("USER_THUMB_WORDS") != "1":
+        return True
+    return _image_has_text(path)
+
+
+def _image_has_text(path):
     js = _vision("Does this picture contain any written words, letters or numbers (in any language, Bengali too)? "
                  'Answer ONLY JSON: {"text": true or false}', [path])
     return bool(js.get("text")) if isinstance(js, dict) else False
@@ -9380,6 +9521,15 @@ def watchdog(history):
 def growth_week_lines(history, week, S, avg):
     """v109 (X2): the weekly report's new lines - followers, the listener's scores, the length test, extra posts"""
     out = []
+    if not MOCK:
+        try:                                          # v112: how far to monetisation, and about when
+            mp_ = os.path.join(HERE, "assets", "monet.json")
+            meter = extras.monetization_meter(history, mp_, "(ভূতের পেজ)")
+            if meter:
+                out += [""] + meter + [""]
+                push_now([mp_], "monetization meter")
+        except Exception as e:
+            log("  monetization meter skipped:", str(e)[:100])
     d = _jload(FOLLOW_FILE, {})
     if isinstance(d, dict) and len(d) >= 2:
         ks = sorted(d)
@@ -10137,7 +10287,7 @@ def weekly_ambience(history):
     """v83 - EVERY WEDNESDAY: a long 'sleep / study' video (2 hours) - a dark rainy scene with our own rain, wind,
     crickets and far-away night sounds, softly moving. No voice. YouTube + Facebook."""
     global FONT
-    if (env("AMBIENCE") == "0" or dt.datetime.now(extras.IST).weekday() != int(env("AMBIENCE_DAY") or 2)
+    if (env("AMBIENCE") != "1" or dt.datetime.now(extras.IST).weekday() != int(env("AMBIENCE_DAY") or 2)
             or _today_done(history, "ambience", days=5)):
         return False
     np = _np()
@@ -10211,7 +10361,7 @@ def weekly_ambience(history):
             log("  ambience (YouTube) skipped:", str(e)[:150])
     if env("FB_PAGE_TOKEN"):
         try:
-            rec["facebook"] = post_to_facebook(out, thumb, title, desc)
+            rec["facebook"] = post_to_facebook(out, thumb, title, desc) if REUSE_FB() else None
             log("  ambience on Facebook:", rec["facebook"])
         except Exception as e:
             log("  ambience (Facebook) skipped:", str(e)[:150])
@@ -10913,7 +11063,7 @@ def old_video_short(history, lang):
             log("  old-video short (YouTube) skipped:", str(e)[:150])
     if env("FB_PAGE_TOKEN"):
         try:
-            rec["facebook"] = extras.fb_post_reel(out, f"{clean} 😱\n\nপুরো গল্প: https://www.facebook.com/{h['facebook']}")
+            rec["facebook"] = extras.fb_post_reel(out, f"{clean} 😱\n\nপুরো গল্প: https://www.facebook.com/{h['facebook']}") if REUSE_FB() else None
             log("  old-video reel on Facebook:", rec["facebook"])
         except Exception as e:
             log("  old-video reel skipped:", str(e)[:150])
@@ -11087,6 +11237,10 @@ def main():
         except Exception as e:
             log("  Telegram stories not read:", str(e)[:120])
     if not MOCK and not DRY_RUN:
+        try:                                         # v112: your own short voice clips
+            owner_voice_inbox()
+        except Exception as e:
+            log("  your voice clips skipped:", str(e)[:120])
         try:                                         # v109: '1 বদলাও' / '2 বদলাও' from Telegram
             change_requests(history)
         except Exception as e:
@@ -11184,6 +11338,7 @@ def main():
     FONT = find_font(lang)
     STATE["special"] = special
     clean_story_text(story)
+    honest_meta(story, lang)                          # v112 (also for stories written before this rule)
     sync_sounds(story)
     fix_speakers(story)
     NAME_LOCAL.update({str(c["name"]).lower(): str(c.get("name_local") or c["name"]) for c in story["characters"]})
@@ -11478,7 +11633,14 @@ def main():
     if district_line(lang):                          # v63: 'আপনাদের ভোটে এ সপ্তাহের জেলা: পুরুলিয়া।'
         tline = f"{tline.rstrip()} {district_line(lang)}"
         log(f"  title line: {tline}")
-    parts = [{"image": thumb_base, "lines": [{"speaker": "narrator", "emotion": "eerie", "text": tline}],
+    title_line = {"speaker": "narrator", "emotion": "eerie", "text": tline}
+    try:                                              # v112: a real person - YOU - opens the story
+        ov_ = owner_intro_wav()
+        if ov_:
+            title_line["pre_audio"] = ov_
+    except Exception as e:
+        log("  your voice intro skipped:", str(e)[:100])
+    parts = [{"image": thumb_base, "lines": [title_line],
               "sounds": ["wind"], "mood": "creepy", "voices": voices, "title_part": True}]
     for img, s, sh in zip(imgs, scenes, shots_per_scene):
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
@@ -11833,6 +11995,13 @@ def main():
             log("  tomorrow's stories not written tonight (the morning run will):", str(e)[:200])
 
 
+def REUSE_FB():
+    """v112 (Facebook refuses monetisation for 'reused / repurposed' content): the videos made from our OWN earlier
+    videos - Sunday compilation, district compilation, a series joined into one, old-video Reels, the night
+    sounds - go only to YouTube; on Facebook only when switched on (REUSED_ON_FB = 1)"""
+    return env("REUSED_ON_FB") == "1"
+
+
 def make_series_full(history):
     """Sunday: every big story finished this week (all its parts) as ONE full video - 'সম্পূর্ণ গল্প'."""
     global FONT
@@ -11892,7 +12061,7 @@ def make_series_full(history):
             results = {}
             if not DRY_RUN:
                 try:
-                    results["facebook"] = post_to_facebook(video, thumb, title, description)
+                    results["facebook"] = post_to_facebook(video, thumb, title, description) if REUSE_FB() else None
                     log("Posted full story to Facebook:", results["facebook"])
                 except Exception as e:
                     log("FACEBOOK FAILED:", e)
@@ -12100,7 +12269,7 @@ def district_full(history, L, lang="bn"):
     description = f"{title}\n\n{dn} জেলার লোককথা আর ভূতের গল্প এক জায়গায়।\n\n{chap}\n\n{L['ai_note']}\n\n{' '.join(tags)}"
     res = {}
     try:
-        res["facebook"] = post_to_facebook(video, thumb, title, description)
+        res["facebook"] = post_to_facebook(video, thumb, title, description) if REUSE_FB() else None
     except Exception as e:
         log("  district video (Facebook) skipped:", str(e)[:150])
     if youtube_ready() and extras.yt_extra_ok():
@@ -12200,7 +12369,7 @@ def make_compilation(history):
     results = {}
     if not DRY_RUN:
         try:
-            results["facebook"] = post_to_facebook(video, thumb, title, description)
+            results["facebook"] = post_to_facebook(video, thumb, title, description) if REUSE_FB() else None
             log("Posted compilation to Facebook:", results["facebook"])
         except Exception as e:
             log("FACEBOOK FAILED:", e)
