@@ -890,7 +890,7 @@ previous beat causes this one).
 THE SHAPE (the classic Bengali radio-thriller plot, as in the great Sunday-evening suspense plays - the SHAPE
 only, never their stories, names or lines):
  1 HOOK - the most frightening sound or line from later in the story, heard for a moment, not explained.
- 2 THE STORYTELLER'S DOOR - the narrator sets the year, season, place and why this story is being told.
+ 2 THE STORYTELLER'S DOOR - the story's own way in (the FRESH BRIEF's opening device): when, where, who and why.
  3 ARRIVAL - who comes where, when and WHY (a believable reason: a job, a transfer, an inheritance, a wedding,
    a shortcut, a holiday); the 3-4 people, how they are related, a little warmth and a little friction.
  4 THE FIRST WRONG NOTE - one small, specific strange detail; someone explains it away.
@@ -1676,9 +1676,9 @@ TRUTH TO THE BELIEF (it must follow the research brief below exactly), PLOT HOLE
 makes and check it is followed up in its own scene - he decides to leave: either he leaves, or we SEE why he
 could not; nothing unexplained, no coincidence, every person acts like a real person; fix each hole by adding or
 rewriting scenes), FRESH WORDS (no stock horror phrases - replace every worn-out line with a new, exact image
-that belongs to this place; never the same image twice), STRUCTURE (a clear beginning: one hook line, then
-WHEN it began (month, weekday, time of day), the main person's name, village/town, family, situation, WHY and
-HOW he/she came to this place - in that order; a full middle with at least three
+that belongs to this place; never the same image twice), STRUCTURE (a clear beginning in THIS story's own
+way - its opening device kept, never a stock opening - in which the listener learns when, who, where from, why
+and how; a full middle with at least three
 escalating events (each one small, exact and believable - never stuffed); a clear end with climax, one fair twist and a resolution scene
 that explains the whole mystery and what became of everyone - ADD the missing scenes if the beginning, middle or
 end is thin or abrupt), and correct,
@@ -1863,6 +1863,10 @@ MASTER_STYLE = (
     "could fit any story (like 'the day had begun like any ordinary day', 'little did they know', 'that night "
     "changed everything'): show it with this story's own concrete detail instead.\n"
     "HOW A REAL BENGALI GHOST STORY IS BUILT (v103 - this matters more than every other rule):\n"
+    "- SAY EVERYTHING ONCE: no fact, warning, description, fear or question is told a second time, not even in other "
+    "words; people do not keep calling the same name or repeating the same sentence; the narrator never retells what "
+    "a character has just said. After the resolution and the last chilling line the story is OVER - no second "
+    "ending, no new event, no new night after it.\n"
     "- ONE simple spine: one ordinary person, one place, one ghost with ONE reason (what it wants never changes) "
     "and ONE rule of how it acts. The story is about that person and that ghost - nothing else.\n"
     "- At most 4 speaking people. ONE human secret in the whole story at most (it is the twist) - nobody else has "
@@ -1881,8 +1885,8 @@ MASTER_STYLE = (
     "dramatic. If the storyteller opens with a frame ('I am...', 'this letter...'), the frame closes at the end.\n")
 
 
-LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 22)     # two ~22-minute stories a day (2 PM, 8 PM)
-SLOT_MINUTES = {10: 15.0, 14: 22.0, 20: 22.0}      # every character in the Gemini voice fits the free limit
+LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 20)     # two ~22-minute stories a day (2 PM, 8 PM)
+SLOT_MINUTES = {10: 15.0, 14: 20.0, 20: 20.0}       # v113: both stories about 20 minutes      # every character in the Gemini voice fits the free limit
 os.environ.setdefault("VOICE_MAX", "240")        # Gemini may take its time for a long story (it is the best voice)
 os.environ.setdefault("VOICE_RESERVE", "60")     # ... but leaves an hour for making and posting the video
 JOB_START = time.time()                          # GitHub stops a job after 6 hours - we must finish well before
@@ -2046,6 +2050,96 @@ def honest_meta(story, lang, minutes=None):
     if n:
         log(f"  honest titles: {n} field(s) cleaned of claims the video does not hold")
     return n
+
+
+# v116 (18 Nov 2026: 'every story has the same style and the same examples'): every story gets its OWN set of
+# storytelling devices - the ones used least recently - and its own concrete details, invented fresh and checked
+# against what our last stories already used.
+FRESH_DEVICES = {
+    "opening": ["a sound heard in the dark before anything is explained", "a telegram / letter / old diary page read aloud",
+                "a phone call at the wrong hour", "a dying person's last words", "an ordinary morning that goes subtly wrong",
+                "a child's question nobody can answer", "a police constable writing his report", "a song or lullaby nobody "
+                "should know", "the narrator meeting a stranger on a journey", "an object bought cheaply at a market",
+                "a wedding / puja day preparation", "a power cut in the middle of something", "a smell that should not be there",
+                "an old photograph with one face too many"],
+    "telling": ["third-person radio drama", "first person, the one who lived it, years later", "an elderly relative telling "
+                "the family on a stormy night", "a doctor / teacher / postman telling his strangest case", "two friends "
+                "taking turns to tell what each saw", "a confession told to a priest or a stranger", "a young reporter "
+                "investigating, interviewing people"],
+    "ghost": ["a ghost who only wants to be remembered", "a spirit bound to an object", "a ghost who repeats its last day",
+              "a spirit that imitates the voices of the living", "a guardian spirit misunderstood as evil", "a vengeful "
+              "spirit of an old injustice", "a ghost who does not know it is dead", "a folk spirit of Bengal true to its "
+              "lore (nishi, shakchunni, brahmadaitya, petni, mechho bhoot, gechho bhoot, ...)", "a presence never seen, only "
+              "its effects", "a child spirit looking for its mother"],
+    "twist": ["the helper was the ghost all along", "the victim is the one who caused it", "the ghost was protecting them",
+              "the narrator himself is part of it", "the real danger was a living person", "the curse was a promise "
+              "never kept", "two stories that turn out to be one", "the place, not the ghost, is the trap", "the 'cure' "
+              "makes it worse", "a quiet twist in the last line that changes everything before it"],
+    "setting": ["a monsoon village", "a winter fog town", "a Kolkata para in the 1970s", "a tea garden in the hills",
+                "a river island (char) or ferry ghat", "a rajbari of a fallen zamindar family", "a small-town hospital "
+                "night shift", "a railway junction at night", "a Sundarbans fishing village", "a new high-rise flat",
+                "a mela / fair ground after closing", "a boarding school", "a coal-belt mining town", "a temple town "
+                "during a festival"],
+    "fear": ["slow dread - nothing seen until late", "a race against time", "isolation - nobody believes the hero",
+             "a family secret coming out", "a puzzle the hero must solve", "a journey that cannot be turned back"],
+}
+
+
+def team_report(story, slot_hour):
+    """v116 (your wish: 'keep assistants, each with one job'): our story team - every member is a Gemini assistant
+    with ONE job - and what each of them did for THIS story, on Telegram"""
+    tm = STATE.get("team") or {}
+    fr = STATE.get("fresh") or {}
+    w = tm.get("writer")
+    rows = [
+        f"🔎 গবেষক (Google-এ খোঁজে): " + ("সত্যি ঘটনা পেয়েছে - " + ", ".join(s.get("title") or "" for s in (STATE.get("true_sources") or [])[:2])
+                                          if STATE.get("true_sources") else ("লোকবিশ্বাসের তথ্য জোগাড় করেছে" if STATE.get("brief") else "এবার দরকার হয়নি")),
+        f"🎨 ধাঁচ-নকশাকার: " + (f"শুরু - {fr.get('opening')}; ভূত - {fr.get('ghost')}" if fr else "আপনার নিজের গল্প, ধাঁচ আপনার"),
+        f"✍️ লেখক: " + (f"{w[0]}টা দৃশ্য, {w[1]} শব্দ (~{w[2]} মিনিট), এক টানা" if w else "গল্প লিখেছে"),
+        f"📝 সম্পাদক: " + (f"পুরো গল্প একবার পড়ে মসৃণ করেছে ({tm['editor']} শব্দ)" if tm.get("editor") else "পড়েছে"),
+        f"🔁 পুনরাবৃত্তি-পাহারাদার: {tm.get('repeat') or 0}টা লাইন বাদ / ছোট",
+        f"🏁 শেষ-পাহারাদার: " + (f"শেষের পরে {tm['end']}টা বাড়তি লাইন কেটেছে" if tm.get("end") else "শেষের পরে কিছু ছিল না"),
+        f"🎧 শ্রোতা-বিচারক: {tm.get('judge') or '-'} / 10",
+        f"✅ সত্যতা-পাহারাদার: " + (f"নামে / লেখায় {tm['honest']}টা ভুল দাবি সরিয়েছে" if tm.get("honest") else "সব ঠিক"),
+    ]
+    title = re.sub(r"\s*\|.*$", "", str(story.get("title") or ""))
+    _tg_text(f"📋 গল্পের দল - {SLOT_BN.get(slot_hour, '')}: {title}\n" + "\n".join(rows))
+    STATE["team"] = {}
+
+
+def fresh_brief(history, lang):
+    """the devices of THIS story (least used recently) + fresh details (invented by Gemini, checked against the last
+    stories) -> STATE['fresh_rule'] for the writer, STATE['fresh'] kept in the history"""
+    recent = [h.get("fresh") for h in history[-30:] if isinstance(h.get("fresh"), dict)]
+    pick = {}
+    for k, opts in FRESH_DEVICES.items():
+        cnt = {o: sum(1 for r in recent if r.get(k) == o) for o in opts}
+        last = {o: max([i for i, r in enumerate(recent) if r.get(k) == o] or [-1]) for o in opts}
+        best = sorted(opts, key=lambda o: (cnt[o], last[o], random.random()))
+        pick[k] = best[0]
+    used_details = [d for r in recent for d in (r.get("details") or [])][-60:]
+    old = [str(h.get("title", ""))[:50] for h in history[-20:] if h.get("title")]
+    det = None if MOCK else _gem_json(
+        f"We tell Bengali ghost stories (Sunday Suspense quality). The next story: setting '{pick['setting']}', ghost "
+        f"'{pick['ghost']}', twist '{pick['twist']}'. Invent FIVE fresh, concrete, specific details that belong ONLY to "
+        "this story and have never been used before - the small clue object, a sound, a smell, a local custom or "
+        "belief, one unusual everyday detail of the place (Bengal, real and believable). NOT any of these (already used): "
+        f"{json.dumps(used_details, ensure_ascii=False)}. Our last titles (avoid their ideas too): "
+        f"{json.dumps(old, ensure_ascii=False)}. Answer ONLY JSON: {{\"details\": [\"5 short English phrases\"]}}",
+        temp=1.0)
+    details = [str(x)[:90] for x in ((det or {}).get("details") or [])][:5] if isinstance(det, dict) else []
+    pick["details"] = details
+    STATE["fresh"] = pick
+    STATE["fresh_rule"] = (
+        "\nFRESH BRIEF FOR THIS STORY (it must feel NEW - not like our earlier stories): opening device: "
+        f"{pick['opening']}; way of telling: {pick['telling']}; the ghost: {pick['ghost']}; the twist: {pick['twist']}; "
+        f"setting: {pick['setting']}; kind of fear: {pick['fear']}."
+        + (f" Use these fresh details: {'; '.join(details)}." if details else "")
+        + " Do NOT reuse the openings, places, ghosts, clues, sounds or sentences of our earlier stories"
+        + (f" ({'; '.join(old[:10])})" if old else "") + ". Every story needs at least one thing the listener has "
+        "never heard in a ghost story before.\n")
+    log(f"  fresh brief: opens with '{pick['opening']}', {pick['telling']}, {pick['ghost']}, twist: {pick['twist']}")
+    return pick
 
 
 def listener_judge(story, lang, pass_mark=7.0):
@@ -2335,6 +2429,112 @@ def _words(scenes):
     return sum(len(str(ln.get("text", "")).split()) for s in scenes for ln in s.get("lines") or [])
 
 
+def story_has_ended(title, scenes, lang):
+    """has this script already reached its ending (climax, truth told, resolution)? - Gemini reads it"""
+    ans = _gem_json(f"Here is a {LANGS[lang]['name']} horror script. Has the story already reached its ENDING - the "
+                    "climax, the mystery explained and what became of the people? Answer ONLY JSON: {\"ended\": true or "
+                    "false}\n\n" + _script_text(title, scenes)[-12000:], temp=0.1)
+    ended = bool(isinstance(ans, dict) and ans.get("ended"))
+    if ended:
+        log("  the story has already ended - nothing is added after its ending")
+    return ended
+
+
+def same_ending(a, b):
+    """the last lines of two versions of a script tell the same ending (an editor may polish words, not change it)"""
+    from difflib import SequenceMatcher
+    tail = lambda sc: _said_key(" ".join(str(ln.get("text", "")) for s in sc[-2:] for ln in s.get("lines") or []))
+    ta, tb = tail(a), tail(b)
+    return bool(ta and tb) and (SequenceMatcher(None, ta, tb, autojunk=False).ratio() >= 0.35
+                                or SequenceMatcher(None, ta[-200:], tb[-200:], autojunk=False).ratio() >= 0.35)
+
+
+def repeat_idea_check(story, lang):
+    """v113 (18 Nov 2026: 'it says the same thing again and again'): the word-for-word check only catches a sentence
+    repeated almost exactly. Here Gemini reads the whole story and names every line that only says AGAIN what was
+    already said before - the same fact, the same fear, the same description, the same warning, the same call -
+    in other words. Those lines go (a line with something new in it is rewritten without the repeated part).
+    Returns how many lines changed."""
+    if MOCK or not env("GEMINI_API_KEY"):
+        return 0
+    rows, idx = [], {}
+    for i, sc in enumerate(story.get("scenes") or []):
+        for j, ln in enumerate(sc.get("lines") or []):
+            tx = str(ln.get("text", "")).strip()
+            if tx:
+                rows.append(f"{i}.{j} {ln.get('speaker', 'narrator')}: {extras.strip_tags(tx)[:260]}")
+                idx[f"{i}.{j}"] = (i, j)
+    ans = _gem_json(
+        f"Read this {LANGS[lang]['name']} horror story (scene.line speaker: text) like a listener who gets bored when "
+        "something is said twice. Find EVERY line that repeats what the listener has ALREADY heard earlier in the story "
+        "- the same fact, the same warning, the same description of the ghost or the place, the same fear, the same "
+        "question, the same name called again and again, the narrator telling what a character just said - even when "
+        "the words are different. For each: if the whole line is a repeat, delete it; if only part of it is, give the "
+        "line again without the repeated part. Never touch the first time something is said, and never a line that "
+        "moves the story on. Answer ONLY JSON: [{\"id\": \"scene.line\", \"delete\": true} or {\"id\": "
+        "\"scene.line\", \"replace\": \"the line without the repeat\"}] ([] if nothing is repeated)\n"
+        + "\n".join(rows), temp=0.2, strong=True)
+    if not isinstance(ans, list):
+        return 0
+    n, dels = 0, set()
+    for fx in ans[:40]:
+        if not isinstance(fx, dict) or fx.get("id") not in idx:
+            continue
+        i, j = idx[fx["id"]]
+        ln = story["scenes"][i]["lines"][j]
+        if fx.get("delete"):
+            if sum(1 for q in story["scenes"][i]["lines"] if str(q.get("text", "")).strip()) > 1:
+                dels.add((i, j))
+        elif str(fx.get("replace", "")).strip():
+            new = str(fx["replace"]).strip()
+            if 2 <= len(new.split()) < len(str(ln.get("text", "")).split()) and not re.search(r"[A-Za-z]{4,}", new):
+                ln["text"], ln["en"] = new, ""
+                ln.pop("voice_text", None)
+                n += 1
+    for i, j in sorted(dels, reverse=True):
+        story["scenes"][i]["lines"].pop(j)
+        n += 1
+    if n:
+        log(f"  repeats in other words: {n} line(s) taken out or shortened ({len(dels)} deleted)")
+    return n
+
+
+def trim_after_ending(story, lang):
+    """v113: Gemini names the line where the story REALLY ends (its resolution and its last chilling line). Whatever
+    comes after it - a second ending, a new event, an extra little story - is cut. Returns how many lines went."""
+    if MOCK or not env("GEMINI_API_KEY"):
+        return 0
+    rows, ids = [], []
+    for i, sc in enumerate(story.get("scenes") or []):
+        for j, ln in enumerate(sc.get("lines") or []):
+            if str(ln.get("text", "")).strip():
+                rows.append(f"{i}.{j} {ln.get('speaker', 'narrator')}: {extras.strip_tags(str(ln['text']))[:200]}")
+                ids.append((i, j))
+    if len(ids) < 20:
+        return 0
+    ans = _gem_json(f"This is ONE {LANGS[lang]['name']} horror story, line by line ('scene.line speaker: text'). Find "
+                    "the line where the story REALLY ends: after its climax, the truth and the resolution, its last "
+                    "chilling line. If after that line the story goes on with something new - another ending, a new "
+                    "event, a new night, a new victim, an extra story - give that ending line's id; if the story simply "
+                    "ends at its last line, give the last line's id. Answer ONLY JSON: {\"end\": \"scene.line\", "
+                    "\"extra_after\": true or false}\n" + "\n".join(rows[-260:]), temp=0.1, strong=True)
+    try:
+        ei, ej = (int(x) for x in str((ans or {}).get("end", "")).split("."))
+    except Exception:
+        return 0
+    if not (ans or {}).get("extra_after") or (ei, ej) not in ids:
+        return 0
+    k = ids.index((ei, ej))
+    cut = len(ids) - 1 - k
+    if cut <= 0 or cut > len(ids) * 0.35:             # (never more than a third - that would be a wrong answer)
+        return 0
+    sc = story["scenes"]
+    sc[ei]["lines"] = sc[ei]["lines"][:ej + 1]
+    story["scenes"] = sc[:ei + 1]
+    log(f"  the story ended at {ei}.{ej} - {cut} line(s) after its real ending cut (no second ending, no extra story)")
+    return cut
+
+
 def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, ending="resolve", opening="start", part=0):
     """v109 (16-17 Nov 2026: 'it does not feel like one story - bits cut from here and there and joined'): the story
     is written by ONE author in ONE go as a plain script - not chapter by chapter, not as a big JSON in which the
@@ -2367,19 +2567,38 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
         raise RuntimeError("the whole-story writer gave no script")
     log(f"Whole story written in one go: {len(scenes)} scenes, {_words(scenes)} words (target {target})")
     tries = 0
+    # v113 (17-18 Nov: 'the story ends, then ANOTHER story is pushed on to make it long'): the author goes on ONLY
+    # when the story has really not reached its end. A finished story that is too short is made fuller INSIDE its
+    # own scenes - never with new events after the ending.
     while _words(scenes) < target * 0.8 and tries < 2:
-        tries += 1                                    # too short: the SAME author goes on from where it stopped
+        tries += 1
+        if story_has_ended(title, scenes, lang):
+            break
         more = _gem_call(rules + fmt_rule + "\n\nTHE STORY SO FAR (already written - do NOT repeat or rewrite it):\n"
-                         + _script_text(title, scenes) + "\n\nThe story above stopped too early or is too thin. If it "
-                         "has NOT reached its ending, continue it from its very last line to the end, in the same form "
-                         "(start with '### SCENE'). If it HAS ended, answer only: DONE", temp=0.9)
+                         + _script_text(title, scenes) + "\n\nThe story above has NOT reached its ending yet. Continue "
+                         "it from its very last line to its ONE ending (the climax, the truth, the resolution, one last "
+                         "chilling line) and stop there - no new story, no new night or new victim after the ending. "
+                         "Same form (start with '### SCENE').", temp=0.9)
         if not more or more.strip().upper().startswith("DONE"):
             break
         _t2, add = _parse_script(more)
         if not add:
             break
         scenes += add
-        log(f"  the story went on: now {len(scenes)} scenes, {_words(scenes)} words")
+        log(f"  the story went on to its end: now {len(scenes)} scenes, {_words(scenes)} words")
+    if _words(scenes) < target * 0.8 and env("DEEPEN") != "0":
+        deep = _gem_call(
+            f"Here is a complete {L['name']} horror script that is too SHORT for a {int(LONG_MIN)}-minute audio story "
+            f"(about {target} spoken words are needed, it has {_words(scenes)}). Make it about {target} words by living "
+            "its EXISTING scenes more fully - more real conversation, doubt, small exact details, the slow build of "
+            "dread inside each moment. Keep EXACTLY the same events, people, order and the same ending; add NOTHING "
+            "after the ending and no new event, night or victim. Return the whole script in the same form "
+            "(TITLE:, ### SCENE | place | mood, speaker: words) and nothing else.\n\n" + _script_text(title, scenes),
+            temp=0.7)
+        t3, sc3 = _parse_script(deep)
+        if sc3 and _words(sc3) > _words(scenes) * 1.1 and same_ending(scenes, sc3):
+            log(f"  the story made fuller inside its own scenes: {_words(scenes)} -> {_words(sc3)} words")
+            title, scenes = (t3 or title), sc3
     if _words(scenes) < target * 0.55:
         raise RuntimeError(f"whole story too short ({_words(scenes)} words)")
     # ONE editor reads the WHOLE script once (plain text: the editor works on the story, not on JSON fields)
@@ -2397,8 +2616,9 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
             "(TITLE:, ### SCENE | place | mood, speaker: words) and nothing else.\n\n" + _script_text(title, scenes),
             temp=0.6)
         t2, sc2 = _parse_script(ed)
-        if sc2 and _words(sc2) >= _words(scenes) * 0.88 and len(sc2) >= len(scenes) * 0.7:
+        if sc2 and _words(sc2) >= _words(scenes) * 0.88 and len(sc2) >= len(scenes) * 0.7 and same_ending(scenes, sc2):
             log(f"  the editor read the whole story once: {_words(scenes)} -> {_words(sc2)} words")
+            STATE.setdefault("team", {})["editor"] = f"{_words(scenes)} -> {_words(sc2)}"
             title, scenes = (t2 or title), sc2
         else:
             log("  the editor's version was incomplete - the author's version stays")
@@ -2486,6 +2706,7 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
         line_flow_check(story, lang)
     except Exception as e:
         log("  line-by-line check skipped:", str(e)[:120])
+    STATE.setdefault("team", {})["writer"] = (len(story["scenes"]), _words(story["scenes"]), round(_words(story["scenes"]) / wpm))
     log(f"WHOLE STORY: {len(story['scenes'])} scenes, {_words(story['scenes'])} words (~{_words(story['scenes']) / wpm:.0f} "
         "minutes), written in one piece")
     return story
@@ -2986,17 +3207,13 @@ Story rules:
 - Telling style for this story: {fmt}
 {series_rule}{extra_rules}
 - Every picture must show exactly what that scene's lines describe.
-- THE STORY STARTS AT ITS REAL BEGINNING, told in order like a real storyteller (never a flash-forward, never
-  in the middle). The very first line is ONE short chilling narrator hook (max 14 words) that promises the horror
-  to come (e.g. 'সেই হোস্টেলের তেরো নম্বর ঘরে যা ঘটেছিল, আজও কেউ মুখে আনে না...'). Then the narrator
-  STRICTLY in this order: (1) WHEN it began - 'ঘটনার শুরু হয়েছিল ... মাসের এক শনিবার সকালে।' (a month, a
-  day of the week, a time of day); (2) WHO and WHERE FROM - 'রতন নামে একটি ছেলে বাঁকুড়ার ... গ্রামে থাকত।'
-  with the family and situation (poor / alone / a new job...); (3) WHY he/she came to this place; (4) HOW - the
-  journey and the search (e.g. 'কলকাতায় পড়তে এসে অনেক খুঁজে, অনেক জায়গায় ঘুরে, শেষে সস্তায় একটা পুরোনো
-  হোস্টেলে একটা ঘর পেল...'). Only then the first day there, the people he/she meets (each introduced), and the
-  first small strange sign. The listener must always know where we are, who is there, how and why.
-- PLANT A CLUE: in the first two scenes show one small, innocent-looking thing (an old key, a scratch on the wall,
-  a line of a lullaby, a smell) - at the end it turns out to be the key to the whole horror.
+- THE STORY IS TOLD IN ORDER like a real storyteller (never a flash-forward). It OPENS exactly the way the FRESH
+  BRIEF below says (its opening device) - never the same kind of opening as our earlier stories, never a stock
+  first sentence. Early on, naturally and in this story's own way, the listener learns when it happened, who the
+  main person is, where they come from and why they are in this place - the listener must always know where we
+  are, who is there, how and why.
+- PLANT A CLUE: early, show one small, innocent-looking thing that belongs ONLY to this story (the FRESH BRIEF names
+  it) - at the end it turns out to be the key to the whole horror.
 - A SOUND THAT STARTS IN THE MIDDLE OF A SCENE (the rain begins, a bell rings, a storm rises, a dog starts to
   howl) is NEVER "ambience" - it is an "sfx" on the exact word that names it, so it is heard exactly when it is
   said, not before and not after. "ambience" is only what is heard from the first to the last line of the scene.
@@ -3487,8 +3704,9 @@ class Voices:
         # Gemini voices: never the same voice for two characters. Our recurring heroes ALWAYS keep their own
         # voice, in every episode (the listeners know them by their voice)
         self.gemini_map, taken = {}, {NARRATOR_GEMINI[0]}
+        learned = series_voice_memory()
         for c in cast.chars.values():
-            fv = SERIES_VOICES.get(c["name"].lower().strip())
+            fv = SERIES_VOICES.get(c["name"].lower().strip()) or learned.get(c["name"].lower().strip())
             if fv and (fv in GEMINI_ALL["female"]) != c["gender"].startswith("f"):
                 fv = None                             # a fixed voice never gives a woman a man's voice (or back)
             if fv and fv not in taken:
@@ -3536,6 +3754,32 @@ GEMINI_POOL = {   # prebuilt Gemini voices for each kind of character (first fre
 }
 GEMINI_VOICES = {k: v[0] for k, v in GEMINI_POOL.items()}
 # the fixed voices of our series characters (the same in every episode; never the storyteller's voice)
+SERIES_VOICE_FILE = os.path.join(HERE, "assets", "series_voices.json")
+
+
+def series_voice_memory():
+    """v115: the voices our series' characters had in earlier episodes ({name: voice}) - for THIS series only"""
+    sp = str(STATE.get("special") or "")
+    if not sp or env("SERIES_VOICE_MEMORY") == "0":
+        return {}
+    d = _jload(SERIES_VOICE_FILE, {}) if "_jload" in globals() else {}
+    return (d.get(sp) or {}) if isinstance(d, dict) else {}
+
+
+def series_voice_remember(voices):
+    """after an episode: every character of this series keeps the voice it had (the narrator too stays fixed)"""
+    sp = str(STATE.get("special") or "")
+    if not sp or MOCK or env("SERIES_VOICE_MEMORY") == "0":
+        return
+    d = _jload(SERIES_VOICE_FILE, {})
+    d = d if isinstance(d, dict) else {}
+    mem = d.setdefault(sp, {})
+    for name, v in (getattr(voices, "gemini_map", {}) or {}).items():
+        mem.setdefault(name, v)
+    _jsave(SERIES_VOICE_FILE, d)
+    push_now([SERIES_VOICE_FILE], "series voices remembered")
+
+
 SERIES_VOICES = {"bhairab thakur": "Rasalgethi", "bhairab": "Rasalgethi", "paltu": "Fenrir",
                  "taranath": "Sadaltager", "kishori": "Zubenelgenubi", "nilkantha": "Charon", "bapi": "Sadachbia",
                  "madhusundari": "Vindemiatrix", "sadhu": "Algieba", "matu pagli": "Gacrux",
@@ -3778,7 +4022,7 @@ def voice_reserve():
             night = False
         if night:
             try:
-                return max(0, int(env("TTS_KEEP_FOR_NOON") or 19))
+                return max(0, int(env("TTS_KEEP_FOR_NOON") or 18))   # (v113: 36 a day = 18 + 18, no teaser voices)
             except ValueError:
                 return 18
         return 0
@@ -3897,8 +4141,8 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
     pairs_of = lambda chars: [((i, j, ln), it) for (i, j, ln), it in zip(todo, items) if _who(ln) in chars]
     done_chars = set()
 
-    def gemini_round(chars):
-        keep = voice_reserve()
+    def gemini_round(chars, no_reserve=False):
+        keep = 0 if no_reserve else voice_reserve()
         left = max(0, extras.tts_budget_left(TTS_USAGE) - keep)
         if keep:
             log(f"  {keep} voice requests are kept for the next 2 PM story (and its teasers) - this "
@@ -4009,7 +4253,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         # v91: doubtful lines that are still left (no Gemini request free): in the Chirp voice of the same name -
         # a line alone can never come out twice (v102: a short line together with its neighbours)
         chirp_fixed = 0
-        if extras.chirp_ok(TTS_USAGE) and env("SUSPECT_CHIRP") != "0":
+        if extras.chirp_ok(TTS_USAGE) and env("SUSPECT_CHIRP") == "1":     # v113: never Chirp unless switched on
             for _dev, ln_ in sorted(extras.SUSPECT, key=lambda z: -z[0]):
                 if ln_ in seen_ or ln_ not in by_out or _dev < 0.45:   # only a line clearly read twice / cut short
                     continue
@@ -4039,6 +4283,14 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
 
     done_chars |= gemini_round(set(order))
     waiting = [s for s in order if s not in done_chars]
+    if (waiting and VOICE_CONTEXT[0] == "main" and env("BORROW_RESERVE") != "0" and not extras.TTS_STATE["off"]
+            and extras.gemini_quota_left() and extras.tts_budget_left(TTS_USAGE) > 0):
+        # v113 (your wish: EVERY voice Gemini, never Chirp): our own 'keep for the next story' share is borrowed
+        # before any other voice is used - if the next story then runs short, it waits for Google's daily reset
+        log(f"  {', '.join(waiting)}: the share kept for the next story is used, so they also get the Gemini voice")
+        extras.TTS_STATE["off"] = False
+        done_chars |= gemini_round(set(waiting), no_reserve=True)
+        waiting = [s for s in order if s not in done_chars]
     if waiting:
         wait_s = extras.seconds_until_reset()
         room = job_minutes_left() * 60 - 75 * 60      # time still needed after the voices for the video itself
@@ -4106,8 +4358,8 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                 tmp_ = it["out"] + ".again.wav"
                 ok_ = False
                 try:
-                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again[0] < int(env("TWICE_GEM_MAX") or 4)
-                            and extras.tts_budget_left(TTS_USAGE) - extras.TTS_USED[0] > voice_reserve()):
+                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again[0] < int(env("TWICE_GEM_MAX") or 6)
+                            and extras.tts_budget_left(TTS_USAGE) - extras.TTS_USED[0] > 0):
                         gem_again[0] += 1
                         off_ = extras.TTS_STATE["off"]
                         extras.TTS_STATE["off"] = False
@@ -4118,7 +4370,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                                                     max_tries=1)
                         finally:
                             extras.TTS_STATE["off"] = off_ or extras.TTS_STATE["off"]
-                    if not ok_ and extras.chirp_ok(TTS_USAGE):
+                    if not ok_ and extras.chirp_ok(TTS_USAGE) and env("VERIFY_CHIRP") == "1":   # (v113: off)
                         ok_ = extras.chirp_tts(it["plain"], it["voice"], tmp_, SR, TTS_USAGE, lang)
                     if ok_ and os.path.exists(tmp_) and os.path.getsize(tmp_) > 2000:
                         os.replace(tmp_, it["out"])
@@ -4132,6 +4384,10 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                 extras.tts_budget_use(TTS_USAGE)
         except Exception as e:
             log("  twice-check skipped:", str(e)[:120])
+    try:
+        series_voice_remember(voices)
+    except Exception as e:
+        log("  series voices not remembered:", str(e)[:100])
     GEMINI_READY = all((i, j) in GEMINI_CACHE for (i, j, _ln) in todo)
     STATE["all_gemini"] = GEMINI_READY and not waiting    # every line in the Gemini voice (the length can be learned)
     return GEMINI_READY
@@ -4881,6 +5137,30 @@ def signature_sting():
     return out / (np.abs(out).max() + 1e-9) * 0.85
 
 
+MOOD_SEED = [0]            # set per story (from its title) - each story its own little score
+
+
+def mood_bed(seconds, mood="creepy", seed=0):
+    """v115: our OWN opening music for the story (no one else's music - nothing to claim): a slow dark drone in a key
+    chosen by the story, a swelling pad and two or three distant bell tones; a sad story gets a softer, lower key"""
+    np = _np()
+    r = np.random.default_rng(9000 + int(seed))
+    n = int(SR * seconds)
+    tt = np.arange(n) / SR
+    base = {"sad": 98.0, "calm": 110.0, "tense": 82.4, "scare": 77.8}.get(mood, 87.3) * (2 ** (r.integers(-2, 3) / 12))
+    drone = (np.sin(2 * np.pi * base * tt) + 0.6 * np.sin(2 * np.pi * base * 1.0059 * tt)
+             + 0.35 * np.sin(2 * np.pi * base * 1.5 * tt + 0.7) + 0.2 * np.sin(2 * np.pi * base * (1.189 if mood == "sad" else 1.06) * tt))
+    swell = np.clip(tt / max(1.0, seconds * 0.45), 0, 1) ** 1.6 * np.clip((seconds - tt) / 1.5, 0, 1)
+    out = drone * swell * 0.35
+    for k in range(int(r.integers(2, 4))):
+        st = int(SR * r.uniform(0.6, max(0.8, seconds - 2.0)))
+        f = base * r.choice([4, 6, 8]) * (2 ** (r.integers(0, 5) / 12))
+        m = min(n - st, int(SR * 2.5))
+        tb = np.arange(m) / SR
+        out[st:st + m] += np.sin(2 * np.pi * f * tb) * np.exp(-tb * 1.8) * 0.18
+    return out / (np.abs(out).max() + 1e-9) * 0.6
+
+
 def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=None, place=""):
     """Like a radio drama: every line is spoken with its own voice + emotion, and each sound
     effect is placed exactly where the story says it happens (before / during / after the line).
@@ -4890,6 +5170,8 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     rnd = np.random.default_rng(1000 + idx)
     gap, lead, tail = 0.35, 0.5, 1.0
     pieces, subs, cues, silences, t = [], [], [], [], lead
+    if idx == STING_AT[0] and env("MOOD_BED") != "0" and VOICE_CONTEXT[0] == "main":
+        cues.append((0.0, mood_bed(9.0, mood, MOOD_SEED[0]), 0.32, "mood_bed"))   # v115: the story's own score
     if idx == STING_AT[0] and SHOW_STING:             # our show's own opening sound - the same every day
         cues.append((0.05, signature_sting(), 0.7, "sting"))
         t += 0.9                                      # the voice comes in over the sound (no silent gap)
@@ -6638,6 +6920,79 @@ def bot_status():
     return lines
 
 
+TRUE_WEB_FILE = os.path.join(HERE, "assets", "true_web.json")
+TRUE_WEB_RULE = (
+    "\nA REAL REPORTED HAUNTING - today's story is BASED ON TRUE EVENTS, from public accounts (news, books, local "
+    "history) of {place} ({era}):\n<<<{text}>>>\nKeep the REAL place, the time and the strange things people "
+    "reported as the core and never change them; build our radio drama around them. The people of our story are "
+    "INVENTED (never a real private person's name, house number or phone; officials only by their role). Do not claim "
+    "anything the accounts do not say is proven - what people SAW and FELT is told as what they reported. The narrator's "
+    "first lines say the story is based on a real incident / a real account from {place}.\n")
+
+
+def true_web_story(history, lang):
+    """v115 (your wish): when you sent no true story, Gemini SEARCHES GOOGLE for a real, reported ghost incident
+    or haunted place in a West Bengal district / town (newspapers, books, local history - never a film or a
+    made-up web story), district after district. Only an account with real web sources is used; the sources go into
+    the video description. Returns {place, district, era, title_en, what_is_reported, sources} or None."""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return None
+    data = _jload(TRUE_WEB_FILE, {})
+    data = data if isinstance(data, dict) else {}
+    used = data.get("used") or []
+    order = sorted(DISTRICT, key=lambda d: sum(1 for u in used if u.get("d") == d))
+    for d in order[:3]:
+        dn = DISTRICT[d][2] if len(DISTRICT[d]) > 2 else d
+        avoid = [u.get("title_en", "") for u in used if u.get("d") == d][-12:]
+        prompt = (f"Search the web (Google) for a REAL, documented ghost incident or haunted place in {dn} district, "
+                  "West Bengal, India - any town or village of the district. It must be reported in newspapers, books, "
+                  "local history or well-known local accounts (NOT a film, a web series, a novel or a made-up internet "
+                  "story)." + (f" Not these (already used): {avoid}." if avoid else "") + " Pick ONE. Reply with ONLY "
+                  "a JSON object: {\"found\": true, \"place\": \"town / village, district\", \"era\": \"when it "
+                  "happened or was reported\", \"title_en\": \"short name of the account\", \"what_is_reported\": "
+                  "\"8-12 sentences in English: exactly what the sources say happened / what people report (no real "
+                  "private person's name)\"} - or {\"found\": false} if nothing reliable exists.")
+        for model in gemini_models(key)[:3]:
+            if model in TEXT_DAY_OUT:
+                continue
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json={"contents": [{"parts": [{"text": prompt}]}], "tools": [{"google_search": {}}],
+                                        "generationConfig": {"temperature": 0.3}}, timeout=180)
+                if not r.ok:
+                    log(f"  true-story search: {model} {r.status_code}")
+                    continue
+                cand = r.json()["candidates"][0]
+                txt = "".join(p_.get("text", "") for p_ in cand["content"]["parts"])
+                ans = extras.load_json_loose(txt)
+                chunks = ((cand.get("groundingMetadata") or {}).get("groundingChunks") or [])
+                srcs = [{"title": (c.get("web") or {}).get("title", ""), "url": (c.get("web") or {}).get("uri", "")}
+                        for c in chunks if (c.get("web") or {}).get("uri")]
+            except Exception as e:
+                log(f"  true-story search: {model} {str(e)[:100]}")
+                continue
+            if isinstance(ans, dict) and ans.get("found") and len(str(ans.get("what_is_reported", ""))) > 200 and srcs:
+                for s_ in srcs[:5]:                    # (Google gives redirect links: the real page's address)
+                    try:
+                        rr = requests.head(s_["url"], allow_redirects=True, timeout=20)
+                        if rr.url and "grounding-api-redirect" not in rr.url:
+                            s_["url"] = rr.url
+                    except Exception:
+                        pass
+                ans.update(district=d, sources=srcs[:5])
+                used.append({"d": d, "title_en": ans.get("title_en", ""), "place": ans.get("place", ""),
+                             "date": dt.datetime.now(extras.IST).date().isoformat(), "sources": srcs[:5]})
+                data["used"] = used[-300:]
+                _jsave(TRUE_WEB_FILE, data)
+                push_now([TRUE_WEB_FILE], "true story found on the web")
+                log(f"  TRUE STORY from the web: {ans.get('title_en')} - {ans.get('place')} ({len(srcs)} source(s))")
+                return ans
+            break                                     # (this district: nothing reliable - the next one)
+    log("  no reliable true account found on the web today - our own story instead (no 'true' label)")
+    return None
+
+
 def take_creator_story():
     return extras.take_creator_story(MY_STORIES, "horror")
 
@@ -6655,7 +7010,8 @@ CREATOR_RULE = (
 PLAN_STATE = ("binaural", "folk_story", "brief", "outline", "outline_saved", "source_name", "idea_used", "own_kind", "trends", "category",
               "trend_used", "crossover", "milestone", "opening", "sequel_of",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
-              "district", "district_votes", "viewer_names", "arc", "len_arm", "listener_score")
+              "district", "district_votes", "viewer_names", "arc", "len_arm", "listener_score", "true_sources",
+              "fresh")
 
 
 def length_scale():
@@ -6877,6 +7233,20 @@ def choose_and_write(slot_hour, history):
             if mine:
                 theme = "the creator's own story"
                 extra_rules += CREATOR_RULE.format(text=mine["text"])
+            elif (not folk_ and not viewer and not seq_ and env("TRUE_WEB") != "0"
+                  and str(slot_hour) in (env("TRUE_WEB_SLOTS") or "14,20").split(",")):
+                try:                                  # v115: no story from you -> a REAL reported one from the web
+                    tw_ = true_web_story(history, lang)
+                except Exception as e:
+                    tw_ = None
+                    log("  true story from the web skipped:", str(e)[:150])
+                if tw_:
+                    theme = f"a real reported haunting: {tw_.get('title_en') or tw_.get('place')}"
+                    STATE["creator_true"] = True
+                    STATE["true_sources"] = tw_.get("sources") or []
+                    STATE["district"] = STATE.get("district") or tw_.get("district")
+                    extra_rules += TRUE_WEB_RULE.format(place=tw_.get("place", ""), era=tw_.get("era", ""),
+                                                        text=tw_.get("what_is_reported", ""))
     if env("RETENTION_RULE") != "0":                 # v86: people left in the first minute - keep them
         extra_rules += RETENTION_RULE
     now_ = dt.datetime.now(extras.IST)
@@ -6998,6 +7368,16 @@ def choose_and_write(slot_hour, history):
 
     if special != "classic":
         extra_rules += MASTER_STYLE
+    extra_rules += taste_rule()                        # v115: your taste
+    STATE.pop("fresh_rule", None)
+    if special not in ("classic",) and env("FRESH_BRIEF") != "0" and not STATE.get("creator_story"):
+        try:                                          # v116: this story's own devices and details
+            fresh_brief(history, lang)
+            extra_rules += STATE.get("fresh_rule", "")    # (the plan, the writer and the editor all see it)
+            if not special and STATE.get("fresh"):
+                fmt = STATE["fresh"]["telling"]           # (the way of telling turns too)
+        except Exception as e:
+            log("  fresh brief skipped:", str(e)[:120])
     wish_ = "" if MOCK else user_wish(slot_hour)
     if wish_:                                         # v109: you asked for a different story
         extra_rules += ("\nTHE OWNER OF THE CHANNEL REJECTED THE STORY WRITTEN BEFORE FOR THIS TIME. Write a completely "
@@ -7069,14 +7449,34 @@ def choose_and_write(slot_hour, history):
     if not saved:
         story = edit_story(story, lang, classic=special == "classic", brief=STATE.get("brief", ""),
                            outline=STATE.get("outline", ""))
+    team = STATE.setdefault("team", {})
+    if env("REPEAT_CHECK") != "0":
+        try:                                          # v113: the same thing never said twice, also in other words
+            team["repeat"] = repeat_idea_check(story, lang)
+        except Exception as e:
+            log("  repeat check skipped:", str(e)[:150])
+    if env("END_TRIM") != "0":
+        try:                                          # v113: nothing after the story's real ending
+            team["end"] = trim_after_ending(story, lang)
+        except Exception as e:
+            log("  ending trim skipped:", str(e)[:150])
     if special != "classic" and env("LISTENER_JUDGE") != "0":
         try:                                          # v109: a strict listener scores it - a weak story is mended
-            listener_judge(story, lang)
+            team["judge"] = listener_judge(story, lang)
         except Exception as e:
             log("  listener check skipped:", str(e)[:150])
     if STATE.get("creator_true"):                      # 'সত্য ঘটনা অবলম্বনে' everywhere
         extras.mark_true_story(story, lang)
-    honest_meta(story, lang)                          # v112: no title / thumbnail word that the video does not hold
+    team["honest"] = honest_meta(story, lang)          # v112: no title / thumbnail word that the video does not hold
+    try:                                              # v116: what each member of the team did (to you on Telegram)
+        team_report(story, slot_hour)
+    except Exception as e:
+        log("  team report skipped:", str(e)[:100])
+    if STATE.get("true_sources"):                     # v115: where the true account comes from
+        src_ = "\n".join(f"• {s_.get('title') or s_.get('url')}: {s_.get('url')}" for s_ in STATE["true_sources"][:4])
+        story["description"] = (str(story.get("description") or "").rstrip()
+                                + ("\n\n📰 যে সত্যি ঘটনার উপর এই গল্প (চরিত্রগুলো কাল্পনিক) - সূত্র:\n" if lang == "bn" else
+                                   "\n\n📰 Based on these real accounts (the characters are invented):\n") + src_)
     if "khata_clue" in KHATA_HOLD and isinstance(story, dict) and not from_saved_:   # v95: the hidden clue goes with the story
         story["khata_clue"] = KHATA_HOLD["khata_clue"]
     plan = {k: v for k, v in locals().items() if k in ('cat', 'classic', 'festival', 'fmt', 'lang', 'outline', 'part', 'prev', 'shout_ids', 'shout_names', 'special', 'story', 'theme', 'total', 'viewer')}
@@ -8651,6 +9051,8 @@ def write_tomorrow(history, day=None):
             SCRIPTS.clear()
             global LONG_MIN
             arm_ = length_arm(day.isoformat(), h, history)
+            if not os.environ.get("HORROR_MINUTES"):
+                LONG_MIN = SLOT_MINUTES.get(h, LONG_MIN)     # (v113: the night writing run too: about 20 minutes)
             if arm_:
                 LONG_MIN = minutes_for(arm_, SLOT_MINUTES.get(h, LONG_MIN))
                 STATE["len_arm"] = arm_
@@ -8719,6 +9121,19 @@ def thumb_text_for(plan):
 
 
 CHANGE_FILE = os.path.join(HERE, "assets", "change_requests.json")
+TASTE_FILE = os.path.join(HERE, "assets", "taste.json")
+
+
+def taste_rule():
+    """v115: the stories YOU threw away and what you asked for instead - every new story learns from them"""
+    tf = _jload(TASTE_FILE, {})
+    rej = (tf.get("rejected") or [])[-8:] if isinstance(tf, dict) else []
+    if not rej:
+        return ""
+    rows = [f"- '{r.get('title', '')}'" + (f" (about: {r.get('about', '')[:140]})" if r.get("about") else "")
+            + (f" -> he asked: {r['wish']}" if r.get("wish") else "") for r in rej]
+    return ("\nTHE OWNER'S TASTE (learn from it): he REJECTED these stories - do not write anything like them; follow "
+            "what he asked for instead:\n" + "\n".join(rows) + "\n")
 
 
 def change_requests(history):
@@ -8760,6 +9175,15 @@ def change_requests(history):
             continue
         k = keys[0]
         old = _plan_title(plans[k])
+        try:                                          # v115: what you did NOT like is remembered (your taste)
+            tf = _jload(TASTE_FILE, {})
+            tf = tf if isinstance(tf, dict) else {}
+            tf.setdefault("rejected", []).append({"title": old, "about": str((plans[k].get("story") or {}).get(
+                "description") or "")[:300], "wish": wish, "date": dt.datetime.now(extras.IST).date().isoformat()})
+            tf["rejected"] = tf["rejected"][-30:]
+            _jsave(TASTE_FILE, tf)
+        except Exception:
+            pass
         plans.pop(k, None)
         notes[k] = wish or "the owner did not like the story: write a completely different, better one"
         got += 1
@@ -8772,7 +9196,7 @@ def change_requests(history):
         _jsave(CHANGE_FILE, data)
     if got:
         _jsave(PLANS_FILE, plans)
-        push_now([PLANS_FILE, CHANGE_FILE], "your change request")
+        push_now([PLANS_FILE, CHANGE_FILE, TASTE_FILE], "your change request")
     return got
 
 
@@ -9401,7 +9825,7 @@ def length_arm(day_iso, h, history=None):
     """v109 (H4): two weeks of a fair test - one day the 2 PM story is SHORT (~11 min) and the 8 PM long, the next day
     the other way round. Then the bot keeps the length that was watched more (views + how long). 'short' / 'long' /
     None (no test)."""
-    if env("LEN_TEST") == "0" or os.environ.get("HORROR_MINUTES"):
+    if env("LEN_TEST") != "1" or os.environ.get("HORROR_MINUTES"):   # (v113: 20 minutes always; test only if LEN_TEST=1)
         return None
     d = _jload(LEN_FILE, {})
     d = d if isinstance(d, dict) else {}
@@ -11711,6 +12135,7 @@ def main():
     except Exception as e:
         log("  repeat check of the whole video skipped:", str(e)[:100])
     STING_AT[0] = 1 if cold else 0      # the show's sound with the title, right after the hook
+    MOOD_SEED[0] = sum(ord(ch) for ch in str(title)) % 997
     HOOK_TEXT[0] = str(story.get("thumbnail_text") or "").strip()
     video = os.path.join(WORK, "final.mp4")
     show_top = (series_label(special, L) if special == "karna" or special in NEW_SERIES else
@@ -11896,6 +12321,7 @@ def main():
                     "idea_used": STATE.get("idea_used"),
                     "trend_used": STATE.get("trend_used"),
                     "len_arm": STATE.get("len_arm"), "listener_score": STATE.get("listener_score"),
+                    "fresh": STATE.get("fresh"),
                     "crossover": STATE.get("crossover") or None,
                     "opening": STATE.get("opening"),
                     "category": STATE.get("category"),
