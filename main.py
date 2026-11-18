@@ -10071,6 +10071,13 @@ def weekly_report(history, force=False):
                 leave.append(f"'{lab}' ({int(sec // 60)}:{int(sec % 60):02d})")
     if leave:
         lines.append("📉 বেশিরভাগ দর্শক যেখানে ছেড়ে গেছেন: " + ", ".join(leave[:3]))
+    if not (MOCK or DRY_RUN):                         # v117: the week's most-played Reel to the page Story again
+        try:
+            top = extras.fb_top_reel_story(WORK)
+            if top:
+                lines.append(f"📲 এই সপ্তাহের সবচেয়ে বেশি চলা Reel ({top[1]} বার চালানো) আবার Facebook Story-তে দেওয়া হল")
+        except Exception as e:
+            log("  top Reel to Story skipped:", str(e)[:150])
     try:                                              # v109: what the new things did this week
         lines += growth_week_lines(history, week, S, avg)
     except Exception as e:
@@ -13246,9 +13253,10 @@ def grow(video, story, title, lang, L, tags, results, history, page):
         short_desc = "\n\n".join(x for x in (reel_words(story, title), re.sub(r"\s*\|.*$", "", title).strip(),
                                               " ".join(tags[:3])) if x)
 
-    def link_comment(rid):
+    def link_comment(rid, after=None):
         if rid and env("REEL_LINK_IN_CAPTION") != "1":
-            extras.PENDING.append({"id": str(rid), "text": f"{L['full_link']} {fb_full}"})
+            extras.PENDING.append(dict({"id": str(rid), "text": f"{L['full_link']} {fb_full}"},
+                                       **({"after": after.timestamp() + 300} if after else {})))
     if teaser and env("FB_REELS") != "0":
         extras.FEED["priority"] = True               # (the story's own Reel always goes - FEED_CAP is for extras)
         try:
@@ -13290,7 +13298,10 @@ def grow(video, story, title, lang, L, tags, results, history, page):
             except Exception as e:
                 log("  Reel trilogy skipped:", str(e)[:200])
                 trilogy = False
-        if env("SECOND_REEL") == "1" and not trilogy:   # a second Reel from another moment, 2 hours later
+        # v117: Facebook's page tip says Reels get ~13x more views - the second Reel (another moment of the story) is
+        # ON again, but the next day (REEL2_HOURS, default 20: the 2 PM story's at 10 AM, the 8 PM story's at 4 PM),
+        # never two of the same story close together; its own allowance (REEL_EXTRA, default 2 a day). SECOND_REEL=0 off.
+        if env("SECOND_REEL") != "0" and not trilogy and not MOCK:
             try:
                 pt_, sg_ = TIMELINE[0], TIMELINE[1]
                 s2, e2 = extras.pick_window(sg_, pt_, max(2, (len(pt_) * 3) // 5))
@@ -13298,9 +13309,11 @@ def grow(video, story, title, lang, L, tags, results, history, page):
                 extras.make_teaser(video, s2, e2, reel2, FONT, re.sub(r"\s*\|.*$", "", title).strip(), L["cta"], WORK,
                                    tagline=str(story.get("tagline") or story.get("thumbnail_text") or ""))
                 base = extras.PUBLISH.get("at") or dt.datetime.now(extras.IST)
-                out["fb_reel2"] = extras.fb_post_reel(reel2, short_desc, at=max(base, dt.datetime.now(extras.IST))
-                                                      + dt.timedelta(hours=2))
-                log("Second Facebook Reel scheduled (2 hours later):", out["fb_reel2"])
+                hrs = float(env("REEL2_HOURS") or 20)
+                at2 = max(base, dt.datetime.now(extras.IST)) + dt.timedelta(hours=hrs)
+                out["fb_reel2"] = extras.fb_post_reel(reel2, short_desc, at=at2, kind="reel2")
+                link_comment(out.get("fb_reel2"), after=at2)
+                log(f"Second Facebook Reel scheduled ({hrs:.0f} hours later):", out["fb_reel2"])
             except Exception as e:
                 log("  second Reel skipped:", str(e)[:200])
     if teaser and env("INSTAGRAM") == "1":           # only if you switch Instagram on (secret INSTAGRAM = 1)
