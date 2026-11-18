@@ -223,12 +223,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 2,
+   "views": 3,
    "length_s": 496,
    "yt_views": 2,
    "yt_avg_s": 76,
    "yt_avg_pct": 15.4,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -254,7 +254,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -412,7 +412,7 @@
    "yt_views": 2,
    "yt_avg_s": 12,
    "yt_avg_pct": 0.2,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -441,7 +441,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -460,7 +460,7 @@
    "yt_views": 1,
    "yt_avg_s": 22,
    "yt_avg_pct": 2.1,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -478,7 +478,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -505,10 +505,10 @@
    "comments": 2,
    "views": 3,
    "length_s": 356,
-   "yt_views": 2,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 7,
+   "yt_avg_pct": 2.2,
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -737,7 +737,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -774,7 +774,7 @@
    "yt_views": 4,
    "yt_avg_s": 71,
    "yt_avg_pct": 8.8,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -959,7 +959,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T01:02+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -996,7 +996,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T01:02+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -1032,7 +1032,7 @@
    "yt_views": 1,
    "yt_avg_s": 1040,
    "yt_avg_pct": 100.0,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -1178,12 +1178,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 4,
+   "views": 5,
    "length_s": 1635,
    "yt_views": 4,
    "yt_avg_s": 22,
    "yt_avg_pct": 1.3,
-   "checked": "2026-11-15T01:02+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1224,10 +1224,10 @@
    "likes": 0,
    "comments": 1,
    "views": 9,
-   "yt_views": 8,
-   "yt_avg_s": 7,
-   "yt_avg_pct": 0.7,
-   "checked": "2026-11-15T01:02+00:00"
+   "yt_views": 9,
+   "yt_avg_s": 6,
+   "yt_avg_pct": 0.6,
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1267,12 +1267,12 @@
   "stats": {
    "likes": 3,
    "comments": 3,
-   "views": 8,
+   "views": 12,
    "length_s": 1912,
-   "yt_views": 8,
-   "yt_avg_s": 740,
-   "yt_avg_pct": 38.7,
-   "checked": "2026-11-15T06:28+00:00"
+   "yt_views": 9,
+   "yt_avg_s": 907,
+   "yt_avg_pct": 47.5,
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1503,7 +1503,7 @@
    "yt_views": 5,
    "yt_avg_s": 168,
    "yt_avg_pct": 14.1,
-   "checked": "2026-11-15T01:02+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1545,7 +1545,7 @@
    "comments": 2,
    "views": 0,
    "length_s": 802,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -2013,10 +2013,10 @@
    "comments": 2,
    "views": 3,
    "length_s": 875,
-   "yt_views": 2,
+   "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2154,7 +2154,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2812,12 +2812,12 @@
   "stats": {
    "likes": 1,
    "comments": 0,
-   "views": 13,
+   "views": 10,
    "length_s": 24,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-15T01:02+00:00"
+   "yt_views": 15,
+   "yt_avg_s": 20,
+   "yt_avg_pct": 86.0,
+   "checked": "2026-11-18T06:33+00:00"
   }
  },
  {
@@ -3119,12 +3119,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 4,
+   "views": 2,
    "length_s": 1882,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 478,
+   "yt_avg_pct": 25.4,
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3327,12 +3327,12 @@
   "stats": {
    "likes": 0,
    "comments": 1,
-   "views": 3,
+   "views": 6,
    "length_s": 1341,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-15T06:28+00:00"
+   "yt_views": 6,
+   "yt_avg_s": 15,
+   "yt_avg_pct": 1.2,
+   "checked": "2026-11-18T06:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4091,6 +4091,308 @@
   "hook_style": "sound",
   "district_week": "howrah",
   "district": "howrah",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-17-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-17-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 1,
+   "length_s": 1079,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-18T06:33+00:00"
+  }
+ },
+ {
+  "date": "2026-11-18T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-18@14",
+  "pending_comments": [
+   {
+    "id": "2021124978584663",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1680616307023664"
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "an ORIGINAL new story on the same topic as this week's much-watched video 'রক্ত কাফনের তালাশ' (only the topic - our own place, people, events and twist)",
+  "len_arm": null,
+  "listener_score": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "sotti",
+  "question_post": null,
+  "title_b": "দত্তপুকুরের সেই পুরোনো গোলার বিভীষিকা | পর্ব ১ 🏚️",
+  "theme": "a viewer's own true experience",
+  "format": "a listener's letter read out by the narrator, then the events play out",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "অগ্রহায়ণের সেই অভিশপ্ত নিক্তি | পর্ব ১ 🌾",
+  "festival": null,
+  "summary": "Chapter 1: Arindam Dutta arrives at his ancestral home in Duttapukur to sell the property by forging his missing uncle Sudhangshu's signature. The old caretaker, Bipad Bhanjan, warns him about an iron trunk and tells him not to respond if he hears three metallic sounds. At midnight, after a power cut, Arindam hears the sounds and investigates the upstairs study. He finds the trunk open and discovers his uncle's diary with fresh entries dated yesterday. The story ends with the terrifying appearan",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "viewer",
+  "viewer_story_id": "yt_UgxpsPnaLeVa4gLVtTR4AaABAg",
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1680616307023664",
+  "youtube": "zrmFxFY7s60",
+  "fb_reel": "2021124978584663",
+  "fb_story": "1104459625930070",
+  "yt_short": "RmI6h4nZ0k4",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1901,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     11,
+     "শুরু"
+    ],
+    [
+     19,
+     "সূচনা"
+    ],
+    [
+     43,
+     "পুরোনো ভিটে"
+    ],
+    [
+     86,
+     "নিষেধ"
+    ],
+    [
+     108,
+     "ভিজে পায়ের ছাপ"
+    ],
+    [
+     129,
+     "অস্বাভাবিক কাদা"
+    ],
+    [
+     154,
+     "বিপদের হুঁশিয়ারি"
+    ],
+    [
+     177,
+     "গোপন অভিসন্ধি"
+    ],
+    [
+     202,
+     "অন্ধকার"
+    ],
+    [
+     221,
+     "প্রথম সংকেত"
+    ],
+    [
+     237,
+     "অনুগমন"
+    ],
+    [
+     261,
+     "দ্বিতীয় শব্দ"
+    ],
+    [
+     283,
+     "উন্মুক্ত সিন্দুক"
+    ],
+    [
+     305,
+     "অপ্রত্যাশিত তারিখ"
+    ],
+    [
+     331,
+     "অদৃশ্য নজর"
+    ],
+    [
+     356,
+     "হিসাব নিকাশ"
+    ],
+    [
+     385,
+     "অন্ধকারে মুখোমুখি"
+    ],
+    [
+     413,
+     "অভিশপ্ত ডায়েরি"
+    ],
+    [
+     448,
+     "ভাইয়ের বিশ্বাসঘাতকতা"
+    ],
+    [
+     493,
+     "রক্তের অপরাধ"
+    ],
+    [
+     540,
+     "বন্ধ দরজা"
+    ],
+    [
+     580,
+     "অন্ধকারের জাল"
+    ],
+    [
+     620,
+     "ছোটকাকার ডাক"
+    ],
+    [
+     657,
+     "হিসাবের পাল্লা"
+    ],
+    [
+     704,
+     "ক্ষুধার্ত আত্মা"
+    ],
+    [
+     749,
+     "মরণ টান"
+    ],
+    [
+     786,
+     "শৃঙ্খলিত মুহূর্ত"
+    ],
+    [
+     818,
+     "নিক্তির অভিশাপ"
+    ],
+    [
+     845,
+     "প্রথম সংকেত"
+    ],
+    [
+     859,
+     "বিপজ্জনক নীরবতা"
+    ],
+    [
+     900,
+     "দ্বিতীয় পতন"
+    ],
+    [
+     920,
+     "চরম মুহূর্ত"
+    ],
+    [
+     941,
+     "তৃতীয় পতন"
+    ],
+    [
+     975,
+     "মৃতের ফিসফিসানি"
+    ],
+    [
+     989,
+     "রক্তাক্ত স্বাক্ষর"
+    ],
+    [
+     1020,
+     "জালিয়াতির শাস্তি"
+    ],
+    [
+     1060,
+     "অগ্নিশুদ্ধি"
+    ],
+    [
+     1092,
+     "বিশাল ছায়া"
+    ],
+    [
+     1124,
+     "ভোরের নির্জনতা"
+    ],
+    [
+     1161,
+     "নির্জন উঠোন"
+    ],
+    [
+     1184,
+     "উল্টো পায়ের ছাপ"
+    ],
+    [
+     1217,
+     "দারোগাবাবুর আগমণ"
+    ],
+    [
+     1250,
+     "তদন্ত শুরু"
+    ],
+    [
+     1280,
+     "দোতলার বারান্দা"
+    ],
+    [
+     1321,
+     "গোলার দরজা"
+    ],
+    [
+     1348,
+     "ছাইয়ের রহস্য"
+    ],
+    [
+     1373,
+     "বন্ধ সিন্দুক"
+    ],
+    [
+     1402,
+     "অশুভ তুলাদণ্ড"
+    ],
+    [
+     1429,
+     "সিন্দুকের ভেতরে"
+    ],
+    [
+     1461,
+     "পুরোনো পাওনা"
+    ],
+    [
+     1509,
+     "শেষ হিসেব"
+    ],
+    [
+     1550,
+     "অমীমাংসিত রহস্য"
+    ],
+    [
+     1595,
+     "অন্ধকার সিন্দুক"
+    ],
+    [
+     1632,
+     "তুলাদণ্ডের বিচার"
+    ],
+    [
+     1669,
+     "শ্মশানের গন্ধ"
+    ],
+    [
+     1705,
+     "সময়ের খেলা"
+    ],
+    [
+     1740,
+     "রক্তের সই"
+    ],
+    [
+     1778,
+     "শেষ মুক্তি"
+    ],
+    [
+     1823,
+     "অভিশপ্ত ইতিহাস"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "n24",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-14.mp4"
  }
 ]
