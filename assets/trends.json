@@ -1,136 +1,127 @@
 {
  "horror_bn": {
-  "date": "2026-11-18",
+  "date": "2026-11-19",
   "topics": [
-   "An isolated dak bungalow near the Bengal border where a forest ranger uncovers a locked diary belonging to a vanished British surveyor who kept company with loc",
-   "A decrepit river dock in rural Murshidabad where a midnight ferryman transports a solitary passenger who leaves behind a brass coin that turns into dried human ",
-   "A forgotten salt marsh in the Sunderbans where two fishermen setting illegal nets pull up an old wooden chest that whispers ancestral secrets belonging to a dea",
-   "An abandoned railway quarter near an overgrown junction in Purulia where a night-duty signalman hears the exact voice of his deceased grandfather repeating a de",
-   "A crumbling Indigo planter's mansion in Nadia where an art restorer working late night encounters a shadow on the wall that bleeds whenever the grandfather cloc",
-   "A dense bamboo thicket bordering a remote Howrah village where a tired bullock-cart driver is offered a glowing clay chillum by a mysterious ascetic who vanishe"
+   "A night-shift mortuary assistant in Kolkata discovers a body with fresh breathing sounds locked in drawer number 9.",
+   "Two medical students conducting an unauthorized autopsy at 2 AM find the cadaver's phone receiving live calls from inside the cold room.",
+   "A lone security guard monitoring CCTV cameras in a district hospital morgue watches an empty autopsy table climb up by itself.",
+   "An ambulance driver transporting a mysterious unclaimed body during a heavy thunderstorm hears frantic knocking from the back cabin.",
+   "A female doctor trapped inside a locked underground hospital morgue during a power outage realizes she is not breathing alone in the dark.",
+   "A rookie sweeper cleaning the dissection hall after midnight finds all the numbered toe tags swapped among the covered bodies."
   ],
   "hashtags": [
-   "#BanglaBhuterGolpo",
-   "#BanglaHorrorStory",
-   "#BhootFM",
-   "#BhuterKahani",
-   "#SundaySuspenseStyle",
-   "#BengaliGhostStory",
-   "#VoutikGolpo",
-   "#HorrorAudioStory",
-   "#ScariestBengaliStory",
-   "#BhooterGolpo"
+   "#bhutergolpobangla",
+   "#bengalihorrorstory",
+   "#bhootfm",
+   "#morguehorror",
+   "#bhoot_ki_kahani",
+   "#horrorstories",
+   "#bengalighoststory",
+   "#banglagolpo",
+   "#trueghoststories",
+   "#sundaysuspense"
   ],
-  "keywords": [
-   "bangla bhuter golpo",
-   "bengali horror story audio",
-   "vuter golpo new",
-   "bhuter kahani bangla",
-   "bengali suspense horror",
-   "village bhoot er golpo",
-   "tantrik bhuter golpo",
-   "new bangla horror audio"
-  ],
+  "keywords": [],
   "style": {
    "tags": [],
    "hashtags": [],
-   "title_style": "Titles are descriptive and narrative, often using a pipe '|' to separate the series name from the specific episode hook. They frequently incorporate high-intensity keywords like 'ভয়ানক' (terrifying), 'রক্তবিভীষিকা' (blood-horror), and 'অশরীরী' (supernatural) to drive clicks. The structure is long-form, blending character names with atmospheric settings to build immediate intrigue.",
-   "thumb_style": "Thumbnails feature high-contrast, dark, and moody color palettes with dramatic lighting, often using glowing green or fiery orange accents to highlight supernatural elements. The composition centers on a powerful, authoritative figure (a Tantrik or Peer) facing a menacing, monstrous ghost, with detailed, cinematic backgrounds like old mansions or dark forests.",
-   "thumb_text_style": "The thumbnails feature large, bold, and stylized Bengali typography, typically using 3-6 words that emphasize the core conflict or the name of the horror story."
+   "title_style": "Titles are short to medium length, combining dramatic Bengali phrases with separators like '|' or emojis to spark curiosity. They frequently use high-impact hooks involving specific locations, eerie times, or claims of true events to drive clicks.",
+   "thumb_style": "Thumbnails feature dark, high-contrast night settings lit by eerie glows, moonlight, or lanterns, often framing a terrified human facing a spectral figure or a morgue drawer. Bold, large Bengali typography in contrasting white, yellow, and blood-red dominates the central composition to immediately grab attention.",
+   "thumb_text_style": "Around 4 to 8 large words of prominent Bengali text placed on the thumbnail, designed to tease a terrifying premise or warning."
   },
   "real": [
    {
-    "id": "D8tyCk8vsyc",
-    "title": "Elephant_Tusk_Stick-_Taranath_Tantrik_Golpo___Bangla_Bhuter_Golpo___Bhuter_Story",
-    "views": 33629,
-    "age": "7d ago"
-   },
-   {
-    "id": "T08ICuAY2as",
-    "title": "তারানাথ তান্ত্রিকের গল্প - দশচক্রে ভগবান ভূত | Rajprataper Thek | Sreeja | Taranath Tantrik |",
-    "views": 30606,
+    "id": "zdZhoy9HUGQ",
+    "title": "মর্গের সাত নম্বর ড্রয়ার | সম্পূর্ণ গল্প | বাংলা ভৌতিক গল্প 😱",
+    "views": 6139,
     "age": "5d ago"
    },
    {
-    "id": "Z99vKiu2nCc",
-    "title": "আব্বাস আলী পীর সাহেবের সাথে জিনের ভয়ানক যুদ্ধ! | বাংলা ভৌতিক গল্প | Bhoot FM",
-    "views": 27441,
+    "id": "W94uB_wWD1k",
+    "title": "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories #bhootfm",
+    "views": 2395,
     "age": "2d ago"
    },
    {
-    "id": "EbCNa3Og33c",
-    "title": "#Taranathtantrik - তমসাপুরের খাস মহল | Sreeja Mukharjee | RAJPRATAPER THEK | TARANATH TANTRIK |",
-    "views": 19268,
+    "id": "2woFSXRE31Q",
+    "title": "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories # bhootfm",
+    "views": 1249,
+    "age": "3d ago"
+   },
+   {
+    "id": "1-p_qfXqHL8",
+    "title": "Ghost Incident in Siliguri | Siliguri Horror Story | Bengali Horror Story | True Ghost Story",
+    "views": 673,
+    "age": "3d ago"
+   },
+   {
+    "id": "S8QWlYPGe_g",
+    "title": "ভুতুড়ে মর্গে একা ☠️ | সত্য ঘটনা অবলম্বনে ভৌতিক গল্প",
+    "views": 619,
+    "age": "6d ago"
+   },
+   {
+    "id": "HzPa0dGmYBc",
+    "title": "রাত ৩টা ১৭ মিনিটে মর্গে ফোন এসেছিল! 😨 | Morgue Horror Story | Bhoot FM 9.8",
+    "views": 255,
+    "age": "2d ago"
+   },
+   {
+    "id": "jGO7Ve0K0sU",
+    "title": "পোড়োবাড়ির মৃত্যুক্ষুধা পর্ব-২ | মর্গের লাশের রহস্য | Bangla Bhuter Golpo  #bhutergolpobangla #bhoot",
+    "views": 185,
+    "age": "2d ago"
+   },
+   {
+    "id": "j4CE5hc483k",
+    "title": "মর্গের ১৩ নম্বর ঘর | হাসপাতালের ভয়ানক ভূতুরে গল্পঃ | bengali golpo | Golper FM #story #horror",
+    "views": 19,
+    "age": "7d ago"
+   },
+   {
+    "id": "OrCd3ckIBws",
+    "title": "The Mysterious Theft from the Mymensingh Medical College Morgue",
+    "views": 19,
+    "age": "6d ago"
+   },
+   {
+    "id": "LxcRguGNCdA",
+    "title": "পরিত্যক্ত হাসপাতালের ভয়ংকর রহস্য 😱 | রাত ৩টার সেই ঘটনা | বাংলা ভৌতিক গল্প | Horror FM",
+    "views": 11,
+    "age": "7d ago"
+   },
+   {
+    "id": "lBoMl4rQcxw",
+    "title": "মর্গের ক্যামেরায় মেঝেতে কিছু একটা ধরা পড়েছে।",
+    "views": 10,
+    "age": "7d ago"
+   },
+   {
+    "id": "Dxo3ONFqOSs",
+    "title": "3 TERRIFYING TRUE STORIES FROM INSIDE THE MORGUE",
+    "views": 9,
     "age": "1d ago"
    },
    {
-    "id": "W1oap7Vkot0",
-    "title": "Tantrik Durgashankar Pandit | Kahaal | তান্ত্রিক দুর্গাশঙ্কর পন্ডিত | কাহাল | Golpo Man",
-    "views": 15942,
-    "age": "7d ago"
+    "id": "144fYMU8fzw",
+    "title": "ভুত এফএম | Bhoot FM | ৩টি ভয়ংকর ঘটনা: কবরস্থানের অভিশাপ, মর্গের লাশ ও কাল বিলের",
+    "views": 9,
+    "age": "5d ago"
    },
    {
-    "id": "2wdCED__4bg",
-    "title": "বর্ষার রাতে চায়ের আড্ডা (গ্রাম বাংলার ভুতের গল্প) | Gram Banglar Vuter Golpo | Bengali Horror Story",
-    "views": 13278,
+    "id": "OqZjxXq5fJ8",
+    "title": "Bhoot Email Episode Nov 15, 2026 | The Terrifying Morgue Incident | Best email story #bhoot #horr...",
+    "views": 5,
     "age": "3d ago"
    },
    {
-    "id": "MnsX3d52aJM",
-    "title": "তারানাথ তান্ত্রিকের গল্প - হরিণমারির জমিদারবাড়ি । Taranath Tantrik । Taranath Tantrik New Story",
-    "views": 10341,
-    "age": "7d ago"
-   },
-   {
-    "id": "7cBK7IHp8GQ",
-    "title": "তারানাথ তান্ত্রিক ও ডাকিনীর কোপ | Taranath Tantrik | Bengali Horror Story",
-    "views": 9143,
-    "age": "7d ago"
-   },
-   {
-    "id": "y_fXAESdZCE",
-    "title": "​🩸 অন্ধকার রাতের রক্তবিভীষিকা: দীঘলকান্তির ভয়ংকর পরিণতি 💀 | Taranath Tantrik Story | Bangla Ghost 👻",
-    "views": 8102,
-    "age": "5d ago"
-   },
-   {
-    "id": "P5NIjb2L5As",
-    "title": "TARANATH TANTRIK- ডিহির বুকে অশরীরী|তারানাথ তান্ত্রিক|HORROR STORY|ভয়ানক ভৌতিক গল্প|#Scariest",
-    "views": 7832,
-    "age": "5d ago"
-   },
-   {
-    "id": "EasNzg-4li0",
-    "title": "কোদালিয়া গ্রামের বিভীষিকা | তারানাথ তান্ত্রিকের গল্প  | Taranath Tantrik | Horror Story",
-    "views": 7557,
+    "id": "tanTLe-0UeQ",
+    "title": "Bhoot Fm Email | মর্গের ঘটনা || Bhoot Fm Email episode #horrorstories #Bhootfm new video /vutfm 2026",
+    "views": 2,
     "age": "4d ago"
-   },
-   {
-    "id": "NyJmcG4cfAM",
-    "title": "লোভী তান্ত্রিকের জীবনে নেমে এলো ভয়ংকর অভিশাপ! | ভূত এফএম ভৌতিক গল্প",
-    "views": 4969,
-    "age": "7d ago"
-   },
-   {
-    "id": "LcDPt-W4Kc0",
-    "title": "তারানাথ তান্ত্রিকের গল্প - বেলতলার ব্রহ্মদৈত্য । Taranath Tantrik । Taranath Tantrik New Story",
-    "views": 3811,
-    "age": "3d ago"
-   },
-   {
-    "id": "RHMn-ohPcGo",
-    "title": "Taranath Tantrik: The Cursed Treasure of Mangalgarh | Stories of Taranath Tantrik | Tantrik | Tan...",
-    "views": 2939,
-    "age": "4d ago"
-   },
-   {
-    "id": "WhpoQrQQPeA",
-    "title": "তারানাথ তান্ত্রিকের গল্প - দামিনীর প্রতিশোধ । Taranath Tantrik । Taranath Tantrik New Story",
-    "views": 2555,
-    "age": "5d ago"
    }
   ],
-  "from_cat": "tantrik"
+  "from_cat": "morg"
  },
  "horror_bn_shohor": {
   "date": "2026-11-16",
@@ -1085,6 +1076,287 @@
    "তারানাথ তান্ত্রিক ও ডাকিনীর কোপ | Taranath Tantrik | Bengali Horror Story (9,143)",
    "​🩸 অন্ধকার রাতের রক্তবিভীষিকা: দীঘলকান্তির ভয়ংকর পরিণতি 💀 | Taranath Tantrik Story | Bangla Ghost 👻 (8,102)",
    "TARANATH TANTRIK- ডিহির বুকে অশরীরী|তারানাথ তান্ত্রিক|HORROR STORY|ভয়ানক ভৌতিক গল্প|#Scariest (7,832)"
+  ],
+  "from": "youtube"
+ },
+ "horror_bn_jayga": {
+  "date": "2026-11-19",
+  "topics": [
+   "An isolated graveyard watchman in rural Bengal finds fresh footprints leading from a sealed tomb every midnight.",
+   "Four college friends renting a decrepit colonial bungalow in Burdwan realize the floor plans change while they sleep.",
+   "A tired village doctor treating a midnight patient in a cursed mansion discovers the medicine bottle contains graveyard ash.",
+   "A newlywed couple shifting into an abandoned riverfront estate near Ichamati finds letters addressed to the wife dated fifty years ago.",
+   "A local healer entering a forbidden forest ruin near Rajshahi encounters an entity wearing his own childhood clothes.",
+   "Two brothers exploring a 200-year-old zamindar cellar find a locked iron safe that breathes when touched."
+  ],
+  "hashtags": [
+   "#BanglaHorrorStory",
+   "#BhuterGolpo",
+   "#SundaySuspense",
+   "#BhootKiKahani",
+   "#BanglaGhostStory",
+   "#HauntedHouse",
+   "#Voot",
+   "#BhoyanakGolpo",
+   "#MysteryStory",
+   "#HorrorAudio"
+  ],
+  "keywords": [
+   "bangla horror story",
+   "bhuter golpo",
+   "bhoot ki kahani",
+   "sunday suspense style horror",
+   "bangla bhoutik golpo",
+   "haunted rajbari story",
+   "bengali ghost audio drama",
+   "scary ghost stories in bengali"
+  ],
+  "style": {
+   "tags": [],
+   "hashtags": [],
+   "title_style": "Titles are concise and punchy, often using emotional hooks and curiosity gaps like 'ভয়ংকর' (terrifying) or 'রহস্য' (mystery). They frequently incorporate conversational warnings, emojis, and vertical separators ('|') to combine descriptive phrases and tags.",
+   "thumb_style": "Thumbnails feature dark, high-contrast imagery with dramatic lighting, frequently utilizing a stark mix of deep blacks, moonlight, and piercing red highlights. They prominently display eerie subjects—such as demonic figures, haunted houses, or possessed individuals—alongside bold, uppercase text designed for instant legibility.",
+   "thumb_text_style": "Three to five words of bold, high-contrast white text, positioned on the right side of the thumbnail to immediately capture viewer attention."
+  },
+  "real": [
+   {
+    "id": "j3vMP82WXE8",
+    "title": "কবর বাড়ির ভয়ঙ্কর সত্য কাহিনী",
+    "views": 210618,
+    "age": "6d ago"
+   },
+   {
+    "id": "PQ4XzZLvRic",
+    "title": "রাতের বেলা একা শুনবেন না! বোরহান কবিরাজের ভয়ংকর ঘটনা 👻",
+    "views": 29275,
+    "age": "5d ago"
+   },
+   {
+    "id": "o7tJ0BK8GW4",
+    "title": "পোড়া বাড়ির চিঠি | মৃত মানুষের নামে প্রতি সপ্তাহে চিঠি আসে | বাংলা ভৌতিক গল্প",
+    "views": 16025,
+    "age": "7d ago"
+   },
+   {
+    "id": "D9KkreRHhz4",
+    "title": "They Moved Into A Haunted House... But All The Ghosts Disappeared | Horror",
+    "views": 12497,
+    "age": "7d ago"
+   },
+   {
+    "id": "P3xUOTQtyvQ",
+    "title": "😱 4 Friends Found a 200-Year-Old Haunted Mansion in the Forest! Episode 1 🏰 | The Mystery | Part 1",
+    "views": 4451,
+    "age": "7d ago"
+   },
+   {
+    "id": "S3EuGIunj5o",
+    "title": "Bangla Audio Horror Story | বর্ধমানের রাতের ভয় ও প্রাচীন রাজবাড়ির সুড়ঙ্গে এক অতৃপ্ত প্রেতাত্মা",
+    "views": 3590,
+    "age": "4d ago"
+   },
+   {
+    "id": "M-pGVPTmSUo",
+    "title": "সেই 'ভূতুড়ে' বাড়িটা আসলে তার প্রাক্তন প্রেমিক ছিল।",
+    "views": 1207,
+    "age": "6d ago"
+   },
+   {
+    "id": "9AAgWuHcOfo",
+    "title": "রাতে মে টাকে ডেকে নিয়ে যেত প্রতিদিন রাতে ঘটতো ভুতুড়ে ঘটনা দেখতে থাকুন অভিশপ্ত রাজবাড়ীর কাহিনী💀👻☠️",
+    "views": 193,
+    "age": "5d ago"
+   },
+   {
+    "id": "nG-09kE59WA",
+    "title": "একই মানুষ একাধিক জায়গায়! ইছামতী বিলের রহস্য ও রাজবাড়ীর ভৌতিক ঘটনা | Bangla Horror Story",
+    "views": 137,
+    "age": "7d ago"
+   },
+   {
+    "id": "NyuUdBXmp7Q",
+    "title": "রাজবাড়ির ভুতুড়ে ভোজ 😱 ওই আসনটা ছিল আমার জন্য! | বাংলা ভূতের গল্প। Bangla Horror Short Story।",
+    "views": 30,
+    "age": "1d ago"
+   },
+   {
+    "id": "UXScmDRYKbA",
+    "title": "গা ছমছমে ভূতের গল্প: নিশুত রাতের অভিশপ্ত রাজবাড়ি 💀 | Horror Story in Bengali",
+    "views": 23,
+    "age": "2d ago"
+   },
+   {
+    "id": "0ZFRCNLrJYI",
+    "title": "ছাইয়ের নিচে লুকিয়ে ছিল শাকচুন্নির হাত! 😱 | পোড়া বাড়ির ভয়ংকর রহস্য | বাংলা ভূতের গল্প",
+    "views": 18,
+    "age": "2d ago"
+   },
+   {
+    "id": "_oARWlhysNQ",
+    "title": "২০০ বছরের অভিশপ্ত রাজবাড়িতে কোটি টাকার গুপ্তধন! ভয়ংকর ভূতের মুখোমুখি পাঁচ বোন, তারপর যা ঘটল!",
+    "views": 17,
+    "age": "4d ago"
+   },
+   {
+    "id": "xSdRubnbgA8",
+    "title": "Bangla Audio Horror Story | ভৈরব চাটুজ্জের ভাগ্য ও পোড়ো বাড়ির সিন্দুকের এক অলৌকিক ভৌতিক অভিশাপ",
+    "views": 12,
+    "age": "4d ago"
+   },
+   {
+    "id": "PIp6Ig-zHDY",
+    "title": "পুঠিয়া রাজবাড়ির অভিশপ্ত জানালা রাজশাহী জেলার",
+    "views": 11,
+    "age": "4d ago"
+   }
+  ],
+  "youtube_top": [
+   "কবর বাড়ির ভয়ঙ্কর সত্য কাহিনী (210,618)",
+   "রাতের বেলা একা শুনবেন না! বোরহান কবিরাজের ভয়ংকর ঘটনা 👻 (29,275)",
+   "পোড়া বাড়ির চিঠি | মৃত মানুষের নামে প্রতি সপ্তাহে চিঠি আসে | বাংলা ভৌতিক গল্প (16,025)",
+   "They Moved Into A Haunted House... But All The Ghosts Disappeared | Horror (12,497)",
+   "😱 4 Friends Found a 200-Year-Old Haunted Mansion in the Forest! Episode 1 🏰 | The Mystery | Part 1 (4,451)",
+   "Bangla Audio Horror Story | বর্ধমানের রাতের ভয় ও প্রাচীন রাজবাড়ির সুড়ঙ্গে এক অতৃপ্ত প্রেতাত্মা (3,590)",
+   "সেই 'ভূতুড়ে' বাড়িটা আসলে তার প্রাক্তন প্রেমিক ছিল। (1,207)",
+   "রাতে মে টাকে ডেকে নিয়ে যেত প্রতিদিন রাতে ঘটতো ভুতুড়ে ঘটনা দেখতে থাকুন অভিশপ্ত রাজবাড়ীর কাহিনী💀👻☠️ (193)",
+   "একই মানুষ একাধিক জায়গায়! ইছামতী বিলের রহস্য ও রাজবাড়ীর ভৌতিক ঘটনা | Bangla Horror Story (137)",
+   "রাজবাড়ির ভুতুড়ে ভোজ 😱 ওই আসনটা ছিল আমার জন্য! | বাংলা ভূতের গল্প। Bangla Horror Short Story। (30)"
+  ],
+  "from": "youtube"
+ },
+ "horror_bn_morg": {
+  "date": "2026-11-19",
+  "topics": [
+   "A night-shift mortuary assistant in Kolkata discovers a body with fresh breathing sounds locked in drawer number 9.",
+   "Two medical students conducting an unauthorized autopsy at 2 AM find the cadaver's phone receiving live calls from inside the cold room.",
+   "A lone security guard monitoring CCTV cameras in a district hospital morgue watches an empty autopsy table climb up by itself.",
+   "An ambulance driver transporting a mysterious unclaimed body during a heavy thunderstorm hears frantic knocking from the back cabin.",
+   "A female doctor trapped inside a locked underground hospital morgue during a power outage realizes she is not breathing alone in the dark.",
+   "A rookie sweeper cleaning the dissection hall after midnight finds all the numbered toe tags swapped among the covered bodies."
+  ],
+  "hashtags": [
+   "#bhutergolpobangla",
+   "#bengalihorrorstory",
+   "#bhootfm",
+   "#morguehorror",
+   "#bhoot_ki_kahani",
+   "#horrorstories",
+   "#bengalighoststory",
+   "#banglagolpo",
+   "#trueghoststories",
+   "#sundaysuspense"
+  ],
+  "keywords": [],
+  "style": {
+   "tags": [],
+   "hashtags": [],
+   "title_style": "Titles are short to medium length, combining dramatic Bengali phrases with separators like '|' or emojis to spark curiosity. They frequently use high-impact hooks involving specific locations, eerie times, or claims of true events to drive clicks.",
+   "thumb_style": "Thumbnails feature dark, high-contrast night settings lit by eerie glows, moonlight, or lanterns, often framing a terrified human facing a spectral figure or a morgue drawer. Bold, large Bengali typography in contrasting white, yellow, and blood-red dominates the central composition to immediately grab attention.",
+   "thumb_text_style": "Around 4 to 8 large words of prominent Bengali text placed on the thumbnail, designed to tease a terrifying premise or warning."
+  },
+  "real": [
+   {
+    "id": "zdZhoy9HUGQ",
+    "title": "মর্গের সাত নম্বর ড্রয়ার | সম্পূর্ণ গল্প | বাংলা ভৌতিক গল্প 😱",
+    "views": 6139,
+    "age": "5d ago"
+   },
+   {
+    "id": "W94uB_wWD1k",
+    "title": "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories #bhootfm",
+    "views": 2395,
+    "age": "2d ago"
+   },
+   {
+    "id": "2woFSXRE31Q",
+    "title": "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories # bhootfm",
+    "views": 1249,
+    "age": "3d ago"
+   },
+   {
+    "id": "1-p_qfXqHL8",
+    "title": "Ghost Incident in Siliguri | Siliguri Horror Story | Bengali Horror Story | True Ghost Story",
+    "views": 673,
+    "age": "3d ago"
+   },
+   {
+    "id": "S8QWlYPGe_g",
+    "title": "ভুতুড়ে মর্গে একা ☠️ | সত্য ঘটনা অবলম্বনে ভৌতিক গল্প",
+    "views": 619,
+    "age": "6d ago"
+   },
+   {
+    "id": "HzPa0dGmYBc",
+    "title": "রাত ৩টা ১৭ মিনিটে মর্গে ফোন এসেছিল! 😨 | Morgue Horror Story | Bhoot FM 9.8",
+    "views": 255,
+    "age": "2d ago"
+   },
+   {
+    "id": "jGO7Ve0K0sU",
+    "title": "পোড়োবাড়ির মৃত্যুক্ষুধা পর্ব-২ | মর্গের লাশের রহস্য | Bangla Bhuter Golpo  #bhutergolpobangla #bhoot",
+    "views": 185,
+    "age": "2d ago"
+   },
+   {
+    "id": "j4CE5hc483k",
+    "title": "মর্গের ১৩ নম্বর ঘর | হাসপাতালের ভয়ানক ভূতুরে গল্পঃ | bengali golpo | Golper FM #story #horror",
+    "views": 19,
+    "age": "7d ago"
+   },
+   {
+    "id": "OrCd3ckIBws",
+    "title": "The Mysterious Theft from the Mymensingh Medical College Morgue",
+    "views": 19,
+    "age": "6d ago"
+   },
+   {
+    "id": "LxcRguGNCdA",
+    "title": "পরিত্যক্ত হাসপাতালের ভয়ংকর রহস্য 😱 | রাত ৩টার সেই ঘটনা | বাংলা ভৌতিক গল্প | Horror FM",
+    "views": 11,
+    "age": "7d ago"
+   },
+   {
+    "id": "lBoMl4rQcxw",
+    "title": "মর্গের ক্যামেরায় মেঝেতে কিছু একটা ধরা পড়েছে।",
+    "views": 10,
+    "age": "7d ago"
+   },
+   {
+    "id": "Dxo3ONFqOSs",
+    "title": "3 TERRIFYING TRUE STORIES FROM INSIDE THE MORGUE",
+    "views": 9,
+    "age": "1d ago"
+   },
+   {
+    "id": "144fYMU8fzw",
+    "title": "ভুত এফএম | Bhoot FM | ৩টি ভয়ংকর ঘটনা: কবরস্থানের অভিশাপ, মর্গের লাশ ও কাল বিলের",
+    "views": 9,
+    "age": "5d ago"
+   },
+   {
+    "id": "OqZjxXq5fJ8",
+    "title": "Bhoot Email Episode Nov 15, 2026 | The Terrifying Morgue Incident | Best email story #bhoot #horr...",
+    "views": 5,
+    "age": "3d ago"
+   },
+   {
+    "id": "tanTLe-0UeQ",
+    "title": "Bhoot Fm Email | মর্গের ঘটনা || Bhoot Fm Email episode #horrorstories #Bhootfm new video /vutfm 2026",
+    "views": 2,
+    "age": "4d ago"
+   }
+  ],
+  "youtube_top": [
+   "মর্গের সাত নম্বর ড্রয়ার | সম্পূর্ণ গল্প | বাংলা ভৌতিক গল্প 😱 (6,139)",
+   "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories #bhootfm (2,395)",
+   "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories # bhootfm (1,249)",
+   "Ghost Incident in Siliguri | Siliguri Horror Story | Bengali Horror Story | True Ghost Story (673)",
+   "ভুতুড়ে মর্গে একা ☠️ | সত্য ঘটনা অবলম্বনে ভৌতিক গল্প (619)",
+   "রাত ৩টা ১৭ মিনিটে মর্গে ফোন এসেছিল! 😨 | Morgue Horror Story | Bhoot FM 9.8 (255)",
+   "পোড়োবাড়ির মৃত্যুক্ষুধা পর্ব-২ | মর্গের লাশের রহস্য | Bangla Bhuter Golpo  #bhutergolpobangla #bhoot (185)",
+   "মর্গের ১৩ নম্বর ঘর | হাসপাতালের ভয়ানক ভূতুরে গল্পঃ | bengali golpo | Golper FM #story #horror (19)",
+   "The Mysterious Theft from the Mymensingh Medical College Morgue (19)",
+   "পরিত্যক্ত হাসপাতালের ভয়ংকর রহস্য 😱 | রাত ৩টার সেই ঘটনা | বাংলা ভৌতিক গল্প | Horror FM (11)"
   ],
   "from": "youtube"
  }
