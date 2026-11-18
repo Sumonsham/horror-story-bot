@@ -2293,7 +2293,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-15T08:35+00:00"
+   "checked": "2026-11-18T13:35+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4101,18 +4101,19 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-18T06:33+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 1,
+   "at": "2026-11-18T13:35+00:00",
+   "thumb": true
   }
  },
  {
   "date": "2026-11-18T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-18@14",
-  "pending_comments": [
-   {
-    "id": "2021124978584663",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1680616307023664"
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "an ORIGINAL new story on the same topic as this week's much-watched video 'রক্ত কাফনের তালাশ' (only the topic - our own place, people, events and twist)",
@@ -4394,5 +4395,202 @@
   "hook_style": "voice",
   "district": "n24",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-14.mp4"
+ },
+ {
+  "date": "2026-11-18T14:34+00:00",
+  "lang": "bn",
+  "slot": "2026-11-18@20",
+  "pending_comments": [
+   {
+    "id": "967418299467482",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1165245166023904"
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "An isolated dak bungalow near the Bengal border where a forest ranger uncovers a locked diary belonging to a vanished British surveyor who kept company with loc",
+  "len_arm": "short",
+  "listener_score": 6.0,
+  "crossover": null,
+  "opening": "flash",
+  "category": "tantrik",
+  "question_post": null,
+  "title_b": "সীমান্তের সেই পোড়ো বাংলোয় কি আটকা পড়লেন অনিমেশ? 🏚️",
+  "theme": "An isolated dak bungalow near the Bengal border where a forest ranger uncovers a locked diary belonging to a vanished British surveyor who kept company with loc",
+  "format": "Taranath Tantrik telling his own true experience to Kishori, in first person",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "তারানাথ তান্ত্রিক #3: অভিশপ্ত ডাক বাংলোর ডায়েরি: ব্রিটিশ সাহেবের ছায়াশরীর 🕯️",
+  "festival": null,
+  "summary": "Chapter 1: \nChapter 2: \nChapter 3: In this chapter, Animesh experiences the horrific transformation of his body as his fingers turn stiff and woody inside the sealed study. Compelled by an unseen force, he reads the final ritual passage from the blood-soaked diary. Staring into the antique wall mirror, he sees the face of Arthur Penhaligon superimposed over his own reflection. The entity merges completely with him, turning his skin into rough tree bark while his memories are pulled into the diar",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "taranath",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook": "1165245166023904",
+  "youtube": "lXr4fLhUIPY",
+  "fb_reel": "967418299467482",
+  "fb_story": "2287289832198150",
+  "yt_short": "TljMIwpBlLg",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1083,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     13,
+     "শুরু"
+    ],
+    [
+     22,
+     "পুরোনো দেওয়ালের স্মৃতি"
+    ],
+    [
+     74,
+     "অভিশপ্ত বাংলো"
+    ],
+    [
+     103,
+     "স্পন্দিত প্রাচীর"
+    ],
+    [
+     120,
+     "কালির গন্ধ"
+    ],
+    [
+     136,
+     "নিখোঁজ ডায়েরি"
+    ],
+    [
+     148,
+     "চৌকিদারের সতর্কতা"
+    ],
+    [
+     162,
+     "আমারই হাতের লেখা"
+    ],
+    [
+     175,
+     "নিভে যাওয়া আগুন"
+    ],
+    [
+     180,
+     "রচিত জীবন"
+    ],
+    [
+     219,
+     "ছায়ার বন্দি"
+    ],
+    [
+     282,
+     "ছায়ার বন্দি"
+    ],
+    [
+     323,
+     "ছায়ার বন্দি"
+    ],
+    [
+     360,
+     "ছায়ার বন্দি"
+    ],
+    [
+     407,
+     "ছায়ার বন্দি"
+    ],
+    [
+     448,
+     "ছায়ার বন্দি"
+    ],
+    [
+     488,
+     "কাঠের মতো হাত"
+    ],
+    [
+     500,
+     "শেষ পাতার আহ্বান"
+    ],
+    [
+     524,
+     "আয়নায় কার মুখ?"
+    ],
+    [
+     555,
+     "আত্মার সংযুক্তি"
+    ],
+    [
+     592,
+     "রক্তাক্ত আঠা"
+    ],
+    [
+     626,
+     "মুক্তির পথ"
+    ],
+    [
+     652,
+     "সকালের আলোয় গ্রামীণ নীরবতা"
+    ],
+    [
+     686,
+     "ভাঙা দরজার চটচটে দাগ"
+    ],
+    [
+     709,
+     "ফাঁকা ঘরের রহস্য"
+    ],
+    [
+     736,
+     "টেবিলের ওপর পড়ে থাকা ডায়েরি"
+    ],
+    [
+     760,
+     "ধবধবে সাদা পাতা"
+    ],
+    [
+     792,
+     "পরবর্তী পাঠকের অপেক্ষা"
+    ],
+    [
+     817,
+     "অন্ধকারের নিঝুম নিস্তব্ধতা"
+    ],
+    [
+     833,
+     "অন্ধকারের শিকড়"
+    ],
+    [
+     864,
+     "পুরোনো কালির গন্ধ"
+    ],
+    [
+     893,
+     "ঠান্ডা নিঃশ্বাস"
+    ],
+    [
+     922,
+     "আর্থারের উপস্থিতি"
+    ],
+    [
+     957,
+     "নতুন বাহন"
+    ],
+    [
+     987,
+     "শেষ পাতা"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "tagline": "শতাব্দী প্রাচীন সেই বাংলোয় কে ডাকছে?",
+  "district": "kolkata",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-20.mp4"
  }
 ]
