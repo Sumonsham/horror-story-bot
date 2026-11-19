@@ -7369,6 +7369,7 @@ def choose_and_write(slot_hour, history):
     if special != "classic":
         extra_rules += MASTER_STYLE
     extra_rules += taste_rule()                        # v115: your taste
+    extra_rules += style_rule()                        # v117: built like the stories you gave (recordings)
     STATE.pop("fresh_rule", None)
     if special not in ("classic",) and env("FRESH_BRIEF") != "0" and not STATE.get("creator_story"):
         try:                                          # v116: this story's own devices and details
@@ -9134,6 +9135,214 @@ def taste_rule():
             + (f" -> he asked: {r['wish']}" if r.get("wish") else "") for r in rej]
     return ("\nTHE OWNER'S TASTE (learn from it): he REJECTED these stories - do not write anything like them; follow "
             "what he asked for instead:\n" + "\n".join(rows) + "\n")
+
+
+# ----------------------------------------------------------------- v117: the stories YOU like, as the pattern
+STYLE_DIR = os.path.join(HERE, "assets", "style_samples")
+STYLE_FILE = os.path.join(HERE, "assets", "style_model.json")
+
+
+def style_samples():
+    """the recordings you gave as 'stories must be like this': assets/style_samples/* and assets/style_sample*.mp3"""
+    out = []
+    for d_, pat in ((STYLE_DIR, "*"), (os.path.join(HERE, "assets"), "style_sample*")):
+        out += [p for p in glob.glob(os.path.join(d_, pat))
+                if p.lower().endswith((".mp3", ".m4a", ".ogg", ".oga", ".wav", ".opus", ".aac"))]
+    return sorted(set(out))
+
+
+def style_inbox():
+    """v117: a long audio story you send on Telegram with the word 'ধাঁচ' (or 'style') in its caption is kept as a
+    pattern (Telegram lets a bot fetch files up to 20 MB). 'ধাঁচ মুছে দাও' forgets all patterns."""
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    if MOCK or DRY_RUN or not tok or not chat or env("STYLE_MODEL") == "0":
+        return 0
+    r = requests.get(f"https://api.telegram.org/bot{tok}/getUpdates",
+                     params={"allowed_updates": json.dumps(extras.TG_UPDATES)}, timeout=30).json()
+    sm = _jload(STYLE_FILE, {})
+    sm = sm if isinstance(sm, dict) else {}
+    seen, got, changed = set(sm.get("seen") or []), 0, False
+    for u in r.get("result") or []:
+        m, uid = u.get("message") or {}, u.get("update_id")
+        if uid in seen or str((m.get("chat") or {}).get("id")) != str(chat):
+            continue
+        txt = str(m.get("text") or m.get("caption") or "").strip()
+        if re.search(r"ধাঁচ\s*মুছে|style\s*delete", txt, re.I):
+            seen.add(uid)
+            for p in style_samples():
+                os.remove(p)
+            sm.update(samples={}, rule="", steps=[])
+            changed = True
+            _tg_text("🗑️ গল্পের ধাঁচের সব নমুনা মুছে দিলাম। নতুন পাঠালে আবার শিখবে।")
+            continue
+        f_ = m.get("audio") or m.get("document") or m.get("voice") or {}
+        if not f_.get("file_id") or not re.search(r"ধাঁচ|ধাচ|style", txt, re.I):
+            continue
+        seen.add(uid)
+        changed = True
+        if int(f_.get("file_size") or 0) > 20 * 1024 * 1024:
+            _tg_text("⚠️ ফাইলটা ২০ MB-এর বেশি, Telegram bot-কে এত বড় ফাইল নিতে দেয় না। ছোট করে (৩২ kbps mono) পাঠান, "
+                     "অথবা GitHub-এ assets ফোল্ডারে style_sample নামে upload করুন।")
+            continue
+        try:
+            info = requests.get(f"https://api.telegram.org/bot{tok}/getFile", params={"file_id": f_["file_id"]},
+                                timeout=30).json()
+            fp = (info.get("result") or {}).get("file_path")
+            data = requests.get(f"https://api.telegram.org/file/bot{tok}/{fp}", timeout=300).content
+            os.makedirs(STYLE_DIR, exist_ok=True)
+            ext = os.path.splitext(str(f_.get("file_name") or fp or "a.mp3"))[1] or ".mp3"
+            with open(os.path.join(STYLE_DIR, f"tg{uid}{ext}"), "wb") as w:
+                w.write(data)
+            got += 1
+        except Exception as e:
+            log("  style sample not downloaded:", str(e)[:100])
+    if changed:
+        sm["seen"] = sorted(seen)[-300:]
+        _jsave(STYLE_FILE, sm)
+        push_now([STYLE_FILE, STYLE_DIR] if os.path.isdir(STYLE_DIR) else [STYLE_FILE], "style samples")
+    if got:
+        _tg_text(f"🎧 আপনার পাঠানো {got}টা গল্প পেয়েছি। bot এখন এটা মন দিয়ে শুনে গল্পের ধাঁচ শিখবে, শেখা হলে জানাবে।")
+    return got
+
+
+STYLE_LISTEN = (
+    "You are a story editor studying how a well-loved BENGALI AUDIO HORROR STORY (or a few short ones in a row) is "
+    "BUILT - this is part {n} of {k} of one recording (about {mins} minutes; parts overlap a little). The channel "
+    "owner said: 'stories must be exactly like this - this style, this plotting, built step by step like this'. "
+    "Listen to ALL of it carefully. You study the CRAFT only: never write out its sentences (no quote longer than "
+    "6 words), and its plots, people and places will NOT be reused. For every story (or piece of one) you hear, "
+    "answer in English:\n"
+    "- where it starts and ends in this part (minute:second), its length so far, whether it started/ended here\n"
+    "- WHO tells it and how (narrator kind, first/third person, how the narrator talks to the listener)\n"
+    "- THE OPENING: what the first 60-90 seconds do, exactly, step by step (no quotes)\n"
+    "- THE STEPS: the story as numbered beats, each with its minute mark and what that beat DOES for the listener "
+    "(e.g. sets an ordinary life, a small wrong thing, a warning ignored, a second sign, ...)\n"
+    "- HOW FEAR GROWS: what is shown/hidden when, how long before the first real scare, how scares get bigger\n"
+    "- TALK: share of dialogue vs narration, how people speak (village, city, old, young), humour or warmth used\n"
+    "- SOUND: music/effects, silences, where they come, how scene changes are heard\n"
+    "- THE TURN, THE REVEAL AND THE ENDING: how the truth comes out, how it ends, the last 30 seconds\n"
+    "- what makes it gripping (concrete craft), and anything that is weak\n"
+    "Answer ONLY JSON: {{\"stories\": [{{\"start\": \"mm:ss\", \"end\": \"mm:ss\", \"complete\": true/false, "
+    "\"narrator\": \"\", \"opening\": \"\", \"beats\": [\"mm:ss - what it does\"], \"fear\": \"\", \"talk\": \"\", "
+    "\"sound\": \"\", \"turn_and_ending\": \"\", \"grip\": \"\", \"weak\": \"\"}}]}}")
+
+STYLE_MERGE = (
+    "Below are a story editor's notes on recordings of Bengali audio horror stories that the channel owner LOVES "
+    "and wants every new story to follow ('this style, this plotting, step by step like this'). Turn them into ONE "
+    "practical blueprint for our writer, who writes ONE complete {mins}-minute story each time.\n"
+    "- STEPS: the shared step-by-step build of these stories as 8-12 ordered steps, each with the share of the "
+    "story's length (percent, adding up to 100) and exactly what that step must do for the listener. Scale short "
+    "stories' timing up to {mins} minutes by STRETCHING THE LIVED MOMENTS, not by adding events.\n"
+    "- CRAFT: 10-16 concrete rules of how they are told (narrator voice, opening, how fear grows, dialogue, sound, "
+    "scene changes, the reveal, the ending, the last line).\n"
+    "- VARIETY: the different ways these stories differ from each other (so the writer can vary, not clone one).\n"
+    "- AVOID: what these stories never do.\n"
+    "- bn_summary: 6-10 short lines in simple BENGALI for the owner: what the bot learnt (the steps in plain words).\n"
+    "Nothing of their plots, names, places or sentences goes into the blueprint - only how they are BUILT.\n"
+    "Answer ONLY JSON: {{\"steps\": [{{\"pct\": 10, \"do\": \"\"}}], \"craft\": [\"\"], \"variety\": [\"\"], "
+    "\"avoid\": [\"\"], \"bn_summary\": [\"\"]}}\nNOTES:\n{notes}")
+
+
+def _gem_audio(prompt, mp3):
+    """Gemini LISTENS to an mp3 (a text model - not the voice limit); returns JSON or None"""
+    import base64
+    key = env("GEMINI_API_KEY")
+    body = {"contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": "audio/mp3", "data":
+                                                                         base64.b64encode(open(mp3, "rb").read()).decode()}}]}],
+            "generationConfig": {"temperature": 0.3, "responseMimeType": "application/json"}}
+    for model in gemini_models(key)[:3] + extras.helper_models(key)[:2]:
+        if model in TEXT_DAY_OUT:
+            continue
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json=body, timeout=600)
+            if r.ok:
+                parts_ = r.json()["candidates"][0]["content"]["parts"]
+                j = extras.load_json_loose("".join(p_.get("text", "") for p_ in parts_ if not p_.get("thought")))
+                if j:
+                    return j
+            log(f"  style listening: {model} {r.status_code}")
+        except Exception as e:
+            log(f"  style listening: {model} {str(e)[:80]}")
+    return None
+
+
+def style_teacher():
+    """v117 (your wish, 19 Nov 2026: 'listen to this story well - stories must be like this, this style, this
+    plotting, step by step like this'): Gemini LISTENS to every recording you gave (in 12-minute parts), writes down
+    how each story is built, and makes ONE blueprint (steps with their share of the length, craft rules, variety,
+    what to avoid). Once per recording; the blueprint goes to every story's writer and editor. Returns True if new."""
+    if MOCK or not env("GEMINI_API_KEY") or env("STYLE_MODEL") == "0":
+        return False
+    sm = _jload(STYLE_FILE, {})
+    sm = sm if isinstance(sm, dict) else {}
+    done = sm.setdefault("samples", {})
+    new = [p for p in style_samples() if os.path.basename(p) not in done]
+    if not new:
+        return False
+    os.makedirs(WORK, exist_ok=True)
+    for p in new[:2]:                                 # (two recordings a run at most)
+        try:
+            secs = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                         p], capture_output=True, text=True).stdout.strip() or 0)
+        except Exception:
+            secs = 0
+        if secs < 60:
+            done[os.path.basename(p)] = {"notes": [], "why": "too short"}
+            continue
+        part, step = 12 * 60, 11.5 * 60
+        starts = [int(s * step) for s in range(int(max(0, secs - 60) // step) + 1)]
+        notes = []
+        for n, st_ in enumerate(starts):
+            mp3 = os.path.join(WORK, f"style_part{n}.mp3")
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", str(st_), "-t", str(part), "-i", p, "-ac", "1",
+                            "-ar", "16000", "-b:a", "32k", mp3], check=True)
+            j = _gem_audio(STYLE_LISTEN.format(n=n + 1, k=len(starts), mins=int(min(part, secs - st_) // 60)), mp3)
+            os.remove(mp3)
+            if isinstance(j, dict) and j.get("stories"):
+                notes.append({"from_min": st_ // 60, "stories": j["stories"]})
+            log(f"  style: listened to part {n + 1}/{len(starts)} of {os.path.basename(p)}")
+        if not notes:
+            log("  style: nothing understood from", os.path.basename(p), "- tried again next run")
+            continue
+        done[os.path.basename(p)] = {"notes": notes, "mins": round(secs / 60), "on": dt.date.today().isoformat()}
+    allnotes = [n_ for v in done.values() for n_ in (v.get("notes") or [])]
+    if not allnotes:
+        _jsave(STYLE_FILE, sm)
+        return False
+    txt = _gem_call(STYLE_MERGE.format(mins=int(LONG_MIN), notes=json.dumps(allnotes, ensure_ascii=False)[:120000]),
+                    json_mode=True, temp=0.3, max_tokens=12000)
+    bp = extras.load_json_loose(txt or "")
+    if not (isinstance(bp, dict) and bp.get("steps")):
+        _jsave(STYLE_FILE, sm)
+        return False
+    sm.update(steps=bp.get("steps") or [], craft=bp.get("craft") or [], variety=bp.get("variety") or [],
+              avoid=bp.get("avoid") or [], bn_summary=bp.get("bn_summary") or [], made=dt.date.today().isoformat())
+    _jsave(STYLE_FILE, sm)
+    push_now([STYLE_FILE], "story style learnt from your recording")
+    _tg_text("🎧 আপনার দেওয়া গল্পটা শুনে bot গল্পের ধাঁচ শিখে নিল। এখন থেকে প্রতিটা গল্প এইভাবে ধাপে ধাপে লেখা হবে:\n\n"
+             + "\n".join(f"• {x}" for x in (sm.get("bn_summary") or [])[:10]))
+    log("  style blueprint made from", len(allnotes), "parts")
+    return True
+
+
+def style_rule():
+    """the blueprint (from your recordings) for the plan, the writer and the editor"""
+    sm = _jload(STYLE_FILE, {})
+    if not (isinstance(sm, dict) and sm.get("steps")) or env("STYLE_MODEL") == "0":
+        return ""
+    steps = "\n".join(f"{k + 1}. (~{s.get('pct', '')}% of the story) {s.get('do', '')}"
+                      for k, s in enumerate(sm["steps"]) if isinstance(s, dict))
+    li = lambda xs: "\n".join(f"- {x}" for x in xs if x)
+    return ("\nTHE OWNER'S MODEL STORIES - THE MOST IMPORTANT RULE (he gave recordings of the stories he loves and said "
+            "'every story must be like this: this style, this plotting, built step by step like this'). Build THIS "
+            "story with these steps, in this order, with about these shares of the length; where another rule here "
+            "says otherwise about structure, these steps win. Only HOW they are built is taken - the plot, people, "
+            "place, ghost and every sentence are new and your own:\n" + steps
+            + ("\nHOW THEY ARE TOLD:\n" + li(sm.get("craft") or []) if sm.get("craft") else "")
+            + ("\nTHEY DIFFER FROM EACH OTHER IN (vary these, never clone one):\n" + li(sm.get("variety") or [])
+               if sm.get("variety") else "")
+            + ("\nTHEY NEVER:\n" + li(sm.get("avoid") or []) if sm.get("avoid") else "") + "\n")
 
 
 def change_requests(history):
@@ -11672,6 +11881,11 @@ def main():
             owner_voice_inbox()
         except Exception as e:
             log("  your voice clips skipped:", str(e)[:120])
+        try:                                         # v117: stories you send with 'ধাঁচ' = the pattern; learnt once
+            style_inbox()
+            style_teacher()
+        except Exception as e:
+            log("  story style skipped:", str(e)[:120])
         try:                                         # v109: '1 বদলাও' / '2 বদলাও' from Telegram
             change_requests(history)
         except Exception as e:
