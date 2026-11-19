@@ -4404,6 +4404,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-19T07:03+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 143
   }
  },
  {
@@ -4596,17 +4600,23 @@
   "hook_style": "sound",
   "tagline": "শতাব্দী প্রাচীন সেই বাংলোয় কে ডাকছে?",
   "district": "kolkata",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-20.mp4",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 9,
+   "length_s": 1083,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-19T13:33+00:00"
+  }
  },
  {
   "date": "2026-11-19T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-19@14",
   "pending_comments": [
-   {
-    "id": "1628991824788040",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1866354551230259"
-   },
    {
     "id": "29386609174357676",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1866354551230259",
@@ -4742,5 +4752,135 @@
   "hook_style": "voice",
   "district": "bardhaman_p",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-19-14.mp4"
+ },
+ {
+  "date": "2026-11-19T14:28+00:00",
+  "lang": "bn",
+  "slot": "2026-11-19@20",
+  "pending_comments": [
+   {
+    "id": "961368836796116",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2348884392631431"
+   },
+   {
+    "id": "1197194116588496",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2348884392631431",
+    "after": 1795170900.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A night-shift mortuary assistant in Kolkata discovers a body with fresh breathing sounds locked in drawer number 9.",
+  "len_arm": null,
+  "listener_score": 7.0,
+  "fresh": {
+   "opening": "a phone call at the wrong hour",
+   "telling": "a doctor / teacher / postman telling his strangest case",
+   "ghost": "a ghost who does not know it is dead",
+   "twist": "the place, not the ghost, is the trap",
+   "setting": "a Kolkata para in the 1970s",
+   "fear": "slow dread - nothing seen until late",
+   "details": [
+    "a broken National Ekco radio playing an old Akashvani cricket commentary on an endless loo",
+    "the sharp, metallic scent of cold iodine mixed with boiling mustard oil from the neighborh",
+    "the local custom of leaving a half-peeled green coconut on the threshold to ward off after",
+    "a distinct rhythmic scraping sound of a wooden carrom striker against a cracked linoleum b",
+    "the peculiar neighborhood habit of winding all wall clocks backward precisely at 5:30 PM t"
+   ]
+  },
+  "crossover": null,
+  "opening": "flash",
+  "category": "notun",
+  "question_post": null,
+  "title_b": "ড্রয়ার নম্বর নয়: কার নিঃশ্বাস পড়ছে? 💀",
+  "theme": "A night-shift mortuary assistant in Kolkata discovers a body with fresh breathing sounds locked in drawer number 9.",
+  "format": "old night-guard Haradhan tells young doctor Ritam about one body and one night from his register",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "মর্গের খাতা #1: মর্গ রেজিস্টার: ড্রয়ার নম্বর নয় 🚪",
+  "festival": null,
+  "summary": "মাটির নিচের মর্গে রাত বারোটার সময় ড্রয়ার নম্বর নয় থেকে ভেসে আসে এক জীবন্ত মানুষের নিঃশ্বাস। কিন্তু মৃতদেহের মর্গে কে শ্বাস নিচ্ছে? জানতে পুরো ভিডিওটি দেখুন।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "morg",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "2348884392631431",
+  "youtube": "1rCrWVMQRYk",
+  "fb_reel": "961368836796116",
+  "fb_story": "1956152515361183",
+  "fb_reel2": "1197194116588496",
+  "yt_short": "zLgNGcSyYOs",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1052,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     5,
+     "শুরু"
+    ],
+    [
+     13,
+     "মর্গ রেজিস্টার"
+    ],
+    [
+     189,
+     "2"
+    ],
+    [
+     296,
+     "3"
+    ],
+    [
+     445,
+     "4"
+    ],
+    [
+     538,
+     "5"
+    ],
+    [
+     630,
+     "6"
+    ],
+    [
+     705,
+     "7"
+    ],
+    [
+     805,
+     "8"
+    ],
+    [
+     875,
+     "মর্গের চূড়ান্ত পরিণতি"
+    ],
+    [
+     973,
+     "নিস্তব্ধতার নতুন প্রহরী"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "tagline": "সেই ড্রয়ার থেকে কে ডাকছে?",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-19-20.mp4"
+ },
+ {
+  "date": "2026-11-19T14:28+00:00",
+  "lang": "bn",
+  "kind": "old_short",
+  "from_video": "kJormh3zXYY",
+  "title": "মেলা থেকে কেনা সেই রক্তমাখা নূপুর 🩸 😱 #shorts",
+  "youtube": "lzBZirILo6E",
+  "facebook": null
  }
 ]
