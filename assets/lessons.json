@@ -1,25 +1,24 @@
 {
  "horror_bn": {
-  "made": "2026-11-17T05:13+00:00",
+  "made": "2026-11-20T01:00+00:00",
   "lessons": [
-   "Keep narratives focused and punchy, as viewer retention drops sharply in longer or meandering formats unless tightly paced.",
-   "First-person and listener-letter narrative styles generate stronger engagement than conventional third-person radio dramas based on view patterns.",
-   "Local urban legends rooted in well-known Bengali locations (like Ultadanga or regional spots) sustain interest better than generic settings.",
-   "Structure stories with immediate atmospheric hooks within the first minute to prevent early drop-offs on YouTube.",
-   "Deliver definitive and chilling resolutions rather than ambiguous endings to satisfy horror enthusiasts in the comments."
+   "Shorter, nostalgic atmospheric pieces like 'শেষ ট্রামের যাত্রী' command high retention (95.5%), whereas multi-part sprawling cases drop to near 0%.",
+   "First-person or tight intimate formats keep listeners hooked compared to convoluted multi-character whodunits.",
+   "Openings must avoid slow preamble; high-performing videos immediately set a specific night-time transit or rural dread.",
+   "Avoid overly complex chapter structures that lose audiences; keep narratives linear and localized to known Bengali landmarks.",
+   "Endings should leave an unresolved, chilling lingering thought rather than neat moral wrap-ups to encourage re-watches and comments."
   ],
   "titles": [
-   "Titles featuring specific uncanny props or localized objects (like 'রক্তাক্ত কল' or specific numbers) drive significantly better click-through and watch rates.",
-   "Using dramatic imagery or visceral hooks in Title B variants successfully outperformed generic titles during A/B tests.",
-   "Keeping titles concise with a clear eerie premise works better than overly long, multi-part serial tags that confuse casual viewers."
+   "Titles featuring specific uncanny transit or night-time journeys ('শেষ ট্রামের যাত্রী') generate the highest organic click-through and completion.",
+   "Adding specific regional identifiers combined with a curse ('দত্তপুকুরের সেই পুরোনো গোলার বিভীষিকা') drives initial views significantly.",
+   "Title swaps that introduced tight mystery elements outperformed generic ones, though raw view counts overall remain low across the board."
   ],
   "requests": [
-   "Stories involving old haunted trees that people are afraid to cut down",
-   "Interactive listener scenarios asking what the protagonist should do next (like Mohona's radio calls)",
-   "Horror elements featuring strange occurrences with household water taps or blood",
-   "Unexplained nocturnal sounds and eerie midnight noises",
-   "Encounters with mysterious strangers offering tea late at night",
-   "Local district-based ghost maps and regional horror folklore"
+   "A midnight tea stall experience with a stranger",
+   "A locked mysterious key or forbidden room narrative",
+   "A station-based late-night solitary encounter",
+   "Taranath Tantrik style occult dilemmas and choices",
+   "Shadows or reflections turning treacherous"
   ]
  }
 }

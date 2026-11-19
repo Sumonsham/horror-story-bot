@@ -1,442 +1,424 @@
 {
  "horror_bn": {
-  "date": "2026-11-19",
+  "date": "2026-11-20",
   "topics": [
-   "A night-shift mortuary assistant in Kolkata discovers a body with fresh breathing sounds locked in drawer number 9.",
-   "Two medical students conducting an unauthorized autopsy at 2 AM find the cadaver's phone receiving live calls from inside the cold room.",
-   "A lone security guard monitoring CCTV cameras in a district hospital morgue watches an empty autopsy table climb up by itself.",
-   "An ambulance driver transporting a mysterious unclaimed body during a heavy thunderstorm hears frantic knocking from the back cabin.",
-   "A female doctor trapped inside a locked underground hospital morgue during a power outage realizes she is not breathing alone in the dark.",
-   "A rookie sweeper cleaning the dissection hall after midnight finds all the numbered toe tags swapped among the covered bodies."
+   "A remote village pond in rural Bengal where a fisherman casts his net at midnight and traps a glowing copper pot containing a vengeful water-djinn.",
+   "An ancient abandoned railway quarter in Purulia where a night-duty station master hears a child crying from inside a locked iron safe.",
+   "A dense bamboo grove beside a cremation ground in Bangladesh where a graveyard caretaker finds a trail of bloody footprints leading to a shallow, freshly dug tr",
+   "A dilapidated heritage mansion in old Dhaka where a young tutor discovers a hidden diary written in blood detailing a deadly ritual involving sacrificed goats.",
+   "A foggy highway near the Assam border where a truck driver picks up a silent bride who leaves behind freezing muddy handprints on the dashboard.",
+   "A lonely multi-story apartment in Kolkata where a night-shift nurse realizes her patient's empty rocking chair moves by itself every time the clock strikes thre"
   ],
   "hashtags": [
-   "#bhutergolpobangla",
-   "#bengalihorrorstory",
+   "#bhutergolpo",
+   "#bhoottalks",
+   "#bengalighoststories",
    "#bhootfm",
-   "#morguehorror",
-   "#bhoot_ki_kahani",
-   "#horrorstories",
-   "#bengalighoststory",
-   "#banglagolpo",
-   "#trueghoststories",
-   "#sundaysuspense"
+   "#horrificstories",
+   "#vutergalpo",
+   "#kalojadu",
+   "#bhootkikahani",
+   "#bengalihorror",
+   "#suspensestories"
   ],
-  "keywords": [],
+  "keywords": [
+   "bhuter golpo",
+   "bhoot ki kahani",
+   "bengali horror story",
+   "bhoot fm new episode",
+   "kalojadu golpo",
+   "vuter golpo audio",
+   "taranath tantrik style story",
+   "bangla bhoyonkor golpo"
+  ],
   "style": {
    "tags": [],
    "hashtags": [],
-   "title_style": "Titles are short to medium length, combining dramatic Bengali phrases with separators like '|' or emojis to spark curiosity. They frequently use high-impact hooks involving specific locations, eerie times, or claims of true events to drive clicks.",
-   "thumb_style": "Thumbnails feature dark, high-contrast night settings lit by eerie glows, moonlight, or lanterns, often framing a terrified human facing a spectral figure or a morgue drawer. Bold, large Bengali typography in contrasting white, yellow, and blood-red dominates the central composition to immediately grab attention.",
-   "thumb_text_style": "Around 4 to 8 large words of prominent Bengali text placed on the thumbnail, designed to tease a terrifying premise or warning."
+   "title_style": "These titles are moderately long, typically ranging from 8 to 15 words, and rely heavily on thematic brand labels like 'Bhoot fm' separated by vertical bars ('|'). They use curiosity-inducing and fear-invoking Bengali keywords related to dark magic, sacrifices, and evil spirits ('কালোজাদু', 'পিশাচ', 'আত্মত্যাগ').",
+   "thumb_style": "The thumbnails feature highly detailed, cinematic illustrations with a dark, eerie color palette dominated by deep reds, blacks, and blues. They incorporate scary elements like glowing-eyed sorcerers, skulls, blood-dripping fonts, and ominous shadowy figures under dramatic lighting.",
+   "thumb_text_style": "The thumbnails feature prominent, large Bengali text ranging from 4 to 8 words styled with bold outlines, bright yellow or white coloring, and blood-drip effects to immediately capture attention."
   },
   "real": [
    {
-    "id": "zdZhoy9HUGQ",
-    "title": "মর্গের সাত নম্বর ড্রয়ার | সম্পূর্ণ গল্প | বাংলা ভৌতিক গল্প 😱",
-    "views": 6139,
-    "age": "5d ago"
-   },
-   {
-    "id": "W94uB_wWD1k",
-    "title": "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories #bhootfm",
-    "views": 2395,
-    "age": "2d ago"
-   },
-   {
-    "id": "2woFSXRE31Q",
-    "title": "Bhoot fm | শিশু ও জিনের ভয়ানক ঘটনা | bhoot fm email episode | bhoot fm 2026 #horrorstories # bhootfm",
-    "views": 1249,
-    "age": "3d ago"
-   },
-   {
-    "id": "1-p_qfXqHL8",
-    "title": "Ghost Incident in Siliguri | Siliguri Horror Story | Bengali Horror Story | True Ghost Story",
-    "views": 673,
-    "age": "3d ago"
-   },
-   {
-    "id": "S8QWlYPGe_g",
-    "title": "ভুতুড়ে মর্গে একা ☠️ | সত্য ঘটনা অবলম্বনে ভৌতিক গল্প",
-    "views": 619,
-    "age": "6d ago"
-   },
-   {
-    "id": "HzPa0dGmYBc",
-    "title": "রাত ৩টা ১৭ মিনিটে মর্গে ফোন এসেছিল! 😨 | Morgue Horror Story | Bhoot FM 9.8",
-    "views": 255,
-    "age": "2d ago"
-   },
-   {
-    "id": "jGO7Ve0K0sU",
-    "title": "পোড়োবাড়ির মৃত্যুক্ষুধা পর্ব-২ | মর্গের লাশের রহস্য | Bangla Bhuter Golpo  #bhutergolpobangla #bhoot",
-    "views": 185,
-    "age": "2d ago"
-   },
-   {
-    "id": "j4CE5hc483k",
-    "title": "মর্গের ১৩ নম্বর ঘর | হাসপাতালের ভয়ানক ভূতুরে গল্পঃ | bengali golpo | Golper FM #story #horror",
-    "views": 19,
+    "id": "viBHOIpvHHE",
+    "title": "এক বাটি দুধ: জৈনীবাবা এবং তাঁর তন্ত্রের পরিণতি",
+    "views": 77225,
     "age": "7d ago"
    },
    {
-    "id": "OrCd3ckIBws",
-    "title": "The Mysterious Theft from the Mymensingh Medical College Morgue",
-    "views": 19,
-    "age": "6d ago"
-   },
-   {
-    "id": "LxcRguGNCdA",
-    "title": "পরিত্যক্ত হাসপাতালের ভয়ংকর রহস্য 😱 | রাত ৩টার সেই ঘটনা | বাংলা ভৌতিক গল্প | Horror FM",
-    "views": 11,
+    "id": "vBq37Ft4mDc",
+    "title": "Bhoot fm | ১৮ সন্তানের আত্মত্যাগের বিনিময়ে কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 37990,
     "age": "7d ago"
    },
    {
-    "id": "lBoMl4rQcxw",
-    "title": "মর্গের ক্যামেরায় মেঝেতে কিছু একটা ধরা পড়েছে।",
-    "views": 10,
-    "age": "7d ago"
-   },
-   {
-    "id": "Dxo3ONFqOSs",
-    "title": "3 TERRIFYING TRUE STORIES FROM INSIDE THE MORGUE",
-    "views": 9,
+    "id": "qV6E8QfQGH0",
+    "title": "Bhoot fm | কাল ইফ্রিদ ও ৭ পিশাচের ভয়ংকর উপদ্রব | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 32430,
     "age": "1d ago"
    },
    {
-    "id": "144fYMU8fzw",
-    "title": "ভুত এফএম | Bhoot FM | ৩টি ভয়ংকর ঘটনা: কবরস্থানের অভিশাপ, মর্গের লাশ ও কাল বিলের",
-    "views": 9,
-    "age": "5d ago"
+    "id": "DL9WMVJt2kA",
+    "title": "যে টুলটি আপনাকে দেখিয়ে দেবে ডাইনিরা কারা #অ্যানিমেশন #লোককথা #ডাইনি",
+    "views": 27879,
+    "age": "2d ago"
    },
    {
-    "id": "OqZjxXq5fJ8",
-    "title": "Bhoot Email Episode Nov 15, 2026 | The Terrifying Morgue Incident | Best email story #bhoot #horr...",
-    "views": 5,
+    "id": "YippsOv25ug",
+    "title": "Bhoot fm | ৭টি নিষিদ্ধ কূপে বন্দি পিশাচের কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm vut",
+    "views": 26413,
+    "age": "6d ago"
+   },
+   {
+    "id": "wa5LfgmAtIc",
+    "title": "Bhoot fm | পাশা হুজুরের কালোজাদু ও জ্বীনের প্রতিশোধ  | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 22124,
     "age": "3d ago"
    },
    {
-    "id": "tanTLe-0UeQ",
-    "title": "Bhoot Fm Email | মর্গের ঘটনা || Bhoot Fm Email episode #horrorstories #Bhootfm new video /vutfm 2026",
-    "views": 2,
+    "id": "3MQCCnutY7Q",
+    "title": "Bhoot fm | জিন চালানের ভয়ানক কালোজাদু  | ভুত এফ এম  Only Email Story | afnan vai bhoot fm #bhoot",
+    "views": 13890,
     "age": "4d ago"
+   },
+   {
+    "id": "kngQj1UGZB0",
+    "title": "Bhoot fm | মৃত্যুবাণের ভয়ংকর কালোজাদুতে মায়ের জীবন শেষ! | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 8624,
+    "age": "2d ago"
+   },
+   {
+    "id": "m1pqABrrk0Q",
+    "title": "নর পিশাচ  হাড় কাঁ পানো  ভয়ের  গল্প",
+    "views": 5573,
+    "age": "3d ago"
+   },
+   {
+    "id": "EBsf0fXe2TU",
+    "title": "Bhoot fm | পুকুরের তলদেশে জিন সর্দারের বিচার | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 3150,
+    "age": "5h ago"
+   },
+   {
+    "id": "WxDOvEVraac",
+    "title": "একটি ভূত এই ১১ বছর বয়সী মেয়েটিকে সব জায়গায় অনুসরণ করত।",
+    "views": 2498,
+    "age": "21h ago"
+   },
+   {
+    "id": "S7zC7-557yc",
+    "title": "তারানাথ তান্ত্রিকের গল্প - হোগলামারির পিশাচ । Taranath Tantrik । Taranath Tantrik New Story",
+    "views": 1756,
+    "age": "1d ago"
+   },
+   {
+    "id": "CYPFCaWcDtI",
+    "title": "কদমতলার শ্মশান | Kadamtalar Shashan || Horror Story || বাংলা ভুতের গল্প || Horror One",
+    "views": 1087,
+    "age": "6d ago"
+   },
+   {
+    "id": "P_kBhu0Dze8",
+    "title": "Bhoot fm | ​২ বামন ও​ ৭টি আত্মার ভয়ংকর কালোজাদু | ভুত এফ এম Only Email Story | afnan vai fm",
+    "views": 1030,
+    "age": "4d ago"
+   },
+   {
+    "id": "hw3LM073EUk",
+    "title": "Bhoot fm | ১৮ সন্তানের আত্মত্যাগের বিনিময়ে কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 908,
+    "age": "5d ago"
    }
   ],
-  "from_cat": "morg"
+  "from_cat": "karna"
  },
  "horror_bn_shohor": {
-  "date": "2026-11-16",
+  "date": "2026-11-20",
   "topics": [
-   "An isolated tea stall by the riverbank in rural Bengal where customers vanish if they drink tea after midnight.",
-   "A newly transferred night-shift substation operator in a power-cut-prone village who hears breathing through the dead telephone line.",
-   "A deserted marketplace in Midnapore during a heavy monsoon downpour where a headless vendor tries to sell clay dolls.",
-   "A village school teacher walking home on a dark winter night who hears a weeping woman asking for her lost water pitcher.",
-   "A heritage courtroom in Kolkata where a phantom judge holds trials for living lawyers past midnight.",
-   "A midnight passenger boarder near an old banyan tree in Bankura who leaves behind icy handprints on the carriage seats."
+   "A night-shift delivery executive gets a panic-inducing food order to an abandoned apartment complex in New Town, Kolkata at 2 AM.",
+   "Two college students trapped inside a locked heritage classroom in North Calcutta during a torrential monsoon thunderstorm realize they are not alone.",
+   "A tired cab driver picks up a silent passenger from a deserted highway toll plaza near Chandannagar who leaves behind an old-fashioned lantern.",
+   "A young woman working late in an empty IT park office block in Salt Lake hears heavy footsteps marching down the hallway of the locked 13th floor.",
+   "A group of friends visiting a desolate riverbank for a late-night bonfire finds a mysterious old radio playing lost 1990s emergency broadcasts.",
+   "A night-guard patrolling an isolated railway station yard in rural Bengal starts receiving frantic walkie-talkie messages from a track that was decommissioned d"
   ],
   "hashtags": [
-   "#BanglaBhuterGolpo",
-   "#VuterGolpo",
-   "#BengaliHorrorStory",
-   "#BhuterCartoon",
-   "#BanglaHorror",
-   "#GhostStory",
-   "#HorrorCartoon",
-   "#SundaySuspense",
+   "#BhuterGolpo",
+   "#BanglaHorrorStory",
    "#BhootKiKahani",
-   "#KolkataGhost"
+   "#VuterGolpo",
+   "#HorrorStories",
+   "#SottiVoutikKahini",
+   "#BanglaSuspense",
+   "#Bhoot",
+   "#HorrorAudio",
+   "#BhoutikGolpo"
   ],
   "keywords": [
-   "bangla bhuter golpo",
-   "vuter golpo",
-   "bengali horror story",
-   "bhuter cartoon",
-   "bangla horror cartoon",
+   "bhuter golpo",
    "bhoot ki kahani",
-   "true horror story",
-   "bengali ghost story"
+   "bangla horror story",
+   "sotti voutik kahini",
+   "bengali horror audio story",
+   "vuter golpo",
+   "horror stories in bengali",
+   "real ghost story"
   ],
   "style": {
    "tags": [],
    "hashtags": [],
-   "title_style": "The titles combine a catchy, hook-driven Bengali hook phrase with standardized English and Bengali search keywords separated by vertical pipes ('|'). They rely on curiosity-inducing phrases about time, curses, or specific locations alongside tags like 'Bhuter Cartoon' and 'Vuter Golpo' to maximize discovery. No emojis or numbers are used in the main hooks, keeping the aesthetic clean and narrative-focused.",
-   "thumb_style": "Thumbnails feature dark, eerie nighttime environments lit by moonlight, glowing lanterns, or supernatural auras, creating a strong high-contrast spooky mood. The composition places terrified human characters or menacing ghosts in the foreground, often displaying expressions of fear or shock. Text is rendered in bold Bengali typography using contrasting colors like white, yellow, and red with slight drop shadows for maximum readability.",
-   "thumb_text_style": "Between 2 to 4 words of large Bengali title text placed on the left or top of the thumbnail."
+   "title_style": "Titles combine catchy Bengali hooks, descriptive phrases, and English category keywords separated by vertical bars ('|'). They frequently feature time markers like 'রাত ১ টার' (1 AM), emojis (😱), and terms denoting real-life horror such as 'সত্যি ঘটনা' (true event).",
+   "thumb_style": "Thumbnails feature dark, eerie nocturnal or indoor settings lit by dramatic contrast, lanterns, or headlights. They prominently display terrifying, deformed ghost figures confronting frightened humans, alongside expressive host portraits with bold, oversized yellow and red Bengali or English text.",
+   "thumb_text_style": "4 to 7 words of high-impact, bold, colored text in Bengali or English highlighting the main spooky premise."
   },
   "real": [
    {
-    "id": "MHOyVtyD2cA",
-    "title": "রাত ঠিক তিনটে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 773560,
+    "id": "3SD2U5i5gdE",
+    "title": "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun",
+    "views": 853054,
     "age": "6d ago"
    },
    {
-    "id": "iZhgpFbKT4k",
-    "title": "রক্ত কাফনের তালাশ | Bhuter Cartoon | Vuter Golpo | Bengali Horror Story | Bangla Vuter Cartoon",
-    "views": 691086,
-    "age": "5d ago"
+    "id": "rvpYEPILwAs",
+    "title": "রাত ১ টার শেষ যাত্রা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 269561,
+    "age": "6d ago"
    },
    {
-    "id": "QGbj5dU0TcE",
-    "title": "শীতের রাতে কলস নিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 344694,
-    "age": "3d ago"
-   },
-   {
-    "id": "GUOLJNyz9-0",
-    "title": "মরা বিলের অভিশপ্ত আত্মা! Bhuter Cartoon | True Horror Story | Ghost | Bangla Bhuter Golpo",
-    "views": 289935,
-    "age": "5d ago"
-   },
-   {
-    "id": "B0TpOmmZOrg",
-    "title": "গ্রামে যখন বিদ্যূত থাকেনা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 245081,
-    "age": "7d ago"
-   },
-   {
-    "id": "_OAH_fE6IXw",
-    "title": "কঠারতলীর ঝড়ের রাত | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 80851,
-    "age": "5d ago"
-   },
-   {
-    "id": "TiHdbU0v-6I",
-    "title": "তীর ডাঙ্গা গ্রামের চায়ের দোকান | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 75232,
-    "age": "5d ago"
+    "id": "sAq2csfn5VU",
+    "title": "চণ্ডীগড়ের ভুতুড়ে ফ্ল্যাট 😱| সাবস্ক্রাইবারদের জন্য সত্যি ঘটনা | আসল ভয়ের গল্প #হরর #হররস্টোরিজ",
+    "views": 152003,
+    "age": "1d ago"
    },
    {
     "id": "cVlXiMPetYU",
     "title": "বর্ষার রাতের ভূতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 73963,
-    "age": "3d ago"
-   },
-   {
-    "id": "9AlgEl7Usm4",
-    "title": "কালী পুজোর রাত l Kaali Pujor Raat l Bangla Bhuter Golpo l Horror Story in Bengali",
-    "views": 48363,
+    "views": 119416,
     "age": "7d ago"
    },
    {
-    "id": "aVpfC1BCZUg",
-    "title": "বাকুড়া বাড়ির রাতের অতিথি | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 32522,
-    "age": "4d ago"
+    "id": "fNOw8bBWTxs",
+    "title": "রেল কর্মীর সাথে ঘটে যাওয়া ভৌতিক ঘটনা | Sotti Voutik Kahini | Bhuter Ghotona | Bhoot Fm | Pretkotha",
+    "views": 13773,
+    "age": "2d ago"
+   },
+   {
+    "id": "EldGW2ejlEs",
+    "title": "Hostel er shei Raat | Bengali Horror Story",
+    "views": 12371,
+    "age": "3d ago"
    },
    {
     "id": "Do_TS8OseEQ",
     "title": "Ghost in courtroom number 13 of Calcutta High Court! What happens there in the middle of the night? 😱 | Calcutta High Court",
-    "views": 2398,
-    "age": "2d ago"
+    "views": 2928,
+    "age": "7d ago"
    },
    {
     "id": "Sk0qd_-tHcg",
     "title": "Lord Clive's ghost at Clive House in Kolkata! Horrifying mystery caught on camera 😱 | 4K Horror Animation",
-    "views": 1551,
-    "age": "1d ago"
+    "views": 2020,
+    "age": "6d ago"
    },
    {
-    "id": "-gmUZ8vjMQY",
-    "title": "Horse-drawn carriages still arrive at Hastings House at midnight! The mystery of Warren Hastings' ghost | Kolkata Horror Story",
-    "views": 1524,
+    "id": "YEIWoierUd8",
+    "title": "Bhuter Golpo Audio | রক্তমুখী চন্ডীর অভিশাপ শীতের রাতে তারানাথ তান্ত্রিকের অলৌকিক কাহিনী",
+    "views": 1789,
     "age": "4d ago"
    },
    {
-    "id": "kYxam1r3R1M",
-    "title": "আমেরিকার সবচেয়ে ভুতুড়ে বাড়িটি বিখ্যাত নয়",
-    "views": 1047,
+    "id": "GOIkrYyxuEo",
+    "title": "আপনার সন্তান যখন বলে যে সে ভূত দেখছে, তখন তার কথা শুনুন।",
+    "views": 1051,
+    "age": "7d ago"
+   },
+   {
+    "id": "YV-DE8lFRBU",
+    "title": "গুহার ভিতর ভূতের বাসা। #Bhuter Cartoon #Batik Golpo 👻",
+    "views": 665,
     "age": "4d ago"
    },
    {
-    "id": "M5ZkPYe_UsI",
-    "title": "পর্ব ২২০ - ভালচার সিটিতে স্বাগতম | অ্যারিজোনা",
-    "views": 888,
-    "age": "Streamed 4d ago"
+    "id": "7oZVyl81wO0",
+    "title": "The curse of grave number 367 in Kolkata! Does a terrible thing happen when you take a picture? | Park Street Cemetery",
+    "views": 361,
+    "age": "7d ago"
+   },
+   {
+    "id": "zAVOm1zXas0",
+    "title": "হোস্টেলের সেই রাত | পর্ব ০১ | ভূতের গল্প | Bhuter Golpo | Bangla Horror Story",
+    "views": 230,
+    "age": "7d ago"
+   },
+   {
+    "id": "9Zs5UzsLb6g",
+    "title": "রাত ২:১০-এ দরজায় টোকা দিত কে? | ভূতের গল্প | Bhuter Golpo | পর্ব ১",
+    "views": 197,
+    "age": "4d ago"
+   },
+   {
+    "id": "4Wcwfz2NQhk",
+    "title": "রাত ২টায় হোয়াটসঅ্যাপ গ্রুপে এল ফ্ল্যাট ৮০৪-এর মেসেজ... 😱 | হিন্দি হরর স্টোরি",
+    "views": 125,
+    "age": "4d ago"
    }
   ],
   "youtube_top": [
-   "রাত ঠিক তিনটে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (773,560)",
-   "রক্ত কাফনের তালাশ | Bhuter Cartoon | Vuter Golpo | Bengali Horror Story | Bangla Vuter Cartoon (691,086)",
-   "শীতের রাতে কলস নিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (344,694)",
-   "মরা বিলের অভিশপ্ত আত্মা! Bhuter Cartoon | True Horror Story | Ghost | Bangla Bhuter Golpo (289,935)",
-   "গ্রামে যখন বিদ্যূত থাকেনা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (245,081)",
-   "কঠারতলীর ঝড়ের রাত | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (80,851)",
-   "তীর ডাঙ্গা গ্রামের চায়ের দোকান | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (75,232)",
-   "বর্ষার রাতের ভূতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (73,963)",
-   "কালী পুজোর রাত l Kaali Pujor Raat l Bangla Bhuter Golpo l Horror Story in Bengali (48,363)",
-   "বাকুড়া বাড়ির রাতের অতিথি | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (32,522)"
+   "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun (853,054)",
+   "রাত ১ টার শেষ যাত্রা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (269,561)",
+   "চণ্ডীগড়ের ভুতুড়ে ফ্ল্যাট 😱| সাবস্ক্রাইবারদের জন্য সত্যি ঘটনা | আসল ভয়ের গল্প #হরর #হররস্টোরিজ (152,003)",
+   "বর্ষার রাতের ভূতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (119,416)",
+   "রেল কর্মীর সাথে ঘটে যাওয়া ভৌতিক ঘটনা | Sotti Voutik Kahini | Bhuter Ghotona | Bhoot Fm | Pretkotha (13,773)",
+   "Hostel er shei Raat | Bengali Horror Story (12,371)",
+   "Ghost in courtroom number 13 of Calcutta High Court! What happens there in the middle of the night? 😱 | Calcutta High Court (2,928)",
+   "Lord Clive's ghost at Clive House in Kolkata! Horrifying mystery caught on camera 😱 | 4K Horror Animation (2,020)",
+   "Bhuter Golpo Audio | রক্তমুখী চন্ডীর অভিশাপ শীতের রাতে তারানাথ তান্ত্রিকের অলৌকিক কাহিনী (1,789)",
+   "আপনার সন্তান যখন বলে যে সে ভূত দেখছে, তখন তার কথা শুনুন। (1,051)"
   ],
   "from": "youtube"
  },
  "horror_bn_karna": {
-  "date": "2026-11-13",
+  "date": "2026-11-20",
   "topics": [
-   "A night-shift delivery boy in Kolkata accepts a food package to an abandoned railway quarter and discovers the customer has been dead for three days.",
-   "A rural schoolteacher in a remote Bengal village rents an old riverside house where the floorboards continuously seep black mud and animal sacrificial blood.",
-   "An occult practitioner performing black magic rituals inside a burning cremation ground in rural Bangladesh accidentally binds a malevolent demon to his own blo",
-   "Two night-guard brothers working at a dilapidated royal palace in rural Murshidabad uncover chained skeletal remains inside a sealed underground treasury.",
-   "A lonely truck driver stranded on a desolate highway in West Bengal picks up a hitchhiking woman who demands he never look at her reflection in the rearview mir",
-   "A young medical student renting a cheap suburban mess in Dhaka finds an ancient leather-bound diary detailing human sacrifice and dark occult rituals."
+   "A remote village pond in rural Bengal where a fisherman casts his net at midnight and traps a glowing copper pot containing a vengeful water-djinn.",
+   "An ancient abandoned railway quarter in Purulia where a night-duty station master hears a child crying from inside a locked iron safe.",
+   "A dense bamboo grove beside a cremation ground in Bangladesh where a graveyard caretaker finds a trail of bloody footprints leading to a shallow, freshly dug tr",
+   "A dilapidated heritage mansion in old Dhaka where a young tutor discovers a hidden diary written in blood detailing a deadly ritual involving sacrificed goats.",
+   "A foggy highway near the Assam border where a truck driver picks up a silent bride who leaves behind freezing muddy handprints on the dashboard.",
+   "A lonely multi-story apartment in Kolkata where a night-shift nurse realizes her patient's empty rocking chair moves by itself every time the clock strikes thre"
   ],
   "hashtags": [
-   "#ভূতএফএম",
-   "#BhootFM",
-   "#HorrorStory",
-   "#BanglaHorrorStory",
-   "#ভূতেরগল্প",
-   "#BlackMagic",
-   "#GhostStory",
-   "#BhootFMEmailEpisode",
-   "#BhuterGolpo",
-   "#BanglaHorrorStories",
-   "#KaloJadu",
-   "#BhuterCartoon"
+   "#bhutergolpo",
+   "#bhoottalks",
+   "#bengalighoststories",
+   "#bhootfm",
+   "#horrificstories",
+   "#vutergalpo",
+   "#kalojadu",
+   "#bhootkikahani",
+   "#bengalihorror",
+   "#suspensestories"
   ],
   "keywords": [
    "bhuter golpo",
-   "bengali horror stories",
+   "bhoot ki kahani",
+   "bengali horror story",
    "bhoot fm new episode",
-   "kalo jadu golpo",
-   "bhoyonkor bhuter golpo",
-   "bangla horror cartoon",
-   "real ghost story bangla",
-   "haunted house story"
+   "kalojadu golpo",
+   "vuter golpo audio",
+   "taranath tantrik style story",
+   "bangla bhoyonkor golpo"
   ],
   "style": {
-   "tags": [
-    "ভূত এফএম",
-    "ভূত এফএম ইমেইল এপিসোড",
-    "bhoot fm",
-    "bhoot fm email episode",
-    "bangla horror story",
-    "bengali horror story",
-    "bangla ghost story",
-    "horror story bangla",
-    "ভয়ের গল্প",
-    "ভয়ংকর ভূতের গল্প",
-    "কালো জাদু",
-    "শূকরের রক্ত দিয়ে কালো জাদু",
-    "তান্ত্রিকের গল্প",
-    "ভারতীয় তান্ত্রিক",
-    "black magic story"
-   ],
-   "hashtags": [
-    "#ভূতএফএম",
-    "#BhootFM",
-    "#HorrorStory",
-    "#BanglaHorrorStory",
-    "#ভূতেরগল্প",
-    "#BlackMagic",
-    "#GhostStory",
-    "#BhootFMEmailEpisode"
-   ],
-   "title_style": "The titles are long and descriptive, heavily relying on fear-inducing Bengali keywords like 'ভয়ঙ্কর' (scary), 'কালো জাদু' (black magic), and 'হাড় কাঁপানো' (bone-chilling). They make frequent use of the pipe symbol ('|') to separate distinct hooks, series names, and tags. Numbers, lists, and emotional appeals are also commonly used to immediately grab the viewer's attention.",
-   "thumb_style": "The thumbnails feature high-contrast, dark aesthetics dominated by blood-red, deep blue, and black tones to create a menacing atmosphere. They prominently display exaggerated, terrifying characters such as glowing-eyed sorcerers, monstrous ghouls, or eerie illuminated figures against night settings. Large, bold Bengali text in vibrant yellow or white with dark outlines overlays the central action.",
-   "thumb_text_style": "A 4 to 8-word bold, brightly colored headline that summarizes the core terrifying subject of the story."
+   "tags": [],
+   "hashtags": [],
+   "title_style": "These titles are moderately long, typically ranging from 8 to 15 words, and rely heavily on thematic brand labels like 'Bhoot fm' separated by vertical bars ('|'). They use curiosity-inducing and fear-invoking Bengali keywords related to dark magic, sacrifices, and evil spirits ('কালোজাদু', 'পিশাচ', 'আত্মত্যাগ').",
+   "thumb_style": "The thumbnails feature highly detailed, cinematic illustrations with a dark, eerie color palette dominated by deep reds, blacks, and blues. They incorporate scary elements like glowing-eyed sorcerers, skulls, blood-dripping fonts, and ominous shadowy figures under dramatic lighting.",
+   "thumb_text_style": "The thumbnails feature prominent, large Bengali text ranging from 4 to 8 words styled with bold outlines, bright yellow or white coloring, and blood-drip effects to immediately capture attention."
   },
   "real": [
    {
-    "id": "Nt1YktPGSQk",
-    "title": "নর পিশাচ | হাড় কাঁপানো ভয়ের গল্প | Bengali Horror Stories | Vuther Golpo | Bhoot Ghar",
-    "views": 298002,
-    "age": "2d ago"
+    "id": "viBHOIpvHHE",
+    "title": "এক বাটি দুধ: জৈনীবাবা এবং তাঁর তন্ত্রের পরিণতি",
+    "views": 77225,
+    "age": "7d ago"
    },
    {
-    "id": "FZdRz8qJIUs",
-    "title": "৪টি ভয়ঙ্কর ডেলিভারি বয়ের অ্যানিমেটেড ভৌতিক গল্প",
-    "views": 134499,
-    "age": "6d ago"
+    "id": "vBq37Ft4mDc",
+    "title": "Bhoot fm | ১৮ সন্তানের আত্মত্যাগের বিনিময়ে কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 37990,
+    "age": "7d ago"
    },
    {
-    "id": "s_iMln66qVc",
-    "title": "Bhoot fm | ৩০০০ বছরের প্রাচীন ইফ্রিদ জিনের​ কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 53852,
-    "age": "3d ago"
-   },
-   {
-    "id": "A1rUwd61hFY",
-    "title": "Real Haunting Ghost Stories from Salem, MA | With Photo & Video Evidence (x357)",
-    "views": 32246,
-    "age": "17h ago"
-   },
-   {
-    "id": "6POVYGKrl5c",
-    "title": "শূকরের রক্ত দিয়ে ভয়ানক কালো জাদু! ভারতের তান্ত্রিকের বিভীষিকাময় ঘটনা | ভূত এফএম ইমেইল এপিসোড",
-    "views": 30300,
-    "age": "3d ago"
-   },
-   {
-    "id": "OFoUtnHdx3k",
-    "title": "Bhoot fm | পিশাচের সন্তান ও কালোজাদু ভয়ংকর ঘটনা | ভুত এফ এম Only Email Story afnan vai #bhootfm",
-    "views": 15584,
-    "age": "5d ago"
-   },
-   {
-    "id": "bELWcPwXlxc",
-    "title": "১৫টি অস্বস্তিকর সত্য ভৌতিক গল্প",
-    "views": 14085,
-    "age": "2d ago"
-   },
-   {
-    "id": "S0EjhyraVbo",
-    "title": "Bhoot fm | শ্মশানের মাটি ও গুণিনের কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm | today new",
-    "views": 13325,
-    "age": "6d ago"
-   },
-   {
-    "id": "foBgI1H1p2A",
-    "title": "Bhoot fm | ​২ বামন ও​ ৭টি আত্মার ভয়ংকর কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 12528,
-    "age": "4d ago"
-   },
-   {
-    "id": "Ulo1D_6Z3yY",
-    "title": "অভিশপ্ত কুম্ব রাজাবাড়ি।(হাড় হিম করা ভয়ের গল্প )গ্রাম বাংলা ভূতের গল্প |GramBanglarVuterGolpo |",
-    "views": 3185,
-    "age": "2d ago"
-   },
-   {
-    "id": "OS6ywKEb6og",
-    "title": "তন্ত্র-মন্ত্র, কালো জাদু আর বশীকরণের ভয়ংকর সত্যি! #shorts #তন্ত্রমন্ত্র",
-    "views": 2042,
-    "age": "4d ago"
-   },
-   {
-    "id": "cfU8iR-y27o",
-    "title": "পিশাচের আতঙ্ক পর্ব ২। ভয়ংকর ভূতের কার্টুন গল্প। Bangla Horror Cartoon | 2d Animator Asad official",
-    "views": 741,
-    "age": "4d ago"
-   },
-   {
-    "id": "giXq0QS4VH8",
-    "title": "The Tantrik's Terrifying Black Magic Using Pig Sacrifice! 😱 | Bhoot FM Email Episode | Bhoot FM",
-    "views": 557,
-    "age": "3d ago"
-   },
-   {
-    "id": "89Djm2p69J8",
-    "title": "ইলিশের লোভে পিশাচের বিপদ | Ilish Er Lovey Pisacher Bipod | Bangla Horror Cartoon | Bhuter Golpo",
-    "views": 299,
-    "age": "6d ago"
-   },
-   {
-    "id": "ADLQhrEcXSI",
-    "title": "পিশাচের আতঙ্ক পর্ব৩| বাংলা ভূতেরগল্প কার্টুন ভিডিও| Bangla bhuter Cartoon| 2D Animator Asad official",
-    "views": 172,
+    "id": "qV6E8QfQGH0",
+    "title": "Bhoot fm | কাল ইফ্রিদ ও ৭ পিশাচের ভয়ংকর উপদ্রব | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 32430,
     "age": "1d ago"
+   },
+   {
+    "id": "DL9WMVJt2kA",
+    "title": "যে টুলটি আপনাকে দেখিয়ে দেবে ডাইনিরা কারা #অ্যানিমেশন #লোককথা #ডাইনি",
+    "views": 27879,
+    "age": "2d ago"
+   },
+   {
+    "id": "YippsOv25ug",
+    "title": "Bhoot fm | ৭টি নিষিদ্ধ কূপে বন্দি পিশাচের কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm vut",
+    "views": 26413,
+    "age": "6d ago"
+   },
+   {
+    "id": "wa5LfgmAtIc",
+    "title": "Bhoot fm | পাশা হুজুরের কালোজাদু ও জ্বীনের প্রতিশোধ  | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 22124,
+    "age": "3d ago"
+   },
+   {
+    "id": "3MQCCnutY7Q",
+    "title": "Bhoot fm | জিন চালানের ভয়ানক কালোজাদু  | ভুত এফ এম  Only Email Story | afnan vai bhoot fm #bhoot",
+    "views": 13890,
+    "age": "4d ago"
+   },
+   {
+    "id": "kngQj1UGZB0",
+    "title": "Bhoot fm | মৃত্যুবাণের ভয়ংকর কালোজাদুতে মায়ের জীবন শেষ! | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 8624,
+    "age": "2d ago"
+   },
+   {
+    "id": "m1pqABrrk0Q",
+    "title": "নর পিশাচ  হাড় কাঁ পানো  ভয়ের  গল্প",
+    "views": 5573,
+    "age": "3d ago"
+   },
+   {
+    "id": "EBsf0fXe2TU",
+    "title": "Bhoot fm | পুকুরের তলদেশে জিন সর্দারের বিচার | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 3150,
+    "age": "5h ago"
+   },
+   {
+    "id": "WxDOvEVraac",
+    "title": "একটি ভূত এই ১১ বছর বয়সী মেয়েটিকে সব জায়গায় অনুসরণ করত।",
+    "views": 2498,
+    "age": "21h ago"
+   },
+   {
+    "id": "S7zC7-557yc",
+    "title": "তারানাথ তান্ত্রিকের গল্প - হোগলামারির পিশাচ । Taranath Tantrik । Taranath Tantrik New Story",
+    "views": 1756,
+    "age": "1d ago"
+   },
+   {
+    "id": "CYPFCaWcDtI",
+    "title": "কদমতলার শ্মশান | Kadamtalar Shashan || Horror Story || বাংলা ভুতের গল্প || Horror One",
+    "views": 1087,
+    "age": "6d ago"
+   },
+   {
+    "id": "P_kBhu0Dze8",
+    "title": "Bhoot fm | ​২ বামন ও​ ৭টি আত্মার ভয়ংকর কালোজাদু | ভুত এফ এম Only Email Story | afnan vai fm",
+    "views": 1030,
+    "age": "4d ago"
+   },
+   {
+    "id": "hw3LM073EUk",
+    "title": "Bhoot fm | ১৮ সন্তানের আত্মত্যাগের বিনিময়ে কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
+    "views": 908,
+    "age": "5d ago"
    }
   ],
   "youtube_top": [
-   "নর পিশাচ | হাড় কাঁপানো ভয়ের গল্প | Bengali Horror Stories | Vuther Golpo | Bhoot Ghar (298,002)",
-   "৪টি ভয়ঙ্কর ডেলিভারি বয়ের অ্যানিমেটেড ভৌতিক গল্প (134,499)",
-   "Bhoot fm | ৩০০০ বছরের প্রাচীন ইফ্রিদ জিনের​ কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm (53,852)",
-   "Real Haunting Ghost Stories from Salem, MA | With Photo & Video Evidence (x357) (32,246)",
-   "শূকরের রক্ত দিয়ে ভয়ানক কালো জাদু! ভারতের তান্ত্রিকের বিভীষিকাময় ঘটনা | ভূত এফএম ইমেইল এপিসোড (30,300)",
-   "Bhoot fm | পিশাচের সন্তান ও কালোজাদু ভয়ংকর ঘটনা | ভুত এফ এম Only Email Story afnan vai #bhootfm (15,584)",
-   "১৫টি অস্বস্তিকর সত্য ভৌতিক গল্প (14,085)",
-   "Bhoot fm | শ্মশানের মাটি ও গুণিনের কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm | today new (13,325)",
-   "Bhoot fm | ​২ বামন ও​ ৭টি আত্মার ভয়ংকর কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm (12,528)",
-   "অভিশপ্ত কুম্ব রাজাবাড়ি।(হাড় হিম করা ভয়ের গল্প )গ্রাম বাংলা ভূতের গল্প |GramBanglarVuterGolpo | (3,185)"
+   "এক বাটি দুধ: জৈনীবাবা এবং তাঁর তন্ত্রের পরিণতি (77,225)",
+   "Bhoot fm | ১৮ সন্তানের আত্মত্যাগের বিনিময়ে কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm (37,990)",
+   "Bhoot fm | কাল ইফ্রিদ ও ৭ পিশাচের ভয়ংকর উপদ্রব | ভুত এফ এম  Only Email Story | afnan vai fm (32,430)",
+   "যে টুলটি আপনাকে দেখিয়ে দেবে ডাইনিরা কারা #অ্যানিমেশন #লোককথা #ডাইনি (27,879)",
+   "Bhoot fm | ৭টি নিষিদ্ধ কূপে বন্দি পিশাচের কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm vut (26,413)",
+   "Bhoot fm | পাশা হুজুরের কালোজাদু ও জ্বীনের প্রতিশোধ  | ভুত এফ এম  Only Email Story | afnan vai fm (22,124)",
+   "Bhoot fm | জিন চালানের ভয়ানক কালোজাদু  | ভুত এফ এম  Only Email Story | afnan vai bhoot fm #bhoot (13,890)",
+   "Bhoot fm | মৃত্যুবাণের ভয়ংকর কালোজাদুতে মায়ের জীবন শেষ! | ভুত এফ এম  Only Email Story | afnan vai fm (8,624)",
+   "নর পিশাচ  হাড় কাঁ পানো  ভয়ের  গল্প (5,573)",
+   "Bhoot fm | পুকুরের তলদেশে জিন সর্দারের বিচার | ভুত এফ এম  Only Email Story | afnan vai fm (3,150)"
   ],
   "from": "youtube"
  },
