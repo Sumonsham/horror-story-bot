@@ -282,7 +282,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -310,7 +310,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -538,7 +538,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -568,7 +568,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -598,7 +598,7 @@
    "yt_views": 3,
    "yt_avg_s": 11,
    "yt_avg_pct": 2,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -811,7 +811,7 @@
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -1064,12 +1064,12 @@
   "stats": {
    "likes": 7,
    "comments": 2,
-   "views": 3,
+   "views": 4,
    "length_s": 2215,
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -1106,7 +1106,7 @@
    "yt_views": 7,
    "yt_avg_s": 36,
    "yt_avg_pct": 1.5,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -1317,7 +1317,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1363,7 +1363,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1586,7 +1586,7 @@
    "yt_views": 6,
    "yt_avg_s": 472,
    "yt_avg_pct": 47.5,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1630,7 +1630,7 @@
    "yt_views": 1,
    "yt_avg_s": 989,
    "yt_avg_pct": 99.9,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1677,7 +1677,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -3349,11 +3349,11 @@
   "stats": {
    "likes": 0,
    "comments": 0,
-   "views": 3,
-   "yt_views": 0,
-   "yt_avg_s": 0,
+   "views": 1,
+   "yt_views": 1,
+   "yt_avg_s": 30,
    "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -3368,10 +3368,10 @@
    "comments": 0,
    "views": 16,
    "length_s": 24,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-16T01:04+00:00"
+   "yt_views": 17,
+   "yt_avg_s": 22,
+   "yt_avg_pct": 95.5,
+   "checked": "2026-11-19T07:03+00:00"
   }
  },
  {
@@ -4394,7 +4394,17 @@
   },
   "hook_style": "voice",
   "district": "n24",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 143,
+   "length_s": 1901,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-19T07:03+00:00"
+  }
  },
  {
   "date": "2026-11-18T14:34+00:00",
@@ -4587,5 +4597,150 @@
   "tagline": "শতাব্দী প্রাচীন সেই বাংলোয় কে ডাকছে?",
   "district": "kolkata",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-18-20.mp4"
+ },
+ {
+  "date": "2026-11-19T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-19@14",
+  "pending_comments": [
+   {
+    "id": "1628991824788040",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1866354551230259"
+   },
+   {
+    "id": "29386609174357676",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1866354551230259",
+    "after": 1795149300.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "An isolated graveyard watchman in rural Bengal finds fresh footprints leading from a sealed tomb every midnight.",
+  "len_arm": null,
+  "listener_score": 9.0,
+  "fresh": {
+   "opening": "an ordinary morning that goes subtly wrong",
+   "telling": "a doctor / teacher / postman telling his strangest case",
+   "ghost": "a vengeful spirit of an old injustice",
+   "twist": "a quiet twist in the last line that changes everything before it",
+   "setting": "a railway junction at night",
+   "fear": "isolation - nobody believes the hero",
+   "details": [
+    "a rusted brass pocket watch frozen permanently at 2:42 AM found inside a discarded fish ba",
+    "the dry rattling sound of a palm-leaf hand fan clapping against wet platform tiles without",
+    "the sharp, suffocating smell of stale mustard oil mixed with scorched iron filings",
+    "the local belief that offering unboiled goat milk to platform pillar number four cures lif",
+    "the stationmaster religiously sweeping away an identical pile of damp red brick dust every"
+   ]
+  },
+  "crossover": null,
+  "opening": "flash",
+  "category": "jayga",
+  "question_post": null,
+  "title_b": "লোকোশেডের অভিশপ্ত রাত, কেন দুধ ঢালতে হয়? 🕯️",
+  "theme": "An isolated graveyard watchman in rural Bengal finds fresh footprints leading from a sealed tomb every midnight.",
+  "format": "a doctor / teacher / postman telling his strangest case",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "কাটোয়া জংশনের চার নম্বর থাম 🪔 | অভিশপ্ত লোকোশেডের রহস্য",
+  "festival": null,
+  "summary": "কাটোয়া জংশনের চার নম্বর থামে প্রতিদিন রাতে কেন দুধ ঢালা হয়? কেন ওই থামের নিচে আজও পোড়া তেলের গন্ধ পাওয়া যায়? এক ভয়াবহ সত্যের মুখোমুখি ডাক্তার সুবোধ।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1866354551230259",
+  "youtube": "3fIJz86sJJc",
+  "fb_reel": "1628991824788040",
+  "fb_story": "1838955924086244",
+  "fb_reel2": "29386609174357676",
+  "yt_short": "Ni97yqzRDGA",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 856,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     10,
+     "শুরু"
+    ],
+    [
+     18,
+     "অভিশপ্ত লোকোশেডের রহস্য"
+    ],
+    [
+     58,
+     "চতুর্থ থামের রহস্য"
+    ],
+    [
+     112,
+     "3"
+    ],
+    [
+     158,
+     "4"
+    ],
+    [
+     210,
+     "5"
+    ],
+    [
+     268,
+     "6"
+    ],
+    [
+     315,
+     "7"
+    ],
+    [
+     363,
+     "8"
+    ],
+    [
+     409,
+     "পুরোনো পাপের রহস্য"
+    ],
+    [
+     456,
+     "অতৃপ্ত প্রেতাত্মার অভিশাপ"
+    ],
+    [
+     509,
+     "কবরখানার অভিশপ্ত রাত"
+    ],
+    [
+     553,
+     "কবরের ভেতর থেকে ডাক"
+    ],
+    [
+     596,
+     "নিতাইয়ের প্রত্যাবর্তন"
+    ],
+    [
+     659,
+     "রক্তের সম্পর্কের টান"
+    ],
+    [
+     717,
+     "প্রতিশোধের চূড়ান্ত পরিণতি"
+    ],
+    [
+     778,
+     "শেষ পরিণতি"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "bardhaman_p",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-19-14.mp4"
  }
 ]
