@@ -1,136 +1,94 @@
 {
  "horror_bn": {
-  "date": "2026-11-20",
+  "date": "2026-11-21",
   "topics": [
-   "A remote village pond in rural Bengal where a fisherman casts his net at midnight and traps a glowing copper pot containing a vengeful water-djinn.",
-   "An ancient abandoned railway quarter in Purulia where a night-duty station master hears a child crying from inside a locked iron safe.",
-   "A dense bamboo grove beside a cremation ground in Bangladesh where a graveyard caretaker finds a trail of bloody footprints leading to a shallow, freshly dug tr",
-   "A dilapidated heritage mansion in old Dhaka where a young tutor discovers a hidden diary written in blood detailing a deadly ritual involving sacrificed goats.",
-   "A foggy highway near the Assam border where a truck driver picks up a silent bride who leaves behind freezing muddy handprints on the dashboard.",
-   "A lonely multi-story apartment in Kolkata where a night-shift nurse realizes her patient's empty rocking chair moves by itself every time the clock strikes thre"
+   "A night-shift railway signalman at an abandoned Purulia junction who notices a phantom express train scheduled at 3:15 AM that never appears in any official rai",
+   "Three college friends returning home via the Sealdah midnight local train who realize their fellow passengers have no reflections in the train window glass.",
+   "A lone ticket collector working the final train to Diamond Harbour who checks a ticket for a passenger who boarded from a station that was demolished twenty yea",
+   "A tired commuter stranded on a deserted platform during a heavy monsoon storm who hears station announcement loudspeakers broadcasting his own future dying thou",
+   "A young locomotive driver navigating a cargo engine through a remote forest pass who hits a sudden blockade, only to discover the tracks are covered in old-fash",
+   "A late-night railway track maintenance worker inspecting iron rails near a notorious tunnel who finds discarded mobile phones vibrating with unanswered calls fr"
   ],
   "hashtags": [
-   "#bhutergolpo",
-   "#bhoottalks",
-   "#bengalighoststories",
-   "#bhootfm",
-   "#horrificstories",
-   "#vutergalpo",
-   "#kalojadu",
-   "#bhootkikahani",
-   "#bengalihorror",
-   "#suspensestories"
+   "#BanglaBhooterGolpo",
+   "#HindiHorrorStory",
+   "#SundaySuspense",
+   "#RailwayHorror",
+   "#GhostTrain",
+   "#BhuterGolpo",
+   "#BanglaAudioStory",
+   "#ScaryStation",
+   "#BhootKiKahani",
+   "#HorrorThriller"
   ],
   "keywords": [
-   "bhuter golpo",
+   "bangla bhuter golpo",
    "bhoot ki kahani",
-   "bengali horror story",
-   "bhoot fm new episode",
-   "kalojadu golpo",
-   "vuter golpo audio",
-   "taranath tantrik style story",
-   "bangla bhoyonkor golpo"
+   "bengali horror audio story",
+   "railway station horror story",
+   "train ghost story hindi",
+   "sunday suspense style horror",
+   "midnight train bhoot",
+   "bhuter golpo new"
   ],
   "style": {
    "tags": [],
    "hashtags": [],
-   "title_style": "These titles are moderately long, typically ranging from 8 to 15 words, and rely heavily on thematic brand labels like 'Bhoot fm' separated by vertical bars ('|'). They use curiosity-inducing and fear-invoking Bengali keywords related to dark magic, sacrifices, and evil spirits ('কালোজাদু', 'পিশাচ', 'আত্মত্যাগ').",
-   "thumb_style": "The thumbnails feature highly detailed, cinematic illustrations with a dark, eerie color palette dominated by deep reds, blacks, and blues. They incorporate scary elements like glowing-eyed sorcerers, skulls, blood-dripping fonts, and ominous shadowy figures under dramatic lighting.",
-   "thumb_text_style": "The thumbnails feature prominent, large Bengali text ranging from 4 to 8 words styled with bold outlines, bright yellow or white coloring, and blood-drip effects to immediately capture attention."
+   "title_style": "Titles combine English and local terms with dramatic hooks, mystery-driven questions, and urban legend references to instantly capture viewer curiosity. They feature descriptive phrases about eerie locations, eerie timings like 2 AM or 3 AM, and descriptive keywords like 'horror', 'mysterious', and 'thriller'. Vertical separators ('|') are frequently used to structure distinct descriptive segments and search tags within a single title.",
+   "thumb_style": "Thumbnails utilize dark, moody night palettes dominated by deep blues, blacks, and glowing moonlight to set an ominous horror atmosphere. They prominently feature terrified human characters with wide-eyed expressions alongside ghastly, pale spectral figures lurking in windows or distant mist. The compositions draw focus to a central confrontation or eerie setting like a railway platform, complemented by large, bold text overlays in striking red and white.",
+   "thumb_text_style": "Short text overlays consisting of 2 to 4 words in bold white or red typography that highlight shocking narrative elements."
   },
   "real": [
    {
-    "id": "viBHOIpvHHE",
-    "title": "এক বাটি দুধ: জৈনীবাবা এবং তাঁর তন্ত্রের পরিণতি",
-    "views": 77225,
-    "age": "7d ago"
-   },
-   {
-    "id": "vBq37Ft4mDc",
-    "title": "Bhoot fm | ১৮ সন্তানের আত্মত্যাগের বিনিময়ে কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 37990,
-    "age": "7d ago"
-   },
-   {
-    "id": "qV6E8QfQGH0",
-    "title": "Bhoot fm | কাল ইফ্রিদ ও ৭ পিশাচের ভয়ংকর উপদ্রব | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 32430,
-    "age": "1d ago"
-   },
-   {
-    "id": "DL9WMVJt2kA",
-    "title": "যে টুলটি আপনাকে দেখিয়ে দেবে ডাইনিরা কারা #অ্যানিমেশন #লোককথা #ডাইনি",
-    "views": 27879,
-    "age": "2d ago"
-   },
-   {
-    "id": "YippsOv25ug",
-    "title": "Bhoot fm | ৭টি নিষিদ্ধ কূপে বন্দি পিশাচের কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm vut",
-    "views": 26413,
-    "age": "6d ago"
-   },
-   {
-    "id": "wa5LfgmAtIc",
-    "title": "Bhoot fm | পাশা হুজুরের কালোজাদু ও জ্বীনের প্রতিশোধ  | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 22124,
-    "age": "3d ago"
-   },
-   {
-    "id": "3MQCCnutY7Q",
-    "title": "Bhoot fm | জিন চালানের ভয়ানক কালোজাদু  | ভুত এফ এম  Only Email Story | afnan vai bhoot fm #bhoot",
-    "views": 13890,
-    "age": "4d ago"
-   },
-   {
-    "id": "kngQj1UGZB0",
-    "title": "Bhoot fm | মৃত্যুবাণের ভয়ংকর কালোজাদুতে মায়ের জীবন শেষ! | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 8624,
-    "age": "2d ago"
-   },
-   {
-    "id": "m1pqABrrk0Q",
-    "title": "নর পিশাচ  হাড় কাঁ পানো  ভয়ের  গল্প",
-    "views": 5573,
-    "age": "3d ago"
-   },
-   {
-    "id": "EBsf0fXe2TU",
-    "title": "Bhoot fm | পুকুরের তলদেশে জিন সর্দারের বিচার | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 3150,
-    "age": "5h ago"
-   },
-   {
-    "id": "WxDOvEVraac",
-    "title": "একটি ভূত এই ১১ বছর বয়সী মেয়েটিকে সব জায়গায় অনুসরণ করত।",
-    "views": 2498,
-    "age": "21h ago"
-   },
-   {
-    "id": "S7zC7-557yc",
-    "title": "তারানাথ তান্ত্রিকের গল্প - হোগলামারির পিশাচ । Taranath Tantrik । Taranath Tantrik New Story",
-    "views": 1756,
-    "age": "1d ago"
-   },
-   {
-    "id": "CYPFCaWcDtI",
-    "title": "কদমতলার শ্মশান | Kadamtalar Shashan || Horror Story || বাংলা ভুতের গল্প || Horror One",
-    "views": 1087,
-    "age": "6d ago"
-   },
-   {
-    "id": "P_kBhu0Dze8",
-    "title": "Bhoot fm | ​২ বামন ও​ ৭টি আত্মার ভয়ংকর কালোজাদু | ভুত এফ এম Only Email Story | afnan vai fm",
-    "views": 1030,
-    "age": "4d ago"
-   },
-   {
-    "id": "hw3LM073EUk",
-    "title": "Bhoot fm | ১৮ সন্তানের আত্মত্যাগের বিনিময়ে কালোজাদু | ভুত এফ এম  Only Email Story | afnan vai fm",
-    "views": 908,
+    "id": "ceFmVzlAHnQ",
+    "title": "अंतिम यात्रा | Train Ki Antim Yatra | horror story | village cartoon | horror kahaniya",
+    "views": 92783,
     "age": "5d ago"
+   },
+   {
+    "id": "6IKLztt6gow",
+    "title": "She Got Off at a Station That Isn't on Any Map | Kisaragi Station | Japanese Urban Legend",
+    "views": 27870,
+    "age": "6d ago"
+   },
+   {
+    "id": "_PYpkMOONM4",
+    "title": "Midnight Haunted Railway Station 😮 fir | 6 Brave Sisters Exposed Robbers Pretending to be Ghosts!",
+    "views": 4999,
+    "age": "4d ago"
+   },
+   {
+    "id": "ooXf2sgvgJ4",
+    "title": "What is the real secret of Begunkodar Railway Station?😱 Begunkodar Railway Station #Shorts #horrorshorts #banglahorror",
+    "views": 1755,
+    "age": "4d ago"
+   },
+   {
+    "id": "N0qAIEiHWJk",
+    "title": "The Last Train Passenger 🚂 | The Mysterious Train at 2am | Bengali Horror Thriller Story | Bangla Audio Story",
+    "views": 193,
+    "age": "6d ago"
+   },
+   {
+    "id": "dSntedT2TgM",
+    "title": "শেষ লোকাল ট্রেন | বাংলা ভূতের গল্প | তৃতীয় ডাক",
+    "views": 109,
+    "age": "1d ago"
+   },
+   {
+    "id": "gxbebkQs3Hs",
+    "title": "The Last Train of the Dead | That Terrifying Train at 3 AM | Bengali Horror Story | BhootFm by RJ Alamgir",
+    "views": 15,
+    "age": "2d ago"
+   },
+   {
+    "id": "vazXqAXp3vY",
+    "title": "Bangla Audio Horror Story | রাত ১১টার শিয়ালদা লোকাল ও শেষ ট্রেনের ফাঁকা কামরায় অচেনা এক ছায়া",
+    "views": 2,
+    "age": "6d ago"
    }
   ],
-  "from_cat": "karna"
+  "from_cat": "local"
  },
  "horror_bn_shohor": {
   "date": "2026-11-20",
@@ -772,147 +730,147 @@
   "from": "youtube"
  },
  "horror_bn_gram": {
-  "date": "2026-11-17",
+  "date": "2026-11-21",
   "topics": [
-   "A lonely night-guard trapped inside an abandoned rural brick kiln as a sudden summer storm brings out a shapeshifting entity seeking a lost child.",
-   "Two weary truck drivers stranded near a deserted canal bridge in Bengal when their vehicle breaks down right at midnight beside a shrouded burial shroud.",
-   "A nervous village postman delivering a mysterious, heavy letter to a crumbling colonial mansion at the edge of a dark, eerie bamboo grove.",
-   "A local street-vendor frying snacks late during heavy monsoon rains in a secluded marketplace as a strange, silent customer asks for a plate with blood-stained ",
-   "A group of tired construction laborers taking shelter inside a half-built multi-story hospital wing where the walls whisper names of past workers.",
-   "A young student walking back home through a desolate paddy field shortcut during early evening fog while hearing an ominous bell following his footsteps."
+   "A stranded midnight traveler in a foggy village market where ghostly vendors sell rotten fish under dim lanterns.",
+   "A terrified bus conductor taking the final night route through a dark forest road guarded by a vengeful roadside spirit.",
+   "A greedy street-food vendor who accidentally sets up his wooden stall inside an active cremation ground at midnight.",
+   "Two grave-diggers searching for a stolen burial shroud who unearth a restless entity refusing to let them leave.",
+   "A young groom traveling to a distant village on a chilly winter night whose hired rickshaw puller has no shadow.",
+   "A night-shift watchman trapped inside an abandoned rural hospital as heavy rain locks all the exit doors."
   ],
   "hashtags": [
-   "#VuterGolpo",
-   "#BanglaBhuterGolpo",
-   "#BengaliHorrorStory",
-   "#BhuterCartoon",
-   "#BanglaGhostStory",
-   "#BhoutikGolpo",
-   "#HorrorStories",
-   "#VutherGolpo",
-   "#BanglaAnimation",
-   "#GhostStory"
+   "#bhutergolpo",
+   "#banglahorrorstory",
+   "#vutergalpo",
+   "#bengalicartoonhorror",
+   "#bhoutikgolpo",
+   "#grambanglarbhutergolpo",
+   "#bhootkahani",
+   "#horrorstory",
+   "#bengalighost",
+   "#sonarayna"
   ],
   "keywords": [
-   "vuter golpo",
+   "bhuter golpo",
+   "bangla bhuter cartoon",
    "bengali horror story",
-   "bangla bhuter golpo",
-   "bhuter cartoon",
-   "vuter katun",
-   "bhoot ki kahani",
-   "bengali horror cartoon",
-   "true horror story"
+   "vuter golpo new",
+   "gram banglar bhuter golpo",
+   "bhoutik golpo",
+   "horror audio story bengali",
+   "bangla vuter cartoon"
   ],
   "style": {
    "tags": [],
    "hashtags": [],
-   "title_style": "Titles are formatted as compound structures using vertical pipes ('|') to combine the main hook in Bengali with English search keywords like 'Bhuter Cartoon', 'Bengali Horror Story', and alternative spellings. They range from 6 to 11 words, leveraging strong horror tropes such as blood, shrouds, spirits, and cursed nights to instantly pull clicks.",
-   "thumb_style": "Thumbnails feature dark, atmospheric nighttime environments lit by dramatic sources like lanterns, lightning flashes, or glowing red eyes. The composition places terrified human characters in the foreground or center confronting grotesque, red-eyed spirits, ghouls, or corpses. Large stylized Bengali text appears at the top left or center, rendered in stark white with blood-red accents to maximize readability against the gloomy background.",
-   "thumb_text_style": "Contains 2 to 4 words of bold, stylized Bengali title text embedded directly onto the graphic, often highlighted in contrasting red."
+   "title_style": "The titles combine catchy Bengali hooks like 'Bhuter Cartoon' and specific spooky locations separated by vertical bars '|' for maximum search discoverability. They keep the length moderate while using evocative keywords to promise a thrilling narrative experience.",
+   "thumb_style": "The thumbnails feature dramatic, dark night settings illuminated by eerie light sources like lanterns or campfires against a backdrop of stormy blue tones. They showcase terrified villagers and grotesque, sharp-toothed ghosts with glowing eyes in action-packed compositions, topped with bold white and red Bengali typography.",
+   "thumb_text_style": "2 to 4 words of bold, stylized Bengali text placed at the top center in contrasting white, red, or yellow hues."
   },
   "real": [
    {
-    "id": "iZhgpFbKT4k",
-    "title": "রক্ত কাফনের তালাশ | Bhuter Cartoon | Vuter Golpo | Bengali Horror Story | Bangla Vuter Cartoon",
-    "views": 765797,
-    "age": "7d ago"
+    "id": "Hqb6svnRJzg",
+    "title": "শ্মশানে ডাইনির চাউমিনের দোকান | Bhuter cartoon | DAINIR CHOWMIN | Notun Bangla Golpo Horror Stories",
+    "views": 1910372,
+    "age": "5d ago"
    },
    {
     "id": "3SD2U5i5gdE",
     "title": "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun",
-    "views": 713413,
-    "age": "4d ago"
-   },
-   {
-    "id": "Nt1YktPGSQk",
-    "title": "নর পিশাচ | হাড় কাঁপানো ভয়ের গল্প | Bengali Horror Stories | Vuther Golpo | Bhoot Ghar",
-    "views": 695135,
-    "age": "6d ago"
-   },
-   {
-    "id": "QGbj5dU0TcE",
-    "title": "শীতের রাতে কলস নিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 415234,
-    "age": "5d ago"
-   },
-   {
-    "id": "GUOLJNyz9-0",
-    "title": "মরা বিলের অভিশপ্ত আত্মা! Bhuter Cartoon | True Horror Story | Ghost | Bangla Bhuter Golpo",
-    "views": 345475,
+    "views": 927551,
     "age": "7d ago"
-   },
-   {
-    "id": "rvpYEPILwAs",
-    "title": "রাত ১ টার শেষ যাত্রা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 243891,
-    "age": "3d ago"
-   },
-   {
-    "id": "lSco9yyRY9g",
-    "title": "বৃষ্টি ভেজা রাতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 229678,
-    "age": "6d ago"
    },
    {
     "id": "DqBTbaUXhX4",
     "title": "দরগাঘাটের পরিত্যক্ত হাসপাতাল | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 222726,
-    "age": "1d ago"
-   },
-   {
-    "id": "h0O96e8zfho",
-    "title": "Khejur Baganer Sei Rat | Bhuter Golpo | Bengali Horror Story | Gram Banglar Bhuter Golpo",
-    "views": 143602,
-    "age": "6d ago"
-   },
-   {
-    "id": "Kz6J8wYJBrk",
-    "title": "ঝড়ের রাতে তেলেভাজার দোকানে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 136013,
+    "views": 365089,
     "age": "5d ago"
    },
    {
-    "id": "rqGPiG-ZjBE",
-    "title": "বালুঘাটের শেষ বাস | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 117773,
-    "age": "2d ago"
+    "id": "N1jYSYaATgg",
+    "title": "কাফনের তালাশ ৩ | Kafoner Talash EP 03 | Bhuter Cartoon | Bangla Vuter Cartoon | Vuter Golpo",
+    "views": 323603,
+    "age": "3d ago"
+   },
+   {
+    "id": "rvpYEPILwAs",
+    "title": "রাত ১ টার শেষ যাত্রা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 283368,
+    "age": "7d ago"
+   },
+   {
+    "id": "ZvxbpyEypu0",
+    "title": "Raat 12  Tar Busta | Bhuter Golpo | Bengali Horror Story | Gram Banglar Bhuter Golpo",
+    "views": 278594,
+    "age": "3d ago"
    },
    {
     "id": "qTg4_8MCYnc",
     "title": "বৃষ্টি ভেজা রাতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 115805,
-    "age": "1d ago"
+    "views": 277244,
+    "age": "5d ago"
    },
    {
-    "id": "vGlDf5KKizs",
-    "title": "নিমডাঙ্গা গ্রামের অজানা ভয় -  Bhuter golpo | Bengali Horror Animation | Kalbela Animation",
-    "views": 109812,
-    "age": "4d ago"
+    "id": "Vzj2VFKHJ4c",
+    "title": "ঝড়ের রাতে বটতলার মোড়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 204134,
+    "age": "2d ago"
    },
    {
-    "id": "_OAH_fE6IXw",
-    "title": "কঠারতলীর ঝড়ের রাত | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 101991,
+    "id": "rqGPiG-ZjBE",
+    "title": "বালুঘাটের শেষ বাস | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 149180,
     "age": "6d ago"
    },
    {
-    "id": "cVlXiMPetYU",
-    "title": "বর্ষার রাতের ভূতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
-    "views": 92866,
+    "id": "E3LlCogOKuI",
+    "title": "Call of the Night Spirit | Nishir Dak Bangla Cartoon | Ghost Stories | Bangla Horror Cartoon | Gr...",
+    "views": 145943,
     "age": "4d ago"
+   },
+   {
+    "id": "W533lI4hOMs",
+    "title": "Nolitolir Bhuture Machher Haat - Bhuter Cartoon | Bristir Rater BashBaganer Macher Haat Bhuter Golpo",
+    "views": 99213,
+    "age": "7d ago"
+   },
+   {
+    "id": "39tVeIo0jRA",
+    "title": "কবর - প্রথম পর্ব | Bengali Horror Story | Bangla Bhuter Cartoon | Gram Banglar Bhuter Golpo",
+    "views": 93334,
+    "age": "7d ago"
+   },
+   {
+    "id": "GaKEEAbLvHI",
+    "title": "খগেন তাঁতির বাড়িতে (ভয়ের গল্প) Gram Banglar Bhuter Golpo | Bengali Horror Audio Story",
+    "views": 78660,
+    "age": "3d ago"
+   },
+   {
+    "id": "r0uKy6bZ-MU",
+    "title": "শীতের রাতে পাত্রী দেখতে গিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna",
+    "views": 63996,
+    "age": "8h ago"
+   },
+   {
+    "id": "pgjyKnesZmc",
+    "title": "কাঁটাবেড়িয়া শ্মশানে মাঝরাত | ভয়ানক পল্লী গ্রামের ভূতের গল্প | পারমিতা ঘোষ",
+    "views": 57625,
+    "age": "2d ago"
    }
   ],
   "youtube_top": [
-   "রক্ত কাফনের তালাশ | Bhuter Cartoon | Vuter Golpo | Bengali Horror Story | Bangla Vuter Cartoon (765,797)",
-   "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun (713,413)",
-   "নর পিশাচ | হাড় কাঁপানো ভয়ের গল্প | Bengali Horror Stories | Vuther Golpo | Bhoot Ghar (695,135)",
-   "শীতের রাতে কলস নিয়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (415,234)",
-   "মরা বিলের অভিশপ্ত আত্মা! Bhuter Cartoon | True Horror Story | Ghost | Bangla Bhuter Golpo (345,475)",
-   "রাত ১ টার শেষ যাত্রা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (243,891)",
-   "বৃষ্টি ভেজা রাতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (229,678)",
-   "দরগাঘাটের পরিত্যক্ত হাসপাতাল | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (222,726)",
-   "Khejur Baganer Sei Rat | Bhuter Golpo | Bengali Horror Story | Gram Banglar Bhuter Golpo (143,602)",
-   "ঝড়ের রাতে তেলেভাজার দোকানে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (136,013)"
+   "শ্মশানে ডাইনির চাউমিনের দোকান | Bhuter cartoon | DAINIR CHOWMIN | Notun Bangla Golpo Horror Stories (1,910,372)",
+   "কাফনতালাশ - Kafontalash | Bhuter Cartoon | Bengali Horror Cartoon | Bhoutik Golpo | Vuter Katun (927,551)",
+   "দরগাঘাটের পরিত্যক্ত হাসপাতাল | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (365,089)",
+   "কাফনের তালাশ ৩ | Kafoner Talash EP 03 | Bhuter Cartoon | Bangla Vuter Cartoon | Vuter Golpo (323,603)",
+   "রাত ১ টার শেষ যাত্রা | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (283,368)",
+   "Raat 12  Tar Busta | Bhuter Golpo | Bengali Horror Story | Gram Banglar Bhuter Golpo (278,594)",
+   "বৃষ্টি ভেজা রাতের গল্প | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (277,244)",
+   "ঝড়ের রাতে বটতলার মোড়ে | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (204,134)",
+   "বালুঘাটের শেষ বাস | Bhuter Cartoon | Bengali Horror Cartoon | Vuter Golpo | Sonar Ayna (149,180)",
+   "Call of the Night Spirit | Nishir Dak Bangla Cartoon | Ghost Stories | Bangla Horror Cartoon | Gr... (145,943)"
   ],
   "from": "youtube"
  },
@@ -1339,6 +1297,107 @@
    "মর্গের ১৩ নম্বর ঘর | হাসপাতালের ভয়ানক ভূতুরে গল্পঃ | bengali golpo | Golper FM #story #horror (19)",
    "The Mysterious Theft from the Mymensingh Medical College Morgue (19)",
    "পরিত্যক্ত হাসপাতালের ভয়ংকর রহস্য 😱 | রাত ৩টার সেই ঘটনা | বাংলা ভৌতিক গল্প | Horror FM (11)"
+  ],
+  "from": "youtube"
+ },
+ "horror_bn_local": {
+  "date": "2026-11-21",
+  "topics": [
+   "A night-shift railway signalman at an abandoned Purulia junction who notices a phantom express train scheduled at 3:15 AM that never appears in any official rai",
+   "Three college friends returning home via the Sealdah midnight local train who realize their fellow passengers have no reflections in the train window glass.",
+   "A lone ticket collector working the final train to Diamond Harbour who checks a ticket for a passenger who boarded from a station that was demolished twenty yea",
+   "A tired commuter stranded on a deserted platform during a heavy monsoon storm who hears station announcement loudspeakers broadcasting his own future dying thou",
+   "A young locomotive driver navigating a cargo engine through a remote forest pass who hits a sudden blockade, only to discover the tracks are covered in old-fash",
+   "A late-night railway track maintenance worker inspecting iron rails near a notorious tunnel who finds discarded mobile phones vibrating with unanswered calls fr"
+  ],
+  "hashtags": [
+   "#BanglaBhooterGolpo",
+   "#HindiHorrorStory",
+   "#SundaySuspense",
+   "#RailwayHorror",
+   "#GhostTrain",
+   "#BhuterGolpo",
+   "#BanglaAudioStory",
+   "#ScaryStation",
+   "#BhootKiKahani",
+   "#HorrorThriller"
+  ],
+  "keywords": [
+   "bangla bhuter golpo",
+   "bhoot ki kahani",
+   "bengali horror audio story",
+   "railway station horror story",
+   "train ghost story hindi",
+   "sunday suspense style horror",
+   "midnight train bhoot",
+   "bhuter golpo new"
+  ],
+  "style": {
+   "tags": [],
+   "hashtags": [],
+   "title_style": "Titles combine English and local terms with dramatic hooks, mystery-driven questions, and urban legend references to instantly capture viewer curiosity. They feature descriptive phrases about eerie locations, eerie timings like 2 AM or 3 AM, and descriptive keywords like 'horror', 'mysterious', and 'thriller'. Vertical separators ('|') are frequently used to structure distinct descriptive segments and search tags within a single title.",
+   "thumb_style": "Thumbnails utilize dark, moody night palettes dominated by deep blues, blacks, and glowing moonlight to set an ominous horror atmosphere. They prominently feature terrified human characters with wide-eyed expressions alongside ghastly, pale spectral figures lurking in windows or distant mist. The compositions draw focus to a central confrontation or eerie setting like a railway platform, complemented by large, bold text overlays in striking red and white.",
+   "thumb_text_style": "Short text overlays consisting of 2 to 4 words in bold white or red typography that highlight shocking narrative elements."
+  },
+  "real": [
+   {
+    "id": "ceFmVzlAHnQ",
+    "title": "अंतिम यात्रा | Train Ki Antim Yatra | horror story | village cartoon | horror kahaniya",
+    "views": 92783,
+    "age": "5d ago"
+   },
+   {
+    "id": "6IKLztt6gow",
+    "title": "She Got Off at a Station That Isn't on Any Map | Kisaragi Station | Japanese Urban Legend",
+    "views": 27870,
+    "age": "6d ago"
+   },
+   {
+    "id": "_PYpkMOONM4",
+    "title": "Midnight Haunted Railway Station 😮 fir | 6 Brave Sisters Exposed Robbers Pretending to be Ghosts!",
+    "views": 4999,
+    "age": "4d ago"
+   },
+   {
+    "id": "ooXf2sgvgJ4",
+    "title": "What is the real secret of Begunkodar Railway Station?😱 Begunkodar Railway Station #Shorts #horrorshorts #banglahorror",
+    "views": 1755,
+    "age": "4d ago"
+   },
+   {
+    "id": "N0qAIEiHWJk",
+    "title": "The Last Train Passenger 🚂 | The Mysterious Train at 2am | Bengali Horror Thriller Story | Bangla Audio Story",
+    "views": 193,
+    "age": "6d ago"
+   },
+   {
+    "id": "dSntedT2TgM",
+    "title": "শেষ লোকাল ট্রেন | বাংলা ভূতের গল্প | তৃতীয় ডাক",
+    "views": 109,
+    "age": "1d ago"
+   },
+   {
+    "id": "gxbebkQs3Hs",
+    "title": "The Last Train of the Dead | That Terrifying Train at 3 AM | Bengali Horror Story | BhootFm by RJ Alamgir",
+    "views": 15,
+    "age": "2d ago"
+   },
+   {
+    "id": "vazXqAXp3vY",
+    "title": "Bangla Audio Horror Story | রাত ১১টার শিয়ালদা লোকাল ও শেষ ট্রেনের ফাঁকা কামরায় অচেনা এক ছায়া",
+    "views": 2,
+    "age": "6d ago"
+   }
+  ],
+  "youtube_top": [
+   "अंतिम यात्रा | Train Ki Antim Yatra | horror story | village cartoon | horror kahaniya (92,783)",
+   "She Got Off at a Station That Isn't on Any Map | Kisaragi Station | Japanese Urban Legend (27,870)",
+   "Midnight Haunted Railway Station 😮 fir | 6 Brave Sisters Exposed Robbers Pretending to be Ghosts! (4,999)",
+   "What is the real secret of Begunkodar Railway Station?😱 Begunkodar Railway Station #Shorts #horrorshorts #banglahorror (1,755)",
+   "The Last Train Passenger 🚂 | The Mysterious Train at 2am | Bengali Horror Thriller Story | Bangla Audio Story (193)",
+   "শেষ লোকাল ট্রেন | বাংলা ভূতের গল্প | তৃতীয় ডাক (109)",
+   "The Last Train of the Dead | That Terrifying Train at 3 AM | Bengali Horror Story | BhootFm by RJ Alamgir (15)",
+   "Bangla Audio Horror Story | রাত ১১টার শিয়ালদা লোকাল ও শেষ ট্রেনের ফাঁকা কামরায় অচেনা এক ছায়া (2)"
   ],
   "from": "youtube"
  }
