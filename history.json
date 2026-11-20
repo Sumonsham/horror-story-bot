@@ -4759,19 +4759,19 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-20T06:33+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 1,
+   "at": "2026-11-20T13:33+00:00",
+   "thumb": true
   }
  },
  {
   "date": "2026-11-19T14:28+00:00",
   "lang": "bn",
   "slot": "2026-11-19@20",
-  "pending_comments": [
-   {
-    "id": "1197194116588496",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2348884392631431",
-    "after": 1795170900.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A night-shift mortuary assistant in Kolkata discovers a body with fresh breathing sounds locked in drawer number 9.",
@@ -4876,7 +4876,17 @@
   },
   "hook_style": "sound",
   "tagline": "সেই ড্রয়ার থেকে কে ডাকছে?",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-19-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-19-20.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 2,
+   "length_s": 1052,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-20T13:33+00:00"
+  }
  },
  {
   "date": "2026-11-19T14:28+00:00",
@@ -4885,17 +4895,22 @@
   "from_video": "kJormh3zXYY",
   "title": "মেলা থেকে কেনা সেই রক্তমাখা নূপুর 🩸 😱 #shorts",
   "youtube": "lzBZirILo6E",
-  "facebook": null
+  "facebook": null,
+  "stats": {
+   "likes": 0,
+   "comments": 0,
+   "views": 0,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-20T13:33+00:00"
+  }
  },
  {
   "date": "2026-11-20T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-20@14",
   "pending_comments": [
-   {
-    "id": "4427704137484438",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1140678745515594"
-   },
    {
     "id": "1191712473520232",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1140678745515594",
@@ -5019,5 +5034,151 @@
   "hook_style": "voice",
   "district": "n24",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-20-14.mp4"
+ },
+ {
+  "date": "2026-11-20T14:26+00:00",
+  "lang": "bn",
+  "slot": "2026-11-20@20",
+  "pending_comments": [
+   {
+    "id": "1838230450656891",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1183392477376016"
+   },
+   {
+    "id": "1669473871547454",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1183392477376016",
+    "after": 1795257300.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": null,
+  "len_arm": null,
+  "listener_score": 6.0,
+  "fresh": {
+   "opening": "a sound heard in the dark before anything is explained",
+   "telling": "two friends taking turns to tell what each saw",
+   "ghost": "a folk spirit of Bengal true to its lore (nishi, shakchunni, brahmadaitya, petni, mechho bhoot, gechho bhoot, ...)",
+   "twist": "the narrator himself is part of it",
+   "setting": "a monsoon village",
+   "fear": "a journey that cannot be turned back",
+   "details": [
+    "a damp palm-leaf rain hood bearing a faint watermark of a long-closed local jute mill",
+    "the wet, rhythmic thud of a split bamboo fishing trap dragging itself across a muddy court",
+    "the acrid, heavy smell of wet paddy straw mixed with burning camphor from a delayed cremat",
+    "the strict village taboo against opening a freshly dug tube-well after the third heavy dow",
+    "the unusual local practice of painting the underside of every wooden bullock cart wheel wi"
+   ]
+  },
+  "crossover": null,
+  "opening": null,
+  "category": "karna",
+  "question_post": null,
+  "title_b": "শুকনো পুকুরের তলা থেকে কে ডাকছে মাঝরাতে? 🕯️ | পর্ব 2",
+  "theme": "a new Karna Pishachini case",
+  "format": "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters",
+  "part": 2,
+  "continues": false,
+  "series_id": "2026-11-10T12:31+00:00",
+  "title": "কর্ণপিশাচিনী #3: শুকনো পুকুরের সেই মৃত কণ্ঠ 🕯️ | পর্ব ২",
+  "festival": null,
+  "summary": "অনির্বাণের অভিশপ্ত জমিদার বাড়িতে অন্ধকারের মেঘ ঘনীভূত। শুকনো পুকুরের কাদা থেকে ভেসে আসা সেই চিৎকার কিসের ইঙ্গিত? নীলকণ্ঠ মামা কি পারবেন কর্ণপিশাচিনীর এই নির্মম মূল্য চুকিয়ে আসল খুনিকে ধরে দিতে? দেখুন শেষ পর্বে!",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "karna",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": "",
+  "karna_origin": true,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook": "1183392477376016",
+  "youtube": "CNaNovSoRqQ",
+  "fb_reel": "1838230450656891",
+  "fb_story": "1671690927701574",
+  "fb_reel2": "1669473871547454",
+  "yt_short": "3a_LFdypwXk",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 972,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     10,
+     "শুরু"
+    ],
+    [
+     21,
+     "শুকনো পুকুরের মৃত কণ্ঠ"
+    ],
+    [
+     106,
+     "পিশাচিনীর গ্রাস"
+    ],
+    [
+     175,
+     "দরজার বাইরে অচেনা পদশব্দ"
+    ],
+    [
+     232,
+     "সুব্রতর আগমন"
+    ],
+    [
+     272,
+     "পাঁকের গন্ধ ও গোপন দলিল"
+    ],
+    [
+     326,
+     "নীল প্রদীপের সত্য"
+    ],
+    [
+     376,
+     "জালিয়াতির প্রমান"
+    ],
+    [
+     422,
+     "পাপের প্রতিধ্বনি"
+    ],
+    [
+     498,
+     "পিশাচিনীর বিচার"
+    ],
+    [
+     555,
+     "উইলের গোপন সন্ধান"
+    ],
+    [
+     613,
+     "সত্যের উন্মোচন"
+    ],
+    [
+     655,
+     "অলৌকিক শাস্তি"
+    ],
+    [
+     709,
+     "ভোরের আগমন ও পাপাচারের অবসান"
+    ],
+    [
+     776,
+     "স্মৃতির চরম মূল্য"
+    ],
+    [
+     828,
+     "নদিয়ার আস্তানায় ফেরা"
+    ],
+    [
+     870,
+     "অন্ধকারের নতুন পূর্বাভাস"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "tagline": "পাঁকের নিচে লুকিয়ে থাকা ৫ বছরের পুরোনো পাপ!",
+  "district": "nadia",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-20-20.mp4"
  }
 ]
