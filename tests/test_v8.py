@@ -229,3 +229,151 @@ def test_main_v8_glue_runs_offline(monkeypatch):
     assert "youtu.be" not in notes and "কমেন্ট" not in notes and "কাল্পনিক" in notes
     assert main.paused_now() in (True, False)
     assert main.dest_on("youtube") is True
+
+
+def test_slash_menu_is_valid_and_every_item_is_understood():
+    import re
+    import control
+    assert control.TG_UPDATES == __import__("extras").TG_UPDATES      # every reader asks Telegram the same
+    for c, d in control.MENU:
+        assert re.fullmatch(r"[a-z0-9_]{1,32}", c) and 3 <= len(d) <= 256
+        assert control.parse("/" + c) is not None, c                   # tapping it always gets an answer
+
+
+# ---------------------------------------------------------------- character pipeline
+def _fake_person(prompt, ref, seed, w, h):
+    """a 'photo' on a plain grey studio background (stands in for the free Cloudflare picture)"""
+    import io
+    from PIL import Image, ImageDraw
+    im = Image.new("RGB", (w, h), (178, 178, 178))
+    d = ImageDraw.Draw(im)
+    d.rectangle([w * 0.35, h * 0.3, w * 0.65, h * 0.95], fill=(90, 40, 40))
+    d.ellipse([w * 0.38, h * 0.1, w * 0.62, h * 0.3], fill=(200, 150, 120))
+    if "speaking" in prompt or "open" in prompt:
+        d.ellipse([w * 0.47, h * 0.23, w * 0.53, h * 0.27], fill=(30, 10, 10))
+    b = io.BytesIO()
+    im.save(b, "PNG")
+    return b.getvalue()
+
+
+def test_character_library_makes_once_and_reuses(tmp_path, monkeypatch):
+    import characters
+    monkeypatch.setattr(characters, "face_box", lambda img: [int(img.width * 0.38), int(img.height * 0.1),
+                                                            int(img.width * 0.24), int(img.height * 0.2)])
+    lib = characters.Library(str(tmp_path), str(tmp_path / "cache"), image_fn=_fake_person)
+    c = {"name": "Taranath", "gender": "male", "age": "old", "look": "old tantrik"}
+    rec = lib.ensure(c, "taranath", seed=3)
+    assert rec["mode"] == "photo" and {"reference", "neutral", "talking", "fear", "shock"} <= set(rec["expr"])
+    made = lib.stats["images_made"]
+    lib2 = characters.Library(str(tmp_path), str(tmp_path / "cache"), image_fn=_fake_person)
+    lib2.ensure(c, "taranath", seed=3)
+    assert lib2.stats["images_made"] == 0 and lib2.stats["cache_hits"] == 1      # never made twice
+    assert made == 5
+    sp = lib2.sprites(lib2.get("taranath"))
+    assert sp["neutral"].mode == "RGBA" and sp["neutral"].getpixel((2, 2))[3] == 0    # transparent background
+
+
+def test_character_falls_back_to_silhouette_without_pictures(tmp_path):
+    import characters
+    lib = characters.Library(str(tmp_path), str(tmp_path / "c"), image_fn=None)
+    rec = lib.ensure({"name": "Chhaya", "gender": "female", "age": "old", "kind": "ghost"}, "chhaya-x")
+    assert rec["mode"] == "silhouette" and rec["rig"]["ghost"] is True
+    p, key = lib.background("old rajbari courtyard", "village", "creepy")
+    assert os.path.exists(p) and key.endswith("procedural")
+
+
+def test_manifest_and_compositor_render(tmp_path, monkeypatch):
+    import subprocess
+    import characters
+    import compositor
+    import manifest
+    monkeypatch.setattr(characters, "face_box", lambda img: [int(img.width * 0.38), int(img.height * 0.1),
+                                                            int(img.width * 0.24), int(img.height * 0.2)])
+    lib = characters.Library(str(tmp_path), str(tmp_path / "cache"), image_fn=_fake_person)
+    recs = {"rana": lib.ensure({"name": "Rana", "gender": "male"}, "rana-1", seed=1),
+            "chhaya": characters.Library(str(tmp_path / "b"), str(tmp_path / "c2")).ensure(
+                {"name": "Chhaya", "kind": "ghost", "gender": "female"}, "chhaya-1")}
+    bg = lib.background("rainy station", "night", "scare")
+    wav = tmp_path / "a.wav"
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=220:duration=2", "-ac", "2",
+                    str(wav)], check=True)
+    scene = {"characters": ["Rana", "Chhaya"], "place": "rainy station", "mood": "scare",
+             "lines": [{"speaker": "Rana", "text": "কে ওখানে? বৃষ্টি", "emotion": "scared"}]}
+    m = manifest.build_scene(0, scene, [(0.0, 2.0, "Rana", "normal", "কে ওখানে?")], 2.0, recs, bg)
+    assert {c["id"] for c in m["characters"]} == {"rana-1", "chhaya-1"} and "rain" in m["effects"]
+    assert m["beats"][0]["speaker"] == "rana-1"
+    out = tmp_path / "c.mp4"
+    rep = compositor.render_scene(m, {r["id"]: r for r in recs.values()}, lib, str(wav), str(out), quality="FAST")
+    assert out.stat().st_size > 1000 and rep["characters"]["rana-1"]["lip_sync"] is True
+    assert rep["characters"]["chhaya-1"]["mode"] == "cartoon"          # (no photo -> a drawn face, not a black shape)
+    assert rep["lip_frames"] > 0
+
+
+def test_compositor_silhouette_when_asked(tmp_path, monkeypatch):
+    import subprocess
+    import characters
+    import compositor
+    import manifest
+    monkeypatch.setenv("ANIM_FALLBACK", "silhouette")
+    lib = characters.Library(str(tmp_path), str(tmp_path / "c"))
+    recs = {"chhaya": lib.ensure({"name": "Chhaya", "kind": "ghost", "gender": "female"}, "chhaya-1")}
+    bg = lib.background("pond", "night", "creepy")
+    wav = tmp_path / "a.wav"
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "sine=duration=1", "-ac", "2", str(wav)], check=True)
+    m = manifest.build_scene(0, {"characters": ["Chhaya"]}, [(0.0, 1.0, None, "", "")], 1.0, recs, bg)
+    rep = compositor.render_scene(m, {r["id"]: r for r in recs.values()}, lib, str(wav), str(tmp_path / "o.mp4"), quality="FAST")
+    assert rep["characters"]["chhaya-1"]["mode"] == "silhouette" and rep["characters"]["chhaya-1"]["lip_sync"] is False
+
+
+# ---------------------------------------------------------------- cartoon rig + environment + renderer
+def test_cartoon_rig_parts_and_feet():
+    import numpy as np
+    import cartoon_rig as R
+    import cinematic_camera as cc
+    cam = cc.Camera(640, 360)
+    cam.set(960, 700, 1.5)
+    img = np.zeros((360, 640, 3), np.uint8)
+    ch = R.Character("a", dict(R.DESIGNS["old_man"]))
+    for pose in ("stand", "sit", "sit_talk", "stand_fear"):
+        st = {"x": 960, "ground_y": 935, "facing": 1.0, "head_yaw": 0.4, "pose": dict(R.POSES[pose]),
+              "mouth": (0.8, "A"), "blink": 0.0, "gaze": (0.5, 0), "brows": "fear"}
+        j = ch.draw(R.Painter(img, cam), st)
+        assert abs(max(j["ft_n"][1], j["ft_f"][1]) + 4 * j["k"] - 935) < 0.5        # the feet are on the ground
+    for ph in np.linspace(0, 6.28, 9):
+        st = {"x": 900, "ground_y": 935, "facing": -1.0, "pose": R.walk_pose(ph), "mouth": (0, "rest")}
+        j = ch.draw(R.Painter(img, cam), st)
+        assert abs(max(j["ft_n"][1], j["ft_f"][1]) + 4 * j["k"] - 935) < 0.5
+    assert img.mean() > 1                                    # something was drawn
+    sp = R.sprite(ch, {"facing": 1, "pose": dict(R.POSES["stand"]), "mouth": (0, "rest")}, 300)
+    assert sp.shape[2] == 4 and sp[..., 3].max() == 255 and sp[2, 2, 3] == 0
+
+
+def test_lip_sync_follows_the_voice(tmp_path):
+    import subprocess
+    import lip_sync
+    wav = tmp_path / "v.wav"
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=500:duration=1", "-f", "lavfi", "-i",
+                    "anullsrc=r=44100:cl=mono", "-filter_complex", "[1]atrim=0:1[s];[0][s]concat=n=2:v=0:a=1", str(wav)], check=True)
+    v = lip_sync.visemes(str(wav), 24)
+    first, second = [o for o, _ in v[:20]], [o for o, _ in v[28:46]]
+    assert max(first) > 0.5 and max(second) < 0.1                  # open with sound, closed in silence
+
+
+def test_renderer_frame_and_plan(tmp_path):
+    import numpy as np
+    import animation_renderer as AR
+    import cinematic_camera as cc
+    import scene_planner
+    clips = {}
+    import subprocess
+    for k, d in (("c1", 2.0), ("c2", 2.0), ("c3", 1.0), ("c4", 1.0), ("c5", 1.0)):
+        p = tmp_path / f"{k}.wav"
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", f"sine=duration={d}", str(p)], check=True)
+        clips[k] = (str(p), d)
+    plan = scene_planner.pond_test_plan(clips)
+    assert plan["duration"] >= 60 and {s["type"] for s in plan["camera"]} >= {"wide", "ots", "close_up", "reveal", "follow"}
+    sc = AR.Scene(plan, clips, 12)
+    cam = cc.Camera(320, 180)
+    a = sc.render(1.0, 320, 180, cam)
+    b = sc.render(1.5, 320, 180, cam)
+    assert a.shape == (180, 320, 3) and np.abs(a.astype(int) - b.astype(int)).mean() > 0.2   # the world moves
