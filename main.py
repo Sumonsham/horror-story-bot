@@ -2105,6 +2105,7 @@ def team_report(story, slot_hour):
         f"🔁 পুনরাবৃত্তি-পাহারাদার: {tm.get('repeat') or 0}টা লাইন বাদ / ছোট",
         f"🏁 শেষ-পাহারাদার: " + (f"শেষের পরে {tm['end']}টা বাড়তি লাইন কেটেছে" if tm.get("end") else "শেষের পরে কিছু ছিল না"),
         f"🎧 শ্রোতা-বিচারক: {tm.get('judge') or '-'} / 10",
+    ] + list(STATE.get("engine_rows") or []) + [
         f"✅ সত্যতা-পাহারাদার: " + (f"নামে / লেখায় {tm['honest']}টা ভুল দাবি সরিয়েছে" if tm.get("honest") else "সব ঠিক"),
     ]
     title = re.sub(r"\s*\|.*$", "", str(story.get("title") or ""))
@@ -5751,7 +5752,32 @@ def scene_clip_simple(segments, audio, out, idx, mood):
     return dur
 
 
-def scene_clip(segments, audio, out, idx, mood, talk=None):
+def engine_scene_clip(eng, audio, out, idx):
+    """V1.1 ANIM_MODE=cartoon: the three assistants (place / actions / match) + the cartoon animation engine;
+    the clip is re-encoded exactly like the classic clips (same codec, fps, audio) so all clips join as before"""
+    import story_engine
+    raw = os.path.join(WORK, f"engine_{idx:02d}.mp4")
+    llm = (lambda p_: _gem_call(p_, json_mode=True, temp=0.2, max_tokens=8000, rounds=1)) if env("ENGINE_GEMINI") != "0" else None
+    story_engine.engine_clip(eng["scene"], eng["beats"], audio, raw, eng.get("chars") or [], W=W, H=H, fps=FPS,
+                             llm=llm, log=log, idx=idx)
+    dur = duration(audio)
+    run(["ffmpeg", "-y", "-i", raw, "-i", audio, "-map", "0:v", "-map", "1:a", "-t", f"{dur:.2f}",
+         "-vf", "format=yuv420p", "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-maxrate", "3500k",
+         "-bufsize", "7000k", "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-ac", "2", out])
+    return dur
+
+
+def scene_clip(segments, audio, out, idx, mood, talk=None, comp=None):
+    if comp and comp.get("engine"):
+        try:
+            return engine_scene_clip(comp["engine"], audio, out, idx)
+        except Exception as e:
+            log(f"  cartoon scene {idx} failed ({str(e)[:150]}) - this scene is made the classic way")
+    if comp and comp.get("manifest"):
+        try:
+            return character_clip(comp, audio, out)
+        except Exception as e:
+            log(f"  character scene {idx} failed ({str(e)[:150]}) - classic motion on its background")
     if env("SIMPLE_MOTION") == "1" or (MOCK and env("TEST_ANIM") != "1"):
         return scene_clip_simple(segments, audio, out, idx, mood)
     try:
@@ -5854,6 +5880,186 @@ def _clip_job(job):
     return scene_clip(*job)
 
 
+# ===================== V8: AUTOMATIC CHARACTERS + FAST CINEMATIC COMPOSITOR (ANIM_MODE=character) ==========
+MANIFESTS = []
+CHAR_CACHE = os.path.join(HERE, "char_cache")       # pictures of the library, downloaded once per run
+CLIP_CACHE = os.path.join(HERE, "clip_cache")       # finished character scenes (GitHub cache: resume after a stop)
+
+
+def _char_image(prompt, ref_path, seed, w, h):
+    """the library's picture maker = the bot's own free Cloudflare call (never a paid one - zerocost.py)"""
+    if CF_QUOTA_OUT:
+        raise RuntimeError("free picture limit used up (4006)")
+    ref = None
+    if ref_path and os.path.exists(ref_path):
+        ref = os.path.join(CHAR_CACHE, "_ref.jpg")         # the reference on its grey studio background, as JPEG
+        im = Image.open(ref_path).convert("RGBA")
+        flat = Image.new("RGB", im.size, (178, 178, 178))
+        flat.paste(im, mask=im.split()[3])
+        flat.save(ref, quality=92)
+    return cf_request(CF_MODEL, prompt, ref, w=w, h=h, seed=seed)
+
+
+def _char_upload(path, name):
+    if MOCK or DRY_RUN:
+        return ""
+    return extras.gh_release_upload(path, name, tag="characters", ctype="image/png" if name.endswith(".png") else
+                                    "image/jpeg", title="Character and background library")
+
+
+def prepare_character_mode(story, scenes, cast, seed):
+    """characters (made once, reused for ever) + one EMPTY background per place (reused too)"""
+    import characters
+    os.makedirs(CHAR_CACHE, exist_ok=True)
+    try:                                              # finished scenes older than 2 days are not needed any more
+        for f_ in glob.glob(os.path.join(CLIP_CACHE, "*.mp4")):
+            if time.time() - os.path.getmtime(f_) > 2 * 86400:
+                os.remove(f_)
+    except Exception:
+        pass
+    lib = characters.Library(ASSETS, CHAR_CACHE, image_fn=None if MOCK else _char_image, upload_fn=_char_upload,
+                             log=log, style=ART_STYLE)
+    special = STATE.get("special") or ""
+    fixed = {str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)}
+    key = str(SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H")).split("@")[0]
+    records, by_name = {}, {}
+    for c in story.get("characters") or []:
+        if not isinstance(c, dict) or not c.get("name"):
+            continue
+        nm = str(c["name"]).lower()
+        cid = characters.char_id(c, series=nm in fixed, story_key=key)
+        need = characters.BASE_SET + (("blink",) if nm in fixed else ())
+        rec = lib.ensure(c, cid, need=need, seed=seed + len(records) * 31)
+        records[cid] = rec
+        by_name[ascii_text(c["name"]).lower()] = rec
+        by_name[nm] = rec
+    bgs = []
+    for i, s in enumerate(scenes):
+        bgs.append(lib.background(s.get("place", ""), story.get("setting", ""), s.get("mood", ""), seed=seed + 500 + i))
+    lib.save()
+    try:
+        push_now([lib.index_path], "character library")
+    except Exception:
+        pass
+    log(f"  character mode: {len(records)} characters ({', '.join(f'{r['id']}={r['mode']}' for r in records.values())}), "
+        f"{len(set(b[1] for b in bgs))} backgrounds - library: {lib.stats}")
+    STATE["char_stats"] = lib.stats
+    return {"records": records, "by_name": by_name, "bgs": bgs}
+
+
+def character_clip(comp, audio, out):
+    """one character scene; a finished scene is kept in CLIP_CACHE so a stopped run does not render it again"""
+    import hashlib
+    import characters
+    import compositor
+    m = comp["manifest"]
+    os.makedirs(CLIP_CACHE, exist_ok=True)
+    h_ = hashlib.sha1((json.dumps(m, sort_keys=True, default=str) + str(os.path.getsize(audio))).encode()).hexdigest()[:16]
+    cached = os.path.join(CLIP_CACHE, f"{h_}.mp4")
+    if os.path.exists(cached) and os.path.getsize(cached) > 1000:
+        shutil.copy(cached, out)
+        log(f"  scene {m['id']}: taken from the checkpoint (already rendered)")
+        return duration(audio)
+    lib = characters.Library(ASSETS, CHAR_CACHE, log=log)
+    q = "FAST" if env("SIMPLE_MOTION") == "1" else (env("ANIM_QUALITY") or "BALANCED")
+    compositor.render_scene(m, comp["records"], lib, audio, out, W=W, H=H, FPS=FPS, SR=SR, quality=q, log=log)
+    try:
+        shutil.copy(out, cached)
+    except Exception:
+        pass
+    return duration(audio)
+
+
+def anim_test_run():
+    """the cinematic test of the new animation engine on GitHub's computer: the video + its measured report go to
+    your Telegram (and stay 3 days as a run artifact). Nothing is posted anywhere."""
+    import animation_test
+    rep = animation_test.run(log=log)
+    q = rep.get("quality", {})
+    txt = (f"🎬 অ্যানিমেশন টেস্ট ({rep['duration']:.0f} সেকেন্ড, {rep['resolution']}, {rep['fps']} fps) - কিছু প্রকাশ হয়নি।\n"
+           f"রেন্ডার: {rep['render_seconds']:.0f} সেকেন্ড ({rep['cpu_cores']} CPU, {rep['speed_x_realtime']}x) · RAM {rep['peak_ram_mb']} MB\n"
+           + "\n".join(f"{'✅' if v.get('pass') else '❌'} {k}" for k, v in q.items() if isinstance(v, dict)))
+    vid = os.path.join(animation_test.OUT, "animation_test.mp4")
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        if tok and chat and os.path.exists(vid) and os.path.getsize(vid) < 48_000_000:
+            with open(vid, "rb") as f:
+                requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat, "caption": txt[:1000]},
+                              files={"video": ("animation_test.mp4", f, "video/mp4")}, timeout=300)
+        else:
+            _tg_text(txt)
+    except Exception as e:
+        log("  animation test not sent to Telegram:", str(e)[:120])
+    return rep
+
+
+def story_test_run():
+    """V1.1: the story test (3 scenes from the real voice samples) with the three assistants - Gemini reads the
+    lines when the key is there; the video + the Bengali match report go to your Telegram. Nothing is posted."""
+    import story_test
+    llm = (lambda p_: _gem_call(p_, json_mode=True, temp=0.2, max_tokens=8000, rounds=1)) if env("GEMINI_API_KEY") else None
+    rep = story_test.run(llm=llm, log=log)
+    tot = rep.get("match_totals", {})
+    txt = (f"🎬 গল্প-মিল টেস্ট ({rep['duration']:.0f} সেকেন্ড) - কিছু প্রকাশ হয়নি।\n"
+           + "\n".join(f"দৃশ্য {s['id']}: {s['location']} ({s['location_status']}), পড়েছে: {s['action_source']}" for s in rep["scenes"])
+           + "\nমিল: " + ", ".join(f"{k} {v}" for k, v in tot.items())
+           + f"\nগুণমান: {'✅ সব পাস' if rep.get('all_quality_pass') else '❌ কিছু ফেল - রিপোর্ট দেখুন'}"
+           + f"\nরেন্ডার {rep['render_seconds']:.0f} সেকেন্ড ({rep['speed_x_realtime']}x)")
+    vid = os.path.join(story_test.OUT, "story_test.mp4")
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        if tok and chat and os.path.exists(vid) and os.path.getsize(vid) < 48_000_000:
+            with open(vid, "rb") as f:
+                requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat, "caption": txt[:1000]},
+                              files={"video": ("story_test.mp4", f, "video/mp4")}, timeout=300)
+            md = os.path.join(story_test.OUT, "story_match_report.md")
+            if os.path.exists(md):
+                with open(md, "rb") as f:
+                    requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat},
+                                  files={"document": ("story_match_report.md", f, "text/markdown")}, timeout=120)
+        else:
+            _tg_text(txt)
+    except Exception as e:
+        log("  story test not sent to Telegram:", str(e)[:120])
+    return rep
+
+
+def pilot_run():
+    """MODE=pilot: the 60-second test of the character pipeline with REAL free Cloudflare characters - nothing is
+    posted; the video and its report come to your Telegram and stay 3 days as a GitHub artifact."""
+    import pilot
+    os.makedirs(CHAR_CACHE, exist_ok=True)
+    rep = pilot.run("B", env("ANIM_QUALITY") or "BALANCED", image_fn=_char_image, upload_fn=_char_upload, log=log)
+    try:
+        push_now([os.path.join(ASSETS, "characters", "index.json")], "character library (pilot)")
+    except Exception:
+        pass
+    vid = os.path.join(pilot.OUT, "pilot.mp4")
+    txt = (f"🎬 ৬০ সেকেন্ডের Pilot (আসল চরিত্র) তৈরি - কিছু প্রকাশ হয়নি।\n"
+           f"চরিত্র: " + ", ".join(f"{k}={v['mode']}" for k, v in rep["characters"].items()) + "\n"
+           f"নতুন ছবি: {rep['library']['images_made']} · ব্যর্থ: {rep['library']['image_fail']} · মুখের মিল: {rep['face_similarity_avg']}\n"
+           f"Lip-sync ফ্রেম: {rep['lip_sync_frames']}\n"
+           f"রেন্ডার: BALANCED {rep['speed_balanced_x_realtime']}x · FAST {rep['speed_fast_x_realtime']}x বাস্তব সময় "
+           f"({rep['cpu_cores']} CPU) · সর্বোচ্চ RAM {rep['peak_ram_mb']} MB\n{rep['zero_cost']}")
+    try:
+        tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+        if tok and chat and os.path.exists(vid) and os.path.getsize(vid) < 48_000_000:
+            with open(vid, "rb") as f:
+                requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat, "caption": txt[:1000]},
+                              files={"video": ("pilot.mp4", f, "video/mp4")}, timeout=300)
+            sheet = os.path.join(pilot.OUT, "characters.jpg")
+            if os.path.exists(sheet):
+                with open(sheet, "rb") as f:
+                    requests.post(f"https://api.telegram.org/bot{tok}/sendPhoto", data={"chat_id": chat,
+                                  "caption": "চরিত্রগুলোর সব ছবি (Character Library)"},
+                                  files={"photo": ("characters.jpg", f, "image/jpeg")}, timeout=120)
+        else:
+            _tg_text(txt)
+    except Exception as e:
+        log("  pilot not sent to Telegram:", str(e)[:120])
+    return rep
+
+
 def render_clips(jobs):
     """All scene pictures moved into film clips - several at once (GitHub's machine has several processor cores):
     about 3x faster than one after the other. If the video is running late, the simpler (faster) motion is used."""
@@ -5916,11 +6122,46 @@ def build_video(scene_parts, lang, out):
         spoken = [ln for ln in sp["lines"] if str(ln.get("text", "")).strip()]
         talk = [(st, st + du, nar, (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx)
                 for k, (st, du, nar, tx) in enumerate(subs)]
-        jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk))
+        comp_ = None
+        if sp.get("comp"):                           # V8 character mode: the written plan of this scene
+            try:
+                import manifest as _mf
+                spk_ = [(None if str(ln.get("speaker", "")).lower().startswith("narrat") else ln.get("speaker"))
+                        for ln in spoken]
+                beats_ = [(st, st + du, spk_[k] if k < len(spk_) else None,
+                           (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx)
+                          for k, (st, du, nar, tx) in enumerate(subs)]
+                m_ = _mf.build_scene(i, sp["comp"]["scene"], beats_, duration(a), sp["comp"]["by_name"],
+                                     sp["comp"]["bg"], sp.get("mood"))
+                MANIFESTS.append(m_)
+                comp_ = {"manifest": m_, "records": sp["comp"]["records"]}
+            except Exception as e:
+                log(f"  scene manifest {i} failed - classic motion for this scene:", str(e)[:150])
+        if sp.get("engine") and not comp_:           # V1.1 ANIM_MODE=cartoon: the story's own lines, exactly timed
+            spk_ = [(None if str(ln.get("speaker", "")).lower().startswith("narrat") else ln.get("speaker")) for ln in spoken]
+            beats_ = [(st, st + du, spk_[k] if k < len(spk_) else None,
+                       (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx) for k, (st, du, nar, tx) in enumerate(subs)]
+            comp_ = {"engine": {"scene": {"place": sp.get("place", "")}, "beats": beats_, "chars": sp["engine"]["chars"]}}
+        jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk, comp_))
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
         t += duration(a)
     render_clips(jobs)
+    try:                                             # V1.1: what the three assistants did, for the team report
+        import story_engine
+        rows_, md_ = story_engine.summary(WORK)
+        if rows_:
+            STATE["engine_rows"] = rows_
+            with open(os.path.join(WORK, "story_match_report.md"), "w", encoding="utf-8") as f_:
+                f_.write(md_)
+    except Exception as e:
+        log("  cartoon match report skipped:", str(e)[:120])
+    if MANIFESTS:
+        try:
+            import manifest as _mf
+            _mf.save(MANIFESTS, os.path.join(WORK, "scene_manifest.json"))
+        except Exception:
+            pass
     lst = os.path.join(WORK, "clips.txt")
     with open(lst, "w") as f:
         f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
@@ -12391,6 +12632,12 @@ def main():
         return discover_now(history)
     if env("MODE") == "retry":                       # V8: /retry_publish - only the missing destinations
         return retry_publish(history)
+    if env("MODE") == "pilot":                       # V8: the 60-second character-animation test (no posting)
+        return pilot_run()
+    if env("MODE") == "anim_test":                   # Animation Engine V1.0: the 60-second pond test (no posting)
+        return anim_test_run()
+    if env("MODE") == "story_test":                  # V1.1: the three assistants on real story lines (no posting)
+        return story_test_run()
     if paused_now() and not MOCK:
         log("PAUSED from Telegram ('বন্ধ') - no video this time. Send 'চালু' to start again.")
         return
@@ -12574,7 +12821,18 @@ def main():
     except Exception as e:
         recap_pics = []
         log("  recap pictures skipped:", str(e)[:120])
+    char_mode = None
+    if env("ANIM_MODE") == "character":              # V8: automatic characters + Scene Manifest (see characters.py)
+        try:
+            char_mode = prepare_character_mode(story, scenes, cast, seed)
+        except Exception as e:
+            log("  character mode failed - the classic pictures are made instead:", str(e)[:200])
+            char_mode = None
     for i, (s, lines) in enumerate(zip(scenes, scene_lines)):
+        if char_mode:                                # (the empty background of this place is the scene's picture)
+            shots_per_scene.append([char_mode["bgs"][i][0]] * max(1, len(lines)))
+            imgs.append(char_mode["bgs"][i][0])
+            continue
         want = max(1, min(len(lines), round(len(lines) * budget / total_lines))) if lines else 1
         groups = [lines[round(g * len(lines) / want):round((g + 1) * len(lines) / want)] for g in range(want)] or [[]]
         scene_shots = []
@@ -12781,10 +13039,15 @@ def main():
         log("  your voice intro skipped:", str(e)[:100])
     parts = [{"image": thumb_base, "lines": [title_line],
               "sounds": ["wind"], "mood": "creepy", "voices": voices, "title_part": True}]
-    for img, s, sh in zip(imgs, scenes, shots_per_scene):
+    for k_, (img, s, sh) in enumerate(zip(imgs, scenes, shots_per_scene)):
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
+        if char_mode:
+            parts[-1]["comp"] = {"scene": s, "index": k_, "bg": char_mode["bgs"][k_], "records": char_mode["records"],
+                                 "by_name": char_mode["by_name"]}
+        elif env("ANIM_MODE") == "cartoon":          # V1.1: the cartoon engine + the three story assistants
+            parts[-1]["engine"] = {"chars": [c for c in (story.get("characters") or []) if isinstance(c, dict)]}
     hk = None if env("HOOK_OPEN") == "0" else cold_open_hook(scenes, story, lang)
     cold = False
     if hk:                                         # 1) the gripping moment, 2) the title, 3) the story from its start
