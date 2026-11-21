@@ -182,7 +182,7 @@ jobs:
           key: clips-${{ github.run_id }}
 
       - name: Remember this story
-        if: success() && github.event.inputs.mode != 'voice_demo'
+        if: success() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test'   # (a full test is not remembered)
         run: |
           git config user.name "story-bot"
           git config user.email "story-bot@users.noreply.github.com"
@@ -278,7 +278,7 @@ jobs:
   # (GitHub never rebuilds a "Deploy from a branch" site for the bot's own commits - so the map is published here.)
   site:
     needs: post
-    if: always() && github.event.inputs.mode != 'voice_demo'
+    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     continue-on-error: true
