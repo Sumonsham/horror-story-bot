@@ -71,7 +71,7 @@ CAPS = {
     "light_lamp": ("SUBSTITUTE", "hold_lantern", "প্রদীপ জ্বালানো নেই - হাতে জ্বলন্ত লণ্ঠন দেখানো হয়েছে"),
 }
 STATUS_BN = {"MATCH": "মিলেছে", "SUBSTITUTE": "কাছাকাছি বিকল্প", "MISSING": "নেই (দেখানো হয়নি)", "COMMAND": "শুধু বলা হয়েছে",
-             "MENTIONED": "শুধু উল্লেখ", "SOUND": "শুধু শব্দ", "NOT_VISUAL": "দেখানোর নয়", "REACTION": "স্বাভাবিক প্রতিক্রিয়া"}
+             "MENTIONED": "শুধু উল্লেখ", "SOUND": "শুধু শব্দ", "REJECTED": "বানানো - বাদ", "NOT_VISUAL": "দেখানোর নয়", "REACTION": "স্বাভাবিক প্রতিক্রিয়া"}
 
 
 def judge(analysed, location, cast_ids):
@@ -108,6 +108,11 @@ def judge(analysed, location, cast_ids):
             counts[status] = counts.get(status, 0) + 1
             items.append({"act": act, "who": who, "mode": mode, "words": d.get("words", ""), "status": status,
                           "status_bn": STATUS_BN[status], "shown_bn": shown})
+        for rj in ln.get("rejected", []) or []:            # what Gemini claimed without the words in the line
+            counts["REJECTED"] = counts.get("REJECTED", 0) + 1
+            items.append({"act": rj["act"], "who": None, "mode": "invented", "words": rj["words"], "status": "REJECTED",
+                          "status_bn": STATUS_BN["REJECTED"],
+                          "shown_bn": f"Gemini বলেছিল, কিন্তু লাইনে এমন কথা নেই (\"{rj['words']}\") - বাদ, দেখানো হয়নি"})
         out.append({"i": ln["i"], "speaker": ln["speaker"], "emotion": ln["emotion"], "items": items})
     return {"lines": out, "counts": counts, "ops": ops}
 

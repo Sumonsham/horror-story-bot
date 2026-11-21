@@ -5752,12 +5752,36 @@ def scene_clip_simple(segments, audio, out, idx, mood):
     return dur
 
 
+def _gem_helper(prompt):
+    """the story assistants' Gemini: ONLY the lite model (its own free limit) - the models that WRITE the story are
+    never used up by the assistants. None when there is no key / the lite limit is used up (offline rules then)."""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return None
+    for model in [env("HELPER_MODEL") or "gemini-flash-lite-latest", "gemini-flash-lite-latest"][:1 if not env("HELPER_MODEL") else 2]:
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}],
+                                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8000,
+                                                         "responseMimeType": "application/json"}}, timeout=120)
+            if not r.ok:
+                log(f"  story assistant: {model} {r.status_code} - offline rules")
+                continue
+            parts_ = r.json()["candidates"][0]["content"]["parts"]
+            txt = "".join(p_.get("text", "") for p_ in parts_ if not p_.get("thought"))
+            if txt.strip():
+                return txt
+        except Exception as e:
+            log(f"  story assistant: {model} {str(e)[:100]}")
+    return None
+
+
 def engine_scene_clip(eng, audio, out, idx):
     """V1.1 ANIM_MODE=cartoon: the three assistants (place / actions / match) + the cartoon animation engine;
     the clip is re-encoded exactly like the classic clips (same codec, fps, audio) so all clips join as before"""
     import story_engine
     raw = os.path.join(WORK, f"engine_{idx:02d}.mp4")
-    llm = (lambda p_: _gem_call(p_, json_mode=True, temp=0.2, max_tokens=8000, rounds=1)) if env("ENGINE_GEMINI") != "0" else None
+    llm = _gem_helper if env("ENGINE_GEMINI") != "0" else None
     story_engine.engine_clip(eng["scene"], eng["beats"], audio, raw, eng.get("chars") or [], W=W, H=H, fps=FPS,
                              llm=llm, log=log, idx=idx)
     dur = duration(audio)
@@ -5997,7 +6021,7 @@ def story_test_run():
     """V1.1: the story test (3 scenes from the real voice samples) with the three assistants - Gemini reads the
     lines when the key is there; the video + the Bengali match report go to your Telegram. Nothing is posted."""
     import story_test
-    llm = (lambda p_: _gem_call(p_, json_mode=True, temp=0.2, max_tokens=8000, rounds=1)) if env("GEMINI_API_KEY") else None
+    llm = _gem_helper if env("ENGINE_GEMINI") != "0" else None
     rep = story_test.run(llm=llm, log=log)
     tot = rep.get("match_totals", {})
     txt = (f"🎬 গল্প-মিল টেস্ট ({rep['duration']:.0f} সেকেন্ড) - কিছু প্রকাশ হয়নি।\n"

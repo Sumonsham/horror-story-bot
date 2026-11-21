@@ -185,7 +185,8 @@ say what really happens on screen. Return JSON: {{"lines":[{{"i":n,"emotion":"ca
 "ongoing":true|false}}]}}]}}
 Rules: "happens" only if the story says it happens NOW in this scene (narration, or a speaker describing what is going on
 right now). "command" = someone is asked to do it (it is NOT shown as done). "mentioned" = past, plan, memory, rumour,
-comparison ("যেন ... দিঘি" is a comparison, not a place). Use only the act names given; if nothing fits write
+comparison ("যেন ... দিঘি" is a comparison, not a place). "words" MUST be copied exactly from that line - an action
+whose words are not in the line is thrown away. Use only the act names given; if nothing fits write
 "other:<short english description>" (never invent a nearer act). Do not add actions the text does not say.
 Characters: {cast}
 Place: {place}
@@ -205,12 +206,20 @@ def gemini(lines, cast, place, llm):
     by_i = {int(x["i"]): x for x in data.get("lines", []) if "i" in x}
     out = []
     ids = {c["id"] for c in cast}
+
+    def _bare(x):                                          # letters only: quotes / dashes / spaces never decide
+        return re.sub(r"[\W_]+", "", _n(x), flags=re.U)
     for ln in lines:
         g = by_i.get(int(ln["i"]), {})
         spk = ln.get("speaker") or "narrator"
-        doing = []
+        doing, rejected = [], []
+        line_bare = _bare(f"{ln.get('text', '')} {ln.get('en', '')}")
         for d in g.get("doing", []) or []:
             act = str(d.get("act", "")).strip()
+            words = str(d.get("words", "")).strip()
+            if act not in ("talk", "whisper", "scream") and (not _bare(words) or _bare(words) not in line_bare):
+                rejected.append({"act": act, "words": words[:60]})       # Gemini named words the line does not have:
+                continue                                                 # an invented action is never animated
             if act not in VOCAB and not act.startswith("other:"):
                 act = "other:" + act
             who = d.get("who") if d.get("who") in ids else None
@@ -223,7 +232,7 @@ def gemini(lines, cast, place, llm):
         out.append({"i": ln["i"], "speaker": spk, "who": spk if spk != "narrator" else None, "where": place,
                     "emotion": g.get("emotion") or _emotion(ln.get("feel", ""), ln.get("text", "")),
                     "target": ln.get("listener"), "objects": sorted({str(d["object"]) for d in doing if d.get("object")}),
-                    "doing": doing})
+                    "doing": doing, "rejected": rejected})
     return out
 
 
