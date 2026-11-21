@@ -12719,6 +12719,18 @@ def main():
     shutil.rmtree(WORK, ignore_errors=True)
     os.makedirs(WORK)
     history = load_history()
+    # the two 2.5D tests start BEFORE the run's daily jobs (fan replies, milestone posts, Telegram inbox...):
+    # a test answers nobody and posts nothing
+    if env("MODE") == "art_test":                    # 2.5D: real AI character parts + background, cut + animated
+        return art_test_run()
+    if env("MODE") == "full_test":                   # a WHOLE story video with the cartoon engine - nothing posted
+        DRY_RUN = True
+        os.environ["DRY_RUN"] = "1"
+        os.environ["FULL_TEST"] = "1"                # (no time slot: the day's real story + slot are left alone)
+        os.environ["ANIM_MODE"] = "cartoon"
+        os.environ["MODE"] = ""
+        log("FULL TEST: the whole story-to-video run with the cartoon engine; NOTHING is posted (dry run)")
+        _tg_text("🧪 পুরো গল্পের টেস্ট শুরু (কার্টুন ইঞ্জিন) - কিছু প্রকাশ হবে না; ভিডিও GitHub-এর artifact-এ থাকবে।")
     try:                                             # v67: a video posted earlier whose saving had failed
         repair_lost_posts(history)
     except Exception as e:
@@ -12773,15 +12785,6 @@ def main():
         return anim_test_run()
     if env("MODE") == "story_test":                  # V1.1: the three assistants on real story lines (no posting)
         return story_test_run()
-    if env("MODE") == "art_test":                    # 2.5D: real AI character parts + background, cut + animated
-        return art_test_run()
-    if env("MODE") == "full_test":                   # a WHOLE story video with the cartoon engine - nothing posted
-        DRY_RUN = True
-        os.environ["DRY_RUN"] = "1"
-        os.environ["ANIM_MODE"] = "cartoon"
-        os.environ["MODE"] = ""
-        log("FULL TEST: the whole story-to-video run with the cartoon engine; NOTHING is posted (dry run)")
-        _tg_text("🧪 পুরো গল্পের টেস্ট শুরু (কার্টুন ইঞ্জিন) - কিছু প্রকাশ হবে না; ভিডিও GitHub-এর artifact-এ থাকবে।")
     if paused_now() and not MOCK:
         log("PAUSED from Telegram ('বন্ধ') - no video this time. Send 'চালু' to start again.")
         return
@@ -12794,7 +12797,7 @@ def main():
     if env("MODE") == "write":                       # v110: the 2 AM run - ONLY the day's two stories, written + saved
         return write_day_stories(history)
     global SLOT
-    SLOT = None if env("MODE") in ("amavasya", "compilation") else extras.current_slot(TRIGGERS)
+    SLOT = None if env("MODE") in ("amavasya", "compilation") or env("FULL_TEST") == "1" else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
     if env("MODE") == "compilation":
         try:                                         # v68: Sunday night - the week in numbers on Telegram
