@@ -4887,6 +4887,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-20T13:33+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 2
   }
  },
  {
@@ -4911,13 +4915,7 @@
   "date": "2026-11-20T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-20@14",
-  "pending_comments": [
-   {
-    "id": "1191712473520232",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1140678745515594",
-    "after": 1795235700.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A night-shift delivery executive gets a panic-inducing food order to an abandoned apartment complex in New Town, Kolkata at 2 AM.",
@@ -5034,7 +5032,17 @@
   },
   "hook_style": "voice",
   "district": "n24",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-20-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-20-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 5,
+   "length_s": 864,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-21T06:32+00:00"
+  }
  },
  {
   "date": "2026-11-20T14:26+00:00",
@@ -5177,5 +5185,144 @@
   "tagline": "পাঁকের নিচে লুকিয়ে থাকা ৫ বছরের পুরোনো পাপ!",
   "district": "nadia",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-20-20.mp4"
+ },
+ {
+  "date": "2026-11-21T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-21@14",
+  "pending_comments": [
+   {
+    "id": "2073623686670821",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2389080578162541"
+   },
+   {
+    "id": "1128143426779817",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2389080578162541",
+    "after": 1795322100.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": null,
+  "len_arm": null,
+  "listener_score": 4.0,
+  "fresh": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "gram",
+  "question_post": null,
+  "title_b": "উনুনের ছাইয়ের নিচে লুকানো কীসের অভিশাপ? 🌾",
+  "theme": "the creator's own story",
+  "format": "a listener's letter read out by the narrator, then the events play out",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "সিঙ্গুরের সেই অভিশপ্ত তুষের আগুন 🌾 | অগ্রহায়ণের ছাইমেটে রাত | সত্য ঘটনা অবলম্বনে",
+  "festival": null,
+  "summary": "সিঙ্গুরের এক পুরোনো পরিত্যক্ত কুঠরির উনুনে জ্বলছিল ভিজে তুষের আগুন। কিন্তু সেই কনকনে ঠান্ডা ছাইয়ের অতল থেকে হঠাৎ জেগে উঠল ৫০ বছরের পুরোনো এক বীভৎস অভিশাপ! রেডিও স্টুডিওর বন্ধ ঘরে বসে সোম্য কি রক্ষা পাবে? জানতে গল্পটি শুনুন।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook": "2389080578162541",
+  "youtube": "SPFCm0nCv50",
+  "fb_reel": "2073623686670821",
+  "fb_story": "1147448910976669",
+  "fb_reel2": "1128143426779817",
+  "yt_short": "_T-elceM-hk",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1349,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     8,
+     "শুরু"
+    ],
+    [
+     17,
+     "কলকাতার রেডিও স্টুডিও"
+    ],
+    [
+     110,
+     "কাদামাখা ভেজা চিঠি"
+    ],
+    [
+     177,
+     "সিঙ্গুরের পুরোনো কুঠরি"
+    ],
+    [
+     251,
+     "ঠান্ডা মাটির উনুন"
+    ],
+    [
+     323,
+     "ছাইয়ের নিচে চিরুনি"
+    ],
+    [
+     392,
+     "ভবতোষ মান্নার বারণ"
+    ],
+    [
+     463,
+     "ছাছির অভিশাপ"
+    ],
+    [
+     555,
+     "অহেতুক গোঁয়ারতুমি"
+    ],
+    [
+     602,
+     "নিষিদ্ধ তুষের আগুন"
+    ],
+    [
+     684,
+     "চিরুনি চুরি"
+    ],
+    [
+     736,
+     "ভবতোষের আতঙ্ক"
+    ],
+    [
+     800,
+     "হিমশীতল অভিশাপ"
+    ],
+    [
+     858,
+     "বন্ধ দরজার আতঙ্ক"
+    ],
+    [
+     920,
+     "অদৃশ্য শক্তির টান"
+    ],
+    [
+     993,
+     "ছাছির আবির্ভাব"
+    ],
+    [
+     1059,
+     "চিরুনি বিসর্জন"
+    ],
+    [
+     1111,
+     "অভিশপ্ত সাউন্ডট্র্যাক"
+    ],
+    [
+     1168,
+     "ছাছির চিরুনি"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "kolkata",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-21-14.mp4"
  }
 ]
