@@ -1,0 +1,60 @@
+{"char": "Hari", "asset": "body", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 19:59:37"}
+{"char": "Hari", "asset": "torso", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 19:59:41"}
+{"char": "Hari", "asset": "arm", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 19:59:45"}
+{"char": "Hari", "asset": "legs", "attempt": 1, "pass": false, "problems": ["the legs is cut by the picture edge"], "t": "2026-11-21 19:59:49"}
+{"char": "Hari", "asset": "legs", "attempt": 2, "pass": false, "problems": ["the legs is cut by the picture edge"], "t": "2026-11-21 20:00:04"}
+{"char": "Hari", "asset": "legs", "attempt": 3, "pass": false, "problems": ["the legs is cut by the picture edge"], "t": "2026-11-21 20:00:09"}
+{"char": "Hari", "asset": "three_q", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:00:20"}
+{"char": "Hari", "asset": "front", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:00:26"}
+{"char": "Hari", "asset": "profile", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:00:30"}
+{"char": "Hari", "asset": "scared", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:00:35"}
+{"char": "Saraswati", "asset": "body", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:00:43"}
+{"char": "Saraswati", "asset": "torso", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:00:49"}
+{"char": "Saraswati", "asset": "arm", "attempt": 1, "pass": false, "problems": ["the arm is cut by the picture edge"], "t": "2026-11-21 20:00:55"}
+{"char": "Saraswati", "asset": "arm", "attempt": 2, "pass": true, "problems": [], "t": "2026-11-21 20:01:00"}
+{"char": "Saraswati", "asset": "skirt", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:01:06"}
+{"char": "Saraswati", "asset": "pallu", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:01:10"}
+{"char": "Saraswati", "asset": "three_q", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:01:16"}
+{"char": "Saraswati", "asset": "front", "attempt": 1, "pass": false, "problems": ["no face found on a front / three-quarter head (the mouth and eyes would be guessed)", "colours differ from the body's head (0.41) - maybe another person"], "t": "2026-11-21 20:01:23"}
+{"char": "Saraswati", "asset": "front", "attempt": 2, "pass": false, "problems": ["no face found on a front / three-quarter head (the mouth and eyes would be guessed)", "colours differ from the body's head (0.36) - maybe another person"], "t": "2026-11-21 20:01:30"}
+{"char": "Saraswati", "asset": "front", "attempt": 3, "pass": true, "problems": [], "t": "2026-11-21 20:01:36"}
+{"char": "Saraswati", "asset": "profile", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:01:42"}
+{"char": "Saraswati", "asset": "scared", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:01:47"}
+{"char": "Petni", "asset": "body", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:01:56"}
+{"char": "Petni", "asset": "torso", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:02:03"}
+{"char": "Petni", "asset": "arm", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:02:07"}
+{"char": "Petni", "asset": "skirt", "attempt": 1, "pass": false, "problems": ["fabric pattern differs (detail 0.24x the reference)"], "t": "2026-11-21 20:02:11"}
+{"char": "Petni", "asset": "skirt", "attempt": 2, "pass": false, "problems": ["fabric pattern differs (detail 0.25x the reference)"], "t": "2026-11-21 20:02:17"}
+{"char": "Petni", "asset": "skirt", "attempt": 3, "pass": false, "problems": ["fabric pattern differs (detail 0.25x the reference)"], "t": "2026-11-21 20:02:25"}
+{"char": "Petni", "asset": "hair_back", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:02:31"}
+{"char": "Petni", "asset": "three_q", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:02:37"}
+{"char": "Petni", "asset": "front", "attempt": 1, "pass": false, "problems": ["not the same face as the three-quarter head (colours dE 28.8)"], "t": "2026-11-21 20:02:44"}
+{"char": "Petni", "asset": "front", "attempt": 2, "pass": true, "problems": [], "t": "2026-11-21 20:02:52"}
+{"char": "Petni", "asset": "profile", "attempt": 1, "pass": false, "problems": ["not the same face as the three-quarter head (colours dE 36.0)"], "t": "2026-11-21 20:02:57"}
+{"char": "Petni", "asset": "profile", "attempt": 2, "pass": true, "problems": [], "t": "2026-11-21 20:03:02"}
+{"char": "Petni", "asset": "scared", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:09"}
+{"char": "Taranath", "asset": "body", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:24"}
+{"char": "Taranath", "asset": "torso", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:29"}
+{"char": "Taranath", "asset": "arm", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:34"}
+{"char": "Taranath", "asset": "legs", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:37"}
+{"char": "Taranath", "asset": "three_q", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:42"}
+{"char": "Taranath", "asset": "front", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:48"}
+{"char": "Taranath", "asset": "profile", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:52"}
+{"char": "Taranath", "asset": "scared", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:03:59"}
+{"char": "Kishori", "asset": "body", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:04:10"}
+{"char": "Kishori", "asset": "torso", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:04:17"}
+{"char": "Kishori", "asset": "arm", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:04:24"}
+{"char": "Kishori", "asset": "legs", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:04:28"}
+{"char": "Kishori", "asset": "three_q", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:04:33"}
+{"char": "Kishori", "asset": "front", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:04:37"}
+{"char": "Kishori", "asset": "profile", "attempt": 1, "pass": false, "problems": ["not the same face as the three-quarter head (colours dE 26.2)"], "t": "2026-11-21 20:04:42"}
+{"char": "Kishori", "asset": "profile", "attempt": 2, "pass": true, "problems": [], "t": "2026-11-21 20:04:50"}
+{"char": "Kishori", "asset": "scared", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:04:56"}
+{"char": "Madhusundari", "asset": "body", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:09"}
+{"char": "Madhusundari", "asset": "torso", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:13"}
+{"char": "Madhusundari", "asset": "arm", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:17"}
+{"char": "Madhusundari", "asset": "skirt", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:21"}
+{"char": "Madhusundari", "asset": "hair_back", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:28"}
+{"char": "Madhusundari", "asset": "three_q", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:33"}
+{"char": "Madhusundari", "asset": "front", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:40"}
+{"char": "Madhusundari", "asset": "profile", "attempt": 1, "pass": true, "problems": [], "t": "2026-11-21 20:05:44"}

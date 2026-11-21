@@ -1,0 +1,147 @@
+{
+ "height_px": 889.0,
+ "top": 83.0,
+ "bottom": 972.0,
+ "neck": [
+  293.0,
+  263.0
+ ],
+ "hip": [
+  318.5,
+  543.7692307692307
+ ],
+ "shoulder_y": 301.09000000000003,
+ "torso_len": 281.92483208604654,
+ "head_h": 180.0,
+ "shoulders": {
+  "far": [
+   238.26,
+   301.09000000000003
+  ],
+  "near": [
+   353.74,
+   301.09000000000003
+  ]
+ },
+ "leg_hips": {},
+ "arm_free": {
+  "near": true,
+  "far": true
+ },
+ "method": "rebuilt",
+ "legs_under_torso": true,
+ "no_legs": true,
+ "layers": [
+  "hair_back",
+  "uarm_far",
+  "farm_far",
+  "shin_far",
+  "thigh_far",
+  "shin_near",
+  "thigh_near",
+  "skirt_lo",
+  "skirt_up",
+  "torso",
+  "pallu",
+  "head",
+  "uarm_near",
+  "farm_near"
+ ],
+ "floats": false,
+ "head_fraction": [
+  0.1,
+  0.33
+ ],
+ "skirt_len": 428.2307692307693,
+ "waist": [
+  318.5,
+  499.3192307692307
+ ],
+ "pallu_anchor": [
+  238.26,
+  283.31000000000006
+ ],
+ "parts": {
+  "torso": {
+   "file": "part_torso.png",
+   "pivot": [
+    132.0,
+    280.7692307692308
+   ],
+   "length": 281.9248320860466,
+   "rest": -174.81052484219532
+  },
+  "uarm_near": {
+   "file": "part_uarm_near.png",
+   "pivot": [
+    31.5,
+    11.24
+   ],
+   "length": 149.5275238877445,
+   "rest": -0.5747778640429893
+  },
+  "farm_near": {
+   "file": "part_farm_near.png",
+   "pivot": [
+    26.0,
+    11.76000000000002
+   ],
+   "length": 121.07717208458413,
+   "rest": 1.4197963844333459
+  },
+  "uarm_far": {
+   "file": "part_uarm_far.png",
+   "pivot": [
+    31.5,
+    11.24
+   ],
+   "length": 149.5275238877445,
+   "rest": -0.5747778640429893
+  },
+  "farm_far": {
+   "file": "part_farm_far.png",
+   "pivot": [
+    26.0,
+    11.76000000000002
+   ],
+   "length": 121.07717208458413,
+   "rest": 1.4197963844333459
+  },
+  "skirt_up": {
+   "file": "part_skirt_up.png",
+   "pivot": [
+    112.12962962962962,
+    0.0
+   ],
+   "length": 236.50007533591165,
+   "rest": -0.04573229792598654
+  },
+  "skirt_lo": {
+   "file": "part_skirt_lo.png",
+   "pivot": [
+    137.94086021505376,
+    18.5
+   ],
+   "length": 236.14494194253038,
+   "rest": -4.235527534581582
+  },
+  "pallu": {
+   "file": "part_pallu.png",
+   "pivot": [
+    64.0,
+    0.0
+   ],
+   "length": 399.32067314377804,
+   "rest": -2.2963447818359826
+  },
+  "head": {
+   "file": "part_head.png",
+   "pivot": [
+    100.0,
+    180.0
+   ],
+   "length": 180.0,
+   "rest": 180.0
+  }
+ }
+}

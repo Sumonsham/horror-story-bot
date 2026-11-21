@@ -1,0 +1,887 @@
+{
+ "characters": {
+  "74f563185c40": {
+   "name": "Hari",
+   "look": "an ordinary Bengali man of about forty, short black hair, thick moustache, a light blue full-sleeve shirt and grey trousers, black sandals",
+   "ghost": false,
+   "status": "ready",
+   "files": {
+    "body": "body.png",
+    "torso": "piece_torso.png",
+    "arm": "piece_arm.png",
+    "three_q": "head_three_q.png",
+    "front": "head_front.png",
+    "profile": "head_profile.png",
+    "scared": "head_scared.png"
+   },
+   "qa": {
+    "body": {
+     "height_over_width": 2.06,
+     "fill_of_frame": 0.89,
+     "touches_border": 0.0,
+     "problems": [],
+     "pass": true
+    },
+    "torso": {
+     "kind": "torso",
+     "height_over_width": 1.38,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 3.6,
+      "pattern_ratio": 0.71
+     },
+     "problems": [],
+     "pass": true
+    },
+    "arm": {
+     "kind": "arm",
+     "height_over_width": 4.88,
+     "touches_border": 0.007,
+     "consistency": {
+      "colour_de": 17.5,
+      "pattern_ratio": 0.63,
+      "skin_de": 5.6
+     },
+     "problems": [],
+     "pass": true
+    },
+    "legs": {
+     "kind": "legs",
+     "height_over_width": 1.73,
+     "touches_border": 0.091,
+     "consistency": {
+      "colour_de": 5.4,
+      "pattern_ratio": 0.75
+     },
+     "problems": [
+      "the legs is cut by the picture edge"
+     ],
+     "pass": false
+    },
+    "three_q": {
+     "view": "three_q",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.88,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 3.2,
+      "hair_de": 4.7
+     }
+    },
+    "front": {
+     "view": "front",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.78,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 4.0,
+      "hair_de": 7.7,
+      "identity_colour_de": 2.8,
+      "eye_spacing_ratio": 1.0
+     }
+    },
+    "profile": {
+     "view": "profile",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.84,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 3.1,
+      "hair_de": 4.5,
+      "identity_colour_de": 1.5
+     }
+    },
+    "scared": {
+     "view": "scared",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.86,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 6.1,
+      "hair_de": 5.9,
+      "identity_colour_de": 4.4,
+      "eye_spacing_ratio": 1.0
+     }
+    },
+    "rig_cut": {
+     "problems": [
+      "the hips are under the clothes - hip joint at the natural height - unusual",
+      "no gap between the legs - split at the middle - unusual",
+      "near arm is partly drawn over the body - it moves only a little (no ghost arm) - unusual"
+     ],
+     "height_over_width": 2.06,
+     "fill_of_frame": 0.89,
+     "touches_border": 0.0,
+     "head_fraction": 0.23,
+     "leg_near": 0.44,
+     "arm_near": 0.27,
+     "leg_far": 0.44,
+     "arm_far": 0.29,
+     "pass": true
+    }
+   },
+   "attempts": {
+    "body": 1,
+    "torso": 1,
+    "arm": 1,
+    "legs": 3,
+    "three_q": 1,
+    "front": 1,
+    "profile": 1,
+    "scared": 1
+   },
+   "plan": {
+    "archetype": "man_trousers",
+    "pieces": [
+     "torso",
+     "arm",
+     "legs"
+    ],
+    "child": false,
+    "floats": false
+   },
+   "rig_method": "cut"
+  },
+  "8c50bbc6b23f": {
+   "name": "Saraswati",
+   "look": "a Bengali village woman of about thirty-five, black hair in a bun, a red bindi, a red cotton saree with a broad gold border worn in the Bengali style with the pallu over the left shoulder, a red blouse, gold bangles, bare feet",
+   "ghost": false,
+   "status": "ready",
+   "files": {
+    "body": "body.png",
+    "torso": "piece_torso.png",
+    "arm": "piece_arm.png",
+    "skirt": "piece_skirt.png",
+    "pallu": "piece_pallu.png",
+    "three_q": "head_three_q.png",
+    "front": "head_front.png",
+    "profile": "head_profile.png",
+    "scared": "head_scared.png"
+   },
+   "qa": {
+    "body": {
+     "height_over_width": 2.0,
+     "fill_of_frame": 0.87,
+     "touches_border": 0.0,
+     "problems": [],
+     "pass": true
+    },
+    "torso": {
+     "kind": "torso",
+     "height_over_width": 1.22,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 3.8,
+      "pattern_ratio": 0.85
+     },
+     "problems": [],
+     "pass": true
+    },
+    "arm": {
+     "kind": "arm",
+     "height_over_width": 5.48,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 18.1,
+      "pattern_ratio": 0.97,
+      "skin_de": 3.9
+     },
+     "problems": [],
+     "pass": true
+    },
+    "skirt": {
+     "kind": "skirt",
+     "height_over_width": 1.76,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 11.1,
+      "pattern_ratio": 0.86
+     },
+     "problems": [],
+     "pass": true
+    },
+    "pallu": {
+     "kind": "pallu",
+     "height_over_width": 2.57,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 8.9,
+      "pattern_ratio": 1.62
+     },
+     "problems": [],
+     "pass": true
+    },
+    "three_q": {
+     "view": "three_q",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.71,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 1.8,
+      "hair_de": 4.4
+     }
+    },
+    "front": {
+     "view": "front",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.56,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 2.3,
+      "hair_de": 2.0,
+      "identity_colour_de": 7.8,
+      "eye_spacing_ratio": 0.99
+     }
+    },
+    "profile": {
+     "view": "profile",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.66,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 1.3,
+      "hair_de": 2.3,
+      "identity_colour_de": 5.9
+     }
+    },
+    "scared": {
+     "view": "scared",
+     "face_found": false,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.48,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 3.3,
+      "hair_de": 1.3,
+      "identity_colour_de": 8.7,
+      "eye_spacing_ratio": 0.95
+     }
+    },
+    "rig_rebuilt": {
+     "problems": [],
+     "height_over_width": 2.0,
+     "fill_of_frame": 0.87,
+     "touches_border": 0.0,
+     "head_fraction": 0.2,
+     "arm_near": 0.3,
+     "arm_far": 0.3,
+     "pass": true
+    }
+   },
+   "attempts": {
+    "body": 1,
+    "torso": 1,
+    "arm": 2,
+    "skirt": 1,
+    "pallu": 1,
+    "three_q": 1,
+    "front": 3,
+    "profile": 1,
+    "scared": 1
+   },
+   "plan": {
+    "archetype": "saree_woman",
+    "pieces": [
+     "torso",
+     "arm",
+     "skirt",
+     "pallu"
+    ],
+    "child": false,
+    "floats": false
+   },
+   "rig_method": "rebuilt"
+  },
+  "d2936292c9f0": {
+   "name": "Petni",
+   "look": "a female ghost (petni), very long open black hair falling to her waist, pale bluish skin, glowing white eyes, a torn old white saree, no feet visible",
+   "ghost": true,
+   "status": "failed",
+   "files": {
+    "body": "body.png",
+    "torso": "piece_torso.png",
+    "arm": "piece_arm.png",
+    "hair_back": "piece_hair_back.png",
+    "three_q": "head_three_q.png",
+    "front": "head_front.png",
+    "profile": "head_profile.png",
+    "scared": "head_scared.png"
+   },
+   "qa": {
+    "body": {
+     "height_over_width": 1.86,
+     "fill_of_frame": 0.92,
+     "touches_border": 0.0,
+     "problems": [],
+     "pass": true
+    },
+    "torso": {
+     "kind": "torso",
+     "height_over_width": 1.66,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 9.5,
+      "pattern_ratio": 0.54
+     },
+     "problems": [],
+     "pass": true
+    },
+    "arm": {
+     "kind": "arm",
+     "height_over_width": 6.24,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 25.1,
+      "pattern_ratio": 0.84
+     },
+     "problems": [],
+     "pass": true
+    },
+    "skirt": {
+     "kind": "skirt",
+     "height_over_width": 1.98,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 2.6,
+      "pattern_ratio": 0.25
+     },
+     "problems": [
+      "fabric pattern differs (detail 0.25x the reference)"
+     ],
+     "pass": false
+    },
+    "hair_back": {
+     "kind": "hair_back",
+     "height_over_width": 2.05,
+     "touches_border": 0.0,
+     "consistency": {
+      "hair_de": 7.0
+     },
+     "problems": [],
+     "pass": true
+    },
+    "three_q": {
+     "view": "three_q",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.91,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "hair_de": 3.7
+     }
+    },
+    "front": {
+     "view": "front",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.7,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "hair_de": 3.7,
+      "identity_colour_de": 21.3,
+      "eye_spacing_ratio": 1.08
+     }
+    },
+    "profile": {
+     "view": "profile",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.83,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "hair_de": 5.6,
+      "identity_colour_de": 12.6
+     }
+    },
+    "scared": {
+     "view": "scared",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.97,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "hair_de": 6.1,
+      "identity_colour_de": 10.8,
+      "eye_spacing_ratio": 0.3
+     }
+    },
+    "rig_cut": {
+     "problems": [
+      "the hips are under the clothes - hip joint at the natural height - unusual",
+      "no gap between the legs - split at the middle - unusual",
+      "near arm length 0.64 of the height is not natural",
+      "far arm length 0.64 of the height is not natural"
+     ],
+     "height_over_width": 1.86,
+     "fill_of_frame": 0.92,
+     "touches_border": 0.0,
+     "head_fraction": 0.16,
+     "leg_near": 0.43,
+     "arm_near": 0.64,
+     "leg_far": 0.43,
+     "arm_far": 0.64,
+     "pass": false
+    }
+   },
+   "attempts": {
+    "body": 1,
+    "torso": 1,
+    "arm": 1,
+    "skirt": 3,
+    "hair_back": 1,
+    "three_q": 1,
+    "front": 2,
+    "profile": 2,
+    "scared": 1
+   },
+   "plan": {
+    "archetype": "ghost_flowing",
+    "pieces": [
+     "torso",
+     "arm",
+     "skirt",
+     "hair_back"
+    ],
+    "child": false,
+    "floats": true
+   }
+  },
+  "2801f8120e5b": {
+   "name": "Taranath",
+   "look": "a lean dark-skinned Bengali man of about sixty-five, once a wandering tantrik, now a poor astrologer: half-grey hair, short grey beard, deep piercing eyes, a faded vermilion mark on the forehead, one old rudraksha mala, a worn white dhoti and an old brown shawl, sitting by a hurricane lamp in a damp room",
+   "ghost": false,
+   "status": "ready",
+   "files": {
+    "body": "body.png",
+    "torso": "piece_torso.png",
+    "arm": "piece_arm.png",
+    "legs": "piece_legs.png",
+    "three_q": "head_three_q.png",
+    "front": "head_front.png",
+    "profile": "head_profile.png",
+    "scared": "head_scared.png"
+   },
+   "qa": {
+    "body": {
+     "height_over_width": 1.74,
+     "fill_of_frame": 0.91,
+     "touches_border": 0.002,
+     "problems": [],
+     "pass": true
+    },
+    "torso": {
+     "kind": "torso",
+     "height_over_width": 1.19,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 5.2,
+      "pattern_ratio": 0.72
+     },
+     "problems": [],
+     "pass": true
+    },
+    "arm": {
+     "kind": "arm",
+     "height_over_width": 4.5,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 7.9,
+      "pattern_ratio": 0.43,
+      "skin_de": 7.9
+     },
+     "problems": [],
+     "pass": true
+    },
+    "legs": {
+     "kind": "legs",
+     "height_over_width": 1.86,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 6.8,
+      "pattern_ratio": 1.16
+     },
+     "problems": [],
+     "pass": true
+    },
+    "three_q": {
+     "view": "three_q",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.57,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 13.0,
+      "hair_de": 24.9
+     }
+    },
+    "front": {
+     "view": "front",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.53,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 13.8,
+      "hair_de": 18.2,
+      "identity_colour_de": 7.2,
+      "eye_spacing_ratio": 1.69
+     }
+    },
+    "profile": {
+     "view": "profile",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.57,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 12.1,
+      "hair_de": 19.4,
+      "identity_colour_de": 5.1
+     }
+    },
+    "scared": {
+     "view": "scared",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.63,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 12.5,
+      "hair_de": 12.1,
+      "identity_colour_de": 5.3,
+      "eye_spacing_ratio": 1.69
+     }
+    },
+    "rig_rebuilt": {
+     "problems": [],
+     "height_over_width": 1.74,
+     "fill_of_frame": 0.91,
+     "touches_border": 0.002,
+     "head_fraction": 0.22,
+     "leg_near": 0.44,
+     "arm_near": 0.3,
+     "leg_far": 0.45,
+     "arm_far": 0.3,
+     "pass": true
+    }
+   },
+   "attempts": {
+    "body": 1,
+    "torso": 1,
+    "arm": 1,
+    "legs": 1,
+    "three_q": 1,
+    "front": 1,
+    "profile": 1,
+    "scared": 1
+   },
+   "plan": {
+    "archetype": "man_dhoti",
+    "pieces": [
+     "torso",
+     "arm",
+     "legs"
+    ],
+    "child": false,
+    "floats": false
+   },
+   "rig_method": "rebuilt"
+  },
+  "0f3c9bbed3a6": {
+   "name": "Kishori",
+   "look": "a curious young Bengali man of about twenty-five in a white kurta and dhoti, neat side-parted black hair, thin moustache, sitting cross-legged and listening with wide eyes, 1940s Kolkata",
+   "ghost": false,
+   "status": "ready",
+   "files": {
+    "body": "body.png",
+    "torso": "piece_torso.png",
+    "arm": "piece_arm.png",
+    "legs": "piece_legs.png",
+    "three_q": "head_three_q.png",
+    "front": "head_front.png",
+    "profile": "head_profile.png",
+    "scared": "head_scared.png"
+   },
+   "qa": {
+    "body": {
+     "height_over_width": 1.8,
+     "fill_of_frame": 0.87,
+     "touches_border": 0.0,
+     "problems": [],
+     "pass": true
+    },
+    "torso": {
+     "kind": "torso",
+     "height_over_width": 1.09,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 3.6,
+      "pattern_ratio": 0.34
+     },
+     "problems": [],
+     "pass": true
+    },
+    "arm": {
+     "kind": "arm",
+     "height_over_width": 3.12,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 13.7,
+      "pattern_ratio": 2.41,
+      "skin_de": 2.5
+     },
+     "problems": [],
+     "pass": true
+    },
+    "legs": {
+     "kind": "legs",
+     "height_over_width": 2.61,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 1.8,
+      "pattern_ratio": 0.84
+     },
+     "problems": [],
+     "pass": true
+    },
+    "three_q": {
+     "view": "three_q",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.79,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 2.0,
+      "hair_de": 6.2
+     }
+    },
+    "front": {
+     "view": "front",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.75,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 4.5,
+      "hair_de": 1.4,
+      "identity_colour_de": 24.1,
+      "eye_spacing_ratio": 1.0
+     }
+    },
+    "profile": {
+     "view": "profile",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.73,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 2.3,
+      "hair_de": 8.2,
+      "identity_colour_de": 25.7
+     }
+    },
+    "scared": {
+     "view": "scared",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.81,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "skin_de": 2.1,
+      "hair_de": 4.8,
+      "identity_colour_de": 14.6,
+      "eye_spacing_ratio": 1.0
+     }
+    },
+    "rig_rebuilt": {
+     "problems": [],
+     "height_over_width": 1.8,
+     "fill_of_frame": 0.87,
+     "touches_border": 0.0,
+     "head_fraction": 0.27,
+     "leg_near": 0.44,
+     "arm_near": 0.3,
+     "leg_far": 0.44,
+     "arm_far": 0.3,
+     "pass": true
+    }
+   },
+   "attempts": {
+    "body": 1,
+    "torso": 1,
+    "arm": 1,
+    "legs": 1,
+    "three_q": 1,
+    "front": 1,
+    "profile": 2,
+    "scared": 1
+   },
+   "plan": {
+    "archetype": "man_dhoti",
+    "pieces": [
+     "torso",
+     "arm",
+     "legs"
+    ],
+    "child": false,
+    "floats": false
+   },
+   "rig_method": "rebuilt"
+  },
+  "0a313c6f5b4c": {
+   "name": "Madhusundari",
+   "look": "Madhusundari Devi, a yogini (not a human being) in the form of a breathtakingly beautiful young woman of about twenty: fair glowing skin, very large calm dark eyes that seem to know everything, long open black hair to the waist, an unfamiliar ancient-looking dress unlike any Bengali saree (deep red and black cloth with old heavy gold ornaments), bare feet that make no sound, a faint silver mist around her; her presence always brings a strong musky fragrance",
+   "ghost": true,
+   "status": "partial",
+   "files": {
+    "body": "body.png",
+    "torso": "piece_torso.png",
+    "arm": "piece_arm.png",
+    "skirt": "piece_skirt.png",
+    "hair_back": "piece_hair_back.png",
+    "three_q": "head_three_q.png",
+    "front": "head_front.png",
+    "profile": "head_profile.png"
+   },
+   "qa": {
+    "body": {
+     "height_over_width": 1.88,
+     "fill_of_frame": 0.88,
+     "touches_border": 0.0,
+     "problems": [],
+     "pass": true
+    },
+    "torso": {
+     "kind": "torso",
+     "height_over_width": 1.89,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 15.3,
+      "pattern_ratio": 1.15
+     },
+     "problems": [],
+     "pass": true
+    },
+    "arm": {
+     "kind": "arm",
+     "height_over_width": 5.92,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 9.2,
+      "pattern_ratio": 0.37
+     },
+     "problems": [],
+     "pass": true
+    },
+    "skirt": {
+     "kind": "skirt",
+     "height_over_width": 1.27,
+     "touches_border": 0.0,
+     "consistency": {
+      "colour_de": 5.4,
+      "pattern_ratio": 0.35
+     },
+     "problems": [],
+     "pass": true
+    },
+    "hair_back": {
+     "kind": "hair_back",
+     "height_over_width": 1.92,
+     "touches_border": 0.0,
+     "consistency": {
+      "hair_de": 6.4
+     },
+     "problems": [],
+     "pass": true
+    },
+    "three_q": {
+     "view": "three_q",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.62,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "hair_de": 7.0
+     }
+    },
+    "front": {
+     "view": "front",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.84,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "hair_de": 6.7,
+      "identity_colour_de": 13.0,
+      "eye_spacing_ratio": 0.21
+     }
+    },
+    "profile": {
+     "view": "profile",
+     "face_found": true,
+     "touches_border_top_sides": 0.0,
+     "same_colours_as_body": 0.67,
+     "problems": [],
+     "pass": true,
+     "consistency": {
+      "hair_de": 6.7,
+      "identity_colour_de": 6.2
+     }
+    }
+   },
+   "attempts": {
+    "body": 1,
+    "torso": 1,
+    "arm": 1,
+    "skirt": 1,
+    "hair_back": 1,
+    "three_q": 1,
+    "front": 1,
+    "profile": 1,
+    "scared": 1
+   },
+   "plan": {
+    "archetype": "ghost_flowing",
+    "pieces": [
+     "torso",
+     "arm",
+     "skirt",
+     "hair_back"
+    ],
+    "child": false,
+    "floats": true
+   },
+   "paused": "this run's picture budget (60) is used - the rest comes next run"
+  }
+ },
+ "plates": {}
+}

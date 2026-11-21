@@ -1,0 +1,156 @@
+{
+ "height_px": 928.0,
+ "top": 60.0,
+ "bottom": 988.0,
+ "neck": [
+  310.5,
+  263.0
+ ],
+ "hip": [
+  298.3333333333333,
+  541.8461538461538
+ ],
+ "shoulder_y": 300.83,
+ "torso_len": 279.1114567562046,
+ "head_h": 203.0,
+ "shoulders": {
+  "far": [
+   284.84000000000003,
+   300.83
+  ],
+  "near": [
+   388.15999999999997,
+   300.83
+  ]
+ },
+ "leg_hips": {
+  "far": [
+   277.56410256410254,
+   521.2361538461538
+  ],
+  "near": [
+   303.56410256410254,
+   521.2361538461538
+  ]
+ },
+ "arm_free": {
+  "near": true,
+  "far": true
+ },
+ "method": "rebuilt",
+ "legs_under_torso": true,
+ "no_legs": false,
+ "layers": [
+  "hair_back",
+  "uarm_far",
+  "farm_far",
+  "shin_far",
+  "thigh_far",
+  "shin_near",
+  "thigh_near",
+  "skirt_lo",
+  "skirt_up",
+  "torso",
+  "pallu",
+  "head",
+  "uarm_near",
+  "farm_near"
+ ],
+ "floats": false,
+ "head_fraction": [
+  0.1,
+  0.33
+ ],
+ "parts": {
+  "torso": {
+   "file": "part_torso.png",
+   "pivot": [
+    83.83333333333333,
+    278.8461538461538
+   ],
+   "length": 279.1114567562046,
+   "rest": 177.50164463628047
+  },
+  "uarm_near": {
+   "file": "part_uarm_near.png",
+   "pivot": [
+    39.0,
+    14.84
+   ],
+   "length": 155.82080220561053,
+   "rest": 0.18385182538771755
+  },
+  "farm_near": {
+   "file": "part_farm_near.png",
+   "pivot": [
+    27.5,
+    12.659999999999997
+   ],
+   "length": 126.3934317913712,
+   "rest": 3.6289293884018745
+  },
+  "uarm_far": {
+   "file": "part_uarm_far.png",
+   "pivot": [
+    39.0,
+    14.84
+   ],
+   "length": 155.82080220561053,
+   "rest": 0.18385182538771755
+  },
+  "farm_far": {
+   "file": "part_farm_far.png",
+   "pivot": [
+    27.5,
+    12.659999999999997
+   ],
+   "length": 126.3934317913712,
+   "rest": 3.6289293884018745
+  },
+  "thigh_far": {
+   "file": "part_thigh_far.png",
+   "pivot": [
+    99.0,
+    32.07
+   ],
+   "length": 226.8730216594868,
+   "rest": -10.371185411206694
+  },
+  "shin_far": {
+   "file": "part_shin_far.png",
+   "pivot": [
+    90.15730337078652,
+    14.236400000000003
+   ],
+   "length": 187.11395810529424,
+   "rest": 6.015588557876263
+  },
+  "thigh_near": {
+   "file": "part_thigh_near.png",
+   "pivot": [
+    27.0,
+    35.07
+   ],
+   "length": 224.41125101208453,
+   "rest": 6.03774780992486
+  },
+  "shin_near": {
+   "file": "part_shin_near.png",
+   "pivot": [
+    50.60439560439559,
+    14.236400000000003
+   ],
+   "length": 187.81100470669227,
+   "rest": -7.7769193543128585
+  },
+  "head": {
+   "file": "part_head.png",
+   "pivot": [
+    117.5,
+    203.0
+   ],
+   "length": 203.0,
+   "rest": 180.0
+  }
+ }
+}

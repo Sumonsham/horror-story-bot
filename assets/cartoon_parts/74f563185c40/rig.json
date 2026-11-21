@@ -1,0 +1,133 @@
+{
+ "height_px": 916.0,
+ "top": 66.0,
+ "bottom": 981.0,
+ "neck": [
+  279.5,
+  274.0
+ ],
+ "hip": [
+  285.0,
+  542.0
+ ],
+ "shoulder_y": 338.0,
+ "torso_len": 268.0564306260904,
+ "head_h": 208.0,
+ "shoulders": {
+  "far": [
+   143.66433457477714,
+   356.32
+  ],
+  "near": [
+   376.1438901098901,
+   356.32
+  ]
+ },
+ "leg_hips": {
+  "far": [
+   285.0,
+   542.0
+  ],
+  "near": [
+   285.0,
+   542.0
+  ]
+ },
+ "arm_free": {
+  "near": false,
+  "far": true
+ },
+ "method": "cut",
+ "parts": {
+  "head": {
+   "file": "part_head.png",
+   "pivot": [
+    72.5,
+    208.0
+   ],
+   "length": 208.0,
+   "rest": 180.0
+  },
+  "torso": {
+   "file": "part_torso.png",
+   "pivot": [
+    149.0,
+    290.0
+   ],
+   "length": 268.0564306260904,
+   "rest": -178.82431881337547
+  },
+  "uarm_far": {
+   "file": "part_uarm_far.png",
+   "pivot": [
+    37.66433457477714,
+    7.319999999999993
+   ],
+   "length": 136.25607187725006,
+   "rest": -8.723027097014548
+  },
+  "farm_far": {
+   "file": "part_farm_far.png",
+   "pivot": [
+    59.0,
+    22.0
+   ],
+   "length": 128.3999755413071,
+   "rest": -8.468583546246972
+  },
+  "uarm_near": {
+   "file": "part_uarm_near.png",
+   "pivot": [
+    7.143890109890094,
+    31.319999999999993
+   ],
+   "length": 108.17412776422346,
+   "rest": 16.57348336486363
+  },
+  "farm_near": {
+   "file": "part_farm_near.png",
+   "pivot": [
+    10.0,
+    22.0
+   ],
+   "length": 137.59087905817015,
+   "rest": 28.42767212638467
+  },
+  "thigh_far": {
+   "file": "part_thigh_far.png",
+   "pivot": [
+    149.0,
+    22.0
+   ],
+   "length": 225.6795294217001,
+   "rest": -13.974668231542847
+  },
+  "shin_far": {
+   "file": "part_shin_far.png",
+   "pivot": [
+    84.5,
+    22.0
+   ],
+   "length": 178.0175553140757,
+   "rest": -0.8046630977793571
+  },
+  "thigh_near": {
+   "file": "part_thigh_near.png",
+   "pivot": [
+    89.0,
+    22.0
+   ],
+   "length": 223.22186272854188,
+   "rest": 12.417445790076302
+  },
+  "shin_near": {
+   "file": "part_shin_near.png",
+   "pivot": [
+    55.0,
+    22.0
+   ],
+   "length": 177.56196101642942,
+   "rest": 7.605305031943096
+  }
+ }
+}
