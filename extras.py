@@ -278,6 +278,8 @@ def feed_note(kind, at=None):
 
 def fb_post_reel(video, description, at=None, kind="reel"):
     """Publishes a Facebook Reel on the page. Returns the video id."""
+    if not _dest_on("facebook"):
+        raise RuntimeError("Facebook is switched off on Telegram (/facebook_on)")
     if not feed_ok(at, kind):
         raise RuntimeError(f"today's extra posts are done ({feed_count(_feed_day(at))}, FEED_EXTRA) - this extra Reel waits")
     page, token = env("FB_PAGE_ID"), env("FB_PAGE_TOKEN")
@@ -309,7 +311,7 @@ def fb_post_story(video):
     """Shares the teaser (vertical, under 60 s) to the page's Facebook Story - followers see it at the top of their
     feed for 24 hours and tap through to the full story. Returns the story's post id."""
     page, token = env("FB_PAGE_ID"), env("FB_PAGE_TOKEN")
-    if env("FB_STORY") == "0" or not (page and token):
+    if env("FB_STORY") == "0" or not (page and token) or not _dest_on("facebook"):
         return None
     r = requests.post(f"{GRAPH}/{page}/video_stories", data={"upload_phase": "start", "access_token": token},
                       timeout=60).json()
@@ -1183,6 +1185,15 @@ def viewer_stories(history, used_ids, max_posts=20):
 
 
 # ----------------------------------------------------------------- Instagram Reels (from the same page)
+def _dest_on(name):
+    """V8 Telegram switches (/facebook_off ...) - on unless you switched it off"""
+    try:
+        import control
+        return control.dest_on(name, os.path.dirname(os.path.abspath(__file__)))
+    except Exception:
+        return True
+
+
 def ig_account():
     r = requests.get(f"{GRAPH}/{env('FB_PAGE_ID')}", params={
         "fields": "instagram_business_account", "access_token": env("FB_PAGE_TOKEN")}, timeout=30).json()
@@ -1227,6 +1238,8 @@ def tg_chat_id(token):
     cid = env("TELEGRAM_CHAT_ID")
     if cid:
         return cid
+    if env("TG_CHAT_FALLBACK") != "1":        # V8 security: viewers also write to this bot - your reports never go
+        return None                           # to "whoever wrote last"; set TELEGRAM_CHAT_ID (or TG_CHAT_FALLBACK=1)
     try:                                      # no chat id given: use the last person who wrote to the bot
         r = requests.get(f"https://api.telegram.org/bot{token}/getUpdates", timeout=20).json()
         for u in reversed(r.get("result", [])):
@@ -1591,7 +1604,10 @@ def tts_keys():
     # breaks Google's rules and can get the accounts blocked)
     keys = [k for k in (env("GEMINI_TTS_KEY"),) if k]
     if env("TTS_PAID") == "1" and env("GEMINI_API_KEY"):
-        keys.append(env("GEMINI_API_KEY"))          # your paid key, only if you switched it on
+        if env("ZERO_COST_MODE") != "0":            # V8 ZERO_COST: the paid key is never used for voices
+            log("  TTS_PAID ignored - ZERO_COST_MODE is on (only the free Gemini voice key, then Chirp)")
+        else:
+            keys.append(env("GEMINI_API_KEY"))      # your paid key, only if you switched it on
     return keys
 
 
@@ -5772,9 +5788,92 @@ def parse_yt_results(html):
     return out
 
 
+YT_API_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "trends.json")
+
+
+def yt_trending_api(kind, lang, max_n=15, queries=None):
+    """V8: the same list through YouTube's OFFICIAL Data API (search.list ordered by views, uploaded in the last 7
+    days, India) - real titles and real view counts, inside YouTube's terms. Uses the channel's free quota: at most
+    YT_TREND_API_MAX (default 3) searches a day (100 units each), cached for the day. [] when not possible."""
+    if env("YT_TREND_API") == "0" or not (env("YT_CLIENT_ID") and env("YT_REFRESH_TOKEN")) or env("MOCK") == "1":
+        return []
+    today = dt.datetime.now(IST).date().isoformat()
+    try:
+        with open(YT_API_CACHE, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        data = {}
+    c = data.get("_yt_api") if isinstance(data.get("_yt_api"), dict) else {}
+    if c.get("date") != today:
+        c = {"date": today, "q": {}}
+    budget = int(env("YT_TREND_API_MAX") or 3)
+    hdr, seen, out = None, set(), []
+    after = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    for q in (queries or TREND_QUERIES.get((kind, lang), []))[:6]:
+        rows = c["q"].get(q)
+        if rows is None:
+            if len(c["q"]) >= budget:
+                continue
+            try:
+                hdr = hdr or yt_token()
+                r = requests.get("https://www.googleapis.com/youtube/v3/search", headers=hdr, timeout=30, params={
+                    "part": "snippet", "q": q, "type": "video", "order": "viewCount", "publishedAfter": after,
+                    "regionCode": "IN", "relevanceLanguage": lang, "maxResults": 15})
+                if not r.ok:
+                    log(f"  YouTube API trend search: {_yt_err(r)}")
+                    break
+                items = r.json().get("items") or []
+                ids = [i["id"]["videoId"] for i in items if (i.get("id") or {}).get("videoId")]
+                stats = {}
+                if ids:
+                    v = requests.get("https://www.googleapis.com/youtube/v3/videos", headers=hdr, timeout=30,
+                                     params={"part": "statistics,snippet", "id": ",".join(ids)})
+                    for it in (v.json().get("items") or []) if v.ok else []:
+                        stats[it["id"]] = it
+                rows = []
+                for vid in ids:
+                    it = stats.get(vid) or {}
+                    sn = it.get("snippet") or {}
+                    pub = str(sn.get("publishedAt", ""))[:10]
+                    try:
+                        age = f"{(dt.date.today() - dt.date.fromisoformat(pub)).days} days ago"
+                    except ValueError:
+                        age = ""
+                    rows.append({"id": vid, "title": str(sn.get("title", ""))[:150],
+                                 "views": int((it.get("statistics") or {}).get("viewCount") or 0), "age": age})
+                c["q"][q] = rows
+            except Exception as e:
+                log(f"  YouTube API trend search failed: {str(e)[:100]}")
+                break
+        for v in rows or []:
+            if v["id"] in seen or TREND_SKIP.search(v["title"]):
+                continue
+            seen.add(v["id"])
+            out.append(v)
+    data["_yt_api"] = c
+    try:
+        with open(YT_API_CACHE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+    except Exception:
+        pass
+    out.sort(key=lambda v: -v["views"])
+    if out:
+        log(f"  YouTube API this week ({kind}): " + " | ".join(f"{v['title'][:50]} ({v['views']:,})" for v in out[:4]))
+    return out[:max_n]
+
+
 def yt_trending(kind, lang, max_n=15, queries=None, sp="CAMSAggD"):
     """The most watched videos of THIS WEEK on YouTube for our kind of video (YouTube's own search, sorted by
-    views, uploaded this week) - real titles and real view counts, no API quota used. [] if YouTube says no."""
+    views, uploaded this week) - real titles and real view counts, no API quota used. [] if YouTube says no.
+    V8: the official Data API first (yt_trending_api); reading YouTube's search PAGE is used only if you switch
+    it on (GitHub Variable YT_SCRAPE=1), because YouTube's terms do not allow automated page reading."""
+    try:
+        api_ = yt_trending_api(kind, lang, max_n, queries)
+    except Exception as e:
+        api_ = []
+        log("  YouTube API trends skipped:", str(e)[:100])
+    if api_ or env("YT_SCRAPE") != "1":
+        return api_
     seen, out = set(), []
     hdr = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                          "Chrome/124.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.8"}
@@ -5802,7 +5901,18 @@ TREND_STYLE = {}          # kind_lang -> the week's style (titles, thumbnails, t
 
 
 def yt_video_meta(vid):
-    """The public facts of one YouTube video page: its tags (keywords) and the hashtags in its description."""
+    """The public facts of one YouTube video page: its tags (keywords) and the hashtags in its description.
+    V8: through the official Data API (videos.list, 1 quota unit) unless YT_SCRAPE=1."""
+    if env("YT_SCRAPE") != "1":
+        try:
+            r = requests.get("https://www.googleapis.com/youtube/v3/videos", headers=yt_token(), timeout=30,
+                             params={"part": "snippet", "id": vid})
+            sn = ((r.json().get("items") or [{}])[0].get("snippet") or {}) if r.ok else {}
+        except Exception:
+            sn = {}
+        desc = str(sn.get("description") or "")
+        return {"tags": [str(x) for x in (sn.get("tags") or [])][:30],
+                "hashtags": re.findall(r"#[^\s#,.!?।]+", desc)[:15]}
     hdr = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                          "Chrome/124.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.8"}
     r = requests.get("https://www.youtube.com/watch", params={"v": vid, "hl": "en", "gl": "IN"}, headers=hdr,
@@ -6637,6 +6747,8 @@ def creator_inbox(path, kind="horror", status=None):
         if int(msg.get("date") or 0) < since:
             continue                                  # sent before the clean start: never made
         if len(t) < 150 and _command(t):              # a command: অবস্থা / বন্ধ / চালু / বাদ
+            if kind == "horror" and uid in _poller_handled(os.path.dirname(os.path.abspath(path))):
+                continue                              # V8: already answered within minutes by the Telegram poller
             cmds.append((int(msg.get("date") or 0), _command(t)))
         elif len(t) >= 150:                           # a story (short messages are just chat)
             msgs.append((int(msg.get("date") or 0), uid, t))
@@ -6683,6 +6795,15 @@ def creator_inbox(path, kind="horror", status=None):
     data["seen"] = sorted(seen)[-400:]
     _js(path, data)
     return data
+
+
+def _poller_handled(assets_dir):
+    """update ids the V8 Telegram poller (control.py) already answered - so no command is answered twice"""
+    try:
+        import control
+        return control.handled_ids(os.path.dirname(assets_dir))
+    except Exception:
+        return set()
 
 
 def take_creator_story(path, kind="horror"):

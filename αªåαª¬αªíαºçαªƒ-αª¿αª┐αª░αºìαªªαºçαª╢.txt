@@ -1,0 +1,33 @@
+Daily Horror Story Bot - V8 আপডেট: কীভাবে GitHub-এ বসাবেন
+==========================================================
+
+এই zip-এ শুধু নতুন আর বদলানো ১৪টা ফাইল আছে। আপনার repo-র বাকি সব ফাইল (assets, docs,
+history, podcast) যেমন আছে তেমনই থাকবে। কিছুই মুছতে হবে না।
+
+ধাপ ১ - ফাইল তোলা (৫ মিনিট)
+  1. GitHub-এ আপনার horror-story-bot repo খুলুন -> "Add file" -> "Upload files"
+  2. এই zip খুলে ভেতরের সব কিছু (.github ফোল্ডার, tests ফোল্ডার আর বাকি ফাইল) একসাথে টেনে ছেড়ে দিন।
+     ফোল্ডারের গঠন ঠিক থাকে, পুরোনো একই নামের ফাইলগুলো নতুন দিয়ে বদলে যায়।
+     (.github আর .gitignore লুকোনো নামের ফাইল। কম্পিউটারে না দেখালে "লুকোনো ফাইল দেখান" চালু করুন।)
+  3. নিচে "Commit changes" চাপুন।
+  (git ব্যবহার করলে: git am horror-bot-v8.patch)
+
+ধাপ ২ - একবারের setup (আপনার হাতে, ১০-১৫ মিনিট)
+  a. Secret TELEGRAM_CHAT_ID আছে কি না দেখুন। না থাকলে bot-এর রিপোর্ট আর alert কোথাও যাবে না।
+  b. Google AI Studio-তে দেখুন, GEMINI_API_KEY আর GEMINI_TTS_KEY-এর project-এ Billing বন্ধ আছে কি না।
+  c. Chirp: আপনার কথামতো Gemini শেষ হলে Chirp চলবে। Chirp-এর Cloud project-এ একটা budget alert রাখুন।
+  d. PODCAST_EMAIL secret-এ ব্যক্তিগত Gmail-এর বদলে আলাদা একটা podcast ইমেইল দিন
+     (এই ইমেইল public RSS-এ দেখা যায়)।
+  e. cron-job.org-এ যে GitHub token আছে, সেটা যেন শুধু এই repo-র জন্য (fine-grained) হয়।
+  f. Instagram / Messenger চালু করতে চাইলে (ঐচ্ছিক): Page token-এ সেই অনুমতি যোগ করুন।
+
+ধাপ ৩ - প্রথম পরীক্ষা (কিছু প্রকাশ হবে না)
+  1. Actions -> "Telegram control centre" -> "Run workflow"। তারপর Telegram-এ লিখুন: /help
+  2. Telegram-এ লিখুন: /discover_now  ->  বিষয়ের তালিকা Telegram-এ আসবে।
+  3. চাইলে প্রথম ১-২ দিন /autopublish_off রাখুন। তখন ভিডিও তৈরি হবে কিন্তু প্রকাশ হবে না।
+     দেখে সন্তুষ্ট হলে /autopublish_on লিখুন।
+
+ফেরত যাওয়ার উপায় (rollback)
+  - কোনো নতুন অংশ বন্ধ করতে: Settings -> Variables-এ AUTO_DISCOVER=0, BACKUP_CLOCK=0, YT_TREND_API=0
+    ইত্যাদি দিন, অথবা Telegram-এর সুইচ ব্যবহার করুন।
+  - পুরোপুরি আগের অবস্থায় ফিরতে: GitHub-এ এই commit-টা "Revert" করুন।

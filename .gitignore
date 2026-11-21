@@ -1,0 +1,15 @@
+# V8 privacy: nothing private or temporary goes into this PUBLIC repository
+work/
+__pycache__/
+*.pyc
+.env
+*.env
+.pytest_cache/
+# your own voice clips and Telegram style recordings stay private (only their Telegram ids are saved)
+assets/owner_voice/*.ogg
+assets/owner_voice/*.mp3
+assets/owner_voice/*.m4a
+assets/owner_voice/*.wav
+assets/style_samples/
+# research dossiers (may name real people) are never published
+assets/dossiers/

@@ -38,6 +38,8 @@ import wave
 
 import requests
 import numpy as np
+import zerocost
+zerocost.install()                                 # V8: no paid API can be called (see zerocost.py)
 import extras
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -62,7 +64,6 @@ LANGS = {
         "outro": "ऐसी और डरावनी कहानियों के लिए {page} को फ़ॉलो कर लीजिए। आज रात बत्ती बुझाकर मत सोइएगा... फिर मिलेंगे, अंधेरे में।",
         "outro_short": "आज रात बत्ती बुझाकर मत सोइएगा... फिर मिलेंगे, अंधेरे में।",
         "page_default": "हमारे पेज",
-        "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
         "share_cta": "📌 हर दोपहर और रात नई डरावनी कहानी - पेज फ़ॉलो करके रखिए।",
         "ai_note": "🎨 यह कहानी और तस्वीरें AI की मदद से बनाई गई हैं। सब काल्पनिक है।",
         "ai_true": "🎨 यह कहानी हमें भेजी गई एक सच्ची घटना पर आधारित है (नाम और कुछ बातें बदली गई हैं); आवाज़ें और तस्वीरें AI की मदद से बनी हैं।",
@@ -2095,6 +2096,10 @@ def team_report(story, slot_hour):
         f"🔎 গবেষক (Google-এ খোঁজে): " + ("সত্যি ঘটনা পেয়েছে - " + ", ".join(s.get("title") or "" for s in (STATE.get("true_sources") or [])[:2])
                                           if STATE.get("true_sources") else ("লোকবিশ্বাসের তথ্য জোগাড় করেছে" if STATE.get("brief") else "এবার দরকার হয়নি")),
         f"🎨 ধাঁচ-নকশাকার: " + (f"শুরু - {fr.get('opening')}; ভূত - {fr.get('ghost')}" if fr else "আপনার নিজের গল্প, ধাঁচ আপনার"),
+    ] + ([f"🎧 নমুনা-সহকারী: '{STATE['style_pick'].get('sample')}' বেছে নিয়েছে - কারণ: {STATE['style_pick'].get('why')}"
+          + (f" (+ '{STATE['style_pick']['also']}'-এর কৌশল)" if STATE['style_pick'].get('also') else "")]
+         if STATE.get("style_pick") else []) + ([f"🧭 বিষয়-সন্ধানী: {STATE['discovery'].get('report_bn')}"]
+         if isinstance(STATE.get("discovery"), dict) and STATE["discovery"].get("report_bn") else []) + [
         f"✍️ লেখক: " + (f"{w[0]}টা দৃশ্য, {w[1]} শব্দ (~{w[2]} মিনিট), এক টানা" if w else "গল্প লিখেছে"),
         f"📝 সম্পাদক: " + (f"পুরো গল্প একবার পড়ে মসৃণ করেছে ({tm['editor']} শব্দ)" if tm.get("editor") else "পড়েছে"),
         f"🔁 পুনরাবৃত্তি-পাহারাদার: {tm.get('repeat') or 0}টা লাইন বাদ / ছোট",
@@ -6167,6 +6172,8 @@ def post_to_facebook(video, thumb, title, description):
             log("  9:16 thumbnail skipped:", str(e)[:120])
     else:
         video, thumb = extras.fb_square(video, thumb, WORK)   # 1:1 ranks better on phones
+    if not dest_on("facebook"):
+        raise RuntimeError("Facebook is switched off on Telegram (/facebook_on to switch it on)")
     description = extras.fb_caption(description)               # Facebook likes 10-400 characters
     page, token = need_env("FB_PAGE_ID"), need_env("FB_PAGE_TOKEN")
     url = f"https://graph-video.facebook.com/v21.0/{page}/videos"
@@ -6219,8 +6226,18 @@ def post_to_facebook(video, thumb, title, description):
     raise RuntimeError("Facebook upload failed 3 times")
 
 
+def dest_on(name):
+    """V8: is this destination switched on from Telegram (/youtube_off, /facebook_off, /podcast_off,
+    /autopublish_off)? Default: on - exactly as before V8."""
+    try:
+        import control
+        return control.dest_on(name, HERE)
+    except Exception:
+        return True
+
+
 def youtube_ready():
-    return all(env(k) for k in ("YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN"))
+    return all(env(k) for k in ("YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN")) and dest_on("youtube")
 
 
 def post_to_youtube(video, thumb, title, description, tags, lang, localizations=None):
@@ -6236,8 +6253,7 @@ def post_to_youtube(video, thumb, title, description, tags, lang, localizations=
                     "defaultLanguage": lang, "defaultAudioLanguage": lang},
         "status": {"privacyStatus": env("YT_PRIVACY") or "public", "selfDeclaredMadeForKids": False,
                    # v112: honest 'altered or synthetic content' label (AI voices and pictures) - YouTube asks for it
-                   "containsSyntheticMedia": env("YT_SYNTHETIC") != "0",
-                   "containsSyntheticMedia": True},
+                   "containsSyntheticMedia": env("YT_SYNTHETIC") != "0"},   # (V8: the duplicate key removed)
     }
     at = extras.publish_time()
     if at and not env("YT_PRIVACY"):                  # private until the planned time, then public by itself
@@ -6993,6 +7009,200 @@ def true_web_story(history, lang):
     return None
 
 
+# ===================== V8: AUTO_DISCOVER (discovery.py) =====================
+DISCOVERY_LEDGER = os.path.join(HERE, "assets", "discovery_ledger.json")
+TOPIC_QUEUE = os.path.join(HERE, "assets", "topic_queue.json")
+INSPIRED_RULE = (
+    "\nINSPIRED BY A REPORTED ACCOUNT - today's story is a FICTIONAL story INSPIRED by this public account of "
+    "{place} ({era}):\n<<<{text}>>>\nTake only its atmosphere and its central strange happening; the people, the "
+    "events and the ending are our own invention (never a real private person's name). The narrator's first lines say "
+    "honestly that this is a story inspired by a reported incident - NOT that it is a true story.\n")
+
+
+def _gemini_search_json(prompt):
+    """Gemini + Google Search grounding -> (json dict, [{title, url}]) - the same free key and models as before"""
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return None, []
+    for model in gemini_models(key)[:3]:
+        if model in TEXT_DAY_OUT:
+            continue
+        try:
+            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                              json={"contents": [{"parts": [{"text": prompt}]}], "tools": [{"google_search": {}}],
+                                    "generationConfig": {"temperature": 0.2}}, timeout=180)
+            if not r.ok:
+                log(f"  discovery research: {model} {r.status_code}")
+                continue
+            cand = r.json()["candidates"][0]
+            ans = extras.load_json_loose("".join(p_.get("text", "") for p_ in cand["content"]["parts"]))
+            chunks = ((cand.get("groundingMetadata") or {}).get("groundingChunks") or [])
+            srcs = [{"title": (c.get("web") or {}).get("title", ""), "url": (c.get("web") or {}).get("uri", "")}
+                    for c in chunks if (c.get("web") or {}).get("uri")]
+            return ans, srcs
+        except Exception as e:
+            log(f"  discovery research: {model} {str(e)[:100]}")
+    return None, []
+
+
+def _used_subjects(history):
+    out = []
+    for h in history[-250:]:
+        out += [str(h.get(k) or "") for k in ("theme", "trend_used", "title", "source") if h.get(k)]
+    td = _jload(TRUE_WEB_FILE, {})
+    out += [u.get("title_en", "") for u in (td.get("used") or [])] if isinstance(td, dict) else []
+    import discovery
+    out += discovery.used_titles(DISCOVERY_LEDGER)
+    return [x for x in out if x]
+
+
+def discover_topic(history, lang, cat, slot_hour, report_only=False):
+    """V8 AUTO_DISCOVER: no story or topic from you needed. Returns the chosen subject (see discovery.discover) or
+    None (then the story is chosen exactly as before V8). Switches: /autodiscover_off on Telegram, or the GitHub
+    Variable AUTO_DISCOVER=0; /topic_mode chooses true-incident / trending / mixed."""
+    import control
+    import discovery
+    if MOCK and not report_only:
+        return None
+    cs = control.get(HERE)
+    if not cs.get("autodiscover", True):
+        log("  AUTO_DISCOVER is off (Telegram /autodiscover_off) - the story is chosen the old way")
+        return None
+    mode = cs.get("topic_mode", "AUTO_DISCOVER")
+    tq = _jload(TOPIC_QUEUE, {})
+    tq = tq if isinstance(tq, dict) else {}
+    used_user = set(tq.get("used_user") or [])
+    users = [u for u in (cs.get("user_topics") or []) if u.get("id") not in used_user]
+    if mode == "USER_SUPPLIED" and not users:
+        log("  topic mode USER_SUPPLIED and no topic from you - the story is chosen the old way")
+        return None
+    last = [e for e in (_jload(DISCOVERY_LEDGER, {}) or {}).get("entries", []) if e.get("selected")][-1:]
+    last_cls = last[0].get("story_class") if last else None
+    prefer = {"TRUE_INCIDENT_PRIORITY": "true", "TRENDING_TOPIC_PRIORITY": "trend"}.get(
+        mode, "trend" if last_cls in ("true", "inspired") else "mixed")      # (the mix: true and trending take turns)
+    np_ = cs.get("next_prefer") or {}
+    if np_.get("day") == dt.datetime.now(extras.IST).date().isoformat() and np_.get("prefer") in ("true", "trend"):
+        prefer = np_["prefer"]                        # ('আজ নিজে সত্য ঘটনা খুঁজে গল্প বানাও' on Telegram)
+    trends_, ytop_ = list(STATE.get("trends") or []), []
+    try:
+        if not trends_:
+            trends_ = extras.trending_topics("horror", lang, ASSETS, cat)
+        td_ = _jload(os.path.join(ASSETS, "trends.json"), {})
+        ytop_ = (td_.get(f"horror_{lang}_{cat}") or td_.get(f"horror_{lang}") or {}).get("youtube_top") or []
+    except Exception as e:
+        log("  discovery: trend list skipped:", str(e)[:100])
+    try:
+        out = discovery.discover(_used_subjects(history), gemini_search=_gemini_search_json, prefer=prefer,
+                                 trend_topics=trends_, youtube_top=ytop_, user_topics=users,
+                                 ledger_path=DISCOVERY_LEDGER, slot=SLOT)
+    except Exception as e:
+        log("  AUTO_DISCOVER failed - the story is chosen the old way:", str(e)[:150])
+        _tg_text(f"⚠️ বিষয়-সন্ধান এবার কাজ করেনি ({str(e)[:80]}) - আগের নিয়মে গল্প হবে। কোনো খোঁজ হয়েছে বলে দাবি করা হচ্ছে না।")
+        return None
+    if out and out.get("class") == "fiction" and prefer != "trend" and env("TRUE_WEB") != "0" and not users:
+        try:                                         # the old district-by-district true-story search, as before
+            tw_ = true_web_story(history, lang)
+        except Exception as e:
+            tw_ = None
+            log("  true story from the web skipped:", str(e)[:150])
+        if tw_:
+            ver_ = discovery.classify_sources(tw_.get("sources") or [],
+                                              [w for w in re.split(r"[,\s]+", str(tw_.get("place", ""))) if len(w) > 3][:4])
+            cls_ = "true" if len(ver_) >= 2 and any(v["credible"] for v in ver_) else "inspired" if ver_ else None
+            if cls_:
+                out = dict(out, **{"class": cls_, "theme": f"a real reported haunting: {tw_.get('title_en') or tw_.get('place')}",
+                                   "title": tw_.get("title_en", ""), "sources": ver_, "kind": "true_web",
+                                   "dossier": {"place": tw_.get("place", ""), "era": tw_.get("era", ""),
+                                               "what_is_reported": tw_.get("what_is_reported", ""), "district": tw_.get("district")},
+                                   "report_bn": f"জেলাভিত্তিক খোঁজে পাওয়া: {tw_.get('title_en', '')} · "
+                                                + discovery.KIND_BN[cls_] + f" · {len(ver_)}টি উৎস-পাতা নিজে মিলিয়েছে"})
+    if out and out.get("user_id") is not None and not report_only:
+        tq["used_user"] = sorted(used_user | {out["user_id"]})[-200:]
+        _jsave(TOPIC_QUEUE, tq)
+    if not report_only:
+        try:
+            push_now([p for p in (DISCOVERY_LEDGER, TOPIC_QUEUE) if os.path.exists(p)], "discovery ledger")
+        except Exception:
+            pass
+    if out:
+        log(f"  AUTO_DISCOVER: {out.get('report_bn')}")
+        d_ = out.get("dossier") or {}
+        if d_.get("claim_kinds") or d_.get("what_is_reported"):
+            _tg_text("🗂️ গবেষণা-নথি (শুধু আপনার জন্য, কোথাও প্রকাশ হয় না):\n"
+                     f"বিষয়: {out.get('title', '')[:90]}\nস্থান: {d_.get('place') or 'অজানা'} · সময়: {d_.get('era') or 'অজানা'}\n"
+                     f"শ্রেণি: {discovery.KIND_BN.get(out.get('class'), '')}\n"
+                     + ("দাবির ধরন: " + ", ".join(f"{k} {v}" for k, v in (d_.get("claim_kinds") or {}).items()) + "\n"
+                        if d_.get("claim_kinds") else "")
+                     + "\n".join(f"• {s_.get('site')}: {s_.get('url')}" for s_ in (out.get("sources") or [])[:5]))
+    return out
+
+
+def paused_now():
+    """V8: paused by the old way ('বন্ধ' read by a story run) OR by the Telegram poller; a 'চালু' through the
+    poller also ends an older pause."""
+    import control
+    cs = control.get(HERE)
+    legacy = extras.bot_paused(MY_STORIES)
+    if legacy and cs.get("resumed_at"):
+        d_ = _jload(MY_STORIES, {})
+        since_ = str(((d_ or {}).get("paused") or {}).get("since") or "")
+        if since_ and since_ < str(cs["resumed_at"]):
+            d_.pop("paused", None)
+            _jsave(MY_STORIES, d_)
+            legacy = False
+            log("  the older pause was ended by your 'চালু' on Telegram")
+    import control as _c
+    return legacy or _c.paused(cs)
+
+
+def discover_now(history):
+    """V8 /discover_now: runs the whole topic search now and reports the candidates on Telegram (nothing is
+    written or posted; the real story run searches again with the newest data)."""
+    import discovery
+    slot_hour = EVENING if dt.datetime.now(extras.IST).hour >= 12 else NOON
+    out = discover_topic(history, "bn", category_of(slot_hour), slot_hour, report_only=True)
+    led = (_jload(DISCOVERY_LEDGER, {}) or {}).get("entries") or []
+    last = led[-1] if led else {}
+    lines = [f"🧭 বিষয়-সন্ধান এখনই চালানো হল ({len(last.get('queries') or [])}টি খোঁজ, {last.get('pool_size', 0)}টি বিষয়):"]
+    for c in (last.get("candidates") or [])[:8]:
+        sc = (c.get("scores") or {}).get("total")
+        lines.append(f"{'✅' if c.get('eligible') else '✖️'} {str(c.get('title'))[:70]} ({c.get('source') or c.get('kind')}, স্কোর {sc})"
+                     + (f" - {'; '.join(c.get('why') or [])[:80]}" if c.get("why") else ""))
+    fails = [q for q in (last.get("queries") or []) if q.get("error")]
+    if fails:
+        lines.append(f"⚠️ {len(fails)}টি উৎস এবার সাড়া দেয়নি (যেমন {fails[0].get('source')}) - সেগুলো খোঁজা হয়েছে বলে ধরা হয়নি।")
+    lines.append("পছন্দ: " + (out.get("report_bn") if out else "উপযুক্ত কিছু মেলেনি - পরের গল্প আগের নিয়মে হবে"))
+    _tg_text("\n".join(lines))
+    try:
+        push_now([DISCOVERY_LEDGER], "discovery report")
+    except Exception:
+        pass
+    return out
+
+
+def apply_discovery(d, extra_rules):
+    """the chosen subject -> theme + writing rules + labels (true / inspired / fiction)"""
+    cls = d.get("class")
+    dz = d.get("dossier") or {}
+    STATE["discovery"] = {"id": d.get("id"), "report_bn": d.get("report_bn"), "class": cls}
+    STATE["story_class"] = cls
+    theme = d.get("theme") or d.get("title")
+    if cls == "true":
+        STATE["creator_true"] = True                  # 'সত্য ঘটনা অবলম্বনে' (2+ checked sources)
+        STATE["true_sources"] = d.get("sources") or []
+        if dz.get("district"):
+            STATE["district"] = STATE.get("district") or dz.get("district")
+        extra_rules += TRUE_WEB_RULE.format(place=dz.get("place", ""), era=dz.get("era", ""),
+                                            text=dz.get("what_is_reported", ""))
+    elif cls == "inspired":
+        STATE["true_sources"] = d.get("sources") or []
+        extra_rules += INSPIRED_RULE.format(place=dz.get("place", ""), era=dz.get("era", ""),
+                                            text=dz.get("what_is_reported", ""))
+    else:
+        STATE["trend_used"] = d.get("title")
+    return theme, extra_rules
+
+
 def take_creator_story():
     return extras.take_creator_story(MY_STORIES, "horror")
 
@@ -7011,7 +7221,7 @@ PLAN_STATE = ("binaural", "folk_story", "brief", "outline", "outline_saved", "so
               "trend_used", "crossover", "milestone", "opening", "sequel_of",
               "case_no", "creator_story", "creator_true", "len_scale", "short_plan",
               "district", "district_votes", "viewer_names", "arc", "len_arm", "listener_score", "true_sources",
-              "fresh")
+              "fresh", "style_pick", "discovery", "story_class")
 
 
 def length_scale():
@@ -7233,6 +7443,11 @@ def choose_and_write(slot_hour, history):
             if mine:
                 theme = "the creator's own story"
                 extra_rules += CREATOR_RULE.format(text=mine["text"])
+            elif (not folk_ and not viewer and not seq_ and not req_ and not idea
+                  and str(slot_hour) in (env("DISCOVER_SLOTS") or "14,20").split(",")
+                  and (disc_ := discover_topic(history, lang, cat, slot_hour))):
+                # V8 AUTO_DISCOVER: the bot found today's subject itself (news / trends / Wikipedia / YouTube)
+                theme, extra_rules = apply_discovery(disc_, extra_rules)
             elif (not folk_ and not viewer and not seq_ and env("TRUE_WEB") != "0"
                   and str(slot_hour) in (env("TRUE_WEB_SLOTS") or "14,20").split(",")):
                 try:                                  # v115: no story from you -> a REAL reported one from the web
@@ -7369,7 +7584,7 @@ def choose_and_write(slot_hour, history):
     if special != "classic":
         extra_rules += MASTER_STYLE
     extra_rules += taste_rule()                        # v115: your taste
-    extra_rules += style_rule()                        # v117: built like the stories you gave (recordings)
+    extra_rules += style_rule(theme, cat)              # v117 / V8: built like the best-fitting recording you gave
     STATE.pop("fresh_rule", None)
     if special not in ("classic",) and env("FRESH_BRIEF") != "0" and not STATE.get("creator_story"):
         try:                                          # v116: this story's own devices and details
@@ -7475,9 +7690,14 @@ def choose_and_write(slot_hour, history):
         log("  team report skipped:", str(e)[:100])
     if STATE.get("true_sources"):                     # v115: where the true account comes from
         src_ = "\n".join(f"• {s_.get('title') or s_.get('url')}: {s_.get('url')}" for s_ in STATE["true_sources"][:4])
-        story["description"] = (str(story.get("description") or "").rstrip()
-                                + ("\n\n📰 যে সত্যি ঘটনার উপর এই গল্প (চরিত্রগুলো কাল্পনিক) - সূত্র:\n" if lang == "bn" else
-                                   "\n\n📰 Based on these real accounts (the characters are invented):\n") + src_)
+        if STATE.get("story_class") == "inspired":    # V8: one checked source = inspired by it, never 'true'
+            story["description"] = (str(story.get("description") or "").rstrip()
+                                    + ("\n\n📰 ঘটনা থেকে অনুপ্রাণিত কাল্পনিক কাহিনি - যে বিবরণ থেকে অনুপ্রেরণা:\n"
+                                       if lang == "bn" else "\n\n📰 A fictional story inspired by this account:\n") + src_)
+        else:
+            story["description"] = (str(story.get("description") or "").rstrip()
+                                    + ("\n\n📰 যে সত্যি ঘটনার উপর এই গল্প (চরিত্রগুলো কাল্পনিক) - সূত্র:\n" if lang == "bn" else
+                                       "\n\n📰 Based on these real accounts (the characters are invented):\n") + src_)
     if "khata_clue" in KHATA_HOLD and isinstance(story, dict) and not from_saved_:   # v95: the hidden clue goes with the story
         story["khata_clue"] = KHATA_HOLD["khata_clue"]
     plan = {k: v for k, v in locals().items() if k in ('cat', 'classic', 'festival', 'fmt', 'lang', 'outline', 'part', 'prev', 'shout_ids', 'shout_names', 'special', 'story', 'theme', 'total', 'viewer')}
@@ -9167,11 +9387,19 @@ def style_inbox():
         if uid in seen or str((m.get("chat") or {}).get("id")) != str(chat):
             continue
         txt = str(m.get("text") or m.get("caption") or "").strip()
+        if re.search(r"ধাঁচ\s*আবার|ধাঁচ\s*রিফ্রেশ|/style_refresh|style\s*refresh", txt, re.I):
+            seen.add(uid)                             # V8: the per-recording blueprints are made again (no re-listening)
+            for v_ in (sm.get("samples") or {}).values():
+                if isinstance(v_, dict):
+                    v_.pop("profile", None)
+            changed = True
+            _tg_text("🔄 প্রতিটা নমুনা গল্পের আলাদা ধাঁচ আবার তৈরি হবে (পরের run-এ)। নতুন নমুনা থাকলে সেটাও শিখবে।")
+            continue
         if re.search(r"ধাঁচ\s*মুছে|style\s*delete", txt, re.I):
             seen.add(uid)
             for p in style_samples():
                 os.remove(p)
-            sm.update(samples={}, rule="", steps=[])
+            sm.update(samples={}, rule="", steps=[], tg_files={})
             changed = True
             _tg_text("🗑️ গল্পের ধাঁচের সব নমুনা মুছে দিলাম। নতুন পাঠালে আবার শিখবে।")
             continue
@@ -9193,13 +9421,14 @@ def style_inbox():
             ext = os.path.splitext(str(f_.get("file_name") or fp or "a.mp3"))[1] or ".mp3"
             with open(os.path.join(STYLE_DIR, f"tg{uid}{ext}"), "wb") as w:
                 w.write(data)
+            sm.setdefault("tg_files", {})[f"tg{uid}{ext}"] = f_["file_id"]   # V8: id only in the public repo
             got += 1
         except Exception as e:
             log("  style sample not downloaded:", str(e)[:100])
     if changed:
         sm["seen"] = sorted(seen)[-300:]
         _jsave(STYLE_FILE, sm)
-        push_now([STYLE_FILE, STYLE_DIR] if os.path.isdir(STYLE_DIR) else [STYLE_FILE], "style samples")
+        push_now([STYLE_FILE], "style samples noted (the audio itself stays private)")
     if got:
         _tg_text(f"🎧 আপনার পাঠানো {got}টা গল্প পেয়েছি। bot এখন এটা মন দিয়ে শুনে গল্পের ধাঁচ শিখবে, শেখা হলে জানাবে।")
     return got
@@ -9277,9 +9506,26 @@ def style_teacher():
     sm = _jload(STYLE_FILE, {})
     sm = sm if isinstance(sm, dict) else {}
     done = sm.setdefault("samples", {})
+    for name_, fid_ in (sm.get("tg_files") or {}).items():   # V8: a recording not learnt yet comes back from Telegram
+        if name_ not in done and not os.path.exists(os.path.join(STYLE_DIR, name_)):
+            os.makedirs(STYLE_DIR, exist_ok=True)
+            _tg_file(env("TELEGRAM_BOT_TOKEN"), fid_, os.path.join(STYLE_DIR, name_))
+    for p in style_samples():                         # V8: a changed file (same name, new content) is learnt again
+        h_ = _file_sha1(p)
+        d_ = done.get(os.path.basename(p))
+        if isinstance(d_, dict) and h_:
+            if d_.get("sha1") and d_["sha1"] != h_:
+                done.pop(os.path.basename(p), None)
+                log(f"  style: {os.path.basename(p)} has changed - it is studied again")
+            else:
+                d_["sha1"] = h_
     new = [p for p in style_samples() if os.path.basename(p) not in done]
     if not new:
-        return False
+        made_ = style_profiles(sm)                     # V8: one assistant per recording (also for older ones)
+        _jsave(STYLE_FILE, sm)
+        if made_:
+            push_now([STYLE_FILE], "story style: one blueprint per recording")
+        return bool(made_)
     os.makedirs(WORK, exist_ok=True)
     for p in new[:2]:                                 # (two recordings a run at most)
         try:
@@ -9305,7 +9551,8 @@ def style_teacher():
         if not notes:
             log("  style: nothing understood from", os.path.basename(p), "- tried again next run")
             continue
-        done[os.path.basename(p)] = {"notes": notes, "mins": round(secs / 60), "on": dt.date.today().isoformat()}
+        done[os.path.basename(p)] = {"notes": notes, "mins": round(secs / 60), "on": dt.date.today().isoformat(),
+                                     "sha1": _file_sha1(p)}
     allnotes = [n_ for v in done.values() for n_ in (v.get("notes") or [])]
     if not allnotes:
         _jsave(STYLE_FILE, sm)
@@ -9318,6 +9565,10 @@ def style_teacher():
         return False
     sm.update(steps=bp.get("steps") or [], craft=bp.get("craft") or [], variety=bp.get("variety") or [],
               avoid=bp.get("avoid") or [], bn_summary=bp.get("bn_summary") or [], made=dt.date.today().isoformat())
+    try:
+        style_profiles(sm)                             # V8: and one blueprint per recording, to pick from per story
+    except Exception as e:
+        log("  style profiles skipped:", str(e)[:120])
     _jsave(STYLE_FILE, sm)
     push_now([STYLE_FILE], "story style learnt from your recording")
     _tg_text("🎧 আপনার দেওয়া গল্পটা শুনে bot গল্পের ধাঁচ শিখে নিল। এখন থেকে প্রতিটা গল্প এইভাবে ধাপে ধাপে লেখা হবে:\n\n"
@@ -9326,10 +9577,108 @@ def style_teacher():
     return True
 
 
-def style_rule():
-    """the blueprint (from your recordings) for the plan, the writer and the editor"""
+def _file_sha1(path):
+    import hashlib
+    try:
+        h = hashlib.sha1()
+        with open(path, "rb") as f:
+            for b in iter(lambda: f.read(1 << 20), b""):
+                h.update(b)
+        return h.hexdigest()
+    except Exception:
+        return ""
+
+
+STYLE_PROFILE = (
+    "You are ONE assistant who studied ONE recording of a Bengali audio horror story that the channel owner loves. "
+    "Below are your notes on it (beats, opening, fear, talk, sound, ending). Make the blueprint of THIS recording "
+    "only, so our writer can build a NEW story the same way, and say which kinds of stories it suits best.\n"
+    "Nothing of its plot, names, places or sentences may be reused - only HOW it is built.\n"
+    "Answer ONLY JSON: {{\"label_bn\": \"3-6 Bengali words naming this style\", "
+    "\"suits\": {{\"settings\": [\"5-10 English words: village, hills, railway, city flat, hospital ...\"], "
+    "\"ghosts\": [\"English words: possession, folk spirit, cursed object, unseen presence ...\"], "
+    "\"genres\": [\"English words: true incident, travel, investigation, family secret, tantric ...\"], "
+    "\"tellings\": [\"first person / third person / radio drama ...\"], \"intensity\": 1-5}}, "
+    "\"steps\": [{{\"pct\": 10, \"do\": \"\"}}], \"craft\": [\"8-12 rules\"], \"avoid\": [\"\"], "
+    "\"bn_summary\": [\"3-5 short Bengali lines for the owner\"]}}\nNOTES ({name}, about {mins} minutes):\n{notes}")
+
+
+def style_profiles(sm, max_new=3):
+    """V8 (your wish, 21 Nov 2026): EVERY sample recording gets its OWN assistant, who turns that recording's notes
+    into its own blueprint + what kind of story it suits. New recordings added later get theirs automatically (no
+    code change). Returns how many blueprints were made now."""
+    if MOCK or not env("GEMINI_API_KEY"):
+        return 0
+    made = 0
+    for name, v in sorted((sm.get("samples") or {}).items()):
+        if made >= max_new:
+            break
+        if not isinstance(v, dict) or v.get("profile") or not v.get("notes"):
+            continue
+        txt = _gem_call(STYLE_PROFILE.format(name=name, mins=v.get("mins", "?"),
+                                             notes=json.dumps(v["notes"], ensure_ascii=False)[:60000]),
+                        json_mode=True, temp=0.3, max_tokens=6000)
+        pr = extras.load_json_loose(txt or "")
+        if isinstance(pr, dict) and pr.get("steps"):
+            v["profile"] = pr
+            v["profile_on"] = dt.date.today().isoformat()
+            made += 1
+            log(f"  style assistant: blueprint of {name} ready ({pr.get('label_bn', '')})")
+    if made:
+        _tg_text("🎧 প্রতিটা নমুনা গল্পের জন্য আলাদা সহকারী তার নিজের ধাঁচ তৈরি করল:\n" + "\n".join(
+            f"• {n}: {(v.get('profile') or {}).get('label_bn', '')}" for n, v in (sm.get("samples") or {}).items()
+            if isinstance(v, dict) and v.get("profile")) + "\nএখন থেকে প্রতিটা গল্পের বিষয় দেখে সবচেয়ে মানানসই ধাঁচ বেছে নেওয়া হবে।")
+    return made
+
+
+_STYLE_WORDS = re.compile(r"[a-z]{4,}")
+
+
+def style_pick(theme="", cat="", sm=None):
+    """V8: which sample recording fits THIS story best - by its subject, place, ghost, kind of story - and why.
+    Returns [(name, profile, score, why)] best first (empty when no per-recording blueprint exists yet)."""
+    sm = sm if isinstance(sm, dict) else _jload(STYLE_FILE, {})
+    profs = [(n, v["profile"]) for n, v in (sm.get("samples") or {}).items()
+             if isinstance(v, dict) and isinstance(v.get("profile"), dict) and v["profile"].get("steps")]
+    if not profs:
+        return []
+    info = HORROR_CATS.get(cat, {}) if cat else {}
+    want = set(_STYLE_WORDS.findall(f"{theme} {cat} {info.get('about', '')}".lower()))
+    recent = [str(x) for x in (sm.get("picked") or [])][-6:]
+    out = []
+    for n, pr in profs:
+        su = pr.get("suits") or {}
+        bag = {}
+        for k_, w_ in (("settings", 2.0), ("ghosts", 2.0), ("genres", 1.5), ("tellings", 0.5)):
+            for x in su.get(k_) or []:
+                for w in _STYLE_WORDS.findall(str(x).lower()):
+                    bag[w] = max(bag.get(w, 0), w_)
+        hits = sorted(w for w in want if w in bag or any(w[:5] == b[:5] for b in bag))
+        score = sum(bag.get(w, 1.0) for w in hits) - 0.7 * recent.count(n)   # (variety: not the same one always)
+        out.append((n, pr, round(score, 2), ", ".join(hits[:6]) or "সাধারণ মিল (বৈচিত্র্যের জন্য)"))
+    out.sort(key=lambda x: (-x[2], recent.count(x[0]), x[0]))
+    return out
+
+
+def style_rule(theme="", cat=""):
+    """the blueprint (from your recordings) for the plan, the writer and the editor.
+    V8: when every recording has its own blueprint, the one that fits THIS story best leads (its steps), and the
+    craft of the second-best is added when it fits almost as well; the merged blueprint stays the fallback."""
     sm = _jload(STYLE_FILE, {})
-    if not (isinstance(sm, dict) and sm.get("steps")) or env("STYLE_MODEL") == "0":
+    if not isinstance(sm, dict) or env("STYLE_MODEL") == "0":
+        return ""
+    ranked = style_pick(theme, cat, sm) if env("STYLE_PICK") != "0" else []
+    if ranked:
+        n1, p1, sc1, why1 = ranked[0]
+        extra = ranked[1] if len(ranked) > 1 and ranked[1][2] >= sc1 - 1.0 and ranked[1][2] > 0 else None
+        STATE["style_pick"] = {"sample": n1, "why": why1, "also": extra[0] if extra else None}
+        log(f"  story style: sample '{n1}' fits best ({why1})" + (f" + craft of '{extra[0]}'" if extra else ""))
+        if not MOCK:
+            sm["picked"] = ([str(x) for x in (sm.get("picked") or [])] + [n1])[-20:]
+            _jsave(STYLE_FILE, sm)
+        sm = {"steps": p1.get("steps"), "craft": (p1.get("craft") or []) + ((extra[1].get("craft") or [])[:4] if extra else []),
+              "variety": sm.get("variety") or [], "avoid": (p1.get("avoid") or []) + (sm.get("avoid") or [])[:3]}
+    if not sm.get("steps"):
         return ""
     steps = "\n".join(f"{k + 1}. (~{s.get('pct', '')}% of the story) {s.get('do', '')}"
                       for k, s in enumerate(sm["steps"]) if isinstance(s, dict))
@@ -9586,7 +9935,7 @@ def owner_voice_inbox():
             for f in os.listdir(OWNER_DIR):
                 if f.endswith((".ogg", ".mp3", ".m4a", ".wav")):
                     os.remove(os.path.join(OWNER_DIR, f))
-            st["used"] = []
+            st["used"], st["files"] = [], {}
             changed = True
             _tg_text("🗑️ আপনার সব গলার clip মুছে দিলাম। এখন থেকে ভিডিওতে আপনার গলা থাকবে না (নতুন পাঠালে আবার থাকবে)।")
             continue
@@ -9600,16 +9949,17 @@ def owner_voice_inbox():
         changed = True
         ext = ".ogg" if m.get("voice") else os.path.splitext(str(v.get("file_name") or "a.mp3"))[1] or ".mp3"
         path = os.path.join(OWNER_DIR, f"v{uid}{ext}")
-        if not _tg_download(tok, v["file_id"], path):
+        if not _tg_file(tok, v["file_id"], path):     # (V8 fix: was the picture downloader - voices never saved)
             seen.discard(uid)
             continue
+        st.setdefault("files", {})[os.path.basename(path)] = v["file_id"]   # V8: only the Telegram id is saved
         got += 1
     if changed:
         st["seen"] = sorted(seen)[-500:]
         _jsave(stp, st)
-        push_now([OWNER_DIR], "your voice clips")
+        push_now([stp], "your voice clips (ids only - the audio stays private)")
     if got:
-        n_ = len([f for f in os.listdir(OWNER_DIR) if f.endswith((".ogg", ".mp3", ".m4a", ".wav"))])
+        n_ = len(_owner_clips(st))
         _tg_text(f"✅ আপনার গলার {got}টা clip পেয়েছি (মোট {n_}টা)। প্রতিটা গল্পের শুরুতে এর একটা করে বাজবে, ঘুরিয়ে ঘুরিয়ে।")
         log(f"  your voice clips: {got} new")
     return got
@@ -9619,16 +9969,20 @@ def owner_intro_wav():
     """one of YOUR clips (the one used longest ago), cleaned (silence cut, even loudness) as a wav - or None"""
     if not os.path.isdir(OWNER_DIR) or env("OWNER_VOICE") == "0":
         return None
-    clips = sorted(f for f in os.listdir(OWNER_DIR) if f.endswith((".ogg", ".mp3", ".m4a", ".wav")))
-    if not clips:
-        return None
     stp = os.path.join(OWNER_DIR, "state.json")
     st = _jload(stp, {})
     st = st if isinstance(st, dict) else {}
+    clips = _owner_clips(st)
+    if not clips:
+        return None
     used = [u for u in (st.get("used") or []) if u in clips]
     pick = next((c for c in clips if c not in used), None) or (used[0] if used else clips[0])
     used = [u for u in used if u != pick] + [pick]
     st["used"] = used
+    if not os.path.exists(os.path.join(OWNER_DIR, pick)) and not _tg_file(
+            env("TELEGRAM_BOT_TOKEN"), (st.get("files") or {}).get(pick, ""), os.path.join(OWNER_DIR, pick)):
+        log("  your voice clip could not be fetched from Telegram this time")
+        return None
     out = os.path.join(WORK, "owner_intro.wav")
     run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(OWNER_DIR, pick), "-af",
          "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
@@ -9639,6 +9993,35 @@ def owner_intro_wav():
         push_now([stp], "your voice clip used")
     log(f"  your own voice opens the story ({pick})")
     return out
+
+
+def _owner_clips(st):
+    """V8 privacy: your clips are NOT kept in the public repo - only their Telegram ids (st['files']); the audio
+    is fetched from Telegram when a video needs it. Older clips already in the folder still count."""
+    have = {f for f in os.listdir(OWNER_DIR) if f.endswith((".ogg", ".mp3", ".m4a", ".wav"))} \
+        if os.path.isdir(OWNER_DIR) else set()
+    return sorted(have | set((st.get("files") or {}).keys()))
+
+
+def _tg_file(tok, fid, path):
+    """any file (voice, audio) from Telegram by its id -> path. True when saved."""
+    if not (tok and fid) or MOCK:
+        return False
+    try:
+        info = requests.get(f"https://api.telegram.org/bot{tok}/getFile", params={"file_id": fid}, timeout=30).json()
+        fp = (info.get("result") or {}).get("file_path")
+        if not fp:
+            return False
+        r = requests.get(f"https://api.telegram.org/file/bot{tok}/{fp}", timeout=300)
+        if not r.ok or len(r.content) < 500:
+            return False
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(r.content)
+        return True
+    except Exception as e:
+        log("  Telegram file not downloaded:", str(e)[:120])
+        return False
 
 
 def _tg_download(tok, fid, path):
@@ -11587,16 +11970,18 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
     if not (base and env("GITHUB_TOKEN")):
         log("  story page / podcast skipped: " + ("the ghost-map address is not live" if not base else
                                                   "GITHUB_TOKEN is missing in horror-story.yml"))
-    if base and env("PODCAST_FEED") != "0" and env("GITHUB_TOKEN"):
+    if base and env("PODCAST_FEED") != "0" and env("GITHUB_TOKEN") and dest_on("podcast"):
         try:
             mp3 = os.path.join(WORK, f"{story_slug()}.mp3")
-            run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-vn", "-ac", "1", "-ar", "44100", "-b:a", "64k", mp3])
+            run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-vn", "-ac", "1", "-ar", "44100",
+                 "-af", env("PODCAST_LOUDNORM") or "loudnorm=I=-16:TP=-1.5:LRA=11",   # V8: podcast loudness (-16 LUFS)
+                 "-b:a", "64k", mp3])
             url = extras.gh_release_upload(mp3, os.path.basename(mp3))
             if url:
                 pub = (at or dt.datetime.now(dt.timezone.utc))
                 ep_ = {"guid": story_slug(), "title": title, "url": url, "bytes": os.path.getsize(mp3),
                        "secs": duration(video), "date": pub.strftime("%a, %d %b %Y %H:%M:%S +0000"),
-                       "desc": str(story.get("description", ""))[:600]}
+                       "desc": podcast_notes(story, lang)}
                 try:                                 # v101: the episode's own square picture (its thumbnail)
                     pdir_ = os.path.join(MAP_DIR, "podcast")
                     os.makedirs(pdir_, exist_ok=True)
@@ -11640,6 +12025,105 @@ def growth_after_post(story, title, results, history, lang, video, thumb, slot_h
             push_now(sorted(set(changed)), "story page, podcast, fan channel")
         except Exception:
             pass
+
+
+PUBLISH_STATE = os.path.join(HERE, "assets", "publish_state.json")
+
+
+def publish_state_save(slot, rec, yt_title, yt_desc, yt_tags, fb_desc, lang):
+    """V8: one record per story slot - every destination separately (id, or why it failed), plus what is needed
+    to post it again later to ONLY the missing place (/retry_publish). No secret is stored."""
+    ps = _jload(PUBLISH_STATE, {})
+    ps = ps if isinstance(ps, dict) else {}
+    key = str(slot or rec.get("date", "")[:16])
+    ps[key] = {"date": rec.get("date"), "title": rec.get("title"), "lang": lang,
+               "yt_title": str(yt_title or "")[:100], "yt_description": str(yt_desc or "")[:4900],
+               "yt_tags": list(yt_tags or [])[:30], "fb_description": str(fb_desc or "")[:4900],
+               "destinations": {
+                   "youtube": {"id": rec.get("youtube"), "on": dest_on("youtube")},
+                   "facebook": {"id": rec.get("facebook"), "on": dest_on("facebook")},
+                   "fb_reel": {"id": rec.get("fb_reel")}, "yt_short": {"id": rec.get("yt_short")},
+                   "podcast": {"guid": story_slug() if dest_on("podcast") else None, "on": dest_on("podcast")}},
+               "backup": rec.get("backup"), "story_class": rec.get("story_class")}
+    for k in sorted(ps)[:-40]:
+        ps.pop(k, None)
+    _jsave(PUBLISH_STATE, ps)
+    push_now([PUBLISH_STATE], "publish state")
+
+
+def retry_publish(history):
+    """V8 /retry_publish: the newest story (last 30 hours) goes again ONLY where it is missing (YouTube /
+    Facebook), from the safe copy in the 'videos' release. Never twice: the platform itself is checked first
+    (repair_lost_posts) and a destination that has an id is never posted again."""
+    ps = _jload(PUBLISH_STATE, {})
+    recs = [h for h in history[-6:] if h.get("slot") and h.get("backup")]
+    if not recs:
+        _tg_text("🔁 আবার-চেষ্টা: সাম্প্রতিক কোনো ভিডিওর নিরাপদ কপি পাওয়া গেল না - কিছু করা হল না।")
+        return
+    rec = recs[-1]
+    try:
+        age_h = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(rec["date"])).total_seconds() / 3600
+    except Exception:
+        age_h = 0
+    st = (ps or {}).get(str(rec.get("slot"))) or {}
+    missing = [d for d in ("youtube", "facebook") if not rec.get(d) and dest_on(d)]
+    if age_h > 30 or not missing:
+        _tg_text("🔁 আবার-চেষ্টা: " + ("শেষ ভিডিও ৩০ ঘণ্টার বেশি পুরোনো - নতুন করে প্রকাশ করা হল না।" if age_h > 30 else
+                                   "শেষ ভিডিও সব চালু জায়গায় আগেই প্রকাশিত - কিছু করার নেই।"))
+        return
+    os.makedirs(WORK, exist_ok=True)
+    video, thumb = os.path.join(WORK, "retry.mp4"), os.path.join(WORK, "retry.jpg")
+    try:
+        with requests.get(rec["backup"], stream=True, timeout=600) as r_:
+            r_.raise_for_status()
+            with open(video, "wb") as f:
+                for b in r_.iter_content(1 << 20):
+                    f.write(b)
+        run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "20", "-i", video, "-frames:v", "1", thumb])
+    except Exception as e:
+        _tg_text(f"🔁 আবার-চেষ্টা: ভিডিওর কপি নামানো গেল না ({str(e)[:80]})।")
+        return
+    done = []
+    for d in missing:
+        try:
+            if d == "youtube" and youtube_ready():
+                rec["youtube"] = post_to_youtube(video, thumb, st.get("yt_title") or rec.get("title", ""),
+                                                 st.get("yt_description") or rec.get("summary") or "",
+                                                 st.get("yt_tags") or [], st.get("lang") or rec.get("lang", "bn"))
+                done.append(f"YouTube ✓ ({rec['youtube']})")
+            elif d == "facebook":
+                rec["facebook"] = post_to_facebook(video, thumb, rec.get("title", ""),
+                                                   st.get("fb_description") or rec.get("summary") or "")
+                done.append(f"Facebook ✓ ({rec['facebook']})")
+        except Exception as e:
+            done.append(f"{d} ✗ ({str(e)[:80]})")
+    save_history(history)
+    if isinstance(ps, dict) and str(rec.get("slot")) in ps:
+        for d in ("youtube", "facebook"):
+            ps[str(rec["slot"])]["destinations"][d]["id"] = rec.get(d)
+        _jsave(PUBLISH_STATE, ps)
+    _tg_text("🔁 আবার-চেষ্টার ফল: " + " · ".join(done))
+
+
+def podcast_notes(story, lang="bn"):
+    """V8: the podcast episode's OWN show notes (not the YouTube text): the honest label, the story's summary
+    without video-only calls (like / comment / subscribe / links), the true-story sources."""
+    import discovery
+    cls = STATE.get("story_class") or ("true" if STATE.get("creator_true") else "fiction")
+    label = discovery.KIND_BN.get(cls, "") if lang == "bn" else ""
+    desc = str(story.get("summary") or story.get("description") or "")
+    keep = []
+    for ln in desc.splitlines():
+        if re.search(r"(?i)https?://|#\S|কমেন্ট|comment|লাইক|like|subscribe|সাবস্ক্রাইব|ফলো|follow|শেয়ার|share|👇|🔔", ln):
+            continue
+        if ln.strip():
+            keep.append(ln.strip())
+    out = (f"{label}।\n\n" if label else "") + "\n".join(keep)[:1500]
+    if STATE.get("true_sources"):
+        out += "\n\nসূত্র:\n" + "\n".join(f"{s_.get('title') or s_.get('site') or ''}: {s_.get('url')}"
+                                          for s_ in STATE["true_sources"][:4])
+    out += "\n\nচরিত্র ও সংলাপ কাল্পনিক; কণ্ঠ ও ছবি AI-র সাহায্যে তৈরি। Daily Horror Story - প্রতিদিন নতুন বাংলা ভূতের গল্প।"
+    return out[:3800]
 
 
 def old_video_short(history, lang):
@@ -11853,7 +12337,7 @@ def weekly_live(history):
 
 
 def main():
-    global FONT, VHS
+    global FONT, VHS, DRY_RUN
     if env("MODE") == "voice_demo":
         return voice_demo()
     shutil.rmtree(WORK, ignore_errors=True)
@@ -11903,9 +12387,19 @@ def main():
             log("  growth start skipped:", str(e)[:150])
     if env("MODE") == "live":
         return weekly_live(history)
-    if extras.bot_paused(MY_STORIES) and not MOCK:
+    if env("MODE") == "discover":                    # V8: /discover_now on Telegram - find + report, no video
+        return discover_now(history)
+    if env("MODE") == "retry":                       # V8: /retry_publish - only the missing destinations
+        return retry_publish(history)
+    if paused_now() and not MOCK:
         log("PAUSED from Telegram ('বন্ধ') - no video this time. Send 'চালু' to start again.")
         return
+    if not DRY_RUN and not dest_on("youtube") and not dest_on("facebook") and not dest_on("podcast"):
+        DRY_RUN = True                               # V8 /autopublish_off: the video is made, nothing is posted
+        os.environ["DRY_RUN"] = "1"
+        log("AUTO-PUBLISH IS OFF (Telegram) - the video is made and kept as a run artifact, nothing is posted")
+        _tg_text("⏸️ স্বয়ংক্রিয় প্রকাশ বন্ধ আছে - এবারের ভিডিও তৈরি হবে কিন্তু কোথাও প্রকাশ হবে না "
+                 "(GitHub-এ ৩ দিন রাখা থাকবে)। চালু করতে: /autopublish_on")
     if env("MODE") == "write":                       # v110: the 2 AM run - ONLY the day's two stories, written + saved
         return write_day_stories(history)
     global SLOT
@@ -12488,8 +12982,11 @@ def main():
         log("DRY RUN - not posting. Files are in the 'work' folder.")
     else:
         try:
-            results["facebook"] = post_to_facebook(video, thumb, title, description)
-            log("Posted to Facebook:", results["facebook"])
+            if dest_on("facebook"):
+                results["facebook"] = post_to_facebook(video, thumb, title, description)
+                log("Posted to Facebook:", results["facebook"])
+            else:
+                log("Facebook switched off on Telegram - not posted there")
         except Exception as e:
             log("FACEBOOK FAILED:", e)
             results["facebook_error"] = str(e)[:200]
@@ -12504,7 +13001,7 @@ def main():
         else:
             log("YouTube secrets not set - skipping YouTube")
         extras.alert_post_errors(results, "ভূতের bot", title)
-        if not results.get("facebook") and not results.get("youtube"):
+        if not results.get("facebook") and not results.get("youtube") and (dest_on("facebook") or dest_on("youtube")):
             raise SystemExit("Posting failed everywhere - see messages above.")
         if results.get("youtube"):                   # the second thumbnail, kept for the weak-video test
             try:
@@ -12543,6 +13040,10 @@ def main():
                     "trend_used": STATE.get("trend_used"),
                     "len_arm": STATE.get("len_arm"), "listener_score": STATE.get("listener_score"),
                     "fresh": STATE.get("fresh"),
+                    "style_pick": STATE.get("style_pick"),
+                    "discovery_id": (STATE.get("discovery") or {}).get("id"),
+                    "story_class": STATE.get("story_class"),
+                    "true_sources": STATE.get("true_sources") or None,
                     "crossover": STATE.get("crossover") or None,
                     "opening": STATE.get("opening"),
                     "category": STATE.get("category"),
@@ -12587,6 +13088,10 @@ def main():
             log("  sentences not remembered:", str(e)[:100])
     if not MOCK:
         save_history(history)
+        try:                                         # V8: what went where - for /retry_publish and the report
+            publish_state_save(SLOT, history[-1], yt_title, yt_description, yt_tags, description, lang)
+        except Exception as e:
+            log("  publish state not saved:", str(e)[:100])
         cat_ = STATE.get("category", "gram")
         if continues:                                # the next part comes on this category's next day
             last_sc = story["scenes"][-1] if story.get("scenes") else {}
@@ -12631,7 +13136,19 @@ def main():
         except Exception as e:
             log("  growth steps skipped:", str(e)[:200])
     page_name = env(f"PAGE_NAME_{lang.upper()}") or "Daily Horror Story"
-    extras.telegram(extras.report_text(page_name, title, results, history))
+    try:                                             # V8: the subject's class + sources, destinations, cost
+        import discovery
+        import zerocost
+        v8_ = [f"🏷️ {discovery.KIND_BN.get(STATE.get('story_class') or ('true' if STATE.get('creator_true') else 'fiction'), '')}"]
+        if (STATE.get("discovery") or {}).get("report_bn"):
+            v8_.append("🧭 " + STATE["discovery"]["report_bn"])
+        v8_ += [f"📰 সূত্র: {s_.get('url')}" for s_ in (STATE.get("true_sources") or [])[:3]]
+        v8_.append("🎧 Podcast RSS: " + ("পর্ব যোগ হয়েছে (Spotify/Apple নিজেরা পড়ে নেবে - /podcast_status-এ যাচাই)"
+                                        if dest_on("podcast") else "বন্ধ (/podcast_on)"))
+        v8_.append(zerocost.summary_bn())
+    except Exception:
+        v8_ = []
+    extras.telegram(extras.report_text(page_name, title, results, history) + ("\n" + "\n".join(v8_) if v8_ else ""))
     # v110: the day's stories are written by their OWN run at 2 AM (mode=write); writing them after the 8 PM video
     # only when switched on (NIGHT_WRITE = 1)
     if slot_hour == EVENING and env("NIGHT_WRITE") == "1" and env("MODE") not in ("amavasya", "compilation") and SLOT and \
