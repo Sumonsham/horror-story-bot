@@ -161,3 +161,15 @@ def test_cartoon_mode_is_off_unless_asked():
                                  {"name": "মধুসুন্দরী", "gender": "female", "kind": "ghost"}])
     assert [c["id"] for c in cast] == ["অভিষেক", "সায়ন", "মধুসুন্দরী"] or len(cast) == 3
     assert cast[2]["design"].get("faceless")
+
+
+def test_gemini_cannot_invent_actions():
+    import json
+    import action_assistant as AA
+    import match_assistant as MA
+    lines = [{"i": 1, "speaker": "a", "listener": "b", "text": "সায়ন! ভাই আমার... কী হয়েছে তোর?"}]
+    fake = lambda p: json.dumps({"lines": [{"i": 1, "doing": [{"act": "grab", "who": "a", "mode": "happens", "words": "হাত ধরে"}]}]})
+    r = AA.analyse(lines, [{"id": "a", "name": "অভিষেক"}, {"id": "b", "name": "সায়ন"}], "", llm=fake)
+    assert r["source"] == "gemini" and not any(d["act"] == "grab" for d in r["lines"][0]["doing"])
+    m = MA.judge(r["lines"], "road", ["a", "b"])
+    assert m["counts"].get("REJECTED") == 1 and not any(o["op"] == "reach" for o in m["ops"])
