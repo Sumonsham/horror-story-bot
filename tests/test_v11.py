@@ -160,7 +160,35 @@ def test_cartoon_mode_is_off_unless_asked():
                                  {"name": "সায়ন", "gender": "male", "age": "young 22"},
                                  {"name": "মধুসুন্দরী", "gender": "female", "kind": "ghost"}])
     assert [c["id"] for c in cast] == ["অভিষেক", "সায়ন", "মধুসুন্দরী"] or len(cast) == 3
-    assert cast[2]["design"].get("faceless")
+    assert cast[2]["design"].get("ghost") and cast[2]["design"].get("glow_eyes") and not cast[2]["design"].get("faceless")
+
+
+def test_character_designer_builds_the_story_look(tmp_path):
+    import character_designer as CD
+    paltu = {"name": "Paltu", "gender": "male", "age": "young", "kind": "human",
+             "look": "a chubby nervous young Bengali man of about twenty-two, round face, messy short black hair, big round "
+                     "glasses, yellow checked shirt and blue jeans, cloth sling bag, always holding a small torch"}
+    d, ev, _ = CD.design(paltu)
+    assert d["glasses"] and d["checks"] and d["build"] > 1.1 and d["carry"] == "torch" and d["hair_style"] == "messy"
+    assert d["shirt"] == CD.COLORS["yellow"]
+    pishachini = {"name": "Pishachini", "gender": "female", "age": "young", "kind": "ghost",
+                  "look": "tall, dark-skinned, wild loose black hair down to her knees, burning red eyes, a red sindoor mark, "
+                          "a black saree with a blood-red border, only a dark shape at the left shoulder"}
+    g, _, _ = CD.design(pishachini)
+    assert g["ghost"] and g["sari"] and g["glow_eyes"] == (40, 60, 245) and g["hair_style"] == "open_long"
+    assert g["border"] == CD.COLORS["blood-red"] and g["lower"] == CD.COLORS["black"] and not g.get("faceless")
+    lib = tmp_path / "cartoon_cast.json"
+    one = CD.design_cast([paltu, pishachini], library=str(lib), log=lambda *a: None)
+    again = CD.design_cast([paltu], library=str(lib), log=lambda *a: None)
+    assert one["Paltu"]["design"] == again["Paltu"]["design"] and lib.exists()      # the same person, the same look
+
+
+def test_story_save_designs_the_cast():
+    src = open(os.path.join(ROOT, "main.py"), encoding="utf-8").read()
+    i = src.index("def save_plan(slot, plan):")
+    assert "design_story_cast(plan[\"story\"])" in src[i:i + 400]                   # the 2 AM save designs the cast
+    wf = open(os.path.join(ROOT, ".github", "workflows", "horror-story.yml"), encoding="utf-8").read()
+    assert "assets/cartoon_cast.json" in wf                                       # and the library is kept
 
 
 def test_gemini_cannot_invent_actions():
@@ -173,3 +201,39 @@ def test_gemini_cannot_invent_actions():
     assert r["source"] == "gemini" and not any(d["act"] == "grab" for d in r["lines"][0]["doing"])
     m = MA.judge(r["lines"], "road", ["a", "b"])
     assert m["counts"].get("REJECTED") == 1 and not any(o["op"] == "reach" for o in m["ops"])
+
+
+def test_motion_assistant_fixes_robotic_moves():
+    import animation_renderer as AR
+    import motion_director as MD
+    plan = {"characters": [{"id": "a", "x": 800, "ground_y": 935, "facing": 1.0, "start_pose": "sit", "design": {}},
+                           {"id": "b", "x": 860, "ground_y": 935, "facing": -1.0, "start_pose": "stand", "design": {}}],
+            "actions": [{"t0": 2.0, "t1": 12.0, "who": "a", "type": "walk", "to_x": 300},          # slow motion + seated
+                        {"t0": 1.0, "t1": 1.1, "who": "b", "type": "turn", "to": 1.0}]}            # a snap turn
+    rep = MD.check_and_fix(plan)
+    w = next(a for a in plan["actions"] if a["type"] == "walk")
+    assert abs(500 / (w["t1"] - w["t0"]) - AR.WALK_SPEED) < 5                  # normal speed now
+    assert any(a["type"] == "stand_up" and a["who"] == "a" and a["t1"] <= w["t0"] + 1e-6 for a in plan["actions"])
+    assert any(a["type"] == "turn" and a["who"] == "a" and a["to"] == -1.0 for a in plan["actions"])   # turns before walking back
+    assert next(a for a in plan["actions"] if a["who"] == "b")["t1"] - 1.0 >= 0.5                      # no snap turn
+    assert abs(plan["characters"][0]["x"] - plan["characters"][1]["x"]) >= 150                         # not inside each other
+    assert len(rep["fixed"]) >= 4
+
+
+def test_handshake_hands_really_meet():
+    import animation_renderer as AR
+    import cartoon_rig as R
+    import scene_planner as SP
+    lines = [{"i": 1, "speaker": "narrator", "listener": None, "t0": 1.0, "t1": 1.5, "clip": None}]
+    ops = [{"line": 1, "op": "handshake", "who": "a", "target": "b", "ongoing": False}]
+    plan, _ = SP.plan_from_story({"id": "h", "location": "road", "weather": {}, "duration": 10.0, "lead_in": 1.0, "lines": lines,
+                                  "ops": ops, "characters": [{"id": "a", "design": R.DESIGNS["man"]}, {"id": "b", "design": R.DESIGNS["young_man"]}]})
+    hs = next(a for a in plan["actions"] if a["type"] == "handshake")
+    sc = AR.Scene(plan, {}, 24)
+    t = hs["t0"] + 1.0
+    hands = []
+    for cid in ("a", "b"):
+        st = sc.char_state(cid, t)
+        st.pop("target", None)
+        hands.append(sc.chars[cid].joints(dict(st, ground_y=st["ground_y"] + sc.chars[cid].foot_floor(st)))["hd_n"])
+    assert abs(hands[0][0] - hands[1][0]) < 40 and abs(hands[0][1] - hands[1][1]) < 40     # the two hands meet
