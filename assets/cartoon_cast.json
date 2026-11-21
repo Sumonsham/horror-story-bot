@@ -1,0 +1,626 @@
+{
+ "2f8251201c24": {
+  "name": "narrator",
+  "look": "Dressed in dark casual clothes, calm somber face, seated before a studio condenser microphone under low warm studio lamp.",
+  "design": {
+   "skin": [
+    98,
+    136,
+    182
+   ],
+   "skin_dark": [
+    70,
+    100,
+    138
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    150,
+    96,
+    52
+   ],
+   "shirt_dark": [
+    112,
+    70,
+    38
+   ],
+   "lower": [
+    60,
+    70,
+    82
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "calm somber face"
+   ],
+   "not_drawn": [
+    "seated before a studio condenser microphone under low warm studio lamp"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "a0623fc3131c": {
+  "name": "Subrata Sen",
+  "look": "Around 34 years old, medium build, wheatish complexion, rimless spectacles, disheveled black hair, wearing navy blue collared full-sleeve shirt and grey trousers, stressed sweaty forehead.",
+  "design": {
+   "skin": [
+    98,
+    136,
+    182
+   ],
+   "skin_dark": [
+    76,
+    106,
+    141
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    150,
+    96,
+    52
+   ],
+   "shirt_dark": [
+    117,
+    74,
+    40
+   ],
+   "lower": [
+    130,
+    132,
+    136
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "glasses": [
+    30,
+    30,
+    34
+   ],
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "skin: 'wheat'",
+   "hair colour: black",
+   "glasses",
+   "shirt",
+   "trousers",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "wheatish complexion",
+    "rimless spectacles",
+    "disheveled black hair",
+    "wearing navy blue collared full-sleeve shirt",
+    "grey trousers"
+   ],
+   "not_drawn": [
+    "medium build",
+    "stressed sweaty forehead"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "d865c43ac1fb": {
+  "name": "Tuhina Sen",
+  "look": "Around 30 years old, pale expressive face, hair tied in a loose messy bun, wearing a maroon cotton kurti with a black woolen shawl draped tightly over shivering shoulders.",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    152,
+    160,
+    166
+   ],
+   "hair": [
+    18,
+    18,
+    22
+   ],
+   "hair_style": "bun",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    40,
+    30,
+    110
+   ],
+   "shirt_dark": [
+    31,
+    23,
+    85
+   ],
+   "lower": [
+    40,
+    30,
+    110
+   ],
+   "shawl": [
+    34,
+    32,
+    36
+   ],
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.94,
+   "build": 0.9,
+   "sari": true
+  },
+  "evidence": [
+   "মহিলা, প্রাপ্তবয়স্ক",
+   "skin: 'pale'",
+   "hair: bun / braid",
+   "shawl",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "pale expressive face",
+    "hair tied in a loose messy bun",
+    "a black woolen shawl draped tightly over shivering shoulders"
+   ],
+   "not_drawn": [
+    "wearing a maroon cotton kurti"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "74a564e9626b": {
+  "name": "Bhabesh-da",
+  "look": "Late 50s, hollow wrinkled cheeks, bloodshot tired eyes, sparse grey hair, wearing an oversized faded khaki security jacket with brass key ring hanging from his fingers, unblinking uncanny stare.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    150,
+    154,
+    160
+   ],
+   "hair_style": "short",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    100,
+    150,
+    170
+   ],
+   "shirt_dark": [
+    78,
+    117,
+    132
+   ],
+   "lower": [
+    196,
+    200,
+    204
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "hair: short",
+   "hair colour: grey",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "bloodshot tired eyes",
+    "sparse grey hair"
+   ],
+   "not_drawn": [
+    "hollow wrinkled cheeks",
+    "wearing an oversized faded khaki security jacket",
+    "brass key ring hanging from his fingers",
+    "unblinking uncanny stare"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "112a662027fd": {
+  "name": "Subimal Sen",
+  "look": "Headless looming torso wrapped in a moth-eaten damp saffron namabali shawl, pale skin dripping marshy mud, skinless raw fingers, shadowy neck trailing cold grey vapor.",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    156,
+    164,
+    171
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    196,
+    200,
+    204
+   ],
+   "shawl": [
+    40,
+    130,
+    230
+   ],
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "pale": true,
+   "mist": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "skin: 'pale'",
+   "shawl",
+   "ghost: see-through, floating, glowing eyes"
+  ],
+  "source": "offline-rules",
+  "audit": {
+   "drawn": [
+    "pale skin dripping marshy mud",
+    "skinless raw fingers",
+    "shadowy neck trailing cold grey vapor"
+   ],
+   "not_drawn": [],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": true
+  }
+ },
+ "a550d095a122": {
+  "name": "abani",
+  "look": "An old man with grey hair, wearing a simple white dhoti and kurta. His face is weathered with deep lines of terror, eyes wide and haunted, holding a dim kerosene lantern, Veteran toll collector who clasped his hands and began to reveal his horrific past., A very amiable, decent, and calm-natured person., Eyes holding a heavy emptiness and profound terror, as if an unseen dark shadow haunted his soul.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    150,
+    154,
+    160
+   ],
+   "hair_style": "short",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    228,
+    230,
+    232
+   ],
+   "shirt_dark": [
+    177,
+    179,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "hem": 52,
+   "sleeve": "long",
+   "dhoti": true,
+   "carry": "lantern"
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "hair: short",
+   "hair colour: grey",
+   "kurta",
+   "dhoti",
+   "carries a lantern",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "grey hair",
+    "wearing a simple white dhoti",
+    "kurta. His face is weathered",
+    "eyes wide",
+    "holding a dim kerosene lantern",
+    "as if an unseen dark shadow haunted his soul"
+   ],
+   "not_drawn": [
+    "deep lines of terror",
+    "haunted",
+    "clasped his hands",
+    "began to reveal his horrific past",
+    "decent",
+    "profound terror"
+   ],
+   "not_appearance": [
+    "calm-natured person"
+   ],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "1131f130d61f": {
+  "name": "bikash",
+  "look": "A young man in his late 20s, wearing a modern shirt and trousers, curious and observant, carrying a small leather bag, looking at Abani with intense interest.",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    20,
+    20,
+    24
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    90,
+    90,
+    96
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.92,
+   "hem": 22,
+   "sleeve": "elbow",
+   "bag": [
+    70,
+    110,
+    140
+   ]
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "shirt",
+   "trousers",
+   "bag",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "wearing a modern shirt",
+    "trousers",
+    "carrying a small leather bag"
+   ],
+   "not_drawn": [
+    "observant",
+    "looking at Abani",
+    "intense interest"
+   ],
+   "not_appearance": [
+    "curious"
+   ],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "c4d9ae1e50f4": {
+  "name": "meher_ali",
+  "look": "A disheveled, mentally unstable man with wild, matted hair, wearing torn, dirty rags, eyes deep-set and frantic, constantly warning people to stay away from the palace, Wearing torn clothes and having messy, unkempt hair., Eyes completely hollow and sunken, as if he had lost all intellect, conscience, and awareness.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "topknot",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    196,
+    200,
+    204
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "hair: matted, tied on top",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "mentally unstable man",
+    "matted hair",
+    "eyes deep-set",
+    "unkempt hair"
+   ],
+   "not_drawn": [
+    "wild",
+    "wearing torn",
+    "dirty rags",
+    "frantic",
+    "constantly warning people to stay away from the palace",
+    "having messy",
+    "sunken",
+    "as if he had lost all intellect",
+    "conscience",
+    "awareness"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ }
+}

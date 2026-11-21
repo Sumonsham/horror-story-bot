@@ -1,24 +1,24 @@
 {
  "horror_bn": {
-  "made": "2026-11-20T01:00+00:00",
+  "made": "2026-11-22T01:00+00:00",
   "lessons": [
-   "Shorter, nostalgic atmospheric pieces like 'শেষ ট্রামের যাত্রী' command high retention (95.5%), whereas multi-part sprawling cases drop to near 0%.",
-   "First-person or tight intimate formats keep listeners hooked compared to convoluted multi-character whodunits.",
-   "Openings must avoid slow preamble; high-performing videos immediately set a specific night-time transit or rural dread.",
-   "Avoid overly complex chapter structures that lose audiences; keep narratives linear and localized to known Bengali landmarks.",
-   "Endings should leave an unresolved, chilling lingering thought rather than neat moral wrap-ups to encourage re-watches and comments."
+   "Short stories or atmospheric single episodes (like 'শেষ ট্রামের যাত্রী') retain high watch percentages (95.5%), whereas multi-part series without immediate payoff drop to zero watch time.",
+   "Classic narration formats with strong atmospheric hooks perform better than complex multi-character setups that fail to grip early.",
+   "Openings need to dive straight into the uncanny rather than spending too long on slow exposition, as seen by high drop-off rates on longer narrative builds.",
+   "First-person perspectives ('that happened to me') combined with localized rural or urban folklore ('ভাটির বিল', 'তারাপুর') generate higher organic engagement.",
+   "Pacing must remain tight without lagging chapters; the data shows viewers abandon content quickly if tension diffuses in the middle."
   ],
   "titles": [
-   "Titles featuring specific uncanny transit or night-time journeys ('শেষ ট্রামের যাত্রী') generate the highest organic click-through and completion.",
-   "Adding specific regional identifiers combined with a curse ('দত্তপুকুরের সেই পুরোনো গোলার বিভীষিকা') drives initial views significantly.",
-   "Title swaps that introduced tight mystery elements outperformed generic ones, though raw view counts overall remain low across the board."
+   "Titles featuring specific, eerie visual imagery (e.g., 'রক্তাক্ত কল', 'মাথাকাটা পাহারাদার') outperform vague or generic place names.",
+   "Using numbers, specific times, or objects (e.g., '৯ নম্বর প্রদীপ', 'রাত ২টা') creates immediate curiosity and better click-through intent.",
+   "Swapping weak titles with high-stakes emotional or supernatural peril hooks helped salvage initial click performance."
   ],
   "requests": [
-   "A midnight tea stall experience with a stranger",
-   "A locked mysterious key or forbidden room narrative",
-   "A station-based late-night solitary encounter",
-   "Taranath Tantrik style occult dilemmas and choices",
-   "Shadows or reflections turning treacherous"
+   "Stories involving deserted railway stations at midnight",
+   "Encounters with deceptive or malevolent shadows",
+   "Taranath Tantrik style occult and ritualistic encounters",
+   "Supernatural occurrences tied to old village households and items like brass combs",
+   "Unexplained phenomena around rural water bodies and abandoned tube-wells"
   ]
  }
 }
