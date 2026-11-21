@@ -156,7 +156,8 @@ def parse(text):
     if first.startswith("/"):
         if first in TOGGLES or first in ("/discover_now", "/topic_queue", "/research_sources", "/podcast_status",
                                          "/rss_status", "/spotify_status", "/apple_podcasts_status", "/destinations",
-                                         "/calendar", "/status", "/retry_publish", "/cancel_job", "/help"):
+                                         "/calendar", "/status", "/retry_publish", "/cancel_job", "/help",
+                                         "/style_refresh"):
             return first, t[len(first):].strip()
         if first == "/topic_mode":
             return first, t.split(None, 1)[1].strip().upper() if len(t.split()) > 1 else ""
@@ -350,6 +351,8 @@ def handle(cmd, arg, s, root=".", uid=None):
             return "⏸️ স্বয়ংক্রিয় প্রকাশ বন্ধ - ভিডিও তৈরি হবে, কিন্তু কোথাও প্রকাশ হবে না। চালু করতে: /autopublish_on\n" + dest_text(s)
         return "✅ ঠিক আছে।\n" + (dest_text(s) if key not in ("autodiscover",) else
                                  f"🧭 নিজে বিষয় খোঁজা এখন {'চালু' if val else 'বন্ধ (আগের নিয়মে বিষয় বাছা হবে)'}")
+    if cmd == "/style_refresh":                       # (the story run does it - it reads the same message)
+        return "🔄 ঠিক আছে - পরের run-এ প্রতিটা নমুনা গল্পের ধাঁচ নতুন করে তৈরি হবে, হলে Telegram-এ জানাবে।"
     if cmd == "/destinations":
         return dest_text(s)
     if cmd == "/calendar":
@@ -422,6 +425,62 @@ def paused(s):
     return True
 
 
+# Telegram remembers the update kinds of the LAST reader - every reader of this bot asks for the same list
+# (extras.TG_UPDATES), otherwise the story run would miss channel posts / new-channel events.
+TG_UPDATES = ["message", "channel_post", "my_chat_member"]
+
+# The '/' menu: tap '/' in the chat with the bot and every command is listed with its Bengali meaning.
+# Shown ONLY in your own chat (scope = your chat) - viewers who write to the bot never see these.
+MENU = [
+    ("status", "সব খবর - চালু/বন্ধ, শেষ গল্প, প্রকাশ, খরচ"),
+    ("calendar", "কখন কোন গল্প/টিজার/Live যাবে"),
+    ("destinations", "কোথায় কোথায় প্রকাশ হচ্ছে"),
+    ("discover_now", "এখনই নিজে বিষয় খুঁজে তালিকা পাঠাও (ভিডিও নয়)"),
+    ("topic", "আপনার বিষয় দিন - /topic তারপর বিষয় লিখুন"),
+    ("topic_queue", "লাইনে কোন কোন বিষয় আছে"),
+    ("topic_mode", "বিষয় বাছাইয়ের মোড দেখুন/বদলান"),
+    ("research_sources", "শেষ গল্পের উৎস ও যাচাই"),
+    ("autodiscover_on", "bot নিজে বিষয় খুঁজবে (ডিফল্ট)"),
+    ("autodiscover_off", "নিজে খোঁজা বন্ধ - আগের নিয়মে বিষয়"),
+    ("podcast_status", "Podcast: RSS, Spotify, Apple - সব অবস্থা"),
+    ("rss_status", "RSS ফিড ঠিক আছে কি না"),
+    ("spotify_status", "Spotify-র অবস্থা"),
+    ("apple_podcasts_status", "Apple Podcasts-এর অবস্থা"),
+    ("autopublish_on", "স্বয়ংক্রিয় প্রকাশ চালু"),
+    ("autopublish_off", "প্রকাশ বন্ধ - ভিডিও তৈরি হবে, যাবে না"),
+    ("youtube_on", "YouTube-এ প্রকাশ চালু"),
+    ("youtube_off", "YouTube-এ প্রকাশ বন্ধ"),
+    ("facebook_on", "Facebook-এ প্রকাশ চালু"),
+    ("facebook_off", "Facebook-এ প্রকাশ বন্ধ"),
+    ("podcast_on", "Podcast/Spotify/Apple-এ পর্ব চালু"),
+    ("podcast_off", "Podcast-এ পর্ব বন্ধ"),
+    ("retry_publish", "শেষ ভিডিও যেখানে যায়নি, শুধু সেখানে আবার"),
+    ("cancel_job", "চলমান কাজ থামাও"),
+    ("pause", "ভূতের bot বন্ধ (/pause 3 = ৩ দিন)"),
+    ("resume", "ভূতের bot আবার চালু"),
+    ("style_refresh", "নমুনা গল্পের ধাঁচ আবার শেখো (পরের run-এ)"),
+    ("help", "সব কমান্ড ও বাংলা নির্দেশ"),
+]
+
+
+def set_menu(tok, chat, s):
+    """sets the '/' command list for your chat once (again only when the list changes)"""
+    import hashlib
+    import requests as rq
+    h = hashlib.sha1(json.dumps(MENU, ensure_ascii=False).encode()).hexdigest()[:10]
+    if s.get("menu") == h:
+        return False
+    r = rq.post(f"https://api.telegram.org/bot{tok}/setMyCommands", timeout=30, json={
+        "commands": [{"command": c, "description": d} for c, d in MENU],
+        "scope": {"type": "chat", "chat_id": int(chat) if str(chat).lstrip("-").isdigit() else chat}})
+    if r.ok and r.json().get("ok"):
+        s["menu"] = h
+        print("'/' menu set in your chat")
+        return True
+    print("menu not set:", r.text[:150])
+    return False
+
+
 def poll(state_dir="state", root="."):
     import requests as rq
     tok, chat = os.environ.get("TELEGRAM_BOT_TOKEN", ""), os.environ.get("TELEGRAM_CHAT_ID", "")
@@ -431,9 +490,13 @@ def poll(state_dir="state", root="."):
     os.makedirs(state_dir, exist_ok=True)
     path = os.path.join(state_dir, FILE)
     s = _merge(DEFAULT, _jl(path, {}))
+    try:
+        set_menu(tok, chat, s)                         # the '/' menu in your Telegram chat
+    except Exception as e:
+        print("menu not set:", str(e)[:100])
     before = json.dumps({k: v for k, v in s.items() if k != "updated"}, sort_keys=True, ensure_ascii=False)
     r = rq.get(f"https://api.telegram.org/bot{tok}/getUpdates", timeout=30,
-               params={"allowed_updates": json.dumps(["message"])}).json()   # (no offset: nothing is consumed)
+               params={"allowed_updates": json.dumps(TG_UPDATES)}).json()   # (no offset: nothing is consumed)
     handled = set(int(x) for x in s.get("handled") or [])
     since = _dt.datetime.now(_dt.timezone.utc).timestamp() - 6 * 3600   # (never answer very old messages)
     n = 0
