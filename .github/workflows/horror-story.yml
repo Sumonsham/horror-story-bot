@@ -13,6 +13,13 @@ on:
         description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live."
         required: false
         default: ""
+  # V8 backup clock: ONLY if the cron-job.org start did not come. 75 minutes after the 2 PM and 8 PM story starts
+  # (11:15 and 16:45 India time). A run for a slot that is already posted, or long over, stops at once (slot_done /
+  # 2-hour rule in main.py), so this never makes a second video. Switch off: repo Settings > Variables >
+  # BACKUP_CLOCK = 0.
+  schedule:
+    - cron: "45 5 * * *"
+    - cron: "15 11 * * *"
   # v98: the Saturday YouTube Live is started by cron-job.org at 21:50 India time (mode=live) - GitHub's own clock
   # started it after 1 AM. It has its own queue, so it never waits for a story run.
   push:                     # ONLY the website (privacy page + ghost map) is updated on a push - never a video
@@ -31,7 +38,7 @@ concurrency:                # (a website update never waits for or cancels a vid
 
 jobs:
   post:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.BACKUP_CLOCK != '0')
     runs-on: ubuntu-latest
     timeout-minutes: 360    # 6 hours (the most GitHub allows)
     env:
@@ -144,6 +151,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        # (GitHub gives this by itself - for the podcast audio)
           PODCAST_EMAIL: ${{ secrets.PODCAST_EMAIL }}      # (optional - Spotify sends its check code here)
           SPOTIFY_URL: ${{ secrets.SPOTIFY_URL }}          # (optional - your show's Spotify link, shown on the feature card)
+          # ---- V8 switches (repo Settings > Variables; empty = the safe default)
+          ZERO_COST_MODE: ${{ vars.ZERO_COST_MODE }}       # empty/1 = no paid API can be called (zerocost.py)
+          CHIRP_APPROVED: ${{ vars.CHIRP_APPROVED }}       # empty/1 = Gemini voice first, then Chirp (your choice)
+          TOPIC_MODE: ${{ vars.TOPIC_MODE }}               # AUTO_DISCOVER (default) / TRUE_INCIDENT_PRIORITY / ...
+          AUTO_DISCOVER: ${{ vars.AUTO_DISCOVER }}         # empty/1 = the bot finds its own topics
+          YT_TREND_API: ${{ vars.YT_TREND_API }}           # empty/1 = YouTube trends through the official API
+          SPOTIFY_SHOW_ID: ${{ vars.SPOTIFY_SHOW_ID }}     # (optional) for the Spotify status check
+          APPLE_PODCAST_ID: ${{ vars.APPLE_PODCAST_ID }}   # (optional) Apple Podcasts show id
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: python main.py
 
       - name: Remember this story
@@ -177,7 +193,7 @@ jobs:
             fi
           fi
           # one by one: before, ONE missing file made git skip the whole list (lessons, series memory... never saved)
-          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json; do
+          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json assets/true_web.json assets/discovery_ledger.json assets/topic_queue.json assets/publish_state.json assets/podcast_status.json assets/style_model.json assets/owner_voice/state.json; do
             if [ -e "$p" ]; then git add -A -f -- "$p" || true; fi
           done
           git commit -q -m "story posted $(date -u +%F_%H%M)" || echo "nothing new to remember"
@@ -198,9 +214,8 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$TG_TOKEN" ] && exit 0
-          if [ -z "$TG_CHAT" ]; then
-            TG_CHAT=$(curl -s "https://api.telegram.org/bot$TG_TOKEN/getUpdates" | python3 -c "import sys,json; r=json.load(sys.stdin).get('result',[]); print(r[-1]['message']['chat']['id'] if r and 'message' in r[-1] else '')")
-          fi
+          # V8 security: the alert goes ONLY to your own chat (TELEGRAM_CHAT_ID) - never to "whoever wrote last"
+          [ -z "$TG_CHAT" ] && { echo "TELEGRAM_CHAT_ID secret missing - alert not sent"; exit 0; }
           WHY="run মাঝপথে থেমে গেছে (সম্ভবত ৬ ঘণ্টার সময় শেষ, বা GitHub-এর install সমস্যা) - পরের run-এ সাধারণত নিজে ঠিক হয়"
           [ -f fail_reason.txt ] && WHY=$(cat fail_reason.txt)
           [ -n "$TG_CHAT" ] && curl -s "https://api.telegram.org/bot$TG_TOKEN/sendMessage" -d chat_id="$TG_CHAT" --data-urlencode text="❌ ভূতের bot-এর run আটকে গেছে।

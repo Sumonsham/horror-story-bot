@@ -1,0 +1,69 @@
+name: Telegram control centre
+
+# V8: answers your Telegram commands within ~15 minutes, even when no video is being made and your PC is off.
+# It only READS messages (nothing is consumed), so the story runs still get your stories / pictures / voices.
+# Its settings file lives on its own branch `bot-state` - it never touches main, never makes a video, and is free
+# (public repository). Switch it off: Actions > Telegram control centre > "..." > Disable workflow.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write          # to save control.json on the bot-state branch
+  actions: write           # /discover_now, /retry_publish (start a run), /cancel_job (stop a run)
+
+concurrency:
+  group: telegram-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Get the current settings (bot-state branch)
+        run: |
+          mkdir -p state
+          if git fetch -q --depth 1 origin bot-state 2> /dev/null; then
+            for f in control.json podcast_status.json; do git show "FETCH_HEAD:$f" > "state/$f" 2> /dev/null || rm -f "state/$f"; done
+          fi
+          cp -r state /tmp/state_before
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Answer your commands
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MAIN_BRANCH: ${{ github.event.repository.default_branch }}
+          APPLE_PODCAST_ID: ${{ vars.APPLE_PODCAST_ID }}
+          SPOTIFY_SHOW_ID: ${{ vars.SPOTIFY_SHOW_ID }}
+          SPOTIFY_URL: ${{ secrets.SPOTIFY_URL }}
+          ZERO_COST_MODE: ${{ vars.ZERO_COST_MODE }}
+        run: |
+          pip install -q requests
+          python control.py poll
+          python podcast_check.py state || echo "podcast check skipped"
+
+      - name: Save the settings
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if diff -rq state /tmp/state_before > /dev/null 2>&1; then echo "nothing changed"; exit 0; fi
+          cd state
+          git init -q
+          git config user.name "story-bot"
+          git config user.email "story-bot@users.noreply.github.com"
+          git checkout -q -b bot-state
+          git add -A
+          git commit -q -m "control centre $(date -u +%F_%H%M)"
+          git push -q -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" bot-state
