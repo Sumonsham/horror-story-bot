@@ -10,7 +10,7 @@ on:
         required: false
         default: ""
       mode:
-        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted)."
+        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted)."
         required: false
         default: ""
   # V8 backup clock: ONLY if the cron-job.org start did not come. 75 minutes after the 2 PM and 8 PM story starts
@@ -169,6 +169,8 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           ANIM_MODE: ${{ vars.ANIM_MODE }}                 # empty/classic = as before; character = new characters; cartoon = engine + 3 story assistants
           ANIM_QUALITY: ${{ vars.ANIM_QUALITY }}           # BALANCED (default) or FAST
+          ART_MODE: ${{ vars.ART_MODE }}                   # empty = code-drawn characters; cutout = 2.5D AI-drawn parts (when ready)
+          ART_MAX_IMAGES: ${{ vars.ART_MAX_IMAGES }}       # pictures one run may make for the 2.5D parts (default 30)
         run: python main.py
 
       - name: Keep finished character scenes for a re-run
@@ -210,7 +212,7 @@ jobs:
             fi
           fi
           # one by one: before, ONE missing file made git skip the whole list (lessons, series memory... never saved)
-          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json assets/true_web.json assets/discovery_ledger.json assets/topic_queue.json assets/publish_state.json assets/podcast_status.json assets/style_model.json assets/owner_voice/state.json assets/characters; do
+          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json assets/true_web.json assets/discovery_ledger.json assets/topic_queue.json assets/publish_state.json assets/podcast_status.json assets/style_model.json assets/owner_voice/state.json assets/characters assets/cartoon_cast.json assets/cartoon_parts; do
             if [ -e "$p" ]; then git add -A -f -- "$p" || true; fi
           done
           git commit -q -m "story posted $(date -u +%F_%H%M)" || echo "nothing new to remember"
@@ -258,6 +260,10 @@ jobs:
             work/anim_test/animation_test_9x16.mp4
             work/anim_test/animation_report.json
             work/anim_test/animation_plan.json
+            work/art_test/art_test.mp4
+            work/art_test/art_sheet.jpg
+            work/art_test/art_poses.jpg
+            work/art_test/art_report.json
             work/story_test/story_test.mp4
             work/story_test/story_report.json
             work/story_test/story_match_report.md
