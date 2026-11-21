@@ -13,3 +13,5 @@ assets/owner_voice/*.wav
 assets/style_samples/
 # research dossiers (may name real people) are never published
 assets/dossiers/
+clip_cache/
+char_cache/
