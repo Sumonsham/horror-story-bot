@@ -34,6 +34,18 @@ RUN_SPEED = 580.0           # ~3 m/s
 STRIDE = {"walk": 118.0, "run": 190.0}
 
 
+def _travel(u, dur):
+    """how far along a walk is at u (0..1): a real person speeds up in the first steps and slows down at the end
+    (a trapezoid speed curve - never a robot's constant speed from a standing start)"""
+    r = min(0.22, 0.45 / max(0.5, dur))
+    u = min(1.0, max(0.0, u))
+    if u < r:
+        return u * u / (2 * r * (1 - r))
+    if u > 1 - r:
+        return 1 - (1 - u) ** 2 / (2 * r * (1 - r))
+    return (u - r / 2) / (1 - r)
+
+
 def travel_time(dist, kind="walk", scale=1.0):
     """how long a walk / run of this distance takes at normal speed"""
     return abs(dist) / ((RUN_SPEED if kind == "run" else WALK_SPEED) * scale)
@@ -49,9 +61,16 @@ class Scene:
         self.plan, self.fps = plan, fps
         self.env = Environment(plan["environment"])
         self.chars = {}
+        self.asset_status = {}
         for c in plan["characters"]:
             d = c["design"]
-            self.chars[c["id"]] = rig.Character(c["id"], dict(rig.DESIGNS[d]) if isinstance(d, str) else dict(d), c.get("scale", 1.0))
+            d = dict(rig.DESIGNS[d]) if isinstance(d, str) else dict(d)
+            ch = None
+            if d.get("cutout"):                            # 2.5D: the AI-drawn parts (cutout_rig) when they are ready
+                import cutout_rig
+                ch = cutout_rig.load(c["id"], d, d["cutout"][0], d["cutout"][1], c.get("scale", 1.0))
+            self.asset_status[c["id"]] = "cutout" if ch else ("code (cut-out assets not ready)" if d.get("cutout") else "code")
+            self.chars[c["id"]] = ch or rig.Character(c["id"], d, c.get("scale", 1.0))
         f = plan.get("figure")
         self.figure = rig.Character("figure", dict(rig.DESIGNS[f["design"]]), f["scale"]) if f else None
         self.vis = {}                                      # clip -> per-frame (open, shape)
@@ -105,14 +124,17 @@ class Scene:
                     pose, sitting = dict(rig.POSES["stand"]), False
             elif typ == "sit_down":
                 pose = rig.blend(rig.POSES["stand"], rig.POSES["sit"], u)
+                pose["torso"] += 24 * math.sin(math.pi * u)          # lean forward while lowering (like people do)
                 sitting = u > 0.5
-            elif typ == "turn":
-                facing = facing + (a["to"] - facing) * u
-                yaw = facing
+            elif typ == "turn":                            # the head leads, the shoulders and feet follow
+                r_ = min(1.0, (t - a["t0"]) / dur)
+                f0 = facing
+                yaw = f0 + (a["to"] - f0) * _ease(min(1.0, r_ / 0.6))
+                facing = f0 + (a["to"] - f0) * _ease(max(0.0, (r_ - 0.25) / 0.75))
             elif typ in ("walk", "run"):
                 x0 = x
                 if live:
-                    lin = (t - a["t0"]) / dur
+                    lin = _travel((t - a["t0"]) / dur, dur)
                     x = x0 + (a["to_x"] - x0) * lin
                     stride = STRIDE[typ] * cdef.get("scale", 1.0)  # one step (thigh swing) -> distance: feet never slide
                     move = (typ, abs(x - x0) / stride * math.pi)
@@ -182,17 +204,39 @@ class Scene:
                 st_extra["pitch"] = 9.0
             elif typ == "nod" and live:
                 st_extra["pitch"] = 8 * math.sin(math.pi * ((t - a["t0"]) % 0.7) / 0.7)
+            elif typ in ("handshake", "hug") and live:     # two people really meet: hands join / arms go round
+                r_ = t - a["t0"]
+                ramp = _ease(r_ / 0.5) * (1 - _ease((t - (a["t1"] - 0.5)) / 0.5))
+                if typ == "handshake":
+                    pump = math.sin(2 * math.pi * 2.2 * r_) if 0.5 < r_ < 1.9 else 0.0   # three firm shakes
+                    hp = dict(pose, uarm_n=62 + 4 * pump, farm_n=80 + 11 * pump)
+                else:
+                    hp = dict(pose, uarm_n=82, farm_n=96, uarm_f=84, farm_f=100, torso=pose.get("torso", 0) + 8, chest=5)
+                    st_extra["pitch"] = 7.0 * ramp                  # arms round the other's back, heads lean in
+                    upper = math.copysign(1.0 - 0.45 * ramp, facing)   # shoulders turn a little: the arms go ROUND
+                pose = rig.blend(pose, hp, ramp)
+                arm = typ
+                target = a.get("partner")
             elif typ == "vanish":
                 st_extra["alpha"] = max(0.0, 1 - (t - a["t0"]) / dur)
+            elif typ == "appear":                          # a ghost (or anyone the story says appears) fades in
+                st_extra["alpha"] = min(1.0, max(0.0, (t - a["t0"]) / dur))
         if looking_back and upper is not None:            # the neck can turn the head only so far from the chest
             yaw = max(upper - 0.95, min(upper + 0.95, yaw))
+        seed_ = (sum(map(ord, cid)) % 17) * 0.7
+        if (move is None and not sitting and not st_extra["stiff"] and not arm and not self.chars[cid].d.get("ghost")):
+            x += 2.2 * math.sin(t * 0.45 + seed_)          # standing people slowly shift their weight - never frozen
+            pose = dict(pose, torso=pose.get("torso", 0) + 1.2 * math.sin(t * 0.6 + seed_),
+                        uarm_n=pose.get("uarm_n", 0) + 2.0 * math.sin(t * 0.8 + seed_),
+                        uarm_f=pose.get("uarm_f", 0) + 2.0 * math.sin(t * 0.7 + seed_ + 1))
         if st_extra["jitter"]:
             x += st_extra["jitter"] * math.sin(t * 41) 
         st = {"x": x, "ground_y": gy, "facing": facing, "head_yaw": yaw, "brows": brows, "pose": pose,
               "mouth": (0.0, "rest"), "blink": 0.0, "head_pitch": 0.0, "hand_open": 0.0, "t": t,
               "fingers": {"stiff": "stiff", "swing_lantern": "grip", "hold_lantern": "grip", "knock": "fist", "point": "point",
-                          "reach": "open", "hand_to_head": "open", "cower": "spread"}.get(arm) if arm else None}
-        if looking_back and upper is not None:
+                          "reach": "open", "hand_to_head": "open", "cower": "spread", "handshake": "grip",
+                          "hug": "relaxed"}.get(arm) if arm else None}
+        if upper is not None:
             st["facing_upper"] = upper
         if brows == "fear" and not arm:
             st["fingers"], st["fingers_f"] = "spread", "spread"
@@ -227,6 +271,8 @@ class Scene:
         st["pose"] = pose
         if move is not None:
             st["pose"] = (rig.run_pose if move[0] == "run" else rig.walk_pose)(move[1])
+            st["pose"]["torso"] += 2.0 * math.sin(2 * move[1])        # the body sways a little with each step
+            st["head_pitch"] = 2.0 * math.sin(2 * move[1] + 0.6)      # the head bobs (it lags the body)
             if st_extra["lantern"] is not None:
                 st["pose"]["uarm_n"], st["pose"]["farm_n"] = 50, 50
         if st_extra["pitch"] is not None:
@@ -238,6 +284,15 @@ class Scene:
         if st["brows"] in ("fear", "surprise"):
             st["blink"] = 0.0
         st["target"] = target
+        des = self.chars[cid].d
+        if st_extra["lantern"] is None and des.get("carry") == "lantern":   # the look says he carries a lantern
+            st_extra["lantern"] = 0.12
+            if not sitting and move is None and not arm:
+                st["pose"] = rig.blend(st["pose"], rig.POSES["hold_lantern"], 0.85)
+            st["fingers"] = "grip"
+        if des.get("ghost"):                               # a ghost: see-through (breathing glow), hovering
+            st_extra["alpha"] *= des.get("alpha", 0.8) * (0.9 + 0.1 * math.sin(t * 2.1))
+            st["float"] = des.get("float", 14.0) + 6.0 * math.sin(t * 1.6)
         st["lantern"] = st_extra["lantern"]
         st["alpha"] = st_extra["alpha"] if visible else 0.0
         return st
@@ -301,7 +356,7 @@ class Scene:
         env = self.env
         frame = env.background(cam, t, wind, None)
         img = np.clip(frame, 0, 255).astype(np.uint8)
-        pt = rig.Painter(img, cam, light=0.82)
+        pt = rig.Painter(img, cam, light=0.82, ink=((18, 20, 18), 2.2))   # cartoon outlines on trees, props, door...
         far_tree = p["figure"].get("behind_tree") if p.get("figure") else None
         fs = self.figure_state(t) if self.figure else None
         if fs:                                             # the far figure, then the tree it walks behind
@@ -311,7 +366,8 @@ class Scene:
                 img[:] = (img * (1 - fs["alpha"]) + layer * fs["alpha"]).astype(np.uint8)
             else:
                 self.figure.draw(rig.Painter(img, cam, 1.0), fs)
-        env.draw_trees(pt, t, wind, which=[far_tree] if far_tree is not None else None)
+        if far_tree is not None:                           # (no figure: nothing here - each tree is drawn once)
+            env.draw_trees(pt, t, wind, which=[far_tree])
         env.draw_bank_grass(pt, t, wind)
         env.draw_trees(pt, t, wind, which=[i for i in range(len(env.trees)) if i not in (0, far_tree)])
         lights = list(env.draw_location(pt, t, wind, self.door_state(t)) or [])
@@ -360,8 +416,11 @@ class Scene:
                 pt.line((hx, hy), (lx, ly - 56 * j["k"]), (30, 30, 34), 2)
                 fl = env.draw_lantern(pt, lx, ly, t)
                 lights.append((lx, ly - 40, 560, (30, 95, 175), 0.66 * fl))
-            low = max(j["ft_n"][1], j["ft_f"][1])
-            self.metrics["feet_err"].append(abs((low + 4 * j["k"]) - gy0))      # 0 = the foot is on the ground
+            if ch.d.get("ghost"):                          # a faint mist / glow round a ghost
+                lights.append((j["head"][0], j["head"][1] + 60, 300, (120, 110, 100), 0.22 * st["alpha"]))
+            else:                                          # (a ghost floats on purpose - not a feet error)
+                low = max(j["ft_n"][1], j["ft_f"][1])
+                self.metrics["feet_err"].append(abs((low + 4 * j["k"]) - gy0))      # 0 = the foot is on the ground
             speaking = any(d["t0"] <= t < d["t1"] and d["speaker"] == cid for d in p["dialogue"])
             if st["mouth"][0] > 0.3:
                 self.metrics["mouth"].append(1 if speaking else -1)           # -1 = a mouth moved without a voice

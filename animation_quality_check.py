@@ -56,7 +56,7 @@ def world_locked(scene):
         img = np.zeros((360, 640, 3), np.uint8)
         pt = R.Painter(img, cam)
         lights = env.draw_location(pt, t, wind_at(t), {})
-        env.particles(pt, t, wind_at(t))                  # fireflies, blowing leaves
+        env.particles(pt, t, wind_at(t))                  # fireflies, blowing leaves, dust
         f = env.atmosphere(img.astype("float32"), cam, t, wind_at(t), lights or [])
         imgs.append(f)
     out["place_change"] = round(float(np.abs(imgs[0] - imgs[1]).mean()), 2)
@@ -90,7 +90,8 @@ def check(video, plan, rep, scene=None):
             res["tree_motion"]["pass"] = res["tree_motion"]["mean_change"] > 0.2
     res["feet_on_ground"] = {"max_error_px": rep.get("feet_error_px_max"), "pass": (rep.get("feet_error_px_max") or 0) <= 1.0}
     res["lip_sync"] = {"frames_with_voice": rep.get("lip_sync_frames"), "frames_without_voice": rep.get("mouth_without_voice_frames"),
-                       "pass": (rep.get("lip_sync_frames") or 0) > 0 and (rep.get("mouth_without_voice_frames") or 0) == 0}
+                       "pass": ((rep.get("lip_sync_frames") or 0) > 0 or not plan.get("dialogue"))   # (narration only:
+                               and (rep.get("mouth_without_voice_frames") or 0) == 0}                     #  no mouth moves)
     fade_in, fade_out = plan.get("transitions", {}).get("fade_in", 0), plan.get("transitions", {}).get("fade_out", 0)
     ts = list(np.arange(fade_in + 0.5, plan["duration"] - fade_out - 0.5, 4.0))
     fr = _frames(video, ts, 160, 90)

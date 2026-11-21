@@ -27,29 +27,40 @@ def _cid(name):
     return s or "x"
 
 
-def cast_of(story_chars):
-    """the story's characters (name, gender, age, look, kind) -> engine cast (same design every time)"""
+def cutout_art():
+    """the 2.5D asset registry when ART_MODE=cutout (off by default - the code-drawn rig stays until it is proven)"""
+    if os.environ.get("ART_MODE", "").strip().lower() != "cutout":
+        return None
+    import cutout_assets as CA
+    return CA.Registry(os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "cartoon_parts"))
+
+
+def cast_of(story_chars, designs=None):
+    """the story's characters -> engine cast. designs: what the character designer saved at 2 AM with the story
+    ({name: {"design"...}}); a character without a saved design is designed now from its look (same rules)"""
+    import character_designer as CD
     out = []
     for k, c in enumerate(story_chars or []):
         if not isinstance(c, dict) or not c.get("name"):
             continue
-        d = rig.design_for(c)
-        if sum(1 for o in out if o["kind"] == (d.get("hair_style"), d.get("sari"))) > 0:
-            d = rig.variant(d, 7 + k * 13)              # two people of the same kind never look identical
-        out.append({"id": _cid(c["name"]), "name": str(c["name"]), "aliases": [str(c.get("en_name", ""))] if c.get("en_name") else [],
-                    "design": d, "kind": (d.get("hair_style"), d.get("sari"))})
+        rec = (designs or {}).get(str(c["name"]))
+        d = CD._typed(rec["design"]) if rec and rec.get("design") else CD.design(c)[0]
+        aliases = [str(x) for x in (c.get("name_local"), c.get("en_name")) if x]
+        out.append({"id": _cid(c["name"]), "name": str(c["name"]), "aliases": aliases, "design": d,
+                    "ghost": bool(d.get("ghost"))})
     return out
 
 
-def engine_clip(scene, beats, audio, out, story_chars, W=1280, H=720, fps=25, llm=None, log=print, idx=0):
+def engine_clip(scene, beats, audio, out, story_chars, W=1280, H=720, fps=25, llm=None, log=print, idx=0, designs=None):
     """scene: the story scene (place, lines...); beats: [(t0, t1, speaker or None, emotion, text)] exactly as the
     voice step timed them; audio: this scene's finished audio. Returns the match result dict."""
-    cast = cast_of(story_chars)
+    cast = cast_of(story_chars, designs)
     by_name = {}
     for c in cast:
         by_name[c["name"].lower()] = c["id"]
         for a in c["aliases"]:
             by_name[a.lower()] = c["id"]
+        by_name[c["id"]] = c["id"]
     lines, last = [], None
     speakers = [by_name.get(str(b[2] or "").lower()) for b in beats]
     for k, (t0, t1, spk, emo, text) in enumerate(beats):
@@ -62,8 +73,8 @@ def engine_clip(scene, beats, audio, out, story_chars, W=1280, H=720, fps=25, ll
                     break
         lines.append({"i": k + 1, "speaker": sid or "narrator", "listener": lis, "text": str(text), "feel": str(emo or ""),
                       "t0": round(float(t0), 2), "t1": round(float(t1), 2), "clip": "scene", "clip_t0": round(float(t0), 2)})
-    present = {l["speaker"] for l in lines} | {l["listener"] for l in lines}
-    scast = [c for c in cast if c["id"] in present] or cast[:2]
+    scast = cast                                           # the planner puts on screen only who speaks / listens /
+                                                           # does something the story says (a ghost that appears too)
     place = str(scene.get("place", ""))
     import subprocess
     dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", audio],
@@ -73,12 +84,32 @@ def engine_clip(scene, beats, audio, out, story_chars, W=1280, H=720, fps=25, ll
     for ln, an in zip(lines, acts["lines"]):
         ln["emotion"] = an["emotion"]
     match = match_assistant.judge(acts["lines"], loc["location"], [c["id"] for c in scast])
+    art = cutout_art()                                     # 2.5D (ART_MODE=cutout): the AI-drawn parts when READY
+    if art:
+        import cutout_assets as CA
+        for c in scast:
+            rec = (designs or {}).get(c["name"]) or {"name": c["name"], "look": ""}
+            key = CA.char_key({"name": c["name"], "look": rec.get("look", "")})
+            if art.ready(key):
+                c["design"] = dict(c["design"], cutout=(art.root, key))
     plan, reactions = scene_planner.plan_from_story({
         "id": f"scene{idx}", "location": loc["location"], "weather": loc["weather"], "duration": dur,
         "lead_in": min(2.0, lines[0]["t0"]) if lines else 2.0,
         "characters": [{"id": c["id"], "design": c["design"], "name": c["name"]} for c in scast],
         "lines": lines, "ops": match["ops"]})
     match_assistant.add_reactions(match, reactions)
+    if art:                                                # the illustrated background of this place, when ready
+        pr = art.index["plates"].get(loc["location"] + ("_rain" if (loc.get("weather") or {}).get("rain") else ""), {}) \
+            or art.index["plates"].get(loc["location"], {})
+        if pr.get("status") == "ready" and not plan.get("door"):          # (a door scene keeps the drawn room)
+            plan["environment"].update(plate=os.path.join(art.root, pr["file"]), sky_parallax=0.75, dust=40 if loc["location"] == "house_interior" else 0, trees=[],
+                                       bank_grass=0, clouds=2)
+    import asset_qa                                        # BEFORE rendering: nobody the scene needs is missing
+    needed = {l["speaker"] for l in lines if l["speaker"] != "narrator"} | {l["listener"] for l in lines if l.get("listener")} | \
+        {o["who"] for o in match["ops"] if o.get("who")}
+    sq = asset_qa.scene(plan, {c["id"] for c in scast}, needed, {})
+    if not sq["pass"]:
+        log(f"  scene {idx} check: " + "; ".join(sq["problems"]))
     clips = {"scene": (audio, dur)}
     work = os.path.join(os.path.dirname(os.path.abspath(out)), f"engine_chunks_{idx:02d}")
     rep, sc = animation_renderer.render(plan, clips, out, work, W, H, fps, audio, log=log)
@@ -87,7 +118,8 @@ def engine_clip(scene, beats, audio, out, story_chars, W=1280, H=720, fps=25, ll
     except Exception as e:
         quality = {"error": str(e)[:120]}
     res = {"scene": idx, "place": place, "location": loc, "action_source": acts["source"], "lines": lines,
-           "match": match, "quality": quality, "render": rep}
+           "match": match, "quality": quality, "render": rep, "scene_check": sq,
+           "drawn_by": getattr(sc, "asset_status", {}), "plate": plan["environment"].get("plate")}
     with open(os.path.splitext(out)[0] + "_match.json", "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=1, default=str)
     led = os.path.join(os.path.dirname(os.path.abspath(out)), LEDGERS)

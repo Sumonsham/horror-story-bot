@@ -53,7 +53,8 @@ CAPS = {
     "fire": ("MATCH", "fire", "আগুন জ্বলছে"),
     "cry": ("SUBSTITUTE", "sad", "চোখের জল আঁকা নেই - দুঃখের মুখ, মাথা নিচু দেখানো হয়েছে"),
     "fall": ("SUBSTITUTE", "cower", "পড়ে যাওয়া/অজ্ঞান হওয়ার অ্যানিমেশন নেই - ভয়ে কুঁকড়ে যাওয়া দেখানো হয়েছে"),
-    "hug": ("SUBSTITUTE", "reach", "জড়িয়ে ধরা নেই - কাছে গিয়ে হাত বাড়ানো দেখানো হয়েছে"),
+    "hug": ("MATCH", "hug", "কাছে হেঁটে গিয়ে দুজনে দুজনকে জড়িয়ে ধরে (হাত পিঠে, শরীর একটু ঝুঁকে), তারপর ছাড়ে"),
+    "handshake": ("MATCH", "handshake", "কাছে গিয়ে হাত মেলায় - দুজনের হাত মেলে, তিনবার ঝাঁকায়, তারপর ছাড়ে"),
     "grab": ("SUBSTITUTE", "reach", "হাত ধরা নেই - হাত বাড়ানো দেখানো হয়েছে"),
     "wear_helmet": ("SUBSTITUTE", "hand_to_head", "হেলমেট আঁকা নেই - মাথায় হাত তোলা দেখানো হয়েছে"),
     "breath": ("SOUND", "sfx_breath", "নিঃশ্বাসের শব্দ (দেখার কিছু নেই)"),
@@ -97,7 +98,8 @@ def judge(analysed, location, cast_ids):
             elif op == "fire" and "pyre_fire" not in feats:
                 status, op, shown = "SUBSTITUTE", "hold_lantern" if who else None, "এখানে আগুনের দৃশ্য নেই - লণ্ঠন/প্রদীপের আলো"
             elif op in ("stiff", "tremble", "swing_lantern", "hold_lantern", "look", "look_back", "walk", "run", "enter",
-                        "exit", "stand_up", "sit_down", "reach", "cower", "sad", "hand_to_head", "point", "stare") and who is None:
+                        "exit", "stand_up", "sit_down", "reach", "cower", "sad", "hand_to_head", "point", "stare", "hug",
+                        "handshake") and who is None:
                 status, op, shown = "MISSING", None, f"কে করছে বোঝা যায়নি - দেখানো হয়নি ({act})"
             if status in ("MATCH", "SUBSTITUTE", "SOUND") and op:
                 ops.append({"line": ln["i"], "op": op, "who": who, "target": d.get("target"),

@@ -75,42 +75,64 @@ def _shade(col, k):
 
 
 class Painter:
-    """draws world-space shapes on the frame through the camera"""
+    """draws world-space shapes on the frame through the camera. ink = (colour, width in world px): every filled
+    shape also gets a dark outline - the cartoon look (lines never get one)"""
 
-    def __init__(self, img, cam, light=1.0):
-        self.img, self.cam, self.light = img, cam, light
+    def __init__(self, img, cam, light=1.0, ink=None):
+        self.img, self.cam, self.light, self.ink = img, cam, light, ink
 
     def c(self, col):
         return _shade(col, self.light)
+
+    def _iw(self, scale=1.0):
+        return max(1, int(round(self.ink[1] * scale * self.cam.s)))
 
     def line(self, a, b, col, w):
         (x1, y1), (x2, y2) = self.cam.to_screen(*a), self.cam.to_screen(*b)
         t = max(1, int(round(w * self.cam.s)))
         cv2.line(self.img, _p(x1, y1), _p(x2, y2), self.c(col), t, cv2.LINE_AA, SH)
 
-    def circle(self, a, r, col):
+    def circle(self, a, r, col, ink=1.0):
         x, y = self.cam.to_screen(*a)
-        cv2.circle(self.img, _p(x, y), max(1, int(round(r * self.cam.s * SC))), self.c(col), -1, cv2.LINE_AA, SH)
+        rr = max(1, int(round(r * self.cam.s * SC)))
+        cv2.circle(self.img, _p(x, y), rr, self.c(col), -1, cv2.LINE_AA, SH)
+        if self.ink and ink and r * self.cam.s > 2.5:
+            cv2.circle(self.img, _p(x, y), rr, self.ink[0], self._iw(ink), cv2.LINE_AA, SH)
 
-    def ellipse(self, a, rx, ry, ang, col, thick=-1):
+    def ellipse(self, a, rx, ry, ang, col, thick=-1, ink=1.0):
         x, y = self.cam.to_screen(*a)
-        cv2.ellipse(self.img, _p(x, y), (max(1, int(rx * self.cam.s * SC)), max(1, int(ry * self.cam.s * SC))),
-                    ang + self.cam.rot, 0, 360, self.c(col), thick if thick < 0 else max(1, int(thick * self.cam.s)),
-                    cv2.LINE_AA, SH)
+        ax = (max(1, int(rx * self.cam.s * SC)), max(1, int(ry * self.cam.s * SC)))
+        cv2.ellipse(self.img, _p(x, y), ax, ang + self.cam.rot, 0, 360, self.c(col),
+                    thick if thick < 0 else max(1, int(thick * self.cam.s)), cv2.LINE_AA, SH)
+        if self.ink and ink and thick < 0 and min(rx, ry) * self.cam.s > 2.0:
+            cv2.ellipse(self.img, _p(x, y), ax, ang + self.cam.rot, 0, 360, self.ink[0], self._iw(ink), cv2.LINE_AA, SH)
 
-    def poly(self, pts, col):
+    def poly(self, pts, col, ink=1.0):
         sp = np.array([_p(*self.cam.to_screen(x, y)) for x, y in pts], np.int32)
         cv2.fillPoly(self.img, [sp], self.c(col), cv2.LINE_AA, SH)
+        if self.ink and ink:
+            cv2.polylines(self.img, [sp], True, self.ink[0], self._iw(ink), cv2.LINE_AA, SH)
 
-    def limb(self, a, b, w1, w2, col):
-        """a tapered limb (capsule) from a to b"""
+    def limb(self, a, b, w1, w2, col, ink=1.0, shade=0.0):
+        """a tapered limb from a to b with round ends, as ONE outlined shape; shade = the side (+1 / -1) that is
+        in shadow (a darker strip along it - simple cel shading)"""
         dx, dy = b[0] - a[0], b[1] - a[1]
         ln = math.hypot(dx, dy) or 1.0
-        nx, ny = -dy / ln, dx / ln
-        self.poly([(a[0] + nx * w1 / 2, a[1] + ny * w1 / 2), (b[0] + nx * w2 / 2, b[1] + ny * w2 / 2),
-                   (b[0] - nx * w2 / 2, b[1] - ny * w2 / 2), (a[0] - nx * w1 / 2, a[1] - ny * w1 / 2)], col)
-        self.circle(a, w1 / 2, col)
-        self.circle(b, w2 / 2, col)
+        ux, uy = dx / ln, dy / ln
+        nx, ny = -uy, ux
+        pts = []
+        for k in range(7):                                   # the round end at b
+            t = -math.pi / 2 + math.pi * k / 6
+            pts.append((b[0] + (ux * math.cos(t) + nx * math.sin(t)) * w2 / 2, b[1] + (uy * math.cos(t) + ny * math.sin(t)) * w2 / 2))
+        for k in range(7):                                   # the round end at a
+            t = math.pi / 2 + math.pi * k / 6
+            pts.append((a[0] + (ux * math.cos(t) + nx * math.sin(t)) * w1 / 2, a[1] + (uy * math.cos(t) + ny * math.sin(t)) * w1 / 2))
+        self.poly(pts, col, ink)
+        if shade:
+            sd = shade
+            self.poly([(a[0] + nx * w1 * 0.08 * sd, a[1] + ny * w1 * 0.08 * sd), (b[0] + nx * w2 * 0.08 * sd, b[1] + ny * w2 * 0.08 * sd),
+                       (b[0] + nx * w2 * 0.42 * sd, b[1] + ny * w2 * 0.42 * sd), (a[0] + nx * w1 * 0.42 * sd, a[1] + ny * w1 * 0.42 * sd)],
+                      _shade(col, 0.82), 0)
 
 
 # ------------------------------------------------------------------ poses (degrees; 0 = straight down,
@@ -245,7 +267,7 @@ class Character:
         hd_f = seg(el_f, p["farm_f"], 50, sq_u)
         pitch = math.radians(st.get("head_pitch", 0.0))
         tl = lean + bend
-        head = (neck[0] + math.sin(tl * 0.6 + pitch * 0.3) * 40 * k * fw, neck[1] - math.cos(tl * 0.4) * 40 * k
+        head = (neck[0] + math.sin(tl * 0.6 + pitch * 0.3) * 46 * k * fw, neck[1] - math.cos(tl * 0.4) * 46 * k
                 + st.get("head_pitch", 0.0) * 0.35 * k)
         return {"hip": hip, "chest": chest, "neck": neck, "sh_n": sh_n, "sh_f": sh_f, "kn_n": kn_n, "ft_n": ft_n, "kn_f": kn_f,
                 "ft_f": ft_f, "el_n": el_n, "hd_n": hd_n, "el_f": el_f, "hd_f": hd_f, "head": head, "k": k, "fw": fw,
@@ -258,48 +280,106 @@ class Character:
         return st["ground_y"] - low - 4 * j["k"]
 
     # -------------------------------------------------------------- drawing
+    INK = (24, 20, 26)
+
     def draw(self, pt, st):
         d = self.d
         st = dict(st)
         if st.get("planted", True):
             st["ground_y"] = st["ground_y"] + self.foot_floor(st)
+        st["ground_y"] -= st.get("float", 0.0)           # a ghost hovers (its feet never touch)
         j = self.joints(st)
         k, fw = j["k"], j["fw"]
         self.last_joints = j
+        old_ink = pt.ink
+        pt.ink = (d.get("ink", self.INK), 2.3 * k) if d.get("ink", True) is not None else None
         lower, shirt, skin = d["lower"], d["shirt"], d["skin"]
         hand_col = skin if not d.get("faceless") else shirt
-        far = lambda col: _shade(col, 0.72)
+        far = lambda col: _shade(col, 0.74)
         t = st.get("t", 0.0)
         mode_n = st.get("fingers") or ("open" if st.get("hand_open", 0.0) > 0.2 else "relaxed")
         mode_f = st.get("fingers_f") or ("open" if mode_n in ("open", "spread") else "relaxed")
-        self._leg(pt, j["hip"], j["kn_f"], j["ft_f"], k, fw, far(lower), far(d["feet"]))
-        self._arm(pt, j["sh_f"], j["el_f"], j["hd_f"], k, far(shirt), far(hand_col), mode_f, t, fw, 0.7)
-        self._leg(pt, j["hip"], j["kn_n"], j["ft_n"], k, fw, lower, d["feet"])
-        self._torso(pt, j, k, fw, d, st)                  # the kurta hangs over the thighs / the lap
+        legs_hidden = d.get("sari") or d.get("robe")
+        dhoti = d.get("dhoti") and not legs_hidden
+        only = st.get("only")                              # (draw only some parts: the test pictures of single pieces)
+        want = lambda x: only is None or x in only
+        if (not legs_hidden or d.get("ghost")) and want("legs"):
+            self._leg(pt, j["hip"], j["kn_f"], j["ft_f"], k, fw, far(lower), far(d["feet"]), far(skin))
+        if want("far_arm"):
+            self._arm(pt, j["sh_f"], j["el_f"], j["hd_f"], k, far(shirt), far(hand_col), mode_f, t, fw, 0.7)
+        if d.get("carry") == "staff":                       # a bamboo staff in the far hand
+            h = j["hd_f"]
+            pt.limb((h[0] + fw * 4 * k, h[1] - 90 * k), (h[0] - fw * 6 * k, h[1] + 150 * k), 7 * k, 6 * k, (40, 90, 130))
+        if not legs_hidden and want("legs"):
+            self._leg(pt, j["hip"], j["kn_n"], j["ft_n"], k, fw, lower, d["feet"], skin)
+        if dhoti and want("legs"):                                          # the dhoti: ONE draped cloth from the waist to mid-shin
+            pts = []
+            hip = j["hip"]
+            for kn, ft in ((j["kn_n"], j["ft_n"]), (j["kn_f"], j["ft_f"])):
+                mid = (kn[0] + (ft[0] - kn[0]) * 0.62, kn[1] + (ft[1] - kn[1]) * 0.62)
+                for c_ in (kn, mid):
+                    for ang in range(0, 360, 45):
+                        pts.append((c_[0] + math.cos(math.radians(ang)) * 17 * k * self.b, c_[1] + math.sin(math.radians(ang)) * 17 * k * self.b))
+            for ang in range(0, 360, 30):
+                pts.append((hip[0] + math.cos(math.radians(ang)) * 32 * k * self.b, hip[1] + math.sin(math.radians(ang)) * 22 * k))
+            hull = cv2.convexHull(np.array(pts, np.float32)).reshape(-1, 2)
+            pt.poly(_smooth([tuple(p_) for p_ in hull], 1), lower)
+            kn = j["kn_n"]
+            pt.line((hip[0] + fw * 10 * k, hip[1] + 10 * k), (kn[0], kn[1] + 4 * k), _shade(lower, 0.8), 2.4 * k)   # a fold
+        if want("head") or want("hair_back"):
+            self._back_hair(pt, j["head"], k * 1.16, st)
+        if want("torso") or (want("legs") and legs_hidden):
+            self._torso(pt, j, k, fw, d, st)
         hx, hy = j["head"]
-        pt.limb(j["neck"], (hx, hy + 30 * k), 15 * k, 13 * k, skin)       # the neck
-        self._head(pt, j["head"], k, st)
-        self._arm(pt, j["sh_n"], j["el_n"], j["hd_n"], k, shirt, hand_col, mode_n, t, fw, 1.0)
+        if want("head"):
+            pt.limb(j["neck"], (hx, hy + 30 * k), 17 * k, 15 * k, skin, shade=-fw)       # the neck
+            self._head(pt, j["head"], k * 1.16, st)
+        if want("near_arm"):
+            self._arm(pt, j["sh_n"], j["el_n"], j["hd_n"], k, shirt, hand_col, mode_n, t, fw, 1.0)
+        if d.get("carry") == "torch" and st.get("lantern") is None:   # a small torch in the near hand
+            h = j["hd_n"]
+            a0 = math.atan2(h[1] - j["el_n"][1], h[0] - j["el_n"][0])
+            pt.limb((h[0] - math.cos(a0) * 4 * k, h[1] - math.sin(a0) * 4 * k), (h[0] + math.cos(a0) * 22 * k, h[1] + math.sin(a0) * 22 * k),
+                    9 * k, 11 * k, (40, 40, 46))
+        pt.ink = old_ink
         return j
+
+    @staticmethod
+    def _side(a, b, fw):
+        """which side of a limb is away from the light (the cel-shaded side)"""
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(dx, dy) or 1
+        nx, ny = -dy / ln, dx / ln
+        if abs(nx) > 0.35:
+            return -fw if nx > 0 else fw
+        return 1 if ny > 0 else -1
 
     def _torso(self, pt, j, k, fw, d, st):
         """a rounded body: hips, waist, chest, round shoulders - the outline follows the bending spine"""
         hip, chest, neck = j["hip"], j["chest"], j["neck"]
         b = self.b
         sq_u, sq = j["sq_u"], j["squash"]
-        front = 1 + 0.35 * (1 - sq_u)                     # seen from the front the chest is broader
-        ww, sw = 24 * k * b * (1 + 0.15 * (1 - sq)), 30 * k * b * front
+        front = 1 + 0.35 * (1 - sq_u)
+        ww, sw = 28 * k * b * (1 + 0.15 * (1 - sq)), 35 * k * b * front
         breathe = 1 + 0.025 * math.sin(st.get("t", 0.0) * 1.9)
         lower = d["lower"]
-        if d.get("sari"):
-            pt.poly(_smooth([(neck[0] - sw * 0.9, neck[1] + 12 * k), (neck[0] + sw * 0.9, neck[1] + 12 * k),
-                             (hip[0] + ww * 1.7, hip[1] + 150 * k), (hip[0] - ww * 1.7, hip[1] + 150 * k)], 1), lower)
-        pt.ellipse((hip[0], hip[1] + 6 * k), ww * 1.15, 20 * k, 0, lower)            # pelvis joins the legs
-        hem = 0.0 if d.get("sari") else 46 * k
+        if d.get("sari") or d.get("robe"):                 # the long cloth down to the feet (saree / robe)
+            ft = max(j["ft_n"][1], j["ft_f"][1])
+            hemx = (j["ft_n"][0] + j["ft_f"][0]) / 2 if j["hip"][1] < ft - 100 * k else hip[0] + fw * 40 * k
+            bottom = ft + 4 * k
+            drape = _smooth([(neck[0] - sw * 0.85, neck[1] + 14 * k), (neck[0] + sw * 0.85, neck[1] + 14 * k),
+                             (hip[0] + ww * 1.5, hip[1]), (hemx + ww * 1.9, bottom), (hemx - ww * 1.9, bottom),
+                             (hip[0] - ww * 1.5, hip[1])], 2)
+            pt.poly(drape, lower)
+            if d.get("border"):
+                pt.line((hemx - ww * 1.85, bottom - 7 * k), (hemx + ww * 1.85, bottom - 7 * k), d["border"], 9 * k)
+        else:
+            pt.ellipse((hip[0], hip[1] + 6 * k), ww * 1.12, 22 * k, 0, lower, ink=0.0)
+        hem = 0.0 if (d.get("sari") or d.get("robe")) else (d.get("hem", 46) * k)
         prof = [(-hem, ww * 1.22, ww * 1.22), (0.0, ww * 1.1, ww * 1.08), (0.32, ww * 0.98, ww * 0.95),
                 (0.6, sw * 1.02 * breathe, sw * 0.92), (0.84, sw * 1.04 * breathe, sw * 1.0), (1.0, sw * 0.55, sw * 0.6)]
-        left, right = [], []
-        for s_, wf, wb in prof:                           # wf = front (chest) side, wb = back side
+        left, right, mid = [], [], []
+        for s_, wf, wb in prof:
             if s_ <= 0.6:
                 if s_ < 0:
                     ux, uy = chest[0] - hip[0], chest[1] - hip[1]
@@ -314,41 +394,67 @@ class Character:
                 c = (chest[0] + (neck[0] - chest[0]) * u, chest[1] + (neck[1] - chest[1]) * u)
                 dx, dy = neck[0] - chest[0], neck[1] - chest[1]
             ln = math.hypot(dx, dy) or 1
-            nx, ny = dy / ln, -dx / ln                     # perpendicular (right of 'up' when upright)
-            nx, ny = -nx, -ny
+            nx, ny = -dy / ln, dx / ln
             right.append((c[0] + nx * wf * fw, c[1] + ny * wf * fw))
             left.append((c[0] - nx * wb * fw, c[1] - ny * wb * fw))
+            mid.append((c[0] - nx * wb * fw * 0.25, c[1] - ny * wb * fw * 0.25))
         body = _smooth(right + left[::-1], 2)
         pt.poly(body, d["shirt"])
+        pt.poly(_smooth(mid + left[::-1], 1), _shade(d["shirt"], 0.84), ink=0.0)   # the back half in shadow
+        if d.get("checks"):                                  # a checked shirt: a few crossing lines
+            for q in (0.2, 0.45, 0.7):
+                i = int(q * (len(right) - 1))
+                pt.line(left[i], right[i], _shade(d["shirt"], 0.78), 2.2 * k)
         pt.line(((right[3][0] * 2 + left[3][0]) / 3, (right[3][1] * 2 + left[3][1]) / 3),
-                ((right[0][0] + left[0][0]) / 2, (right[0][1] + left[0][1]) / 2), d["shirt_dark"], 2.0 * k)     # a fold
-        pt.line((neck[0], neck[1] + 6 * k), (neck[0] + fw * 7 * k * sq_u, neck[1] + 26 * k), d["shirt_dark"], 2.4 * k)  # collar
-        if not d.get("sari"):
-            pt.line(left[1], right[1], _shade(d["shirt"], 0.85), 1.6 * k)            # where the kurta meets the waist
+                ((right[0][0] + left[0][0]) / 2, (right[0][1] + left[0][1]) / 2), d["shirt_dark"], 2.2 * k)
+        pt.line((neck[0], neck[1] + 6 * k), (neck[0] + fw * 8 * k * sq_u, neck[1] + 28 * k), d["shirt_dark"], 2.6 * k)
+        if d.get("bag"):                                     # a cloth bag on a strap over the shoulder
+            sh = j["sh_f"]
+            bx, by = hip[0] - fw * ww * 0.9, hip[1] + 10 * k
+            pt.line(sh, (bx, by - 14 * k), _shade(d["bag"], 0.8), 5 * k)
+            pt.poly(_smooth([(bx - 22 * k, by - 18 * k), (bx + 22 * k, by - 18 * k), (bx + 20 * k, by + 24 * k), (bx - 20 * k, by + 24 * k)], 1), d["bag"])
+        if d.get("necklace"):
+            for q in range(9):
+                a_ = math.pi * (0.1 + 0.8 * q / 8)
+                pt.circle((neck[0] + math.cos(a_) * sw * 0.5 * fw, neck[1] + 12 * k + math.sin(a_) * 26 * k), 2.6 * k, d["necklace"], ink=0.0)
+        if d.get("beads"):                                   # a rudraksha mala
+            for q in range(7):
+                a_ = math.pi * (0.15 + 0.7 * q / 6)
+                pt.circle((neck[0] + math.cos(a_) * sw * 0.55 * fw, neck[1] + 10 * k + math.sin(a_) * 34 * k), 3.2 * k, (30, 50, 90), ink=0.4)
         if d.get("shawl"):
             sh_n, sh_f = j["sh_n"], j["sh_f"]
-            pt.poly(_smooth([(sh_f[0] - fw * 8 * k, sh_f[1] - 6 * k), (sh_n[0] + fw * 10 * k, sh_n[1] - 6 * k),
-                             (sh_n[0] + fw * 6 * k, sh_n[1] + 40 * k), (neck[0], neck[1] + 70 * k),
-                             (sh_f[0] - fw * 10 * k, sh_f[1] + 60 * k)], 2), d["shawl"])
+            pt.poly(_smooth([(sh_f[0] - fw * 9 * k, sh_f[1] - 7 * k), (sh_n[0] + fw * 11 * k, sh_n[1] - 7 * k),
+                             (sh_n[0] + fw * 7 * k, sh_n[1] + 44 * k), (neck[0], neck[1] + 76 * k),
+                             (sh_f[0] - fw * 11 * k, sh_f[1] + 64 * k)], 2), d["shawl"])
 
-    def _leg(self, pt, hip, kn, ft, k, fw, col, foot_col):
+    def _leg(self, pt, hip, kn, ft, k, fw, col, foot_col, skin):
         b = self.b
-        pt.limb(hip, kn, 28 * k * b, 23 * k * b, col)
-        pt.limb(kn, ft, 22 * k * b, 16 * k * b, col)
-        self._foot(pt, ft, k, fw, foot_col)
+        dhoti = self.d.get("dhoti")
+        pt.limb(hip, kn, 34 * k * b, 28 * k * b, col, shade=self._side(hip, kn, fw))
+        if dhoti:                                            # (the cloth itself is drawn once over both legs)
+            pt.limb(kn, ft, 15 * k * b, 13 * k * b, skin, shade=self._side(kn, ft, fw))
+        else:
+            pt.limb(kn, ft, 27 * k * b, 20 * k * b, col, shade=self._side(kn, ft, fw))
+        if not self.d.get("ghost"):
+            self._foot(pt, ft, k, fw, foot_col)
 
     def _arm(self, pt, sh, el, hd, k, sleeve, skin, mode, t, fw, side):
         b = self.b
-        pt.limb(sh, el, 21 * k * b, 17 * k * b, sleeve)                            # sleeve over the upper arm
-        pt.limb(el, hd, 15 * k * b, 11 * k * b, skin)                              # forearm
-        cuff = (el[0] + (hd[0] - el[0]) * 0.35, el[1] + (hd[1] - el[1]) * 0.35)
-        pt.limb(el, cuff, 17.5 * k * b, 16 * k * b, sleeve)                        # the sleeve ends below the elbow
-        self._hand(pt, el, hd, k, skin, mode, t, fw, side)
+        pt.limb(sh, el, 26 * k * b, 21 * k * b, sleeve, shade=self._side(sh, el, fw))
+        pt.limb(el, hd, 19 * k * b, 14 * k * b, skin, shade=self._side(el, hd, fw))
+        if self.d.get("sleeve", "elbow") != "none":
+            cut = 0.35 if self.d.get("sleeve", "elbow") == "elbow" else 0.85
+            cuff = (el[0] + (hd[0] - el[0]) * cut, el[1] + (hd[1] - el[1]) * cut)
+            pt.limb(el, cuff, 22 * k * b, 20 * k * b, sleeve)
+        if self.d.get("bangles"):
+            w = (el[0] + (hd[0] - el[0]) * 0.85, el[1] + (hd[1] - el[1]) * 0.85)
+            pt.ellipse(w, 9 * k, 4 * k, math.degrees(math.atan2(hd[1] - el[1], hd[0] - el[0])) + 90, self.d["bangles"], ink=0.5)
+        self._hand(pt, el, hd, k * 1.15, skin, mode, t, fw, side)
 
     def _foot(self, pt, a, k, fw, col):
         x, y = a
-        pt.poly(_smooth([(x - fw * 9 * k, y - 7 * k), (x - fw * 12 * k, y + 5 * k), (x + fw * 25 * k, y + 6.5 * k),
-                         (x + fw * 27 * k, y + 1 * k), (x + fw * 12 * k, y - 6 * k)], 2), col)
+        pt.poly(_smooth([(x - fw * 10 * k, y - 8 * k), (x - fw * 13 * k, y + 5 * k), (x + fw * 27 * k, y + 6.5 * k),
+                         (x + fw * 29 * k, y + 1 * k), (x + fw * 13 * k, y - 7 * k)], 2), col)
 
     CURL = {"relaxed": (0.35, 0.42, 0.5, 0.58, 0.3), "open": (0.05, 0.02, 0.06, 0.12, 0.05),
             "spread": (0.0, 0.0, 0.0, 0.0, 0.0), "fist": (1.0, 1.0, 1.0, 1.0, 0.8), "point": (0.0, 1.0, 1.0, 1.0, 0.7),
@@ -363,10 +469,10 @@ class Character:
         ux, uy = math.cos(a0), math.sin(a0)
         px, py = -uy, ux
         pc = (hd[0] + ux * 5 * k, hd[1] + uy * 5 * k)
-        pt.ellipse(pc, 10 * k, 8 * k, math.degrees(a0), col)                       # the palm
         spread = {"open": 0.16, "spread": 0.3}.get(mode, 0.06)
         lens = ((9.0, 7.0), (10.0, 7.5), (9.5, 7.0), (7.5, 5.5))
-        dark = _shade(col, 0.82)
+        dark = _shade(col, 0.86)
+        fingers = []
         for i in range(4):
             live = 0.07 * math.sin(t * 1.7 + i * 0.9 + side) if mode in ("relaxed", "open") else 0.0
             c = min(1.0, max(0.0, curl[i] + live))
@@ -377,15 +483,46 @@ class Character:
             m = (base[0] + math.cos(a1) * l1 * k, base[1] + math.sin(a1) * l1 * k)
             a2 = a1 - fw * c * 1.5
             e = (m[0] + math.cos(a2) * l2 * k, m[1] + math.sin(a2) * l2 * k)
-            pt.limb(base, m, 4.0 * k, 3.6 * k, col if i % 2 == 0 else dark)
-            pt.limb(m, e, 3.6 * k, 3.0 * k, col if i % 2 == 0 else dark)
-        c = curl[4]                                         # the thumb, from the side of the palm
+            fingers.append((base, m, e, i))
+        for base, m, e, i in fingers:                        # fingers first (outlined), the palm over their roots
+            pt.limb(base, m, 4.2 * k, 3.8 * k, col if i % 2 == 0 else dark, ink=0.55)
+            pt.limb(m, e, 3.8 * k, 3.1 * k, col if i % 2 == 0 else dark, ink=0.55)
+        pt.ellipse(pc, 10 * k, 8 * k, math.degrees(a0), col, ink=0.6)
+        c = curl[4]
         tb = (pc[0] - px * 5 * k * fw - ux * 1 * k, pc[1] - py * 5 * k * fw - uy * 1 * k)
         at = a0 - fw * (0.9 - 0.5 * c)
         m = (tb[0] + math.cos(at) * 7 * k, tb[1] + math.sin(at) * 7 * k)
         at2 = at - fw * c * 0.9
-        pt.limb(tb, m, 4.4 * k, 3.8 * k, col)
-        pt.limb(m, (m[0] + math.cos(at2) * 6 * k, m[1] + math.sin(at2) * 6 * k), 3.8 * k, 3.2 * k, col)
+        pt.limb(tb, m, 4.6 * k, 4.0 * k, col, ink=0.55)
+        pt.limb(m, (m[0] + math.cos(at2) * 6 * k, m[1] + math.sin(at2) * 6 * k), 4.0 * k, 3.3 * k, col, ink=0.55)
+
+    @staticmethod
+    def _hair_cap(hx, hy, rx, ry, yaw, k, parted=False):
+        """hair on the head as a real hairline: high over the forehead, down to the ear / nape behind"""
+        top = [(hx + math.cos(a) * rx * (1.06 + 0.035 * (-1) ** i), hy + math.sin(a) * ry * (1.06 + 0.035 * (-1) ** i) - 2 * k)
+               for i, a in enumerate(np.linspace(math.pi * 1.0, math.pi * 2.0, 15))]     # a soft uneven edge: hair, not a helmet
+        def edge(s):
+            front = max(0.0, s * yaw)
+            back = max(0.0, -s * yaw)
+            return (hx + s * rx * 1.03, hy + ry * (0.02 - 0.42 * front + 0.32 * back))
+        mid = (hx + yaw * rx * 0.35, hy - ry * (0.55 if not parted else 0.62))
+        return _smooth([edge(-1)] + top + [edge(1), (hx + yaw * rx * 0.7 + rx * 0.2 * (1 - abs(yaw)), hy - ry * 0.4), mid,
+                                         (hx + yaw * rx * 0.1 - rx * 0.35 * (1 - abs(yaw)), hy - ry * 0.42)], 1)
+
+    def _back_hair(self, pt, c, k, st):
+        """long hair falls down the BACK (drawn before the body, so it never covers the chest)"""
+        d = self.d
+        style = d.get("hair_style", "short")
+        if style not in ("open_long", "long") or d.get("faceless"):
+            return
+        yaw = max(-1.0, min(1.0, st.get("head_yaw", st["facing"])))
+        rx, ry = 36 * k, 42 * k
+        hx, hy = c
+        ln = 3.4 if style == "open_long" else 1.5
+        sway = 5 * k * math.sin(st.get("t", 0.0) * 1.3)
+        back = -yaw * rx * 0.55                            # the hair falls on the side away from the face
+        pt.poly(_smooth([(hx - rx * 1.05 + back * 0.3, hy - ry * 0.4), (hx + rx * 1.05 + back * 0.3, hy - ry * 0.4),
+                         (hx + rx * 0.95 + back + sway, hy + ry * ln), (hx - rx * 1.15 + back + sway, hy + ry * ln)], 2), d["hair"])
 
     def _head(self, pt, c, k, st):
         d = self.d
@@ -393,84 +530,130 @@ class Character:
         rx, ry = 36 * k, 42 * k
         hx, hy = c
         skin, dark = d["skin"], d["skin_dark"]
+        hair = d["hair"]
+        style = d.get("hair_style", "short")
         if d.get("faceless"):                             # the shadow figure: no face - only a dark shape
-            pt.ellipse((hx, hy), rx, ry, 0, d["hair"])
+            pt.ellipse((hx, hy), rx, ry, 0, hair)
             pt.poly([(hx - rx * 1.1, hy - ry * 0.2), (hx + rx * 1.1, hy - ry * 0.2), (hx + rx * 1.4, hy + ry * 3.0),
-                     (hx - rx * 1.4, hy + ry * 3.0)], d["hair"])
+                     (hx - rx * 1.4, hy + ry * 3.0)], hair)
             return
-        # back hair / ear (behind the face)
-        if d["hair_style"] in ("long", "bun"):
-            pt.ellipse((hx - yaw * rx * 0.25, hy - ry * 0.05), rx * 1.08, ry * 1.08, 0, d["hair"])
-            if d["hair_style"] == "bun":
-                pt.circle((hx - yaw * rx * 0.95, hy - ry * 0.35), 17 * k, d["hair"])
+        if style in ("open_long", "long"):
+            pt.ellipse((hx - yaw * rx * 0.2, hy - ry * 0.05), rx * 1.1, ry * 1.08, 0, hair)
+        if style == "bun":
+            pt.ellipse((hx - yaw * rx * 0.2, hy - ry * 0.05), rx * 1.08, ry * 1.08, 0, hair)
+            pt.circle((hx - yaw * rx * 0.95, hy - ry * 0.35), 18 * k, hair)
+        if style == "topknot":
+            pt.circle((hx - yaw * rx * 0.2, hy - ry * 1.12), 15 * k, hair)
         if abs(yaw) > 0.15:
             pt.ellipse((hx - yaw * rx * 0.78, hy + ry * 0.05), 8 * k, 12 * k, 0, dark)
-        pt.ellipse((hx, hy), rx + 1.5 * k, ry + 1.5 * k, 0, dark)
         pt.ellipse((hx, hy), rx, ry, 0, skin)
+        pt.ellipse((hx - yaw * rx * 0.35 - rx * 0.12, hy + ry * 0.18), rx * 0.62, ry * 0.7, 0, _shade(skin, 0.9), ink=0.0)  # cheek shade
+        pt.ellipse((hx + yaw * rx * 0.1, hy - ry * 0.05), rx * 0.82, ry * 0.82, 0, skin, ink=0.0)
+        if d.get("ghost") and d.get("pale"):
+            pt.ellipse((hx + yaw * rx * 0.3, hy - ry * 0.05), rx * 0.25, ry * 0.32, 0, _shade(skin, 0.75), ink=0.0)
         # hair on top
-        if d["hair_style"] == "short":
-            pt.ellipse((hx - yaw * rx * 0.18, hy - ry * 0.55), rx * 1.02, ry * 0.55, 0, d["hair"])
-        elif d["hair_style"] == "bald":
-            pt.ellipse((hx - yaw * rx * 0.75, hy - ry * 0.05), rx * 0.32, ry * 0.55, 0, d["hair"])
-        elif d["hair_style"] in ("bun", "long"):
-            pt.ellipse((hx - yaw * rx * 0.1, hy - ry * 0.6), rx * 1.0, ry * 0.48, 0, d["hair"])
+        if style in ("short", "side_part", "messy"):
+            ink0 = pt.ink
+            if pt.ink:                                     # hair is outlined in a darker shade of itself (not a helmet)
+                pt.ink = (_shade(hair, 0.55) if sum(hair) > 200 else pt.ink[0], pt.ink[1])
+            pt.poly(self._hair_cap(hx, hy, rx, ry, yaw, k), hair)
+            pt.ink = ink0
+            if sum(hair) < 200:                            # dark hair: a few lighter strands
+                for q in (-0.5, -0.1, 0.3):
+                    x_ = hx + q * rx - yaw * rx * 0.1
+                    pt.line((x_, hy - ry * 0.98), (x_ + yaw * rx * 0.25 + 4 * k, hy - ry * 0.62), _shade(hair, 1.8), 1.4 * k)
+            if style == "side_part":
+                pt.line((hx - yaw * rx * 0.1 + rx * 0.25, hy - ry * 1.02), (hx - yaw * rx * 0.1 + rx * 0.1, hy - ry * 0.65), _shade(hair, 1.6), 2 * k)
+            if style == "messy":
+                for q in range(5):
+                    xq = hx - rx * 0.8 + q * rx * 0.4 - yaw * rx * 0.18
+                    pt.poly([(xq - 7 * k, hy - ry * 0.85), (xq + 7 * k, hy - ry * 0.85), (xq + 3 * k, hy - ry * 1.25)], hair, ink=0.6)
+        elif style == "bald":
+            pt.ellipse((hx - yaw * rx * 0.75, hy - ry * 0.05), rx * 0.32, ry * 0.55, 0, hair)
+        elif style in ("bun", "long", "open_long", "topknot"):
+            pt.poly(self._hair_cap(hx, hy, rx, ry, yaw, k, parted=True), hair)
+        if d.get("flower") and style in ("bun", "long", "open_long", "topknot"):
+            fxp = (hx - yaw * rx * 0.85, hy - ry * 0.45)
+            for q in range(5):
+                a_ = q * 2 * math.pi / 5
+                pt.circle((fxp[0] + math.cos(a_) * 6 * k, fxp[1] + math.sin(a_) * 6 * k), 5 * k, d["flower"], ink=0.4)
+            pt.circle(fxp, 3.5 * k, (60, 200, 240), ink=0.0)
+        if d.get("earrings") and abs(yaw) < 0.9:
+            for side in (-1, 1):
+                if abs(yaw) > 0.4 and side * yaw > 0:
+                    continue
+                pt.circle((hx + side * rx * 0.95 - yaw * rx * 0.2, hy + ry * 0.3), 4 * k, d["earrings"], ink=0.4)
+        if d.get("tilak"):
+            pt.ellipse((hx + yaw * rx * 0.45, hy - ry * 0.3), 2.8 * k, 6.5 * k, 0, d["tilak"], ink=0.0)
         if d.get("beard"):
-            pt.poly([(hx + yaw * rx * 0.1 - rx * 0.75, hy + ry * 0.15), (hx + yaw * rx * 0.1 + rx * 0.75, hy + ry * 0.15),
-                     (hx + yaw * rx * 0.45 + rx * 0.35, hy + ry * 1.25), (hx + yaw * rx * 0.35, hy + ry * 1.55),
-                     (hx + yaw * rx * 0.25 - rx * 0.45, hy + ry * 1.2)], d["beard"])
-        # eyes: positions follow the head turn; pupils follow the gaze; lids for blinks; size for fear
+            long_ = 1.0 if d.get("beard_len", "short") == "short" else 1.9
+            pt.poly(_smooth([(hx + yaw * rx * 0.1 - rx * 0.78, hy + ry * 0.12), (hx + yaw * rx * 0.1 + rx * 0.78, hy + ry * 0.12),
+                             (hx + yaw * rx * 0.45 + rx * 0.35, hy + ry * (1.0 + 0.25 * long_)), (hx + yaw * rx * 0.35, hy + ry * (1.15 + 0.45 * long_)),
+                             (hx + yaw * rx * 0.25 - rx * 0.45, hy + ry * (1.0 + 0.2 * long_))], 2), d["beard"])
+        # eyes
+        prof = max(0.0, (abs(yaw) - 0.6) / 0.4)
         gx, gy = st.get("gaze", (yaw, 0.0))
         fear = st.get("brows", "") in ("fear", "surprise")
-        er = (7.5 if fear else 6.2) * k
-        blink = st.get("blink", 0.0)
-        prof = max(0.0, (abs(yaw) - 0.6) / 0.4)          # 0 = 3/4 view .. 1 = full side profile
+        er = (8.0 if fear else 6.8) * k
+        blink = 0.0 if d.get("glow_eyes") else st.get("blink", 0.0)
         for side in (-1, 1):
             far_eye = (side == -1 and yaw > 0) or (side == 1 and yaw < 0)
             if far_eye and prof > 0.75:
-                continue                                  # in profile the far eye is hidden behind the nose
+                continue
             ex = hx + yaw * rx * (0.42 + 0.2 * prof) + side * rx * 0.34 * (1 - 0.35 * abs(yaw)) * (1 - 0.6 * prof)
-            if far_eye and abs(yaw) > 0.55:
-                wscale = 0.65 * (1 - 0.5 * prof)          # the far eye looks narrower
-            else:
-                wscale = 1.0 - 0.3 * prof
+            wscale = (0.65 * (1 - 0.5 * prof)) if (far_eye and abs(yaw) > 0.55) else (1.0 - 0.3 * prof)
             ey = hy - ry * 0.05
-            pt.ellipse((ex, ey), er * wscale * 1.15, er, 0, (238, 240, 242))
-            px = ex + gx * er * 0.55 * wscale
-            py = ey + gy * er * 0.5
-            pt.circle((px, py), er * (0.42 if fear else 0.55), (30, 24, 20))
-            pt.circle((px + er * 0.15, py - er * 0.18), er * 0.14, (250, 250, 250))
-            if blink > 0.05:                              # the eyelid comes down
-                pt.ellipse((ex, ey - er * (1 - blink)), er * wscale * 1.25, er * blink * 1.05, 0, skin)
-            # eyebrow
+            if d.get("glow_eyes"):                          # a ghost: dark sockets, glowing eyes, no pupils, no blink
+                pt.ellipse((ex, ey), er * wscale * 1.35, er * 1.15, 0, (30, 26, 34), ink=0.0)
+                pt.ellipse((ex, ey), er * wscale * 0.85, er * 0.6, 0, d["glow_eyes"], ink=0.0)
+                pt.ellipse((ex, ey), er * wscale * 0.4, er * 0.3, 0, (240, 250, 255), ink=0.0)
+            else:
+                pt.ellipse((ex, ey), er * wscale * 1.15, er, 0, (238, 240, 242), ink=0.5)
+                px = ex + gx * er * 0.55 * wscale
+                py = ey + gy * er * 0.5
+                pt.circle((px, py), er * (0.42 if fear else 0.56), (30, 24, 20), ink=0.0)
+                pt.circle((px + er * 0.15, py - er * 0.18), er * 0.15, (250, 250, 250), ink=0.0)
+                if blink > 0.05:
+                    pt.ellipse((ex, ey - er * (1 - blink)), er * wscale * 1.25, er * blink * 1.05, 0, skin, ink=0.0)
+                if d.get("kohl"):
+                    pt.line((ex - er * wscale, ey + er * 0.75), (ex + er * wscale * 1.1, ey + er * 0.7), (20, 18, 22), 2.2 * k)
+            if d.get("glasses"):
+                pt.ellipse((ex, ey), er * wscale * 1.7, er * 1.45, 0, d["glasses"], thick=1.8 * k)
             b = st.get("brows", "")
             inner = {"fear": -4.0, "surprise": -6.0, "angry": 4.0, "sad": -3.0, "happy": -1.0}.get(b, 0.0)
             lift = {"fear": -4.0, "surprise": -7.0, "angry": 1.0, "sad": -1.0}.get(b, 0.0)
-            ix = ex - side * er * 1.1
-            ox = ex + side * er * 1.2
-            pt.line((ix, ey - er * 1.7 + lift * k + inner * k), (ox, ey - er * 1.9 + lift * k), d["hair"] if d["hair_style"] != "bald"
-                    else (200, 204, 208), 3.0 * k)
+            ix, ox = ex - side * er * 1.1, ex + side * er * 1.2
+            pt.line((ix, ey - er * 1.75 + lift * k + inner * k), (ox, ey - er * 1.95 + lift * k),
+                    hair if style != "bald" else (200, 204, 208), 3.4 * k)
+        if d.get("glasses") and prof < 0.75:
+            pt.line((hx + yaw * rx * 0.42 - rx * 0.12, hy - ry * 0.08), (hx + yaw * rx * 0.42 + rx * 0.12, hy - ry * 0.08), d["glasses"], 1.8 * k)
         # nose
         nx = hx + yaw * rx * (0.82 + 0.16 * prof)
         pt.poly([(nx - yaw * 3 * k, hy - ry * 0.02), (nx + yaw * (9 + 7 * prof) * k + (0 if abs(yaw) > 0.2 else 3 * k), hy + ry * 0.26),
-                 (nx - yaw * 4 * k, hy + ry * 0.3)], dark if prof < 0.5 else skin)
-        if prof > 0.5:                                    # the nose outline in profile
-            pt.line((nx, hy - ry * 0.02), (nx + yaw * 16 * k, hy + ry * 0.26), dark, 2.0 * k)
-        # moustache
+                 (nx - yaw * 4 * k, hy + ry * 0.3)], dark if prof < 0.5 else skin, ink=0.5)
+        # front strands of open hair hang over the sides of the face (a ghost)
+        if style == "open_long":
+            for side in (-1, 1):
+                if abs(yaw) > 0.45 and side * yaw > 0:
+                    continue                               # side view: no strand over the face - only behind the ear
+                x0 = hx + side * rx * 0.92 - yaw * rx * 0.15
+                pt.poly(_smooth([(x0 - 9 * k, hy - ry * 0.75), (x0 + 9 * k, hy - ry * 0.75), (x0 + 6 * k + side * 4 * k, hy + ry * 1.6),
+                                 (x0 - 6 * k + side * 4 * k, hy + ry * 1.6)], 1), hair, ink=0.6)
         mx, my = hx + yaw * rx * (0.48 + 0.25 * prof), hy + ry * 0.5
         if d.get("moustache"):
-            pt.ellipse((mx, my - 7 * k), 13 * k, 4.5 * k, -yaw * 8, d["moustache"])
-        # mouth: real shapes
+            pt.ellipse((mx, my - 7 * k), (14 if d.get("moustache_thick", True) else 10) * k, 4.5 * k, -yaw * 8, d["moustache"], ink=0.4)
         op, shape = st.get("mouth", (0.0, "rest"))
         w = {"A": 9.5, "E": 12.0, "O": 6.5, "M": 9.0, "rest": 8.5}.get(shape, 8.5) * k * (1 - 0.3 * abs(yaw))
         hgt = {"A": 9.0, "E": 4.5, "O": 8.0, "M": 0.0, "rest": 0.0}.get(shape, 0.0) * k * op
         if hgt > 1.2 * k:
-            pt.ellipse((mx, my + hgt * 0.2), w, hgt, 0, (40, 30, 70))
+            pt.ellipse((mx, my + hgt * 0.2), w, hgt, 0, (40, 30, 70), ink=0.5)
             if shape in ("A", "E"):
-                pt.ellipse((mx, my - hgt * 0.45), w * 0.75, max(1.0, hgt * 0.22), 0, (225, 228, 232))   # upper teeth
+                pt.ellipse((mx, my - hgt * 0.45), w * 0.75, max(1.0, hgt * 0.22), 0, (225, 228, 232), ink=0.0)
         else:
             smile = {"happy": -3.0, "sad": 3.0, "fear": 2.0}.get(st.get("brows", ""), 0.0) * k
-            pt.line((mx - w, my + smile * 0.3), (mx, my - smile * 0.2), (60, 60, 110), 2.4 * k)
-            pt.line((mx, my - smile * 0.2), (mx + w, my + smile * 0.3), (60, 60, 110), 2.4 * k)
+            lip = d.get("lips", (60, 60, 110))
+            pt.line((mx - w, my + smile * 0.3), (mx, my - smile * 0.2), lip, 2.6 * k)
+            pt.line((mx, my - smile * 0.2), (mx + w, my + smile * 0.3), lip, 2.6 * k)
 
 
 class _SpriteCam:

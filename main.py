@@ -2105,7 +2105,12 @@ def team_report(story, slot_hour):
         f"🔁 পুনরাবৃত্তি-পাহারাদার: {tm.get('repeat') or 0}টা লাইন বাদ / ছোট",
         f"🏁 শেষ-পাহারাদার: " + (f"শেষের পরে {tm['end']}টা বাড়তি লাইন কেটেছে" if tm.get("end") else "শেষের পরে কিছু ছিল না"),
         f"🎧 শ্রোতা-বিচারক: {tm.get('judge') or '-'} / 10",
-    ] + list(STATE.get("engine_rows") or []) + [
+    ] + ([f"🧑‍🎨 চরিত্র-নকশাকার: " + "; ".join(f"{n} ({', '.join((r.get('evidence') or [])[:4])})"
+                                            for n, r in list((story.get("cartoon_cast") or {}).items())[:4]),
+          "🔍 কড়া চরিত্র-সহকারী: গল্প থেকে আরও " + str(sum(len(v) for v in (story.get("cartoon_extra") or {}).values()))
+          + "টা খুঁটিনাটি; এখনো আঁকা যায় না: " + (", ".join(x for r in (story.get("cartoon_cast") or {}).values()
+                                                      for x in (r.get("audit") or {}).get("not_drawn", [])[:2])[:200] or "কিছু নেই")]
+         if story.get("cartoon_cast") else []) + list(STATE.get("engine_rows") or []) + [
         f"✅ সত্যতা-পাহারাদার: " + (f"নামে / লেখায় {tm['honest']}টা ভুল দাবি সরিয়েছে" if tm.get("honest") else "সব ঠিক"),
     ]
     title = re.sub(r"\s*\|.*$", "", str(story.get("title") or ""))
@@ -5783,7 +5788,7 @@ def engine_scene_clip(eng, audio, out, idx):
     raw = os.path.join(WORK, f"engine_{idx:02d}.mp4")
     llm = _gem_helper if env("ENGINE_GEMINI") != "0" else None
     story_engine.engine_clip(eng["scene"], eng["beats"], audio, raw, eng.get("chars") or [], W=W, H=H, fps=FPS,
-                             llm=llm, log=log, idx=idx)
+                             llm=llm, log=log, idx=idx, designs=eng.get("designs"))
     dur = duration(audio)
     run(["ffmpeg", "-y", "-i", raw, "-i", audio, "-map", "0:v", "-map", "1:a", "-t", f"{dur:.2f}",
          "-vf", "format=yuv420p", "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-maxrate", "3500k",
@@ -6017,6 +6022,51 @@ def anim_test_run():
     return rep
 
 
+def art_test_run():
+    """2.5D: real AI pictures for a human, a young man and a ghost + the hut's background, cut, checked, animated;
+    the contact sheet, the sample video and the report go to your Telegram. Nothing is posted."""
+    import art_test
+    if CF_QUOTA_OUT:
+        _tg_text("⚠️ art test: Cloudflare-এর আজকের ফ্রি সীমা শেষ - কাল আবার চালান।")
+        return None
+    rep = art_test.run(_cutout_image, llm=_gem_helper if env("GEMINI_API_KEY") else None, log=log,
+                       budget=int(env("ART_MAX_IMAGES") or 60))
+    g = rep["generation"]
+    lines = [f"🎨 2.5D art test - কিছু প্রকাশ হয়নি। ছবি তৈরি: {g['made']}" + (" (ফ্রি সীমায় থেমেছে - বাকিটা পরের বার)" if g["paused"] else "")]
+    if g.get("blocker"):
+        lines.append(f"⛔ আটকে গেছে: {g['blocker']}")
+    for n, r in g["characters"].items():
+        lines.append(f"{'✅' if r['status'] == 'ready' else '⚠️'} {n}: {r['status']}" + (f" - {'; '.join(r['problems'][:2])}" if r["problems"] else ""))
+    lines.append(f"🏠 background: {g['plates'].get('house_interior', 'not made')}")
+    for s_ in rep["scenes"]:
+        lines.append(f"🎬 {s_['id']}: " + (", ".join(f"{k}={v}" for k, v in (s_.get("drawn_by") or {}).items()) or str(s_.get("error"))))
+    txt = "\n".join(lines)
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        if tok and chat:
+            if rep.get("sheet") and os.path.exists(rep["sheet"]):
+                with open(rep["sheet"], "rb") as f:
+                    requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat, "caption": "সব ছবি + কাটা অংশ"},
+                                  files={"document": ("art_sheet.jpg", f, "image/jpeg")}, timeout=180)
+            if rep.get("poses") and os.path.exists(rep["poses"]):
+                with open(rep["poses"], "rb") as f:
+                    requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat, "caption": "জোড়া লাগানো চরিত্র: ভঙ্গি"},
+                                  files={"document": ("art_poses.jpg", f, "image/jpeg")}, timeout=180)
+            if rep.get("video") and os.path.exists(rep["video"]) and os.path.getsize(rep["video"]) < 48_000_000:
+                with open(rep["video"], "rb") as f:
+                    requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat, "caption": txt[:1000]},
+                                  files={"video": ("art_test.mp4", f, "video/mp4")}, timeout=300)
+            else:
+                _tg_text(txt)
+    except Exception as e:
+        log("  art test not sent to Telegram:", str(e)[:120])
+    try:                                              # the made parts are kept (never made twice)
+        push_now([os.path.join(HERE, "assets", "cartoon_parts")], "2.5D character parts")
+    except Exception:
+        pass
+    return rep
+
+
 def story_test_run():
     """V1.1: the story test (3 scenes from the real voice samples) with the three assistants - Gemini reads the
     lines when the key is there; the video + the Bengali match report go to your Telegram. Nothing is posted."""
@@ -6165,7 +6215,8 @@ def build_video(scene_parts, lang, out):
             spk_ = [(None if str(ln.get("speaker", "")).lower().startswith("narrat") else ln.get("speaker")) for ln in spoken]
             beats_ = [(st, st + du, spk_[k] if k < len(spk_) else None,
                        (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx) for k, (st, du, nar, tx) in enumerate(subs)]
-            comp_ = {"engine": {"scene": {"place": sp.get("place", "")}, "beats": beats_, "chars": sp["engine"]["chars"]}}
+            comp_ = {"engine": {"scene": {"place": sp.get("place", "")}, "beats": beats_, "chars": sp["engine"]["chars"],
+                                "designs": sp["engine"].get("designs") or {}}}
         jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk, comp_))
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
@@ -6751,7 +6802,67 @@ def load_plan(slot):
     return p if isinstance(p, dict) and isinstance(p.get("story"), dict) and p["story"].get("scenes") else None
 
 
+CARTOON_CAST = os.path.join(HERE, "assets", "cartoon_cast.json")   # every character's cartoon design, kept for ever
+
+
+def design_story_cast(story):
+    """V1.2 (your wish): the moment a story is written (the 2 AM run too) the CHARACTER DESIGNER builds every
+    character of THIS story from its look - hair, beard, clothes and colours, glasses, what they carry; a ghost
+    as a ghost - and saves the designs with the story (and in the library: the same person looks the same in
+    every episode)"""
+    try:
+        import character_designer
+        chars = [c for c in (story.get("characters") or []) if isinstance(c, dict)]
+        if chars:                                    # 1) the STRICT assistant: every detail from the whole story
+            story["cartoon_extra"] = character_designer.enrich_from_story(story, llm=_gem_helper, log=log)
+            story["cartoon_cast"] = character_designer.design_cast(chars, llm=_gem_helper, library=CARTOON_CAST, log=log)
+            make_cutout_assets(story)                 # 2.5D parts (only with ART_MODE=cutout)
+            nd = {n: r.get("audit", {}).get("not_drawn") for n, r in story["cartoon_cast"].items()
+                  if r.get("audit", {}).get("not_drawn")}
+            if nd:
+                log("  not drawable yet (listed, never faked): " + "; ".join(f"{n}: {', '.join(v[:4])}" for n, v in nd.items())[:400])
+    except Exception as e:
+        log("  character designer skipped:", str(e)[:150])
+
+
+def _cutout_image(prompt, ref_path, seed, w, h):
+    """character art: ONLY the bot's own free Cloudflare account - never the reference-less backup (the same
+    character must stay the same); when the free limit is used up this raises and the art maker PAUSES"""
+    if CF_QUOTA_OUT:
+        raise RuntimeError("Cloudflare free daily allocation used up (4006)")
+    return _cf_request_all(CF_MODEL, prompt, ref_path, w, h, seed)
+
+
+def make_cutout_assets(story):
+    """2.5D (ART_MODE=cutout): the AI-drawn parts of every character of this story (only what is missing) and the
+    illustrated backgrounds of its places. Pauses safely at the free limit; the report goes to the team report."""
+    if env("ART_MODE").strip().lower() != "cutout" or MOCK:
+        return None
+    try:
+        import cutout_assets as CA
+        import location_assistant as LA
+        reg = CA.Registry(os.path.join(HERE, "assets", "cartoon_parts"))
+        recs = [{"name": n, "look": r.get("look", ""), "design": r.get("design", {})}
+                for n, r in (story.get("cartoon_cast") or {}).items()]
+        places = []
+        for sc in story.get("scenes") or []:
+            loc = LA.analyse({"place": sc.get("place", ""), "lines": sc.get("lines") or []})
+            if (loc["location"], {}) not in places:
+                places.append((loc["location"], {}))
+        rep_ = CA.ensure_cast(recs, reg, _cutout_image, log=log, budget=int(env("ART_MAX_IMAGES") or 30), places=places[:3])
+        STATE["cutout_report"] = rep_
+        ok = sum(1 for r in rep_["characters"].values() if r["status"] == "ready")
+        log(f"  2.5D art: {ok}/{len(rep_['characters'])} characters ready, {rep_['made']} pictures made"
+            + (" - PAUSED at the free limit (the next run continues)" if rep_["paused"] else ""))
+        return rep_
+    except Exception as e:
+        log("  2.5D art skipped:", str(e)[:200])
+        return None
+
+
 def save_plan(slot, plan):
+    if isinstance(plan, dict) and isinstance(plan.get("story"), dict) and not plan["story"].get("cartoon_cast"):
+        design_story_cast(plan["story"])
     plans = _jload(PLANS_FILE, {})
     today = dt.datetime.now(extras.IST).date()
     keep = {}
@@ -12662,6 +12773,15 @@ def main():
         return anim_test_run()
     if env("MODE") == "story_test":                  # V1.1: the three assistants on real story lines (no posting)
         return story_test_run()
+    if env("MODE") == "art_test":                    # 2.5D: real AI character parts + background, cut + animated
+        return art_test_run()
+    if env("MODE") == "full_test":                   # a WHOLE story video with the cartoon engine - nothing posted
+        DRY_RUN = True
+        os.environ["DRY_RUN"] = "1"
+        os.environ["ANIM_MODE"] = "cartoon"
+        os.environ["MODE"] = ""
+        log("FULL TEST: the whole story-to-video run with the cartoon engine; NOTHING is posted (dry run)")
+        _tg_text("🧪 পুরো গল্পের টেস্ট শুরু (কার্টুন ইঞ্জিন) - কিছু প্রকাশ হবে না; ভিডিও GitHub-এর artifact-এ থাকবে।")
     if paused_now() and not MOCK:
         log("PAUSED from Telegram ('বন্ধ') - no video this time. Send 'চালু' to start again.")
         return
@@ -13071,7 +13191,10 @@ def main():
             parts[-1]["comp"] = {"scene": s, "index": k_, "bg": char_mode["bgs"][k_], "records": char_mode["records"],
                                  "by_name": char_mode["by_name"]}
         elif env("ANIM_MODE") == "cartoon":          # V1.1: the cartoon engine + the three story assistants
-            parts[-1]["engine"] = {"chars": [c for c in (story.get("characters") or []) if isinstance(c, dict)]}
+            if not story.get("cartoon_cast"):        # (a story written now, not at 2 AM: designed here)
+                design_story_cast(story)
+            parts[-1]["engine"] = {"chars": [c for c in (story.get("characters") or []) if isinstance(c, dict)],
+                                   "designs": story.get("cartoon_cast") or {}}
     hk = None if env("HOOK_OPEN") == "0" else cold_open_hook(scenes, story, lang)
     cold = False
     if hk:                                         # 1) the gripping moment, 2) the title, 3) the story from its start

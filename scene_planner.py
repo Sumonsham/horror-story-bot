@@ -126,9 +126,17 @@ def plan_from_story(scene):
         for c in (l.get("speaker"), l.get("listener")):
             if c in ids and c not in order:
                 order.append(c)
-    for o in ops:
+    for c in scene.get("present", []):                     # someone the scene is about who does not speak
+        if c in ids and c not in order:
+            order.append(c)
+    ghosts = [c["id"] for c in scene["characters"] if (c.get("design") or {}).get("ghost")]
+    for o in ops:                                          # "something appeared" with no name: this story's ghost
+        if o["op"] == "figure" and o.get("who") not in ids and ghosts:
+            o["who"] = ghosts[0]
         if o.get("who") in ids and o["who"] not in order:
             order.append(o["who"])
+        if o["op"] in ("handshake", "hug") and o.get("target") in ids and o["target"] not in order:
+            order.append(o["target"])                      # the one he shakes hands with / hugs is there too
     w = scene.get("weather") or {}
     light_t = []
     if w.get("lightning"):
@@ -141,13 +149,16 @@ def plan_from_story(scene):
     # ------------------------------------------------ blocking: places, facing, sitting
     slot = ["a", "b", "c"]
     chars, props, actions, door, sfx, reactions = [], [], [], [], [], []
+    plan_figure = None
     standing_ops = {"stiff", "walk", "run", "swing_lantern", "hold_lantern", "knock", "enter", "exit", "pose_stand"}
     pos = {}
     for k, cid in enumerate(order[:3]):
         x, gy = spots[slot[k]]
         my = [o for o in ops if o.get("who") == cid]
-        sit = info["seat"] is not None and not any(o["op"] in standing_ops for o in my) or any(o["op"] == "pose_sit" for o in my)
         cdef = next(c for c in scene["characters"] if c["id"] == cid)
+        sit = info["seat"] is not None and not any(o["op"] in standing_ops for o in my) or any(o["op"] == "pose_sit" for o in my)
+        if (cdef.get("design") or {}).get("ghost"):
+            sit = False                                    # a ghost stands, floating - never on a stool
         chars.append({"id": cid, "design": cdef["design"], "x": x, "ground_y": gy, "facing": 1.0 if k == 0 else -1.0,
                       "scale": 1.0, "start_pose": "sit" if sit else "stand"})
         pos[cid] = x
@@ -222,6 +233,56 @@ def plan_from_story(scene):
             act(t0=ln["t0"] + 0.2, t1=min(ln["t1"], ln["t0"] + 2.6), who=who, type=o["op"], target=o.get("target"))
         elif o["op"] in ("sad",) and who in cd:
             act(t0=ln["t0"], t1=ln["t1"], who=who, type="sad")
+        elif o["op"] == "figure" and who in cd:          # the story says it appears: hidden until then, then fades in
+            cd[who]["t_in"] = ln["t0"] + 0.8
+            act(t0=ln["t0"] + 0.8, t1=ln["t0"] + 2.6, who=who, type="appear")
+            for cid in cd:
+                if cid != who:
+                    yaw = 1.0 if cd[who]["x"] > cd[cid]["x"] else -1.0
+                    act(t0=ln["t0"] + 1.2, t1=dur, who=cid, type="look", yaw=yaw, target=who)
+                    act(t0=ln["t0"] + 1.2, t1=dur, who=cid, type="emotion", brows="fear",
+                        pose="sit_fear" if cd[cid]["start_pose"] == "sit" else None)
+                    reactions.append({"line": o["line"], "act": "look_at_ghost", "who": cid,
+                                      "why": "যে দেখা দিল তার দিকে ভয়ে তাকায় (স্বাভাবিক প্রতিক্রিয়া)"})
+            sfx.append({"t": ln["t0"] + 0.8, "t1": ln["t0"] + 6.0, "type": "heartbeat"})
+        elif o["op"] == "figure":                          # no ghost character: a dark figure (outside: far away;
+            fx = spots.get("door") or spots["focus"]            # inside: in the doorway)
+            inside = spots.get("door") is not None
+            plan_figure = {"design": "shadow", "scale": 0.95 if inside else 0.42, "ground_y": fx[1] if inside else 584,
+                           "t0": ln["t0"] + 0.8, "t1": ln["t0"] + (1.6 if inside else 4.0),
+                           "x0": fx[0] if inside else fx[0] + 260, "x1": fx[0], "behind_tree": None}
+            if inside:
+                door.append({"t0": ln["t0"], "t1": ln["t0"] + 0.8, "type": "open"})
+            for cid in cd:
+                act(t0=ln["t0"] + 1.0, t1=dur, who=cid, type="look", yaw=1.0 if fx[0] > cd[cid]["x"] else -1.0, target="figure")
+                reactions.append({"line": o["line"], "act": "look_at_figure", "who": cid, "why": "ছায়ামূর্তির দিকে তাকায় (স্বাভাবিক প্রতিক্রিয়া)"})
+        elif o["op"] in ("handshake", "hug") and who in cd:
+            others = [c for c in cd if c != who]
+            tgt = o.get("target") if o.get("target") in cd and o.get("target") != who else (
+                ln.get("listener") if ln.get("listener") in cd and ln.get("listener") != who else (others[0] if others else None))
+            if tgt:
+                t_ = ln["t0"]
+                for p_ in (who, tgt):                      # sitting people stand up first
+                    if cd[p_]["start_pose"] == "sit" and not any(a["who"] == p_ and a["type"] == "stand_up" for a in actions):
+                        act(t0=t_, t1=t_ + 1.4, who=p_, type="stand_up")
+                        t_s = t_ + 1.5
+                        t_ = max(t_, t_s)
+                gap = 200.0 if o["op"] == "handshake" else 70.0     # hands meet exactly / bodies close
+                side = 1.0 if pos[tgt] > pos[who] else -1.0
+                to = pos[tgt] - side * gap
+                if abs(to - pos[who]) > 20:
+                    d_ = travel_time(to - pos[who])
+                    act(t0=t_, t1=t_ + d_, who=who, type="walk", to_x=to, face=side)
+                    sfx.append({"t": t_, "t1": t_ + d_, "type": "footsteps", "step": STRIDE["walk"] / WALK_SPEED})
+                    t_ += d_
+                    pos[who] = to
+                if facing[tgt] != -side:                   # the other one turns to meet him
+                    act(t0=t_ - 0.6, t1=t_ + 0.1, who=tgt, type="turn", to=-side)
+                    facing[tgt] = -side
+                facing[who] = side
+                hold = 2.4 if o["op"] == "handshake" else 3.2
+                for p_ in (who, tgt):
+                    act(t0=t_, t1=t_ + hold, who=p_, type=o["op"], partner=tgt if p_ == who else who)
         elif o["op"] == "vanish" and who in cd:
             act(t0=ln["t0"], t1=ln["t0"] + 1.5, who=who, type="vanish")
         elif o["op"] == "lightning":
@@ -264,6 +325,21 @@ def plan_from_story(scene):
             continue
         spk, lis = l.get("speaker"), l.get("listener")
         my_ops = [o for o in ops if o["line"] == l["i"]]
+        appear = next((o for o in my_ops if o["op"] == "figure" and o.get("who") in cd), None)
+        if spk not in cd and appear:                       # narration of an apparition: wide -> on her -> who sees her
+            ta = l["t0"] + 0.8
+            others = [c for c in cd if c != appear["who"]]
+            m1 = min(s1, ta + 4.5)
+            cam.append({"t0": s0, "t1": ta + 0.6, "type": "wide", "z0": 1.05, "z1": 1.25, "cx": mid_x, "cy": 600})
+            cam.append({"t0": ta + 0.6, "t1": m1, "type": "medium", "a": appear["who"], "z": 2.1})
+            if others and s1 - m1 > 1.5:
+                m2 = min(s1, m1 + 3.5)
+                cam.append({"t0": m1, "t1": m2, "type": "reaction", "who": others[0], "push": 0.1, "dutch": -3.0, "dutch_grow": True})
+                if s1 - m2 > 0.6:
+                    cam.append({"t0": m2, "t1": s1, "type": "two_shot", "a": others[0], "b": appear["who"], "z": 1.7, "push": 0.05})
+            elif s1 > m1:
+                cam[-1]["t1"] = s1
+            continue
         if spk not in cd:                                  # narration: the place, or the thing it talks about
             if any(o["op"] in ("knock", "open_door", "close_door", "sfx_knock") for o in my_ops) and spots.get("door"):
                 cam.append({"t0": s0, "t1": s1, "type": "push_in", "z0": 1.2, "z1": 1.9, "cx": spots["door"][0] + 260,
@@ -294,7 +370,12 @@ def plan_from_story(scene):
         else:
             cam.append({"t0": s0, "t1": s1, "type": "medium", "a": spk, "z": 1.6})
     cam[-1]["t1"] = dur
+    import motion_director                                 # the MOTION assistant checks + fixes every movement
+    plan_ = None
     plan = {"id": scene["id"], "location": loc, "duration": round(dur, 2), "environment": env, "spots": spots,
             "characters": chars, "props": props, "dialogue": dia, "actions": actions, "door": door, "camera": cam,
             "sfx": sorted(sfx, key=lambda s: s["t"]), "transitions": {"fade_in": 0.6, "fade_out": 0.8}}
+    if plan_figure:
+        plan["figure"] = plan_figure
+    plan["motion_report"] = motion_director.check_and_fix(plan)
     return plan, reactions

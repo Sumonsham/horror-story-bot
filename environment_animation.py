@@ -102,9 +102,23 @@ class Environment:
         land[HORIZON + 40:, :, 3] = 255
         for a in (HORIZON + 40,):
             land[a:a + 12, :, 3] = np.linspace(0, 255, 12).astype(np.uint8)[:, None]
+        for _ in range(90):                                # cartoon: soft painted patches on the ground
+            x, y = int(rng.uniform(0, W)), int(rng.uniform(HORIZON + 70, H))
+            r = int(rng.uniform(30, 110))
+            col = (33, 45, 38, 255) if rng.uniform() < 0.5 else (27, 37, 32, 255)
+            cv2.ellipse(land, (x, y), (r, int(r * 0.28)), 0, 0, 360, col, -1, cv2.LINE_AA)
         self.land = land
         import location_library                            # V1.1: the place paints itself onto the base layers
         location_library.paint(self)
+        if self.spec.get("plate"):                         # 2.5D: an illustrated (AI) background plate replaces the
+            img = cv2.imread(self.spec["plate"])           # drawn sky / land; the motion layers stay on top of it
+            if img is not None:
+                self.sky = cv2.resize(img, (W, H), interpolation=cv2.INTER_CUBIC)
+                self.far = np.zeros((H, W, 4), np.uint8)
+                self.land = np.zeros((H, W, 4), np.uint8)
+                self.stars = []
+                self.pond = None
+                self.plate_used = True
         sky, far = self.sky, self.far
         if self.pond:                                      # what the water reflects: the sky and the far trees, upside down
             cx, cy, rx, ry = self.pond
@@ -217,20 +231,26 @@ class Environment:
         pt.poly([(x - 16, y), (x + 16, y), (x + 13, y - 10), (x - 13, y - 10)], (30, 34, 40))
         pt.ellipse((x, y - 32), 15, 22, 0, (120, 170, 210))
         flame_h = 13 * fl + 2 * math.sin(t * 31)
-        pt.ellipse((x + math.sin(t * 9) * 1.5, y - 30), 5, flame_h, 0, (90, 200, 255))
-        pt.ellipse((x, y - 28), 2.5, flame_h * 0.5, 0, (220, 250, 255))
+        pt.ellipse((x + math.sin(t * 9) * 1.5, y - 30), 5, flame_h, 0, (90, 200, 255), ink=0)
+        pt.ellipse((x, y - 28), 2.5, flame_h * 0.5, 0, (220, 250, 255), ink=0)
         pt.line((x - 18, y - 56), (x + 18, y - 56), (30, 34, 40), 3)
         pt.line((x - 14, y - 10), (x - 14, y - 54), (40, 44, 52), 2.5)
         pt.line((x + 14, y - 10), (x + 14, y - 54), (40, 44, 52), 2.5)
         return fl
 
     def particles(self, pt, t, wind):
+        for k in range(int(self.spec.get("dust", 0))):    # dust floating slowly in the lamp light (indoor plates)
+            ph = k * 2.399
+            px = (300 + (k * 137) % 1320 + 40 * math.sin(t * 0.2 + ph))
+            py = 250 + (k * 89) % 600 - (t * (6 + k % 5)) % 500 + 20 * math.sin(t * 0.3 + ph * 1.7)
+            on = 0.5 + 0.5 * math.sin(t * 0.9 + ph)
+            pt.circle((px, py), 1.8, (int(150 + 60 * on), int(190 + 50 * on), int(210 + 40 * on)), ink=0)
         for (x, y, ph) in self.flies:                     # fireflies
             px = x + 40 * math.sin(t * 0.5 + ph) + 20 * math.sin(t * 1.3 + ph * 2)
             py = y + 25 * math.sin(t * 0.7 + ph * 1.5)
             on = 0.5 + 0.5 * math.sin(t * 2.5 + ph * 3)
             if on > 0.35:
-                pt.circle((px, py), 3.2, (int(120 * on), int(255 * on), int(220 * on)))
+                pt.circle((px, py), 3.2, (int(120 * on), int(255 * on), int(220 * on)), ink=0)
         for (x, y, ph) in self.leaves:                    # leaves blowing across
             px = (x + t * (60 + 80 * wind)) % (WORLD_W + 300) - 150
             py = y + (t * 35) % 500 + 30 * math.sin(t * 2 + ph)
@@ -326,9 +346,13 @@ class Tree:
             end = (base[0] + math.sin(r) * ln, base[1] - math.cos(r) * ln)
             pos.append((base, end))
             angs.append(ang)
-            pt.line(base, end, (24, 30, 38) if dp < 2 else (28, 36, 42), max(1.5, wd))
+            col = (30, 40, 52) if dp < 2 else (34, 44, 54)
+            if getattr(pt, "ink", None) and dp < 3:          # cartoon: the trunk and big branches are outlined shapes
+                pt.limb(base, end, max(2.0, wd * 1.15), max(1.5, wd * 0.8), col, shade=1)
+            else:
+                pt.line(base, end, col, max(1.5, wd))
         for (pi, dx, dy, r, ph, sh) in ([] if self.bare else self.leaves):      # leaf clusters flutter on their own
             ex, ey = pos[pi][1]
             fl = (2.0 + 4.0 * wind) * math.sin(t * 3.2 + ph)
-            pt.ellipse((ex + dx + fl, ey + dy + fl * 0.4), r, r * 0.72, ph * 30, _shade((34, 58, 30), sh))
-            pt.ellipse((ex + dx + fl + r * 0.25, ey + dy + fl * 0.4 - r * 0.2), r * 0.55, r * 0.38, ph * 30, _shade((60, 92, 64), sh))
+            pt.ellipse((ex + dx + fl, ey + dy + fl * 0.4), r, r * 0.72, ph * 30, _shade((40, 70, 36), sh), ink=0.8)
+            pt.ellipse((ex + dx + fl + r * 0.25, ey + dy + fl * 0.4 - r * 0.2), r * 0.55, r * 0.38, ph * 30, _shade((70, 112, 76), sh), ink=0.0)

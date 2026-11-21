@@ -9,6 +9,8 @@ two stories), so every spoken word is in the line the assistants read:
   B  "জঙ্গলের ভেতরের রাস্তা" - Abhishek terrified; Sayan has gone stiff and does not answer
   C  "তারানাথের কুটির, ঝোড়ো রাত" - Taranath tells Kishori; the narrator: a knock on the hut's door in a storm;
      Taranath, frightened, about Madhusundari's unblinking eyes
+  D  "অমাবস্যার রাত" - the narrator: '...মধুসুন্দরী তাঁর কুটিরে আবির্ভূত হন' - the yogini appears in the hut
+Every character is built by the CHARACTER DESIGNER from its written look.
 Line timings inside each recording are found automatically from the pauses (the production bot gets the exact
 time of every line from its own voice step). Nothing paid, nothing downloaded; Gemini is used only when a key is
 there (GEMINI_API_KEY on GitHub) - here the offline rules run and the report says so.
@@ -42,14 +44,34 @@ SR = 44100
 GAP = 0.4
 LEAD = 2.2
 
+# looks: Taranath, Kishori and Madhusundari exactly as the bot's own series describes them (main.py); the road
+# story's three people were written for this test in the same form. The CHARACTER DESIGNER builds them all.
 CAST = [
-    {"id": "abhishek", "name": "অভিষেক", "aliases": ["Abhishek"], "design": dict(rig.DESIGNS["man"], shirt=(120, 60, 40), shirt_dark=(90, 44, 30))},
-    {"id": "sayan", "name": "সায়ন", "aliases": ["Sayan"], "design": rig.variant(rig.DESIGNS["young_man"], 5)},
-    {"id": "haripada", "name": "হরিপদ", "aliases": ["Haripada"], "design": dict(rig.DESIGNS["old_man"], shawl=(40, 70, 110),
-                                                                                hair_style="short", hair=(150, 154, 160))},
-    {"id": "taranath", "name": "তারানাথ", "aliases": ["Taranath"], "design": dict(rig.DESIGNS["old_man"])},
-    {"id": "kishori", "name": "কিশোরী", "aliases": ["Kishori"], "design": rig.variant(rig.DESIGNS["young_man"], 11)},
+    {"id": "abhishek", "name": "Abhishek", "name_local": "অভিষেক", "gender": "male", "age": "adult", "kind": "human",
+     "look": "a Bengali man of about forty, short black hair, thick moustache, a blue full-sleeve shirt and grey trousers"},
+    {"id": "sayan", "name": "Sayan", "name_local": "সায়ন", "gender": "male", "age": "young", "kind": "human",
+     "look": "a thin nervous young Bengali man of about twenty-two, messy black hair, a red checked shirt and blue jeans"},
+    {"id": "haripada", "name": "Haripada", "name_local": "হরিপদ", "gender": "male", "age": "old", "kind": "human",
+     "look": "an old village shopkeeper of about seventy, short white hair, white stubble, a white vest and white dhoti, "
+             "a brown shawl, always carrying a hurricane lantern"},
+    {"id": "taranath", "name": "Taranath", "name_local": "তারানাথ", "gender": "male", "age": "old", "kind": "human"},
+    {"id": "kishori", "name": "Kishori", "name_local": "কিশোরী", "gender": "male", "age": "young", "kind": "human"},
+    {"id": "madhusundari", "name": "Madhusundari", "name_local": "মধুসুন্দরী", "gender": "female", "age": "young", "kind": "ghost"},
 ]
+
+
+def _series_looks():
+    """Taranath / Kishori / Madhusundari: the looks written in main.py (read as text - main.py is not imported)"""
+    import re
+    src = open(os.path.join(HERE, "main.py"), encoding="utf-8").read()
+    out = {}
+    for name in ("TARANATH", "MADHU_CAST"):
+        m = re.search(rf"^{name} = (\[.*?\n\])", src, re.S | re.M)
+        for c in (ast.literal_eval(m.group(1)) if m else []):
+            out[c["name"]] = c.get("look", "")
+    return out
+
+
 # (file, piece index, speaker, listener)
 SCENES = [
     {"id": "A", "place": "রাতের রাস্তা, হরিপদর দোকানের সামনে", "cast": ["abhishek", "sayan", "haripada"],
@@ -63,6 +85,8 @@ SCENES = [
      "lines": [("s_1111_093554_4", 0, "taranath", "kishori"), ("s_1111_093344_0", 8, "narrator", None),
                ("s_1111_093554_4", 4, "taranath", "kishori"), ("s_1111_093554_4", 5, "taranath", "kishori"),
                ("s_1111_093554_4", 6, "taranath", "kishori")]},
+    {"id": "D", "place": "তারানাথের কুটির, অমাবস্যার রাত", "cast": ["taranath", "madhusundari"], "present": ["taranath"],
+     "lines": [("s_1111_093344_0", 5, "narrator", None)]},
 ]
 
 
@@ -223,8 +247,18 @@ def scene_audio(plan, clips, path):
 
 
 # ------------------------------------------------------------------ one scene: assistants -> plan -> video
-def build_scene(sd, W, H, fps, llm=None, log=print):
-    cast = [c for c in CAST if c["id"] in sd["cast"]]
+def designed_cast(llm=None, log=print):
+    """the CHARACTER DESIGNER builds every test character from its look (the library file stays in work/)"""
+    import character_designer as CD
+    looks = _series_looks()
+    chars = [dict(c, look=c.get("look") or looks.get(c["name"], "")) for c in CAST]
+    recs = CD.design_cast(chars, llm=llm, library=os.path.join(OUT, "cartoon_cast.json"), log=log)
+    return [dict(c, aliases=[c["name_local"], c["name"]], design=CD._typed(recs[c["name"]]["design"]),
+                 evidence=recs[c["name"]]["evidence"]) for c in chars]
+
+
+def build_scene(sd, W, H, fps, llm=None, log=print, cast_all=None, art=None):
+    cast = [c for c in (cast_all or designed_cast(llm, log)) if c["id"] in sd["cast"]]
     clips, lines, cur, cache = {}, [], LEAD, {}
     for k, (f, pi, spk, lis) in enumerate(sd["lines"]):
         if f not in cache:
@@ -247,8 +281,18 @@ def build_scene(sd, W, H, fps, llm=None, log=print):
     plan, reactions = scene_planner.plan_from_story({
         "id": sd["id"], "location": loc["location"], "weather": loc["weather"], "duration": dur, "lead_in": LEAD,
         "characters": [{"id": c["id"], "design": c["design"], "name": c["name"]} for c in cast], "lines": lines,
-        "ops": match["ops"]})
+        "ops": match["ops"], "present": sd.get("present", [])})
     match_assistant.add_reactions(match, reactions)
+    if art is not None:                                    # 2.5D: AI-drawn parts + illustrated background when READY
+        import cutout_assets as CA
+        for c in plan["characters"]:
+            cc_ = next(x for x in cast if x["id"] == c["id"])
+            key = CA.char_key({"name": cc_["name"], "look": cc_.get("look", "")})
+            if art.ready(key):
+                c["design"] = dict(c["design"], cutout=(art.root, key))
+        pr = art.index["plates"].get(loc["location"], {})
+        if pr.get("status") == "ready" and not plan.get("door"):
+            plan["environment"].update(plate=os.path.join(art.root, pr["file"]), sky_parallax=0.75, dust=40 if loc["location"] == "house_interior" else 0, trees=[], bank_grass=0, clouds=2)
     plan["_clip_t0"] = {l["clip"]: l["t0"] for l in lines}
     audio = scene_audio(plan, clips, os.path.join(OUT, f"scene_{sd['id']}.wav"))
     video = os.path.join(OUT, f"scene_{sd['id']}.mp4")
@@ -257,6 +301,7 @@ def build_scene(sd, W, H, fps, llm=None, log=print):
     rep, scene = animation_renderer.render(plan, clips, video, os.path.join(OUT, f"chunks_{sd['id']}"), W, H, fps, audio, log=log)
     quality = qc.check(video, plan, rep, scene)
     return {"id": sd["id"], "place_text": sd["place"], "location": loc["location"], "location_result": loc,
+            "drawn_by": getattr(scene, "asset_status", {}), "plate": plan["environment"].get("plate"),
             "location_source": loc["source"], "action_source": acts["source"], "lines": lines, "actions": acts["lines"],
             "match": match, "plan": plan, "render": rep, "quality": quality, "video": video}
 
@@ -264,7 +309,8 @@ def build_scene(sd, W, H, fps, llm=None, log=print):
 def run(W=1280, H=720, fps=24, llm=None, log=print):
     os.makedirs(OUT, exist_ok=True)
     t0 = time.time()
-    scenes = [build_scene(sd, W, H, fps, llm, log) for sd in SCENES]
+    cast_all = designed_cast(llm, log)
+    scenes = [build_scene(sd, W, H, fps, llm, log, cast_all) for sd in SCENES]
     lst = os.path.join(OUT, "scenes.txt")
     with open(lst, "w") as f:
         f.writelines(f"file '{os.path.abspath(s['video'])}'\n" for s in scenes)
@@ -284,6 +330,7 @@ def run(W=1280, H=720, fps=24, llm=None, log=print):
     report = {"video": "story_test.mp4", "duration": round(dur, 1), "resolution": f"{W}x{H}", "fps": fps,
               "render_seconds": round(rsec, 1), "speed_x_realtime": round(rsec / dur, 2), "cpu_cores": os.cpu_count(),
               "match_totals": tot, "all_quality_pass": all(s["quality"]["all_pass"] for s in scenes),
+              "characters": {c["name"]: c["evidence"] for c in cast_all},
               "scenes": [{"id": s["id"], "location": s["location"], "location_status": s["location_result"]["status"],
                           "location_reason": s["location_result"]["reason"], "action_source": s["action_source"],
                           "duration": s["plan"]["duration"], "match": s["match"]["counts"], "quality": s["quality"],

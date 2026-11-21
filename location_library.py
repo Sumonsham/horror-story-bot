@@ -371,6 +371,10 @@ def flicker(t, seed=0.0, dead=False):
 def draw(env, pt, t, wind, state):
     """back-layer vector drawing for the place (behind the characters); returns light points"""
     loc = env.loc
+    if getattr(env, "plate_used", False):                  # an illustrated plate has its own lamp / door / fire: only
+        if not LOCATIONS.get(loc, {}).get("outdoor", True):   # its LIGHT is animated - a lamp-lit room flickers
+            return [(960, 420, 1250, (34, 90, 160), 0.30 * flicker(t, 0.7)), (760, 760, 700, (30, 80, 140), 0.18 * flicker(t, 2.2))]
+        return [(1500, 300, 900, (40, 60, 80), 0.10 * flicker(t, 1.1))]
     ls = env.loc_state
     lights = []
     if loc == "road":
@@ -379,7 +383,7 @@ def draw(env, pt, t, wind, state):
         pt.line((x, y), (x, y - h), (30, 34, 40), 12)
         pt.line((x, y - h), (x - 90, y - h - 10), (30, 34, 40), 7)
         pt.ellipse((x - 96, y - h), 26, 10, 0, (40, 44, 52))
-        pt.ellipse((x - 96, y - h + 8), 16, 6, 0, (int(80 + 120 * fl), int(170 + 70 * fl), int(220 + 30 * fl)))
+        pt.ellipse((x - 96, y - h + 8), 16, 6, 0, (int(80 + 120 * fl), int(170 + 70 * fl), int(220 + 30 * fl)), ink=0)
         lights.append((x - 96, y - h + 30, 640, (40, 130, 210), 0.55 * fl))
     elif loc == "jungle":                                                         # moonlight falling through the canopy
         lights.append((1000, 860, 1000, (70, 62, 52), 0.55 + 0.05 * math.sin(t * 0.4)))
@@ -421,8 +425,8 @@ def draw(env, pt, t, wind, state):
         pt.ellipse((lx, ly), 24, 9, 0, (40, 70, 120))
         pt.ellipse((lx + 16, ly - 4), 6, 4, 0, (40, 70, 120))
         fh = 16 * fl + 2 * math.sin(t * 29)
-        pt.ellipse((lx + 18 + math.sin(t * 8) * 1.5, ly - 12 - fh * 0.4), 5, fh, 0, (90, 200, 255))
-        pt.ellipse((lx + 18, ly - 10 - fh * 0.3), 2.4, fh * 0.45, 0, (220, 250, 255))
+        pt.ellipse((lx + 18 + math.sin(t * 8) * 1.5, ly - 12 - fh * 0.4), 5, fh, 0, (90, 200, 255), ink=0)
+        pt.ellipse((lx + 18, ly - 10 - fh * 0.3), 2.4, fh * 0.45, 0, (220, 250, 255), ink=0)
         lights.append((lx + 18, ly - 20, 900, (36, 100, 170), 0.62 * fl))
     elif loc == "railway_station":
         bx, by = ls["bulb"]
@@ -452,9 +456,9 @@ def draw(env, pt, t, wind, state):
             hgt = 70 + 55 * (0.5 + 0.5 * math.sin(t * 7 + ph)) + rng.uniform(0, 14)
             fx = x - 90 + k * 20 + 6 * math.sin(t * 5 + ph) + wind * 8
             base = y - 90
-            pt.ellipse((fx + wind * 10, base - hgt * 0.45), 16, hgt * 0.55, 6 * math.sin(t * 3 + ph) + wind * 6, (20, 80, 220))
-            pt.ellipse((fx + wind * 8, base - hgt * 0.36), 10, hgt * 0.4, 6 * math.sin(t * 3 + ph), (50, 170, 255))
-            pt.ellipse((fx + wind * 6, base - hgt * 0.25), 5, hgt * 0.24, 0, (170, 235, 255))
+            pt.ellipse((fx + wind * 10, base - hgt * 0.45), 16, hgt * 0.55, 6 * math.sin(t * 3 + ph) + wind * 6, (20, 80, 220), ink=0)
+            pt.ellipse((fx + wind * 8, base - hgt * 0.36), 10, hgt * 0.4, 6 * math.sin(t * 3 + ph), (50, 170, 255), ink=0)
+            pt.ellipse((fx + wind * 6, base - hgt * 0.25), 5, hgt * 0.24, 0, (170, 235, 255), ink=0)
         for k in range(16):                                                       # sparks rising
             age = (t * 0.8 + k * 0.137) % 1.0
             sx = x - 60 + (k * 37) % 120 + 40 * age * math.sin(k + t) + 60 * wind * age
