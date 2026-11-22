@@ -202,28 +202,72 @@ class _Budget:
         return CA._decode(raw)
 
 
-def make_drawings(rec, key, pic, log=print, retries=2):
-    """every drawing of one character (only the missing ones) - ALWAYS from the ORIGINAL reference picture"""
+def _save_idx(idx_f, idx):
+    """written after EVERY picture (atomic): a stopped run never loses what was already made"""
+    tmp = idx_f + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(idx, f, indent=1)
+    os.replace(tmp, idx_f)
+
+
+def load_idx(key):
+    f = os.path.join(ROOT, key, "sheet", "sheet.json")
+    try:
+        return json.load(open(f)) if os.path.exists(f) else {}
+    except Exception:
+        return {}
+
+
+def image_status(idx, view):
+    """generated = made and passed the checks; failed = made but rejected (redrawn next run, up to 6 tries in all);
+    pending = not drawn yet (e.g. the free limit was used up)"""
+    r = idx.get(view) or {}
+    if r.get("status") == "passed":
+        return "generated"
+    if r.get("status") == "failed":
+        return "failed"
+    return "pending"
+
+
+def make_drawings(rec, key, pic, log=print, retries=2, on_saved=None):
+    """the MISSING drawings of one character - ALWAYS from the ORIGINAL reference picture. Every picture that passes
+    is saved at once (+ on_saved: e.g. pushed to the repo); a picture already on disk is re-checked, never redrawn;
+    an attempt is only counted when a picture really came back (a refused call costs no attempt)."""
     d = os.path.join(ROOT, key, "sheet")
     os.makedirs(d, exist_ok=True)
     idx_f = os.path.join(d, "sheet.json")
-    idx = json.load(open(idx_f)) if os.path.exists(idx_f) else {}
+    idx = load_idx(key)
     idx["_approved"] = False                                # (only the owner approves - never this program)
     orig_src = os.path.join(ROOT, key, "body_src.png")
     orig = cv2.imread(os.path.join(ROOT, key, "body.png"), cv2.IMREAD_UNCHANGED)
     if orig is None or not os.path.exists(orig_src):
         return {"_error": "no original reference picture for this character"}
     seed0 = int(key[:6], 16) % 100000
+    for view in VIEWS:                                      # resume: a picture already on disk is checked, not redrawn
+        r = idx.get(view) or {}
+        f = os.path.join(d, f"{view}.png")
+        if r.get("status") != "passed" and os.path.exists(f):
+            rgba = cv2.imread(f, cv2.IMREAD_UNCHANGED)
+            if rgba is not None:
+                if view == "walk":
+                    frames, probs = split_walk(rgba)
+                    q = {"pass": not probs and all(os.path.exists(os.path.join(d, f"walk{k}.png")) for k in range(1, 5)),
+                         "problems": probs, "metrics": {}}
+                else:
+                    q = check_drawing(rgba, orig, view)
+                if q["pass"]:
+                    idx[view] = dict(r, status="passed", file=f"{view}.png", qa=q, resumed=True)
+    _save_idx(idx_f, idx)
     try:
         for i, view in enumerate(VIEWS):
-            r = idx.get(view, {})
+            r = idx.get(view) or {}
             if r.get("status") == "passed" or r.get("attempts", 0) >= 6:
                 continue
             for att in range(retries + 1):
-                r["attempts"] = r.get("attempts", 0) + 1
-                seed = seed0 + 131 * i + 977 * r["attempts"]
+                seed = seed0 + 131 * i + 977 * (r.get("attempts", 0) + 1)
                 if view == "walk":
                     img = pic(prompt_for(rec, view), orig_src, seed, WALK_W, WALK_H)
+                    r["attempts"] = r.get("attempts", 0) + 1     # (counted only now: a picture came back)
                     rgba = CA.key_out(img, keep_all=True)          # (all four frames)
                     frames, probs = split_walk(rgba)
                     m = {}
@@ -234,26 +278,32 @@ def make_drawings(rec, key, pic, log=print, retries=2):
                     q = {"pass": not probs, "problems": probs, "metrics": m}
                 else:
                     img = pic(prompt_for(rec, view), orig_src, seed)
+                    r["attempts"] = r.get("attempts", 0) + 1
                     rgba = CA.key_out(img, keep_all=(view == "sit"))  # (the stool stays with the sitter)
                     q = check_drawing(rgba, orig, view)
                 r["qa"] = q
                 if q["pass"]:
-                    cv2.imwrite(os.path.join(d, f"{view}.png"), rgba)
                     cv2.imwrite(os.path.join(d, f"{view}_src.png"), img)
                     if view == "walk":
                         for k, fr in enumerate(normalise_walk(frames), 1):
                             cv2.imwrite(os.path.join(d, f"walk{k}.png"), fr)
+                    cv2.imwrite(os.path.join(d, f"{view}.png"), rgba)
                     r.update(status="passed", file=f"{view}.png")
+                    idx[view] = r
+                    _save_idx(idx_f, idx)
+                    if on_saved:
+                        on_saved(rec["name"], view)
                     break
                 cv2.imwrite(os.path.join(d, f"rejected_{view}_{r['attempts']}.png"), img)
                 r["status"] = "failed"
+                idx[view] = r
+                _save_idx(idx_f, idx)
                 log(f"    {rec['name']} {view}: rejected ({'; '.join(q['problems'][:2])})")
             idx[view] = r
     except CA.Paused:
         pass
     finally:
-        with open(idx_f, "w") as f:
-            json.dump(idx, f, indent=1)
+        _save_idx(idx_f, idx)
     return idx
 
 
@@ -365,15 +415,19 @@ def approval_page(rec, key, idx, parts, path):
     def view_tile(v, title):
         r = idx.get(v, {})
         f = os.path.join(d, f"{v}.png")
-        if r.get("status") == "passed" and os.path.exists(f):
+        stt = image_status(idx, v)
+        if stt == "generated" and os.path.exists(f):
             m = r.get("qa", {}).get("metrics", {})
-            return _tile(_comp(cv2.imread(f, cv2.IMREAD_UNCHANGED)), title,
+            return _tile(_comp(cv2.imread(f, cv2.IMREAD_UNCHANGED)), "GENERATED: " + title,
                          f"colour dE {m.get('colour_de')} skin {m.get('skin_de')} hair {m.get('hair_de')}")
         rej = sorted(x for x in os.listdir(d) if x.startswith(f"rejected_{v}_")) if os.path.isdir(d) else []
-        if rej:
-            return _tile(cv2.imread(os.path.join(d, rej[-1])), title + " - REJECTED",
+        if stt == "failed" and rej:
+            return _tile(cv2.imread(os.path.join(d, rej[-1])), "FAILED: " + title,
                          "; ".join((r.get("qa") or {}).get("problems", [])[:1]), ok=False)
-        return _tile(np.full((420, 250, 3), 210, np.uint8), title, "not made yet" + (" (paused)" if r else ""), ok=False)
+        blank = np.full((420, 250, 3), 215, np.uint8)
+        cv2.putText(blank, "PENDING", (55, 200), 0, 1.0, (90, 90, 90), 2, cv2.LINE_AA)
+        cv2.putText(blank, "not drawn yet", (60, 235), 0, 0.6, (90, 90, 90), 1, cv2.LINE_AA)
+        return _tile(blank, "PENDING: " + title, "waiting (free limit / not reached)", ok=False)
     rows = [ORIG, view_tile("front", "NEW front A-pose"), view_tile("side", "NEW true side view")]
     if parts and parts.get("assembled") is not None:
         fp = parts.get("fidelity") or {}
@@ -401,10 +455,17 @@ def approval_page(rec, key, idx, parts, path):
                 (10, 32), 0, 0.8, (10, 10, 10), 2, cv2.LINE_AA)
     cv2.putText(head, "Every row starts with the ORIGINAL reference. green = passed the automatic checks (whole figure, "
                       "nothing cut off, same colours); red = rejected / missing.", (10, 64), 0, 0.48, (40, 40, 40), 1, cv2.LINE_AA)
+    counts = {k: sum(1 for v in VIEWS if image_status(idx, v) == k) for k in ("generated", "failed", "pending")}
+    complete = counts["generated"] == len(VIEWS)
     verdict = (parts or {}).get("verdict", "not decided")
     cv2.putText(head, "SUGGESTION: " + verdict[:150], (10, 98), 0, 0.5,
                 (30, 130, 30) if verdict.startswith("2D CUT-OUT") else (30, 30, 190), 1, cv2.LINE_AA)
-    out_rows = [head, _row(r1, WIDTH), _row(r2, WIDTH), _row(r3, WIDTH)]
+    status_bar = np.full((44, WIDTH, 3), 255, np.uint8)
+    cv2.putText(status_bar, f"STATUS: {counts['generated']} GENERATED, {counts['failed']} FAILED, {counts['pending']} PENDING "
+                            f"(of {len(VIEWS)} pictures) -> " + ("COMPLETE - waiting for YOUR visual approval" if complete
+                                                                 else "INCOMPLETE - NOT ready, NOT approved"),
+                (10, 30), 0, 0.62, (30, 130, 30) if complete else (30, 30, 190), 2, cv2.LINE_AA)
+    out_rows = [head, status_bar, _row(r1, WIDTH), _row(r2, WIDTH), _row(r3, WIDTH)]
     if parts and parts.get("parts"):                         # the separated body parts, each with its name
         cells = [_tile(_comp(parts["parts"][n]), PART_NAMES[n], f"{parts['parts'][n].shape[1]}x{parts['parts'][n].shape[0]} px, as drawn",
                        True, h=200, w=170)
@@ -463,31 +524,80 @@ def cast():
     return [{"id": c["id"], "name": c["name"], "look": c["look"], "design": c["design"]} for c in people]
 
 
-def run(image_fn, log=print, budget=45):
-    os.makedirs(OUT, exist_ok=True)
-    pic = _Budget(image_fn, budget)
-    report = {"characters": {}, "made": 0, "paused": False, "pages": [], "videos": [], "zips": [], "approved": False}
-    for rec in cast():
+TILE_NEURONS_OUT, TILE_NEURONS_IN = 26.05, 5.37   # Cloudflare's published price of flux-2-klein-4b per 512x512 tile
+
+
+def _tiles(w, h):
+    return -(-w // 512) * -(-h // 512)
+
+
+def estimate(people, retries=2):
+    """the work BEFORE starting: how many pictures are missing (exact) and what they cost by Cloudflare's PUBLISHED
+    price for flux-2-klein-4b (per 512x512 tile: 26.05 neurons out, 5.37 in) - ASSUMING a picture is counted in whole
+    tiles (the price page does not say how a part tile is counted). Cloudflare does not tell this program how many
+    neurons are left today - that is only on its dashboard - so no 'left today' number is ever shown."""
+    out = {"pictures_missing": 0, "per_character": {}}
+    for rec in people:
         key = CA.char_key({"name": rec["name"], "look": rec["look"]})
-        sj = os.path.join(ROOT, key, "sheet", "sheet.json")
-        idx = make_drawings(rec, key, pic, log=log) if not pic.paused else (json.load(open(sj)) if os.path.exists(sj) else {})
-        parts = parts_from_front(rec, key, log)
+        idx = load_idx(key)
+        miss = [v for v in VIEWS if image_status(idx, v) != "generated" and (idx.get(v) or {}).get("attempts", 0) < 6]
+        out["per_character"][rec["name"]] = miss
+        out["pictures_missing"] += len(miss)
+    per = {v: _tiles(*((WALK_W, WALK_H) if v == "walk" else (W_, H_))) * TILE_NEURONS_OUT +
+           _tiles(W_, H_) * TILE_NEURONS_IN for v in VIEWS}    # (the original reference is the input picture)
+    lo = sum(per[v] for m in out["per_character"].values() for v in m)
+    out["neurons_if_all_pass_first_time"] = round(lo)
+    out["neurons_if_every_picture_needs_2_redraws"] = round(lo * (1 + retries))
+    out["daily_free_neurons"] = 10000
+    out["note"] = ("estimate by Cloudflare's published price, assuming whole 512x512 tiles; the neurons already used "
+                   "today (by the daily story pictures too) are NOT known to this program - see the Cloudflare dashboard. "
+                   "The free allocation resets at 00:00 UTC (5:30 AM India time).")
+    return out
+
+
+def run(image_fn, log=print, budget=45, only=None, on_saved=None):
+    """only = one character's name or id (e.g. 'hari'): only that character is drawn this run - the others are not
+    touched (their pages are still made, showing their saved progress)"""
+    os.makedirs(OUT, exist_ok=True)
+    everyone = cast()
+    sel = [c for c in everyone if not only or str(only).strip().lower() in (c["name"].lower(), c["id"].lower())]
+    if only and not sel:
+        raise ValueError(f"no character called '{only}' in this step (choose: " + ", ".join(c["name"] for c in everyone) + ")")
+    est = estimate(sel)
+    log(f"  char_sheet: {est['pictures_missing']} pictures missing for {', '.join(c['name'] for c in sel)}; "
+        f"about {est['neurons_if_all_pass_first_time']} neurons if all pass ({est['note']})")
+    pic = _Budget(image_fn, budget)
+    report = {"only": only or "all", "estimate": est, "characters": {}, "made": 0, "paused": False, "pages": [],
+              "videos": [], "zips": [], "approved": False}
+    for rec in everyone:
+        key = CA.char_key({"name": rec["name"], "look": rec["look"]})
+        drawn = rec in sel
+        idx = make_drawings(rec, key, pic, log=log, on_saved=on_saved) if (drawn and not pic.paused) else load_idx(key)
+        parts = parts_from_front(rec, key, log) if image_status(idx, "front") == "generated" else None
         page = approval_page(rec, key, idx, parts, os.path.join(OUT, f"{rec['name']}_sheet.jpg"))
-        vid = walk_video(key, os.path.join(OUT, f"{rec['name']}_walk.mp4"))
+        vid = walk_video(key, os.path.join(OUT, f"{rec['name']}_walk.mp4")) if image_status(idx, "walk") == "generated" else None
         cd = os.path.join(OUT, rec["name"])                 # every generated picture as its own file (artifacts)
         shutil.rmtree(cd, ignore_errors=True)
         src_d = os.path.join(ROOT, key, "sheet")
         if os.path.isdir(src_d):
             shutil.copytree(src_d, cd)
-        shutil.copy(os.path.join(ROOT, key, "body_src.png"), os.path.join(cd, "ORIGINAL_reference.png")) \
-            if os.path.isdir(cd) and os.path.exists(os.path.join(ROOT, key, "body_src.png")) else None
-        z = shutil.make_archive(os.path.join(OUT, f"{rec['name']}_pictures"), "zip", cd) if os.path.isdir(cd) else None
+        if os.path.isdir(cd) and os.path.exists(os.path.join(ROOT, key, "body_src.png")):
+            shutil.copy(os.path.join(ROOT, key, "body_src.png"), os.path.join(cd, "ORIGINAL_reference.png"))
+        z = shutil.make_archive(os.path.join(OUT, f"{rec['name']}_pictures"), "zip", cd) \
+            if os.path.isdir(cd) and any(f.endswith(".png") and not f.startswith("ORIGINAL") for f in os.listdir(cd)) else None
+        st = {v: image_status(idx, v) for v in VIEWS}
+        complete = all(x == "generated" for x in st.values())
         report["characters"][rec["name"]] = {
-            "drawings": {v: {"status": r.get("status"), "attempts": r.get("attempts"),
-                             "problems": (r.get("qa") or {}).get("problems"), "metrics": (r.get("qa") or {}).get("metrics")}
-                         for v, r in idx.items() if not v.startswith("_")},
+            "drawn_this_run": drawn, "images": st,
+            "generated": [v for v, x in st.items() if x == "generated"],
+            "failed": [v for v, x in st.items() if x == "failed"],
+            "pending": [v for v, x in st.items() if x == "pending"],
+            "state": "COMPLETE - waiting for your visual approval" if complete else "INCOMPLETE - not ready, not approved",
+            "problems": {v: (idx.get(v) or {}).get("qa", {}).get("problems") for v in VIEWS if st[v] == "failed"},
             "parts_problems": (parts or {}).get("problems"), "parts_fidelity": (parts or {}).get("fidelity"),
-            "cutout_gate": (parts or {}).get("gate"), "suggestion": (parts or {}).get("verdict"), "approved": False}
+            "cutout_gate": (parts or {}).get("gate"),
+            "suggestion": (parts or {}).get("verdict") if complete else "not decided - pictures missing",
+            "ready": False, "approved": False}
         report["pages"].append(page)
         if vid:
             report["videos"].append(vid)

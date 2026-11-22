@@ -6068,51 +6068,75 @@ def art_test_run():
 
 
 def char_sheet_run():
-    """ORIGINAL 2D character sheets for Hari, Saraswati and Kishori (Cloudflare only, the existing reference given):
-    front A-pose, true side, standing, sitting, talking, pointing, 4 walking drawings + the cut body parts - one
-    approval page per character + a walking video to your Telegram. Nothing is posted. Nothing is approved
-    automatically: you look at the pages first."""
+    """ORIGINAL 2D character sheets (Cloudflare only, the ORIGINAL reference given): front A-pose, true side,
+    standing, sitting, talking, pointing, one 4-frame walk cycle. CHAR_SHEET_CHARACTER = one name (e.g. Hari) draws
+    only that character. Every passed picture is saved and pushed at once; the free limit (HTTP 429) stops the run
+    cleanly and the report says what is generated / failed / pending. Nothing is posted, nothing is approved."""
     import char_sheet
-    if CF_QUOTA_OUT:
-        _tg_text("⚠️ character sheet: Cloudflare-এর আজকের ফ্রি সীমা শেষ - কাল আবার চালান।")
-        return None
-    rep = char_sheet.run(_cutout_image, log=log, budget=int(env("ART_MAX_IMAGES") or 45))
-    lines = [f"🎨 চরিত্রের ছবি (অনুমোদনের জন্য) - কিছু প্রকাশ হয়নি। নতুন ছবি: {rep['made']}"
-             + (" (ফ্রি সীমায় থেমেছে - বাকিটা পরের বার)" if rep["paused"] else "")]
-    for n, r in rep["characters"].items():
-        ok = sum(1 for v in r["drawings"].values() if v.get("status") == "passed")
-        lines.append(f"• {n}: {ok}/{len(char_sheet.VIEWS)} ছবি স্বয়ংক্রিয় পরীক্ষায় টিকেছে - "
-                     + ("2D cut-out চলতে পারে" if str(r.get("suggestion", "")).startswith("2D CUT-OUT")
-                        else "সম্পূর্ণ-ভঙ্গির 2D অ্যানিমেশন লাগবে" if str(r.get("suggestion", "")).startswith("FULL-POSE")
-                        else "এখনো ঠিক হয়নি") + " (প্রস্তাব মাত্র)")
-    if rep.get("blocker"):
-        lines.append(f"⛔ থেমেছে: {rep['blocker'][:150]}")
-    lines.append("আপনার চোখে দেখে অনুমোদন না দেওয়া পর্যন্ত কোনো চরিত্র ব্যবহার হবে না।")
+    only = env("CHAR_SHEET_CHARACTER").strip() or None
     tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        people = [c for c in char_sheet.cast() if not only or only.lower() in (c["name"].lower(), c["id"].lower())]
+        if only and not people:
+            _tg_text(f"⚠️ character sheet: '{only}' নামে কোনো চরিত্র নেই - Hari, Saraswati বা Kishori লিখুন।")
+            return None
+        est = char_sheet.estimate(people)
+        _tg_text("🎨 চরিত্রের ছবি শুরু হচ্ছে: " + ", ".join(c["name"] for c in people) +
+                 f"\nবাকি ছবি: {est['pictures_missing']}টা ("
+                 + "; ".join(f"{n}: {len(v)}" for n, v in est["per_character"].items()) + ")"
+                 + f"\nআনুমানিক খরচ: প্রায় {est['neurons_if_all_pass_first_time']} neuron (সব প্রথমবারে ঠিক হলে), "
+                 f"সর্বোচ্চ প্রায় {est['neurons_if_every_picture_needs_2_redraws']} (প্রতিটা ২ বার আবার আঁকা লাগলে)। "
+                 "দৈনিক ফ্রি সীমা 10,000 neuron, আজ কতটা খরচ হয়ে গেছে Cloudflare এই program-কে জানায় না "
+                 "(Cloudflare dashboard-এ দেখা যায়)। সীমা প্রতিদিন রাত 00:00 UTC (ভারতে সকাল 5:30)-এ নতুন হয়।")
+    except Exception as e:
+        log("  char_sheet estimate skipped:", str(e)[:120])
+
+    def saved(name, view):                            # every passed picture reaches the repo at once
+        try:
+            push_now([os.path.join(HERE, "assets", "cartoon_parts")], f"character sheet: {name} {view}")
+        except Exception:
+            pass
+    rep = char_sheet.run(_cutout_image, log=log, budget=int(env("ART_MAX_IMAGES") or 45), only=only, on_saved=saved)
+    names = {"front": "সামনে", "side": "পাশ", "stand": "দাঁড়ানো", "sit": "বসা", "talk": "কথা", "point": "আঙুল", "walk": "হাঁটা"}
+    lines = [f"🎨 চরিত্রের ছবি - কিছু প্রকাশ হয়নি। এবার নতুন ছবি: {rep['made']}"
+             + (" - ⛔ Cloudflare-এর আজকের ফ্রি সীমা শেষ (HTTP 429), পরিষ্কারভাবে থেমেছে" if rep["paused"] else "")]
+    for n, r in rep["characters"].items():
+        if not r["drawn_this_run"] and only:
+            continue
+        lines.append(f"\n• {n}: " + ("সম্পূর্ণ - আপনার চোখে দেখে অনুমোদনের অপেক্ষায়" if r["state"].startswith("COMPLETE")
+                                       else "অসম্পূর্ণ - ready নয়, অনুমোদিত নয়"))
+        lines.append("  ✅ তৈরি: " + (", ".join(names[v] for v in r["generated"]) or "-"))
+        lines.append("  ❌ বাতিল: " + (", ".join(names[v] for v in r["failed"]) or "-"))
+        lines.append("  ⏳ বাকি: " + (", ".join(names[v] for v in r["pending"]) or "-"))
+        if r["generated"] and not r["pending"] and not r["failed"]:
+            lines.append("  প্রস্তাব: " + ("2D cut-out চলতে পারে" if str(r.get("suggestion", "")).startswith("2D CUT-OUT")
+                                          else "সম্পূর্ণ-ভঙ্গির 2D অ্যানিমেশন লাগবে") + " (আপনার চোখই ঠিক করবে)")
+    lines.append("\nআপনার চোখে দেখে অনুমোদন না দেওয়া পর্যন্ত কোনো চরিত্র ব্যবহার হবে না।")
     try:
         if tok and chat:
             _tg_text("\n".join(lines))
-            for pg in rep["pages"]:
+            sel_pages = [p_ for p_ in rep["pages"] if not only or os.path.basename(p_).lower().startswith(only.lower())]
+            for pg in sel_pages:
                 if pg and os.path.exists(pg):
                     with open(pg, "rb") as f:
                         requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat,
                                       "caption": os.path.basename(pg)}, files={"document": (os.path.basename(pg), f, "image/jpeg")},
                                       timeout=180)
             for z in rep.get("zips", []):                 # every generated picture, as files
-                if z and os.path.exists(z) and os.path.getsize(z) < 48_000_000:
+                if z and os.path.exists(z) and os.path.getsize(z) < 48_000_000 and (not only or os.path.basename(z).lower().startswith(only.lower())):
                     with open(z, "rb") as f:
                         requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat,
                                       "caption": os.path.basename(z)}, files={"document": (os.path.basename(z), f, "application/zip")},
                                       timeout=300)
             for v in rep["videos"]:
-                if v and os.path.exists(v):
+                if v and os.path.exists(v) and (not only or os.path.basename(v).lower().startswith(only.lower())):
                     with open(v, "rb") as f:
                         requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat,
                                       "caption": os.path.basename(v)}, files={"video": (os.path.basename(v), f, "video/mp4")},
                                       timeout=300)
     except Exception as e:
         log("  character sheets not sent to Telegram:", str(e)[:120])
-    try:                                              # the drawings are kept (never made twice)
+    try:                                              # the pages + report (the pictures were pushed one by one)
         push_now([os.path.join(HERE, "assets", "cartoon_parts")], "character sheets")
     except Exception:
         pass
