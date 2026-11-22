@@ -11,6 +11,11 @@ sys.path.insert(0, os.path.join(ROOT, "tests"))
 os.environ.setdefault("MOCK", "1")
 
 
+def setup_module(_m):
+    import puppet_builder
+    puppet_builder.ARM_MIN = 0.2      # (TEST ONLY: the stand-in figure is drawn by the code rig, whose arms are short)
+
+
 def _ghost():
     """(a person in a shirt and trousers: the stand-in draws its separate pieces cleanly)"""
     import character_designer as CD
@@ -20,22 +25,29 @@ def _ghost():
 
 
 def test_assets_made_checked_and_kept(tmp_path):
+    """ONE reference picture -> the puppet -> the assembled 7-pose check -> ready; nothing is made twice"""
     import cutout_assets as CA
     from fake_provider import Fake
     rec = _ghost()
     reg = CA.Registry(str(tmp_path))
-    rep = CA.ensure_cast([rec], reg, Fake(rec["design"]), places=[("road", {})])
+    p = Fake(rec["design"])
+    rep = CA.ensure_cast([rec], reg, p, places=[("road", {})])
     key = CA.char_key(rec)
     assert rep["characters"]["Madhu"]["status"] == "ready" and rep["plates"]["road"] == "ready"
     files = os.listdir(tmp_path / key)
-    for f in ("body.png", "rig.json", "head_three_q.png", "head_three_q.json", "part_torso.png", "part_thigh_near.png",
-              "piece_torso.png", "piece_arm.png", "piece_legs.png"):
+    for f in ("body.png", "rig.json", "head_ref.png", "head_ref.json", "assembly.jpg", "assembly.json", "part_torso.png",
+              "part_thigh_near.png", "part_uarm_near.png"):
         assert f in files
-    assert json.load(open(tmp_path / key / "rig.json"))["method"] == "rebuilt"           # built from separate pieces
     meta = json.load(open(tmp_path / key / "rig.json"))
-    assert {"head", "torso", "thigh_near", "shin_near", "thigh_far", "shin_far"} <= set(meta["parts"])
+    assert meta["method"] == "reference" and meta["gate"] == "pass"          # only a checked puppet is on disk as rig.json
+    assert {"head", "torso", "uarm_near", "farm_near", "uarm_far", "farm_far", "thigh_near", "shin_near", "thigh_far",
+            "shin_far"} <= set(meta["parts"])
+    gate = json.load(open(tmp_path / key / "assembly.json"))
+    assert gate["pass"] and set(gate["poses"]) == {"three_q_right", "three_q_left", "seated", "talking", "pointing", "walking"}
+    assert gate["genuine_views"]["front"] is False and gate["genuine_views"]["side_profile"] is False     # (said honestly)
+    calls = p.calls
     again = CA.ensure_cast([rec], reg, Fake(rec["design"]))                 # nothing is made twice
-    assert again["made"] == 0
+    assert again["made"] == 0 and calls == 2                                # (1 character picture + 1 background)
     assert (tmp_path / "history.jsonl").exists() and json.load(open(tmp_path / "index.json"))["characters"][key]["status"] == "ready"
 
 
@@ -44,12 +56,10 @@ def test_free_limit_pauses_and_the_next_run_continues(tmp_path):
     from fake_provider import Fake
     rec = _ghost()
     reg = CA.Registry(str(tmp_path))
-    first = CA.ensure_cast([rec], reg, Fake(rec["design"], limit_after=2))
+    first = CA.ensure_cast([rec], reg, Fake(rec["design"], limit_after=0))
     assert first["paused"] and first["characters"]["Madhu"]["status"] in ("partial", "pending")
-    assert os.path.exists(tmp_path / CA.char_key(rec) / "body.png")       # the finished work is kept
     second = CA.ensure_cast([rec], CA.Registry(str(tmp_path)), Fake(rec["design"]))
-    assert not second["paused"] and second["characters"]["Madhu"]["status"] == "ready"
-    assert second["made"] == 8 - 2                                          # only what was missing (8 pictures in all)
+    assert not second["paused"] and second["characters"]["Madhu"]["status"] == "ready" and second["made"] == 1
 
 
 def test_a_bad_picture_is_detected_never_marked_ready(tmp_path):
@@ -65,10 +75,12 @@ def test_a_bad_picture_is_detected_never_marked_ready(tmp_path):
     reg = CA.Registry(str(tmp_path))
     p = Empty(rec["design"])
     rep = CA.ensure_cast([rec], reg, p)
-    assert rep["characters"]["Madhu"]["status"] == "failed" and p.calls == 3          # retried, but not for ever
+    assert rep["characters"]["Madhu"]["status"] != "ready" and p.calls == 3          # retried, but not for ever
     CA.ensure_cast([rec], reg, p)
+    assert reg.index["characters"][CA.char_key(rec)]["status"] == "failed" and p.calls == 6
     CA.ensure_cast([rec], reg, p)
     assert p.calls == 6                                     # after 6 failures the free limit is not wasted again
+    assert not os.path.exists(tmp_path / CA.char_key(rec) / "rig.json")
 
 
 def test_cutout_character_draws_with_the_same_motions(tmp_path):
@@ -81,7 +93,7 @@ def test_cutout_character_draws_with_the_same_motions(tmp_path):
     reg = CA.Registry(str(tmp_path))
     CA.ensure_cast([rec], reg, Fake(rec["design"]))
     ch = CR.load("m", rec["design"], str(tmp_path), CA.char_key(rec))
-    assert ch is not None and ch.complete and len(ch.heads) >= 3
+    assert ch is not None and ch.complete and "ref" in ch.heads                # its OWN head (blinks + talks on it)
     cam = cc.Camera(320, 320)
     cam.set(960, 700, 1.8)
     frames = []
@@ -119,17 +131,17 @@ def test_plate_check_rejects_black_and_washed_out():
     assert asset_qa.plate(np.full((576, 1024, 3), 90, np.uint8))["pass"]
 
 
-def test_rebuilt_arm_stays_attached_when_it_moves(tmp_path):
-    """the arm is a separate piece: pointing straight out, the hand is still at the end of the arm (no floating hand)"""
+def test_arm_stays_attached_when_it_moves(tmp_path):
+    """pointing straight out, the hand is at the end of the arm and the arm at the shoulder (no floating hand)"""
     import cartoon_rig as R
     import cutout_assets as CA
     import cutout_rig as CR
     from fake_provider import Fake
     rec = _ghost()
     reg = CA.Registry(str(tmp_path))
-    CA.ensure_cast([rec], reg, Fake(rec["design"], broken={"overlap"}))     # (an arm drawn over the chest in the reference)
+    CA.ensure_cast([rec], reg, Fake(rec["design"]))
     ch = CR.load("m", rec["design"], str(tmp_path), CA.char_key(rec))
-    assert ch.meta["method"] == "rebuilt" and all(ch.meta["arm_free"].values())          # no movement limit needed
+    assert ch.meta["method"] == "reference" and all(ch.meta["arm_free"].values())          # no movement limit
     st = {"x": 960, "ground_y": 935, "facing": 1.0, "head_yaw": 0.6, "pose": dict(R.POSES["stand_point"]), "t": 0.0}
     j = ch.joints(st)
     s = ch._s()
@@ -158,51 +170,179 @@ def test_each_character_type_gets_its_own_pieces():
     assert lay.index("thigh_near") < lay.index("skirt_up") < lay.index("torso")
 
 
-def test_an_inconsistent_piece_is_rejected(tmp_path):
+def test_saree_is_built_without_legs_and_stays_whole_and_a_ghost_floats(tmp_path):
     import cv2
-    import asset_qa
-    import cutout_assets as CA
-    import cutout_rebuild as RB
-    from fake_provider import Fake
-    import art_director as AD
-    rec = _ghost()
-    ref = CA.key_out(CA._decode(Fake(rec["design"])(AD.character_prompt(rec), None, 1, 576, 1024)))
-    rig, _ = CA.auto_rig(ref)
-    M = RB.measure(ref, rig)
-    torso = CA.key_out(CA._decode(Fake(rec["design"])(AD.part_prompt(rec, "torso"), None, 1, 576, 640)))
-    assert asset_qa.part(torso, "torso", ref, M)["pass"]                          # the right shirt: accepted
-    other = torso.copy()
-    hsv = cv2.cvtColor(other[..., :3], cv2.COLOR_BGR2HSV)
-    hsv[..., 0] = (hsv[..., 0].astype(int) + 90) % 180                            # another character's shirt colour
-    other[..., :3] = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-    q = asset_qa.part(other, "torso", ref, M)
-    assert not q["pass"] and any("colours differ" in p for p in q["problems"])
-
-
-def test_saree_and_ghost_are_built_without_legs_and_stay_whole(tmp_path):
-    import cartoon_rig as R
-    import cinematic_camera as cc
+    import assembly_qa as AQ
+    import asset_plan
     import character_designer as CD
     import cutout_assets as CA
     import cutout_rig as CR
+    import puppet_builder as PB
     from fake_provider import Fake
-    for c in ({"name": "S", "gender": "female", "age": "adult", "kind": "human", "look": "hair in a bun, a red saree with a gold border"},
-              {"name": "G", "gender": "female", "age": "young", "kind": "ghost", "look": "long open black hair down to her waist, a torn white saree"}):
-        d, _, _ = CD.design(c)
-        rec = {"name": c["name"], "look": c["look"], "design": d}
-        reg = CA.Registry(str(tmp_path / c["name"]))
-        CA.ensure_cast([rec], reg, Fake(d))
-        ch = CR.load(c["name"], d, str(tmp_path / c["name"]), CA.char_key(rec))
-        assert ch is not None and ch.meta["no_legs"] and {"skirt_up", "skirt_lo"} <= set(ch.parts)
-        cam = cc.Camera(300, 400)
-        cam.set(960, 760, 2.0)
-        img = np.zeros((400, 300, 3), np.uint8)
-        ch.draw(R.Painter(img, cam), {"x": 960, "ground_y": 935, "facing": 1.0, "head_yaw": 0.9, "pose": dict(R.POSES["sit_talk"]), "t": 0.0})
-        m = (img.sum(axis=2) > 0).astype(np.uint8)
-        n, _, st, _ = cv2_cc(m)
-        assert n == 2 or sorted(st[1:, 4])[-2] < 0.01 * st[1:, 4].max()          # ONE connected figure: nothing torn off
+    c = {"name": "S", "gender": "female", "age": "adult", "kind": "human", "look": "hair in a bun, a red saree with a gold border"}
+    d, _, _ = CD.design(c)
+    rec = {"name": c["name"], "look": c["look"], "design": d}
+    reg = CA.Registry(str(tmp_path / "s"))
+    assert CA.ensure_cast([rec], reg, Fake(d))["characters"]["S"]["status"] == "ready"
+    ch = CR.load("S", d, str(tmp_path / "s"), CA.char_key(rec))
+    assert ch is not None and ch.meta["no_legs"] and {"skirt_up", "skirt_lo"} <= set(ch.parts)
+    for pose in ("sit_talk", "walk", "stand"):                # ONE connected figure: the saree never tears
+        al = AQ._alpha(ch, AQ._pose(pose), 0.6, 0.6)[0]
+        n, _, st, _ = cv2.connectedComponentsWithStats((al > 0.5).astype(np.uint8), 8)
+        assert n == 2
+    # a ghost in a saree: the same cloth structure, floating (no legs at all)
+    g = {"name": "G", "gender": "female", "age": "young", "kind": "ghost", "look": "hair in a bun, a torn white saree"}
+    gd = CD.design(g)[0]
+    plan = asset_plan.plan(gd)
+    assert plan["archetype"] == "ghost_flowing" and plan["floats"]
+    body = cv2.imread(str(tmp_path / "s" / CA.char_key(rec) / "body.png"), cv2.IMREAD_UNCHANGED)
+    rig, probs, _ = PB.build(body, plan)
+    assert rig["no_legs"] and rig["floats"] and "thigh_near" not in rig["parts"] and not probs
 
 
-def cv2_cc(m):
+def test_the_assembled_check_rejects_a_duplicated_person(tmp_path):
+    """the real failure of 21 Nov 2026: a whole second person drawn into a leg piece. Glued onto the reference, the
+    assembled check must refuse it (never 'ready')"""
     import cv2
-    return cv2.connectedComponentsWithStats(m, 8)
+    import assembly_qa as AQ
+    import cutout_assets as CA
+    import cutout_rig as CR
+    import puppet_builder as PB
+    import asset_plan
+    from fake_provider import Fake
+    import art_director as AD
+    rec = _ghost()
+    body = CA.key_out(CA._decode(Fake(rec["design"])(AD.character_prompt(rec), None, 1, 576, 1024)))
+    ys, xs = np.where(body[..., 3] > 127)
+    small = cv2.resize(body[ys.min():ys.max(), xs.min():xs.max()], None, fx=0.32, fy=0.32)
+    bad = body.copy()
+    H = ys.max() - ys.min()
+    y0 = int(ys.min() + 0.52 * H)                           # over the legs (touching the body, as in the real test)
+    x0 = int((xs.min() + xs.max()) / 2 - small.shape[1] * 0.3)
+    roi = bad[y0:y0 + small.shape[0], x0:x0 + small.shape[1]]
+    a = small[..., 3:4] / 255.0
+    roi[...] = (roi * (1 - a) + small * a).astype(np.uint8)
+    plan = asset_plan.plan(rec["design"])
+    rig, probs, _ = PB.build(bad, plan)
+    if rig is None or probs:
+        return                                              # refused already while cutting - good
+    CA.Maker._save_rig(str(tmp_path), rig)
+    CA.save_ref_head(str(tmp_path), rig)
+    ch = CR.CutoutCharacter("m", rec["design"], str(tmp_path))
+    assert not AQ.check(ch, bad, probs, plan)["pass"]
+
+
+def test_an_old_or_unchecked_puppet_is_never_used(tmp_path):
+    import cutout_assets as CA
+    import cutout_rig as CR
+    from fake_provider import Fake
+    rec = _ghost()
+    reg = CA.Registry(str(tmp_path))
+    CA.ensure_cast([rec], reg, Fake(rec["design"]))
+    key = CA.char_key(rec)
+    meta = json.load(open(tmp_path / key / "rig.json"))
+    meta.pop("gate")                                        # a rig of the first version (never checked as a whole)
+    json.dump(meta, open(tmp_path / key / "rig.json", "w"))
+    assert CR.load("m", rec["design"], str(tmp_path), key) is None
+    reg.index["characters"][key]["builder"] = None          # its 'ready' from before does not count
+    assert CA.status_of(reg, rec) == "needs re-check"
+
+
+def test_a_checking_error_keeps_the_reference_and_is_not_ready(tmp_path, monkeypatch):
+    import assembly_qa as AQ
+    import cutout_assets as CA
+    from fake_provider import Fake
+
+    def boom(*a, **k):
+        raise ValueError("drawing failed")
+    monkeypatch.setattr(AQ, "check", boom)
+    rec = _ghost()
+    reg = CA.Registry(str(tmp_path))
+    rep = CA.ensure_cast([rec], reg, Fake(rec["design"]))
+    key = CA.char_key(rec)
+    assert rep["characters"]["Madhu"]["status"] == "partial"
+    assert os.path.exists(tmp_path / key / "body.png") and not [f for f in os.listdir(tmp_path / key) if f.startswith("rejected")]
+
+
+def test_character_sheet_mechanics(tmp_path, monkeypatch):
+    """the 2D character-sheet run (MECHANICS only - a stand-in returns the reference picture, NOT new artwork):
+    the ORIGINAL reference is given for every drawing, a wrong picture is rejected and redrawn, the walk is ONE
+    picture of 4 frames cut apart onto one canvas, the free limit pauses, the next run makes only what is missing,
+    nothing is approved automatically, one approval page + the pictures per character"""
+    import cv2
+    import json as _j
+    import char_sheet as CS
+    import cutout_assets as CA
+    from fake_provider import Fake
+    import art_director as AD
+    monkeypatch.setattr(CS, "ROOT", str(tmp_path / "parts"))
+    monkeypatch.setattr(CS, "OUT", str(tmp_path / "out"))
+    people = CS.cast()
+    originals = set()
+    for c in people:
+        key = CA.char_key({"name": c["name"], "look": c["look"]})
+        d = tmp_path / "parts" / key
+        d.mkdir(parents=True)
+        img = CA._decode(Fake(c["design"])(AD.character_prompt(c), None, 1, 576, 1024))
+        cv2.imwrite(str(d / "body_src.png"), img)
+        cv2.imwrite(str(d / "body.png"), CA.key_out(img))
+        originals.add(str(d / "body_src.png"))
+    calls, refs = [], []
+    real_check = CS.check_drawing
+    # (the stand-in figure faces the viewer - for its "side" picture the eye test is switched off here; the eye
+    #  test itself is tested below)
+    monkeypatch.setattr(CS, "check_drawing", lambda rgba, ref, view: real_check(rgba, ref, "stand" if view == "side" else view))
+
+    def standin(prompt, ref, seed, w, h):
+        calls.append(1)
+        refs.append(ref)
+        if len(calls) == 9:
+            raise RuntimeError("HTTP 429: daily free allocation used up (4006)")
+        img = cv2.imread(ref)
+        if "sprite sheet" in prompt:                      # 4 frames side by side on one canvas, apart
+            bg = [int(v) for v in img[2, 2]]
+            one = cv2.resize(img, (int(w // 4 * 0.7), int(h * 0.8)))
+            pad_x, pad_y = (w // 4 - one.shape[1]), (h - one.shape[0])
+            one = cv2.copyMakeBorder(one, pad_y // 2, pad_y - pad_y // 2, pad_x // 2, pad_x - pad_x // 2,
+                                     cv2.BORDER_CONSTANT, value=bg)
+            img = np.hstack([one] * 4)
+        else:
+            img = cv2.resize(img, (w, h))
+        if len(calls) == 2:
+            img = img.copy()
+            img[..., 2] = 255                               # wrong colours: must be rejected
+        return cv2.imencode(".png", img)[1].tobytes()
+    r1 = CS.run(standin, log=lambda *a: None, budget=50)
+    assert r1["paused"] and r1["made"] == 8
+    r2 = CS.run(standin, log=lambda *a: None, budget=50)
+    assert not r2["paused"] and r2["made"] == 3 * len(CS.VIEWS) - 7          # only what was missing
+    assert set(refs) <= originals                           # the ORIGINAL reference, every time
+    for c in people:
+        st = r2["characters"][c["name"]]["drawings"]
+        assert all(v["status"] == "passed" for v in st.values()) and len(st) == len(CS.VIEWS)
+        assert os.path.exists(tmp_path / "out" / f"{c['name']}_sheet.jpg")
+        assert os.path.exists(tmp_path / "out" / c["name"] / "walk4.png")
+        assert not r2["characters"][c["name"]]["approved"]
+        key = CA.char_key({"name": c["name"], "look": c["look"]})
+        assert _j.load(open(tmp_path / "parts" / key / "sheet" / "sheet.json"))["_approved"] is False
+        ws = [cv2.imread(str(tmp_path / "out" / c["name"] / f"walk{k}.png"), cv2.IMREAD_UNCHANGED) for k in range(1, 5)]
+        assert len({w_.shape for w_ in ws}) == 1                                  # one canvas for all 4 frames
+        grounds = [np.where((w_[..., 3] > 127).any(axis=1))[0].max() for w_ in ws]
+        assert max(grounds) - min(grounds) <= 2                                   # the same ground line
+    assert r2["characters"][people[0]["name"]]["suggestion"]
+
+
+def test_a_front_face_is_not_accepted_as_a_side_view():
+    import cv2
+    import char_sheet as CS
+    import cutout_assets as CA
+    from fake_provider import Fake
+    import art_director as AD
+    import character_designer as CD
+    c = {"name": "Hari", "gender": "male", "age": "adult", "kind": "human", "look": "a man, a blue shirt and grey trousers"}
+    d = CD.design(c)[0]
+    img = CA.key_out(CA._decode(Fake(d)(AD.character_prompt(dict(c, design=d)), None, 1, 576, 1024)))
+    if len(CS._eyes_in_head(img)) < 2:
+        return                                              # (the stand-in face shows no clear eye pair)
+    q = CS.check_drawing(img, img, "side")
+    assert not q["pass"] and any("not a true side view" in p for p in q["problems"])
