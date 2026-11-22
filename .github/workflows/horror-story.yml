@@ -14,7 +14,7 @@ on:
         required: false
         default: ""
       mode:
-        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted). library_sync = engine 2: put every character asset into the permanent library + report (no picture made, nothing posted). hybrid_test = engine 2: hybrid 2D preview videos (720p) of Hari, Saraswati, Kishori + one story scene, marked NOT APPROVED (no picture made, nothing posted). rig_test = engine 2: Hari's skeletal rig (Rigby2D) - poses, walk cycle, hand/foot close-ups, 720p proof video with lip-sync, QA report (no picture made, nothing posted). pose_art = engine 2 POSE-FIRST step 1: SIX new complete high-resolution pictures of Hari (Cloudflare, uses the daily free allocation - run 5:35-7:00 AM India time) + contact sheet + old-vs-new sheet; stops with the exact error on HTTP 429 (nothing posted, nothing approved)."
+        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted). library_sync = engine 2: put every character asset into the permanent library + report (no picture made, nothing posted). hybrid_test = engine 2: hybrid 2D preview videos (720p) of Hari, Saraswati, Kishori + one story scene, marked NOT APPROVED (no picture made, nothing posted). rig_test = engine 2: Hari's skeletal rig (Rigby2D) - poses, walk cycle, hand/foot close-ups, 720p proof video with lip-sync, QA report (no picture made, nothing posted). pose_art = engine 2 POSE-FIRST step 1: SIX new complete high-resolution pictures of Hari (Cloudflare, uses the daily free allocation - run 5:35-7:00 AM India time) + contact sheet + old-vs-new sheet; stops with the exact error on HTTP 429 (nothing posted, nothing approved). engine_audit = engine 2 MVP snapshot (what exists, what is approved, what each action would use). asset_qa = engine 2: identity + cut-out checks and close-ups of the pose drawings. render_test = engine 2: 60-second 720p hybrid test video of Hari (nothing generated, nothing posted)."
         required: false
         default: ""
   # V8 backup clock: ONLY if the cron-job.org start did not come. 75 minutes after the 2 PM and 8 PM story starts
@@ -188,7 +188,7 @@ jobs:
           key: clips-${{ github.run_id }}
 
       - name: Remember this story
-        if: success() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test'   # (a full test is not remembered)
+        if: success() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'engine_audit' && github.event.inputs.mode != 'asset_qa' && github.event.inputs.mode != 'render_test'   # (a full test / an engine 2 MVP test is not remembered)
         run: |
           git config user.name "story-bot"
           git config user.email "story-bot@users.noreply.github.com"
@@ -278,6 +278,12 @@ jobs:
             work/rig_test/**/qa_report.json
             assets/character_rigs/**
             work/pose_art/**
+            work/engine_audit/**
+            work/asset_qa/**
+            work/render_test/**/*.mp4
+            work/render_test/**/*.jpg
+            work/render_test/**/*.json
+            work/render_test/**/armlift/*.png
             assets/character_art/**
             work/story_test/story_test.mp4
             work/story_test/story_report.json
@@ -293,7 +299,7 @@ jobs:
   # (GitHub never rebuilds a "Deploy from a branch" site for the bot's own commits - so the map is published here.)
   site:
     needs: post
-    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'pose_art' && github.event.inputs.mode != 'rig_test' && github.event.inputs.mode != 'hybrid_test' && github.event.inputs.mode != 'library_sync'   # (engine 2 test modes never touch the website)
+    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'pose_art' && github.event.inputs.mode != 'rig_test' && github.event.inputs.mode != 'hybrid_test' && github.event.inputs.mode != 'library_sync' && github.event.inputs.mode != 'engine_audit' && github.event.inputs.mode != 'asset_qa' && github.event.inputs.mode != 'render_test'   # (engine 2 test modes never touch the website)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     continue-on-error: true
