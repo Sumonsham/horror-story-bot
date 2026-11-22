@@ -142,3 +142,29 @@ def test_pose_art_never_uses_mock_or_another_provider():
     body = src[src.index("def pose_art_run():"):src.index("def rig_test_run():")]
     assert "if MOCK:" in body and "_cf_request_all(CF_MODEL" in body
     assert "agnes" not in body.lower() and "armlift" not in body and "mock_image" not in body
+
+
+def test_an_unreadable_reply_stops_too_and_keeps_the_providers_file(tmp_path):
+    from engine2 import posefirst as PF
+    store = PF.Store("hari", root=str(tmp_path))
+    ref = np.zeros((1024, 576, 4), np.uint8)
+    ref[100:900, 150:420] = (200, 150, 100, 255)
+    calls = []
+
+    def pic(*a):
+        calls.append(1)
+        return b"\x89PNG not really a picture"
+    PF.make({"name": "Hari", "look": "x"}, ref, pic, PF.SIX, store)
+    assert len(calls) == 1 and "could not be read" in store.idx["_stopped_by_error"]["error"]
+    assert os.path.exists(os.path.join(store.poses, store.idx["master"]["original_file"]))
+    assert all(store.status(p) != "generated" for p in PF.SIX)
+
+
+def test_workflow_has_the_mode_inputs_secrets_and_keeps_the_website_out():
+    import yaml
+    wf = yaml.safe_load(open(os.path.join(ROOT, ".github", "workflows", "horror-story.yml")))
+    inputs = wf[True]["workflow_dispatch"]["inputs"]
+    assert "mode" in inputs and "character" in inputs and "pose_art" in inputs["mode"]["description"]
+    txt = open(os.path.join(ROOT, ".github", "workflows", "horror-story.yml")).read()
+    assert "CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}" in txt and "CHAR_SHEET_CHARACTER: ${{ github.event.inputs.character }}" in txt
+    assert "github.event.inputs.mode != 'pose_art'" in wf["jobs"]["site"]["if"]
