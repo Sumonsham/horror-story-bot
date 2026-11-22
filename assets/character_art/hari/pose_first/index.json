@@ -187,5 +187,189 @@
   ],
   "status": "passed",
   "file": "arm90.png"
+ },
+ "arm120": {
+  "attempts": 2,
+  "qa": {
+   "pass": false,
+   "problems": [
+    "hair colour differs from the original (dE 58.6)"
+   ],
+   "metrics": {
+    "figure_px_height": 1776,
+    "colour_de": 6.3,
+    "skin_de": 3.1,
+    "hair_de": 58.6,
+    "eyes_seen": 2
+   }
+  },
+  "prompt": "flat 2D Bengali television cartoon illustration, clean bold dark outlines, soft cel shading, rich but gentle colours, natural human anatomy and proportions, expressive friendly cartoon face, high quality professional animation character art. Exactly the SAME character as in the reference picture: the same face, the same hairstyle, the same moustache, the same skin colour, the same body proportions, the same clothes, colours and footwear, the same outline thickness and the same cartoon style. high-resolution character artwork made for 2D cut-out animation: crisp clean black outlines of even thickness, flat colours with the same soft cel shading as the reference, every finger, elbow, wrist, knee and ankle clearly drawn, the WHOLE body inside the picture with wide empty margins all round (nothing cut off), plain flat light grey background, no floor shadow, no other objects, no text, no watermark. ONE single character, seen in three-quarter view turned to the RIGHT exactly like the reference picture, standing, the arm on the LEFT side of the picture (the character's right arm) raised high, about 120 degrees, the hand above the level of the head, open hand; the other arm relaxed by the side; the armpit, the shoulder and the sleeve completely drawn. The character: a man - an ordinary Bengali man of about forty, short black hair, thick moustache, a light blue full-sleeve shirt and grey trousers, black sandals. plain flat light grey background (#b4b4b4), no shadow on the background, no floor line, no text, no logo, no frame, nothing else in the picture.",
+  "seed": 28327,
+  "size_asked": [
+   1280,
+   1920
+  ],
+  "size_returned": [
+   1280,
+   1920
+  ],
+  "provider": "cloudflare",
+  "model": "flux-2-klein-4b",
+  "original_file": "originals/arm120_attempt2_ORIGINAL.jpg",
+  "reference_input": "the ORIGINAL reference, shrunk to fit 511x511",
+  "kind": "NEWLY GENERATED - NOT APPROVED",
+  "all_attempts": [
+   {
+    "attempt": 1,
+    "file": "originals/arm120_attempt1_ORIGINAL.jpg",
+    "automatic_check": {
+     "pass": false,
+     "problems": [
+      "hair colour differs from the original (dE 64.4)"
+     ],
+     "metrics": {
+      "figure_px_height": 1774,
+      "colour_de": 3.1,
+      "skin_de": 3.7,
+      "hair_de": 64.4,
+      "eyes_seen": 2
+     }
+    }
+   },
+   {
+    "attempt": 2,
+    "file": "originals/arm120_attempt2_ORIGINAL.jpg",
+    "automatic_check": {
+     "pass": false,
+     "problems": [
+      "hair colour differs from the original (dE 58.6)"
+     ],
+     "metrics": {
+      "figure_px_height": 1776,
+      "colour_de": 6.3,
+      "skin_de": 3.1,
+      "hair_de": 58.6,
+      "eyes_seen": 2
+     }
+    }
+   }
+  ],
+  "status": "failed"
+ },
+ "both_up": {
+  "attempts": 2,
+  "qa": {
+   "pass": false,
+   "problems": [
+    "hair colour differs from the original (dE 64.8)"
+   ],
+   "metrics": {
+    "figure_px_height": 1782,
+    "colour_de": 5.5,
+    "skin_de": 5.5,
+    "hair_de": 64.8,
+    "eyes_seen": 1
+   }
+  },
+  "prompt": "flat 2D Bengali television cartoon illustration, clean bold dark outlines, soft cel shading, rich but gentle colours, natural human anatomy and proportions, expressive friendly cartoon face, high quality professional animation character art. Exactly the SAME character as in the reference picture: the same face, the same hairstyle, the same moustache, the same skin colour, the same body proportions, the same clothes, colours and footwear, the same outline thickness and the same cartoon style. high-resolution character artwork made for 2D cut-out animation: crisp clean black outlines of even thickness, flat colours with the same soft cel shading as the reference, every finger, elbow, wrist, knee and ankle clearly drawn, the WHOLE body inside the picture with wide empty margins all round (nothing cut off), plain flat light grey background, no floor shadow, no other objects, no text, no watermark. ONE single character, seen in three-quarter view turned to the RIGHT exactly like the reference picture, standing, BOTH arms raised high above the head, open hands, the armpits and the shirt under both arms completely drawn. The character: a man - an ordinary Bengali man of about forty, short black hair, thick moustache, a light blue full-sleeve shirt and grey trousers, black sandals. plain flat light grey background (#b4b4b4), no shadow on the background, no floor line, no text, no logo, no frame, nothing else in the picture.",
+  "seed": 28458,
+  "size_asked": [
+   1280,
+   1920
+  ],
+  "size_returned": [
+   1280,
+   1920
+  ],
+  "provider": "cloudflare",
+  "model": "flux-2-klein-4b",
+  "original_file": "originals/both_up_attempt2_ORIGINAL.jpg",
+  "reference_input": "the ORIGINAL reference, shrunk to fit 511x511",
+  "kind": "NEWLY GENERATED - NOT APPROVED",
+  "all_attempts": [
+   {
+    "attempt": 1,
+    "file": "originals/both_up_attempt1_ORIGINAL.jpg",
+    "automatic_check": {
+     "pass": false,
+     "problems": [
+      "hair colour differs from the original (dE 66.0)"
+     ],
+     "metrics": {
+      "figure_px_height": 1787,
+      "colour_de": 2.1,
+      "skin_de": 3.1,
+      "hair_de": 66.0,
+      "eyes_seen": 2
+     }
+    }
+   },
+   {
+    "attempt": 2,
+    "file": "originals/both_up_attempt2_ORIGINAL.jpg",
+    "automatic_check": {
+     "pass": false,
+     "problems": [
+      "hair colour differs from the original (dE 64.8)"
+     ],
+     "metrics": {
+      "figure_px_height": 1782,
+      "colour_de": 5.5,
+      "skin_de": 5.5,
+      "hair_de": 64.8,
+      "eyes_seen": 1
+     }
+    }
+   }
+  ],
+  "status": "failed"
+ },
+ "point_index": {
+  "attempts": 1,
+  "qa": {
+   "pass": true,
+   "problems": [],
+   "metrics": {
+    "figure_px_height": 1796,
+    "colour_de": 7.4,
+    "skin_de": 9.6,
+    "hair_de": 2.5,
+    "eyes_seen": 2
+   }
+  },
+  "prompt": "flat 2D Bengali television cartoon illustration, clean bold dark outlines, soft cel shading, rich but gentle colours, natural human anatomy and proportions, expressive friendly cartoon face, high quality professional animation character art. Exactly the SAME character as in the reference picture: the same face, the same hairstyle, the same moustache, the same skin colour, the same body proportions, the same clothes, colours and footwear, the same outline thickness and the same cartoon style. high-resolution character artwork made for 2D cut-out animation: crisp clean black outlines of even thickness, flat colours with the same soft cel shading as the reference, every finger, elbow, wrist, knee and ankle clearly drawn, the WHOLE body inside the picture with wide empty margins all round (nothing cut off), plain flat light grey background, no floor shadow, no other objects, no text, no watermark. ONE single character, seen in three-quarter view turned to the RIGHT exactly like the reference picture, standing and POINTING: the arm on the RIGHT side of the picture (the character's left arm) stretched straight forward at shoulder height, the hand pointing with ONLY the index finger extended, the other three fingers curled into the palm and the thumb tucked; the other arm relaxed by the side. The character: a man - an ordinary Bengali man of about forty, short black hair, thick moustache, a light blue full-sleeve shirt and grey trousers, black sandals. plain flat light grey background (#b4b4b4), no shadow on the background, no floor line, no text, no logo, no frame, nothing else in the picture.",
+  "seed": 27612,
+  "size_asked": [
+   1280,
+   1920
+  ],
+  "size_returned": [
+   1280,
+   1920
+  ],
+  "provider": "cloudflare",
+  "model": "flux-2-klein-4b",
+  "original_file": "originals/point_index_attempt1_ORIGINAL.jpg",
+  "reference_input": "the ORIGINAL reference, shrunk to fit 511x511",
+  "kind": "NEWLY GENERATED - NOT APPROVED",
+  "all_attempts": [
+   {
+    "attempt": 1,
+    "file": "originals/point_index_attempt1_ORIGINAL.jpg",
+    "automatic_check": {
+     "pass": true,
+     "problems": [],
+     "metrics": {
+      "figure_px_height": 1796,
+      "colour_de": 7.4,
+      "skin_de": 9.6,
+      "hair_de": 2.5,
+      "eyes_seen": 2
+     }
+    }
+   }
+  ],
+  "status": "passed",
+  "file": "point_index.png"
  }
 }
