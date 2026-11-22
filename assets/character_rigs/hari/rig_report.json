@@ -1,0 +1,521 @@
+{
+ "layers": {
+  "character": "Hari",
+  "size": [
+   576,
+   1024
+  ],
+  "order": [
+   "hand_l",
+   "arm_l",
+   "foot_l",
+   "leg_l",
+   "foot_r",
+   "leg_r",
+   "pelvis",
+   "neck",
+   "torso",
+   "head",
+   "hand_r",
+   "arm_r"
+  ],
+  "layers": {
+   "hand_l": {
+    "file": "layers/hand_l.png",
+    "bbox": [
+     423,
+     525,
+     508,
+     613
+    ],
+    "pixels": 4488
+   },
+   "arm_l": {
+    "file": "layers/arm_l.png",
+    "bbox": [
+     359,
+     311,
+     461,
+     558
+    ],
+    "pixels": 9025
+   },
+   "foot_l": {
+    "file": "layers/foot_l.png",
+    "bbox": [
+     308,
+     885,
+     435,
+     949
+    ],
+    "pixels": 4978
+   },
+   "leg_l": {
+    "file": "layers/leg_l.png",
+    "bbox": [
+     289,
+     598,
+     374,
+     912
+    ],
+    "pixels": 21457
+   },
+   "foot_r": {
+    "file": "layers/foot_r.png",
+    "bbox": [
+     183,
+     893,
+     257,
+     977
+    ],
+    "pixels": 4238
+   },
+   "leg_r": {
+    "file": "layers/leg_r.png",
+    "bbox": [
+     182,
+     598,
+     301,
+     922
+    ],
+    "pixels": 25058
+   },
+   "pelvis": {
+    "file": "layers/pelvis.png",
+    "bbox": [
+     194,
+     569,
+     375,
+     654
+    ],
+    "pixels": 11434
+   },
+   "neck": {
+    "file": "layers/neck.png",
+    "bbox": [
+     253,
+     226,
+     317,
+     327
+    ],
+    "pixels": 3024
+   },
+   "torso": {
+    "file": "layers/torso.png",
+    "bbox": [
+     185,
+     252,
+     379,
+     601
+    ],
+    "pixels": 50449
+   },
+   "head": {
+    "file": "layers/head.png",
+    "bbox": [
+     207,
+     66,
+     368,
+     271
+    ],
+    "pixels": 26583
+   },
+   "hand_r": {
+    "file": "layers/hand_r.png",
+    "bbox": [
+     64,
+     541,
+     141,
+     652
+    ],
+    "pixels": 5077
+   },
+   "arm_r": {
+    "file": "layers/arm_r.png",
+    "bbox": [
+     95,
+     309,
+     224,
+     571
+    ],
+    "pixels": 14929
+   }
+  },
+  "hidden_continuations": [
+   {
+    "part": "neck",
+    "under": "head",
+    "pixels": 517,
+    "colour": [
+     132,
+     183,
+     248
+    ],
+    "why": "the neck continues up under the jaw"
+   },
+   {
+    "part": "hand_r",
+    "under": "arm_r",
+    "pixels": 210,
+    "colour": [
+     135,
+     189,
+     254
+    ],
+    "why": "the wrist continues inside the cuff"
+   },
+   {
+    "part": "hand_l",
+    "under": "arm_l",
+    "pixels": 189,
+    "colour": [
+     138,
+     190,
+     254
+    ],
+    "why": "the wrist continues inside the cuff"
+   },
+   {
+    "part": "foot_r",
+    "under": "leg_r",
+    "pixels": 398,
+    "colour": [
+     138,
+     190,
+     252
+    ],
+    "why": "the ankle continues inside the trouser hem"
+   },
+   {
+    "part": "foot_l",
+    "under": "leg_l",
+    "pixels": 492,
+    "colour": [
+     134,
+     187,
+     254
+    ],
+    "why": "the ankle continues inside the trouser hem"
+   }
+  ],
+  "lost_pixels": 12,
+  "shadow_removed_pixels": 8129,
+  "joints": {
+   "_what": "pivot points read off the drawing (image pixels); the rig is built from these, then checked visually",
+   "neck": [
+    282,
+    262
+   ],
+   "head": [
+    285,
+    240
+   ],
+   "shoulder_r": [
+    208,
+    340
+   ],
+   "elbow_r": [
+    165,
+    450
+   ],
+   "wrist_r": [
+    128,
+    565
+   ],
+   "shoulder_l": [
+    352,
+    330
+   ],
+   "elbow_l": [
+    398,
+    450
+   ],
+   "wrist_l": [
+    445,
+    545
+   ],
+   "hip_r": [
+    252,
+    650
+   ],
+   "knee_r": [
+    239,
+    785
+   ],
+   "ankle_r": [
+    218,
+    915
+   ],
+   "hip_l": [
+    330,
+    650
+   ],
+   "knee_l": [
+    339,
+    775
+   ],
+   "ankle_l": [
+    340,
+    905
+   ],
+   "toe_r": [
+    215,
+    960
+   ],
+   "toe_l": [
+    415,
+    935
+   ],
+   "pelvis": [
+    292,
+    625
+   ],
+   "chest": [
+    290,
+    340
+   ]
+  },
+  "weights": {
+   "leg_r": [
+    [
+     "hip",
+     "hip_r",
+     75,
+     0.95
+    ]
+   ],
+   "leg_l": [
+    [
+     "hip",
+     "hip_l",
+     75,
+     0.95
+    ]
+   ],
+   "arm_r": [
+    [
+     "chest",
+     "shoulder_r",
+     46,
+     0.75
+    ]
+   ],
+   "arm_l": [
+    [
+     "chest",
+     "shoulder_l",
+     46,
+     0.75
+    ]
+   ]
+  }
+ },
+ "joints": [
+  {
+   "bone": "neck",
+   "want": [
+    -6,
+    762
+   ],
+   "got": [
+    -6,
+    762
+   ]
+  },
+  {
+   "bone": "head",
+   "want": [
+    -3,
+    784
+   ],
+   "got": [
+    -3,
+    784
+   ]
+  },
+  {
+   "bone": "upperarm_r",
+   "want": [
+    -80,
+    684
+   ],
+   "got": [
+    -80,
+    684
+   ]
+  },
+  {
+   "bone": "forearm_r",
+   "want": [
+    -123,
+    574
+   ],
+   "got": [
+    -123,
+    574
+   ]
+  },
+  {
+   "bone": "hand_r",
+   "want": [
+    -160,
+    459
+   ],
+   "got": [
+    -160,
+    459
+   ]
+  },
+  {
+   "bone": "upperarm_l",
+   "want": [
+    64,
+    694
+   ],
+   "got": [
+    64,
+    694
+   ]
+  },
+  {
+   "bone": "forearm_l",
+   "want": [
+    110,
+    574
+   ],
+   "got": [
+    110,
+    574
+   ]
+  },
+  {
+   "bone": "hand_l",
+   "want": [
+    157,
+    479
+   ],
+   "got": [
+    157,
+    479
+   ]
+  },
+  {
+   "bone": "thigh_r",
+   "want": [
+    -36,
+    374
+   ],
+   "got": [
+    -36,
+    374
+   ]
+  },
+  {
+   "bone": "shin_r",
+   "want": [
+    -49,
+    239
+   ],
+   "got": [
+    -49,
+    239
+   ]
+  },
+  {
+   "bone": "foot_r",
+   "want": [
+    -70,
+    109
+   ],
+   "got": [
+    -70,
+    109
+   ]
+  },
+  {
+   "bone": "thigh_l",
+   "want": [
+    42,
+    374
+   ],
+   "got": [
+    42,
+    374
+   ]
+  },
+  {
+   "bone": "shin_l",
+   "want": [
+    51,
+    249
+   ],
+   "got": [
+    51,
+    249
+   ]
+  },
+  {
+   "bone": "foot_l",
+   "want": [
+    52,
+    119
+   ],
+   "got": [
+    52,
+    119
+   ]
+  },
+  {
+   "paint": "arm_l",
+   "bone": "chest",
+   "vertices": 5
+  },
+  {
+   "paint": "leg_l",
+   "bone": "hip",
+   "vertices": 9
+  },
+  {
+   "paint": "leg_r",
+   "bone": "hip",
+   "vertices": 9
+  },
+  {
+   "paint": "arm_r",
+   "bone": "chest",
+   "vertices": 6
+  },
+  {
+   "ik": "ik_hand_l",
+   "bendPositive": true,
+   "middle_joint_error_px": 0
+  },
+  {
+   "ik": "ik_foot_l",
+   "bendPositive": false,
+   "middle_joint_error_px": 0
+  },
+  {
+   "ik": "ik_hand_r",
+   "bendPositive": true,
+   "middle_joint_error_px": 0
+  },
+  {
+   "ik": "ik_foot_r",
+   "bendPositive": false,
+   "middle_joint_error_px": 0
+  }
+ ],
+ "animations": [
+  "idle",
+  "indicate",
+  "listen",
+  "open_palms",
+  "sit_down",
+  "sit_talk",
+  "talk",
+  "walk"
+ ],
+ "validate": "{\n  \"file\": \"/home/claude/work/repo/assets/character_rigs/hari/hari.rigby\",\n  \"format\": \"rigby\",\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [\n    \"Writing skeleton JSON 4.3 and reading it back does not reproduce the data exactly.\"\n  ],\n  \"checks\": {\n    \"structure\": \"ok\",\n    \"images\": \"ok\",\n    \"jsonRoundTrip\": \"changed\",\n    \"binaryExport\": \"ok\"\n  }\n}",
+ "validate_ok": true
+}

@@ -1,0 +1,408 @@
+{
+ "_what": "Hand-checked asset-preparation instructions for Hari (from the ORIGINAL Cloudflare reference, 576x1024). Every coordinate was read off the reference at 3-4x zoom. The code never invents a body part: it only separates the drawn regions along the drawn ink lines; where a drawn line stops short, a 'close' segment finishes it; where a part continues hidden behind another, 'extend' adds a hidden strip of that part's own colour (it is only ever seen when the part moves a little).",
+ "character": "Hari",
+ "source": "assets/character_library/hari/v1/reference/original.png",
+ "ink_value": 90,
+ "close": [
+  [
+   [
+    181,
+    305
+   ],
+   [
+    188,
+    312
+   ],
+   [
+    196,
+    319
+   ],
+   [
+    205,
+    330
+   ],
+   [
+    212,
+    343
+   ],
+   [
+    218,
+    358
+   ],
+   [
+    222,
+    371
+   ],
+   [
+    224,
+    385
+   ]
+  ],
+  [
+   [
+    362,
+    365
+   ],
+   [
+    361,
+    340
+   ],
+   [
+    360,
+    318
+   ],
+   [
+    359,
+    298
+   ]
+  ]
+ ],
+ "seeds": {
+  "head": [
+   [
+    290,
+    180
+   ]
+  ],
+  "neck": [
+   [
+    285,
+    270
+   ]
+  ],
+  "torso": [
+   [
+    240,
+    460
+   ],
+   [
+    330,
+    450
+   ],
+   [
+    255,
+    290
+   ],
+   [
+    325,
+    300
+   ],
+   [
+    355,
+    575
+   ]
+  ],
+  "arm_r": [
+   [
+    150,
+    470
+   ],
+   [
+    125,
+    540
+   ]
+  ],
+  "hand_r": [
+   [
+    105,
+    600
+   ],
+   [
+    70,
+    590
+   ]
+  ],
+  "arm_l": [
+   [
+    400,
+    485
+   ],
+   [
+    425,
+    530
+   ]
+  ],
+  "hand_l": [
+   [
+    470,
+    565
+   ]
+  ],
+  "pants": [
+   [
+    260,
+    760
+   ]
+  ],
+  "shadow": [
+   [
+    300,
+    960
+   ]
+  ]
+ },
+ "pants": {
+  "pelvis_bottom": 655,
+  "pelvis_feather": 10,
+  "legs_top": 598,
+  "split": [
+   [
+    304,
+    592
+   ],
+   [
+    300,
+    632
+   ],
+   [
+    296,
+    680
+   ],
+   [
+    292,
+    722
+   ]
+  ],
+  "leg_seeds": {
+   "leg_r": [
+    250,
+    800
+   ],
+   "leg_l": [
+    340,
+    800
+   ]
+  }
+ },
+ "feet": {
+  "top": 860,
+  "seeds": {
+   "foot_r": [
+    215,
+    945
+   ],
+   "foot_l": [
+    380,
+    925
+   ]
+  }
+ },
+ "extend": [
+  {
+   "part": "neck",
+   "under": "head",
+   "dir": [
+    0,
+    -1
+   ],
+   "px": 16,
+   "why": "the neck continues up under the jaw"
+  },
+  {
+   "part": "hand_r",
+   "under": "arm_r",
+   "dir": [
+    0.35,
+    -1
+   ],
+   "px": 12,
+   "why": "the wrist continues inside the cuff"
+  },
+  {
+   "part": "hand_l",
+   "under": "arm_l",
+   "dir": [
+    -0.6,
+    -1
+   ],
+   "px": 12,
+   "why": "the wrist continues inside the cuff"
+  },
+  {
+   "part": "foot_r",
+   "under": "leg_r",
+   "dir": [
+    0,
+    -1
+   ],
+   "px": 14,
+   "why": "the ankle continues inside the trouser hem"
+  },
+  {
+   "part": "foot_l",
+   "under": "leg_l",
+   "dir": [
+    0,
+    -1
+   ],
+   "px": 14,
+   "why": "the ankle continues inside the trouser hem"
+  }
+ ],
+ "order": [
+  "hand_l",
+  "arm_l",
+  "foot_l",
+  "leg_l",
+  "foot_r",
+  "leg_r",
+  "pelvis",
+  "neck",
+  "torso",
+  "head",
+  "hand_r",
+  "arm_r"
+ ],
+ "joints": {
+  "_what": "pivot points read off the drawing (image pixels); the rig is built from these, then checked visually",
+  "neck": [
+   282,
+   262
+  ],
+  "head": [
+   285,
+   240
+  ],
+  "shoulder_r": [
+   208,
+   340
+  ],
+  "elbow_r": [
+   165,
+   450
+  ],
+  "wrist_r": [
+   128,
+   565
+  ],
+  "shoulder_l": [
+   352,
+   330
+  ],
+  "elbow_l": [
+   398,
+   450
+  ],
+  "wrist_l": [
+   445,
+   545
+  ],
+  "hip_r": [
+   252,
+   650
+  ],
+  "knee_r": [
+   239,
+   785
+  ],
+  "ankle_r": [
+   218,
+   915
+  ],
+  "hip_l": [
+   330,
+   650
+  ],
+  "knee_l": [
+   339,
+   775
+  ],
+  "ankle_l": [
+   340,
+   905
+  ],
+  "toe_r": [
+   215,
+   960
+  ],
+  "toe_l": [
+   415,
+   935
+  ],
+  "pelvis": [
+   292,
+   625
+  ],
+  "chest": [
+   290,
+   340
+  ]
+ },
+ "clip_under": {
+  "foot_r": "leg_r",
+  "foot_l": "leg_l",
+  "hand_r": "arm_r",
+  "hand_l": "arm_l"
+ },
+ "weights": {
+  "_what": "weight painting after AutoRig (Rigby2D's own brush, paintWeights): the top of a limb follows the body, so a hip or shoulder bends smoothly instead of pivoting as a hard cut",
+  "leg_r": [
+   [
+    "hip",
+    "hip_r",
+    75,
+    0.95
+   ]
+  ],
+  "leg_l": [
+   [
+    "hip",
+    "hip_l",
+    75,
+    0.95
+   ]
+  ],
+  "arm_r": [
+   [
+    "chest",
+    "shoulder_r",
+    46,
+    0.75
+   ]
+  ],
+  "arm_l": [
+   [
+    "chest",
+    "shoulder_l",
+    46,
+    0.75
+   ]
+  ]
+ },
+ "line_owner": {
+  "_what": "a line between a part BEHIND and a part IN FRONT belongs only to the front part (the far arm does not carry the torso's edge)",
+  "pairs": [
+   [
+    "hand_l",
+    "arm_l",
+    "arm_l"
+   ]
+  ]
+ },
+ "face": {
+  "_what": "read off the drawing at 5x: mouth centre + width (under the moustache), eyes centre + radii; skin sample point",
+  "mouth": [
+   337,
+   232,
+   22
+  ],
+  "eyes": [
+   [
+    302,
+    177,
+    14,
+    11
+   ],
+   [
+    350,
+    175,
+    12,
+    10
+   ]
+  ],
+  "skin_at": [
+   300,
+   196
+  ]
+ }
+}
