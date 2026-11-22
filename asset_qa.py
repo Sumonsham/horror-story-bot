@@ -242,7 +242,7 @@ def seat_rule(plan, reach=90.0):
     props = plan.get("props") or []
     acts = plan.get("actions") or []
     for c in plan.get("characters") or []:
-        if not (c.get("design") or {}).get("cutout"):
+        if not ((c.get("design") or {}).get("cutout") or (c.get("design") or {}).get("hybrid")):
             continue
         cid = c["id"]
         sits = str(c.get("start_pose", "stand")).startswith("sit") or any(

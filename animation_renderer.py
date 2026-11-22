@@ -69,7 +69,12 @@ class Scene:
             if d.get("cutout"):                            # 2.5D: the AI-drawn parts (cutout_rig) when they are ready
                 import cutout_rig
                 ch = cutout_rig.load(c["id"], d, d["cutout"][0], d["cutout"][1], c.get("scale", 1.0))
-            self.asset_status[c["id"]] = "cutout" if ch else ("code (cut-out assets not ready)" if d.get("cutout") else "code")
+            elif d.get("hybrid"):                          # engine 2 (test modes only so far): approved / preview assets
+                from engine2 import hybrid
+                ch = hybrid.load(c["id"], d, d["hybrid"], c.get("scale", 1.0))
+            self.asset_status[c["id"]] = ("hybrid" + (" PREVIEW" if getattr(ch, "preview", False) else "")) if (ch and d.get("hybrid")) \
+                else "cutout" if ch else ("code (cut-out assets not ready)" if d.get("cutout") else
+                                          "code (hybrid assets not available)" if d.get("hybrid") else "code")
             self.chars[c["id"]] = ch or rig.Character(c["id"], d, c.get("scale", 1.0))
         f = plan.get("figure")
         self.figure = rig.Character("figure", dict(rig.DESIGNS[f["design"]]), f["scale"]) if f else None

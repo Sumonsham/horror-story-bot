@@ -6149,6 +6149,194 @@ def char_sheet_run():
     return rep
 
 
+def hybrid_test_run():
+    """ENGINE 2 hybrid test: the permanent library + the hybrid characters (preview of the technically valid,
+    NOT approved assets - every frame marked), an action demo per character and one story scene through the existing
+    scene pipeline. No image is generated, nothing is published, no history is changed."""
+    from engine2 import preview
+    rep = preview.run(log=log)
+    lines = ["🎬 Engine 2 (hybrid 2D) পরীক্ষা - কোনো ছবি তৈরি হয়নি, কিছু প্রকাশ হয়নি। সব ভিডিওতে 'PREVIEW - NOT APPROVED' লেখা।"]
+    for n, c in rep["characters"].items():
+        if not c.get("loaded"):
+            lines.append(f"• {n}: চরিত্র তৈরি করা যায়নি (asset নেই বা পরীক্ষায় ব্যর্থ)")
+            continue
+        q = c.get("demo_qa") or {}
+        miss = [a for a, v in (c.get("actions") or {}).items() if str(v).startswith("MISSING")]
+        lines.append(f"• {n}: পদ্ধতি - cut-out {'আছে' if c['methods']['cutout'] else 'নেই'}, সম্পূর্ণ-ভঙ্গির ছবি "
+                     f"{len(c['methods']['full_pose'])}টা; ডেমো ভিডিও " + ("কারিগরি পরীক্ষা ✅" if q.get("pass") else f"❌ {q.get('problems')}")
+                     + (f"; বাকি action: {', '.join(miss)}" if miss else ""))
+    sc = rep.get("scene") or {}
+    lines.append("• গল্পের দৃশ্য: " + (("কারিগরি পরীক্ষা ✅ " if (sc.get("qa") or {}).get("pass") else "❌ ") + str((sc.get("qa") or {}).get("metrics", {}))
+                                     if sc.get("video") else f"❌ {sc.get('error')}"))
+    lines.append("কারিগরি পরীক্ষা মানে শিল্পমানের অনুমোদন নয়। অনুমোদন শুধু আপনি দেন (APPROVALS.json)।")
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        if tok and chat:
+            _tg_text("\n".join(lines))
+            vids = [c.get("demo") for c in rep["characters"].values() if c.get("demo")] + [sc.get("video")]
+            for v in vids:
+                if v and os.path.exists(v) and os.path.getsize(v) < 48_000_000:
+                    with open(v, "rb") as f:
+                        requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat,
+                                      "caption": os.path.basename(v)}, files={"video": (os.path.basename(v), f, "video/mp4")},
+                                      timeout=300)
+    except Exception as e:
+        log("  hybrid test not sent to Telegram:", str(e)[:120])
+    try:
+        push_now([os.path.join(HERE, "assets", "character_library")], "character library (hybrid test)")
+    except Exception:
+        pass
+    return rep
+
+
+def pose_art_run():
+    """ENGINE 2 POSE-FIRST artwork, step 1 ONLY (manual, Hari only): SIX complete, NEW pictures of Hari made by
+    Cloudflare flux-2-klein-4b from the ORIGINAL reference - master A-pose, right arm 45 / 90 / 120 degrees, both arms
+    raised, index-finger pointing - at the largest size the model allows (1280 x 1920). The provider's files are kept
+    byte for byte. Any API error (HTTP 429 included) STOPS the run and the exact error is reported: no substitute,
+    no mock, no old artwork. Then a labelled contact sheet and an old-vs-new comparison sheet. NO segmentation, NO rig,
+    NO arm-lift test until the owner approves. Nothing is approved, nothing is published."""
+    import cv2
+    import char_sheet
+    from engine2 import posefirst as PF
+    if MOCK:
+        log("  pose_art: refused in MOCK mode (no mock picture may ever stand in for generated artwork)")
+        return None
+    who = (env("CHAR_SHEET_CHARACTER") or "Hari").strip()
+    if who.lower() != "hari":
+        _tg_text(f"⚠️ pose_art: এখন শুধু Hari। '{who}' চালানো হয়নি।")
+        return None
+    rec = next(c for c in char_sheet.cast() if c["id"] == "hari")
+    ref = cv2.imread(os.path.join(HERE, "assets", "character_library", "hari", "v1", "reference", "original.png"), cv2.IMREAD_UNCHANGED)
+    if ref is None:
+        _tg_text("⚠️ pose_art: Hari-র আসল reference ছবি পাওয়া যায়নি - কিছু তৈরি হয়নি।")
+        return None
+    ids = list(PF.SIX)
+    store = PF.Store("hari")
+    store.idx.pop("_stopped_by_error", None)
+    store.idx.pop("_paused", None)
+    missing = [p for p in ids if store.status(p) != "generated"]
+    est = PF.estimate(missing)
+    _tg_text(f"🎨 Hari - নতুন pose-first ছবি: {len(missing)}টা বাকি ({', '.join(missing) or '-'})\n"
+             f"আকার 1280×1920 (এই মডেলে এক পাশে সর্বোচ্চ 1920 px)। আনুমানিক খরচ প্রায় {est['neurons_if_all_pass_first_time']} "
+             f"neuron (সব প্রথমবারে ঠিক হলে), সর্বোচ্চ প্রায় {est['neurons_if_every_picture_needs_a_second_try']}। "
+             "কোনো API ত্রুটি / HTTP 429 হলে run থেমে যাবে এবং আসল ত্রুটি জানানো হবে - কোনো বিকল্প ছবি নয়।")
+
+    def saved(pid):
+        try:
+            push_now([os.path.join(HERE, "assets", "character_art")], f"pose-first artwork (NEW, not approved): hari {pid}")
+        except Exception:
+            pass
+
+    def generate(prompt, ref_p, seed, w, h):          # Cloudflare only; never another provider
+        return _cf_request_all(CF_MODEL, prompt, ref_p, w, h, seed)
+    made = PF.make(rec, ref, generate, ids, store, log=log, on_saved=saved)
+    out = os.path.join(HERE, "work", "pose_art", "hari")
+    os.makedirs(out, exist_ok=True)
+    cs = PF.contact_sheet(store, os.path.join(out, "Hari_NEW_six_poses_contact_sheet.jpg"))
+    cmp_ = PF.comparison_sheet(store, ref, os.path.join(out, "Hari_OLD_vs_NEW_comparison.jpg"))
+    st = {p: store.status(p) for p in ids}
+    originals = {p: (store.idx.get(p) or {}).get("original_file") for p in ids}
+    rep = {"made_this_run": made, "stopped_by_error": store.idx.get("_stopped_by_error"), "status": st,
+           "classification": {
+               "old_artwork": "assets/character_library/hari/v1/reference/original.png (576x1024) - used ONLY as the identity input",
+               "newly_generated": {p: f for p, f in originals.items() if f},
+               "mock_or_test_artwork": "none (no mock picture is ever used in this mode)",
+               "approved_artwork": "none - waiting for the owner's visual approval"},
+           "contact_sheet": cs, "comparison_sheet": cmp_, "estimate": est, "approved": False}
+    with open(os.path.join(out, "pose_art_report.json"), "w", encoding="utf-8") as f:
+        json.dump(rep, f, ensure_ascii=False, indent=1, default=str)
+    with open(os.path.join(store.poses, "pose_art_report.json"), "w", encoding="utf-8") as f:
+        json.dump(rep, f, ensure_ascii=False, indent=1, default=str)
+    import shutil as sh_
+    for fp in (cs, cmp_):
+        sh_.copy(fp, os.path.join(store.poses, os.path.basename(fp)))
+    try:
+        push_now([os.path.join(HERE, "assets", "character_art")], "pose-first artwork: hari (sheets + report)")
+    except Exception:
+        pass
+    err = rep["stopped_by_error"]
+    lines = [f"🎨 Hari pose-first ধাপ ১: এই run-এ {made}টা নতুন ছবি তৈরি হয়েছে।",
+             "• " + ", ".join(f"{PF.LABELS[p]}: {'✅ তৈরি' if v == 'generated' else ('⚠️ তৈরি, স্বয়ংক্রিয় পরীক্ষায় ব্যর্থ' if v == 'failed' else '… হয়নি')}"
+                              for p, v in st.items())]
+    if err:
+        lines.append(f"⛔ run থেমেছে - {err['pose']}: {err['error']}")
+    lines += ["পুরোনো ছবি: শুধু পরিচয়ের input। নতুন ছবি: উপরের তালিকা। Mock ছবি: নেই। অনুমোদিত ছবি: নেই।",
+              "Segmentation, rig, arm-lift - আপনার অনুমোদনের পরে।"]
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        if tok and chat:
+            _tg_text("\n".join(lines))
+            files = [cs, cmp_] + [os.path.join(store.poses, f) for f in originals.values() if f]
+            for fp in files:
+                if fp and os.path.exists(fp) and os.path.getsize(fp) < 45_000_000:
+                    with open(fp, "rb") as fh:            # as a DOCUMENT: Telegram keeps the full resolution
+                        requests.post(f"https://api.telegram.org/bot{tok}/sendDocument",
+                                      data={"chat_id": chat, "caption": os.path.basename(fp)},
+                                      files={"document": (os.path.basename(fp), fh)}, timeout=300)
+    except Exception as e:
+        log("  pose art not sent to Telegram:", str(e)[:120])
+    return rep
+
+
+def rig_test_run():
+    """ENGINE 2 rig test (manual only): Hari's skeletal rig (Rigby2D AutoRig + bending meshes + IK, built once from the
+    ORIGINAL reference, assets/character_rigs/hari) is animated and checked: poses, a six-phase walk cycle, hand and
+    foot close-ups, a 720p proof video with lip-sync from a real voice (Rhubarb), a technical QA report. No image is
+    generated, no Cloudflare call, nothing is published, no history / schedule / website is changed."""
+    import glob
+    import subprocess as sp_
+    rb = os.path.join(HERE, "work", "tools", "rhubarb")
+    if not os.environ.get("RHUBARB_BIN"):
+        try:                                               # Rhubarb Lip Sync 1.14.0 (MIT) - the official Linux release
+            os.makedirs(os.path.dirname(rb), exist_ok=True)
+            z = os.path.join(HERE, "work", "tools", "rh.zip")
+            if not glob.glob(os.path.join(HERE, "work", "tools", "Rhubarb*", "rhubarb")):
+                r = requests.get("https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.14.0/"
+                                 "Rhubarb-Lip-Sync-1.14.0-Linux.zip", timeout=120)
+                r.raise_for_status()
+                open(z, "wb").write(r.content)
+                sp_.run(["unzip", "-q", "-o", z, "-d", os.path.join(HERE, "work", "tools")], check=True)
+            found = glob.glob(os.path.join(HERE, "work", "tools", "Rhubarb*", "rhubarb"))
+            if found:
+                os.chmod(found[0], 0o755)
+                os.environ["RHUBARB_BIN"] = found[0]
+        except Exception as e:
+            log("  rhubarb not available (amplitude lip-sync used instead):", str(e)[:120])
+    from engine2.rigby import proof
+    cid = (env("RIG_CHARACTER") or "hari").strip().lower()
+    rep = proof.run(cid, log=log)
+    c = rep["checks"]
+    lines = [f"🦴 Engine 2 rig পরীক্ষা: {cid} - কোনো ছবি তৈরি হয়নি, Cloudflare ব্যবহার হয়নি, কিছু প্রকাশ হয়নি।",
+             "সব ভিডিওতে 'PREVIEW - NOT APPROVED' লেখা।",
+             f"• কারিগরি পরীক্ষা: {'✅ সমস্যা পাওয়া যায়নি' if rep['technical_pass'] else '❌ ' + '; '.join(rep['problems'][:6])}",
+             f"• হাঁটার সময় মাটিতে থাকা পা পিছলায় (px/ফ্রেম): {c.get('foot_slide_px_per_frame_at_rig_scale')}",
+             f"• ফ্রেমে চরিত্রের উচ্চতা: {c.get('character_height_share_of_frame')}",
+             f"• ঠোঁট মেলানো: {c.get('lip_sync')}",
+             "সীমাবদ্ধতা: " + " | ".join(rep.get("known_limits", [])[:3]),
+             "কারিগরি পরীক্ষা শিল্পমানের অনুমোদন নয়। অনুমোদন শুধু আপনি দেবেন।"]
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        if tok and chat:
+            _tg_text("\n".join(lines))
+            for v in (rep["files"].get("proof_video"), rep["files"].get("walk_slow")):
+                if v and os.path.exists(v) and os.path.getsize(v) < 48_000_000:
+                    with open(v, "rb") as f:
+                        requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat,
+                                      "caption": os.path.basename(v)}, files={"video": (os.path.basename(v), f, "video/mp4")},
+                                      timeout=300)
+            out = os.path.dirname(rep["files"]["proof_video"])
+            for img in ("I_walk_cycle.png", "K_hands_feet_closeups.png", "D_rig_joints.png"):
+                fp = os.path.join(out, img)
+                if os.path.exists(fp) and os.path.getsize(fp) < 9_000_000:
+                    with open(fp, "rb") as f:
+                        requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat, "caption": img},
+                                      files={"document": (img, f, "image/png")}, timeout=300)
+    except Exception as e:
+        log("  rig test not sent to Telegram:", str(e)[:120])
+    return rep
+
+
 def library_sync_run():
     """ENGINE 2: the permanent Character Asset Library - brings every existing character asset in (no image is made,
     nothing is overwritten, nothing is approved), checks it technically, writes each manifest, reports to Telegram."""
@@ -12828,6 +13016,12 @@ def main():
         return char_sheet_run()
     if env("MODE") == "library_sync":                # engine 2: the permanent character library (no picture is made)
         return library_sync_run()
+    if env("MODE") == "hybrid_test":                 # engine 2: hybrid 2D preview (no picture made, nothing posted)
+        return hybrid_test_run()
+    if env("MODE") == "rig_test":
+        return rig_test_run()
+    if env("MODE") == "pose_art":
+        return pose_art_run()
     if env("MODE") == "full_test":                   # a WHOLE story video with the cartoon engine - nothing posted
         DRY_RUN = True
         os.environ["DRY_RUN"] = "1"
