@@ -293,7 +293,7 @@ jobs:
   # (GitHub never rebuilds a "Deploy from a branch" site for the bot's own commits - so the map is published here.)
   site:
     needs: post
-    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test'
+    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'pose_art' && github.event.inputs.mode != 'rig_test' && github.event.inputs.mode != 'hybrid_test' && github.event.inputs.mode != 'library_sync'   # (engine 2 test modes never touch the website)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     continue-on-error: true
