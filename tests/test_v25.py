@@ -264,72 +264,133 @@ def test_a_checking_error_keeps_the_reference_and_is_not_ready(tmp_path, monkeyp
     assert os.path.exists(tmp_path / key / "body.png") and not [f for f in os.listdir(tmp_path / key) if f.startswith("rejected")]
 
 
-def test_character_sheet_mechanics(tmp_path, monkeypatch):
-    """the 2D character-sheet run (MECHANICS only - a stand-in returns the reference picture, NOT new artwork):
-    the ORIGINAL reference is given for every drawing, a wrong picture is rejected and redrawn, the walk is ONE
-    picture of 4 frames cut apart onto one canvas, the free limit pauses, the next run makes only what is missing,
-    nothing is approved automatically, one approval page + the pictures per character"""
+class _Sheet:
+    """TEST ONLY (mechanics, not artwork): a stand-in provider that returns the reference picture; a walk prompt gets
+    the reference 4 times side by side; it can refuse with HTTP 429 after N pictures, or crash"""
+
+    def __init__(self, limit_after=None, crash_after=None):
+        self.calls, self.prompts, self.refs = 0, [], []
+        self.limit_after, self.crash_after = limit_after, crash_after
+
+    def __call__(self, prompt, ref, seed, w, h):
+        import cv2
+        if self.limit_after is not None and self.calls >= self.limit_after:
+            raise RuntimeError('HTTP 429: {"errors":[{"message":"AiError: you have used up your daily free allocation of 10,000 neurons"}]}')
+        if self.crash_after is not None and self.calls >= self.crash_after:
+            raise RuntimeError("connection reset")
+        self.calls += 1
+        self.prompts.append(prompt)
+        self.refs.append(ref)
+        img = cv2.imread(ref)
+        if "sprite sheet" in prompt:
+            bg = [int(v) for v in img[2, 2]]
+            one = cv2.resize(img, (int(w // 4 * 0.7), int(h * 0.8)))
+            px, py = w // 4 - one.shape[1], h - one.shape[0]
+            one = cv2.copyMakeBorder(one, py // 2, py - py // 2, px // 2, px - px // 2, cv2.BORDER_CONSTANT, value=bg)
+            img = np.hstack([one] * 4)
+        else:
+            img = cv2.resize(img, (w, h))
+        return cv2.imencode(".png", img)[1].tobytes()
+
+
+def _sheet_setup(tmp_path, monkeypatch):
     import cv2
-    import json as _j
+    import hashlib
     import char_sheet as CS
     import cutout_assets as CA
     from fake_provider import Fake
     import art_director as AD
     monkeypatch.setattr(CS, "ROOT", str(tmp_path / "parts"))
     monkeypatch.setattr(CS, "OUT", str(tmp_path / "out"))
-    people = CS.cast()
-    originals = set()
-    for c in people:
+    real = CS.check_drawing                                 # (the stand-in faces the viewer: its 'side' skips the eye test)
+    monkeypatch.setattr(CS, "check_drawing", lambda r, ref, v: real(r, ref, "stand" if v == "side" else v))
+    sums = {}
+    for c in CS.cast():
         key = CA.char_key({"name": c["name"], "look": c["look"]})
         d = tmp_path / "parts" / key
         d.mkdir(parents=True)
         img = CA._decode(Fake(c["design"])(AD.character_prompt(c), None, 1, 576, 1024))
         cv2.imwrite(str(d / "body_src.png"), img)
         cv2.imwrite(str(d / "body.png"), CA.key_out(img))
-        originals.add(str(d / "body_src.png"))
-    calls, refs = [], []
-    real_check = CS.check_drawing
-    # (the stand-in figure faces the viewer - for its "side" picture the eye test is switched off here; the eye
-    #  test itself is tested below)
-    monkeypatch.setattr(CS, "check_drawing", lambda rgba, ref, view: real_check(rgba, ref, "stand" if view == "side" else view))
+        for f in ("body_src.png", "body.png"):
+            sums[str(d / f)] = hashlib.md5(open(d / f, "rb").read()).hexdigest()
+    return CS, CA, sums
 
-    def standin(prompt, ref, seed, w, h):
-        calls.append(1)
-        refs.append(ref)
-        if len(calls) == 9:
-            raise RuntimeError("HTTP 429: daily free allocation used up (4006)")
-        img = cv2.imread(ref)
-        if "sprite sheet" in prompt:                      # 4 frames side by side on one canvas, apart
-            bg = [int(v) for v in img[2, 2]]
-            one = cv2.resize(img, (int(w // 4 * 0.7), int(h * 0.8)))
-            pad_x, pad_y = (w // 4 - one.shape[1]), (h - one.shape[0])
-            one = cv2.copyMakeBorder(one, pad_y // 2, pad_y - pad_y // 2, pad_x // 2, pad_x - pad_x // 2,
-                                     cv2.BORDER_CONSTANT, value=bg)
-            img = np.hstack([one] * 4)
-        else:
-            img = cv2.resize(img, (w, h))
-        if len(calls) == 2:
-            img = img.copy()
-            img[..., 2] = 255                               # wrong colours: must be rejected
-        return cv2.imencode(".png", img)[1].tobytes()
-    r1 = CS.run(standin, log=lambda *a: None, budget=50)
-    assert r1["paused"] and r1["made"] == 8
-    r2 = CS.run(standin, log=lambda *a: None, budget=50)
-    assert not r2["paused"] and r2["made"] == 3 * len(CS.VIEWS) - 7          # only what was missing
-    assert set(refs) <= originals                           # the ORIGINAL reference, every time
-    for c in people:
-        st = r2["characters"][c["name"]]["drawings"]
-        assert all(v["status"] == "passed" for v in st.values()) and len(st) == len(CS.VIEWS)
-        assert os.path.exists(tmp_path / "out" / f"{c['name']}_sheet.jpg")
-        assert os.path.exists(tmp_path / "out" / c["name"] / "walk4.png")
-        assert not r2["characters"][c["name"]]["approved"]
-        key = CA.char_key({"name": c["name"], "look": c["look"]})
-        assert _j.load(open(tmp_path / "parts" / key / "sheet" / "sheet.json"))["_approved"] is False
-        ws = [cv2.imread(str(tmp_path / "out" / c["name"] / f"walk{k}.png"), cv2.IMREAD_UNCHANGED) for k in range(1, 5)]
-        assert len({w_.shape for w_ in ws}) == 1                                  # one canvas for all 4 frames
-        grounds = [np.where((w_[..., 3] > 127).any(axis=1))[0].max() for w_ in ws]
-        assert max(grounds) - min(grounds) <= 2                                   # the same ground line
-    assert r2["characters"][people[0]["name"]]["suggestion"]
+
+def _unchanged(sums):
+    import hashlib
+    return all(hashlib.md5(open(f, "rb").read()).hexdigest() == h for f, h in sums.items())
+
+
+def test_char_sheet_429_at_once_makes_nothing_and_costs_no_attempt(tmp_path, monkeypatch):
+    CS, CA, sums = _sheet_setup(tmp_path, monkeypatch)
+    rep = CS.run(_Sheet(limit_after=0), log=lambda *a: None)
+    assert rep["paused"] and rep["made"] == 0 and "10,000 neurons" in rep["blocker"]
+    for n, r in rep["characters"].items():
+        assert r["generated"] == [] and r["failed"] == [] and len(r["pending"]) == len(CS.VIEWS)
+        assert not r["ready"] and not r["approved"] and r["state"].startswith("INCOMPLETE")
+        key = CA.char_key(next(c for c in CS.cast() if c["name"] == n))
+        assert all((CS.load_idx(key).get(v) or {}).get("attempts", 0) == 0 for v in CS.VIEWS)   # a refused call is no try
+    assert _unchanged(sums)                                 # the originals are never touched
+
+
+def test_char_sheet_one_character_then_resume_only_the_missing(tmp_path, monkeypatch):
+    CS, CA, sums = _sheet_setup(tmp_path, monkeypatch)
+    saved = []
+    p1 = _Sheet(limit_after=3)
+    r1 = CS.run(p1, log=lambda *a: None, only="Hari", on_saved=lambda n, v: saved.append((n, v)))
+    h = r1["characters"]["Hari"]
+    assert r1["paused"] and r1["made"] == 3 and h["generated"] == ["front", "side", "stand"]
+    assert h["pending"] == ["sit", "talk", "point", "walk"] and not h["ready"] and not h["approved"]
+    assert saved == [("Hari", "front"), ("Hari", "side"), ("Hari", "stand")]          # saved one by one, at once
+    for other in ("Saraswati", "Kishori"):                  # the others are not touched at all
+        assert not r1["characters"][other]["drawn_this_run"] and r1["characters"][other]["generated"] == []
+        key = CA.char_key(next(c for c in CS.cast() if c["name"] == other))
+        assert not os.path.exists(tmp_path / "parts" / key / "sheet" / "sheet.json")
+    assert all("light blue full-sleeve shirt" in pr for pr in p1.prompts)      # only Hari's look was drawn
+    p2 = _Sheet()
+    r2 = CS.run(p2, log=lambda *a: None, only="hari")
+    assert r2["made"] == 4 and r2["characters"]["Hari"]["state"].startswith("COMPLETE")
+    assert not any(k in pr for pr in p2.prompts for k in ("seen straight from the FRONT", "true side profile",
+                                                         "standing relaxed"))          # nothing redrawn
+    assert not r2["characters"]["Hari"]["approved"] and not r2["characters"]["Hari"]["ready"]
+    r3 = CS.run(_Sheet(), log=lambda *a: None, only="Hari")
+    assert r3["made"] == 0                                  # complete: never drawn again
+    key = CA.char_key(next(c for c in CS.cast() if c["name"] == "Hari"))
+    assert set(p1.refs + p2.refs) == {str(tmp_path / "parts" / key / "body_src.png")}     # always the original
+    ws = [__import__("cv2").imread(str(tmp_path / "out" / "Hari" / f"walk{k}.png"), -1) for k in range(1, 5)]
+    assert len({w.shape for w in ws}) == 1                  # the 4 walk frames: one canvas, one ground line
+    g = [np.where((w[..., 3] > 127).any(axis=1))[0].max() for w in ws]
+    assert max(g) - min(g) <= 2
+    assert _unchanged(sums)
+    import pytest
+    with pytest.raises(ValueError):
+        CS.run(_Sheet(), log=lambda *a: None, only="Nobody")
+
+
+def test_char_sheet_crash_keeps_every_saved_picture(tmp_path, monkeypatch):
+    CS, CA, sums = _sheet_setup(tmp_path, monkeypatch)
+    import pytest
+    with pytest.raises(RuntimeError):
+        CS.run(_Sheet(crash_after=2), log=lambda *a: None, only="Saraswati")
+    key = CA.char_key(next(c for c in CS.cast() if c["name"] == "Saraswati"))
+    idx = CS.load_idx(key)
+    assert [v for v in CS.VIEWS if CS.image_status(idx, v) == "generated"] == ["front", "side"]
+    os.remove(tmp_path / "parts" / key / "sheet" / "sheet.json")              # even the progress file lost:
+    p = _Sheet()
+    r = CS.run(p, log=lambda *a: None, only="Saraswati")
+    assert r["made"] == len(CS.VIEWS) - 2                   # the pictures on disk are re-checked, not redrawn
+    assert r["characters"]["Saraswati"]["state"].startswith("COMPLETE")
+    assert _unchanged(sums)
+
+
+def test_char_sheet_estimate_uses_the_published_price_only(tmp_path, monkeypatch):
+    CS, CA, sums = _sheet_setup(tmp_path, monkeypatch)
+    est = CS.estimate([c for c in CS.cast() if c["name"] == "Hari"])
+    assert est["pictures_missing"] == len(CS.VIEWS)
+    per = 4 * 26.05 + 4 * 5.37                              # 576x1024 = 4 tiles out, the 576x1024 original = 4 tiles in
+    assert est["neurons_if_all_pass_first_time"] == round(per * len(CS.VIEWS))
+    assert "NOT known" in est["note"] and "left_today" not in est                    # nothing invented
 
 
 def test_a_front_face_is_not_accepted_as_a_side_view():
