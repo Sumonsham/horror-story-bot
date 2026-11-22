@@ -14,10 +14,13 @@ STUDIO = ("plain flat light grey background (#b4b4b4), no shadow on the backgrou
           "no frame, nothing else in the picture")
 BG_KEY = (180, 180, 180)
 
-POSE_BODY = ("ONE single full-body character standing straight, seen in three-quarter view turned towards the RIGHT side "
-             "of the picture, BOTH arms held a little out to the sides (a slight A-pose) with a clear gap of "
-             "background between each arm and the body all the way down, hands open and relaxed, legs slightly apart with a clear gap between them, both feet fully "
-             "visible, the whole body inside the picture with empty space around it, neutral calm face, mouth closed")
+POSE_BODY = ("ONE single full-body character standing straight, seen in three-quarter view turned slightly towards the "
+             "RIGHT side of the picture, BOTH arms held out away from the body at about 30 degrees (an A-pose) so that "
+             "there is clear background between each arm and the body from the armpit down to the hand, hands open and "
+             "relaxed and empty, legs slightly apart with a clear gap between the legs and between the feet, both feet "
+             "flat and fully visible, NOTHING in the hands and nothing next to the body (no lantern, no bag, no stick, no "
+             "furniture, no props), no shadow on the ground, the whole body inside the picture with wide empty margins "
+             "all round (the head and the feet well away from the edges), neutral calm face, mouth closed")
 HEAD_VIEWS = {
     "front": "the head and neck only, seen straight from the FRONT, looking at the viewer",
     "three_q": "the head and neck only, in three-quarter view turned towards the RIGHT side of the picture",
@@ -25,8 +28,9 @@ HEAD_VIEWS = {
     "scared": "the head and neck only, in three-quarter view turned towards the RIGHT, a frightened face: wide eyes, "
               "raised eyebrows, mouth slightly open",
 }
-GHOST = ("a supernatural ghost, eerie but not gory, pale glowing ghostly colours, a faint mist around the edges, feet "
-         "barely touching the ground")
+GHOST = ("a supernatural ghost, eerie but not gory, pale ghostly skin colours, long hair falling BEHIND the shoulders "
+         "and down the back (never over the arms), NO glow, NO mist, NO aura, NO smoke around the figure (the animation "
+         "adds them later), a clean dark outline all round, feet visible")
 PLACES = {
     "pond": "a quiet village pond (pukur) at night, old trees on the bank, a full moon reflected in the dark water, a "
             "muddy bank with grass in the foreground",

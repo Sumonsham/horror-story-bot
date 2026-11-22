@@ -137,6 +137,9 @@ class Scene:
                     lin = _travel((t - a["t0"]) / dur, dur)
                     x = x0 + (a["to_x"] - x0) * lin
                     stride = STRIDE[typ] * cdef.get("scale", 1.0)  # one step (thigh swing) -> distance: feet never slide
+                    own = getattr(self.chars.get(cid), "step_length", None)   # (a 2.5D puppet: ITS legs' own step;
+                    if own:                                                    #  the code-drawn rig keeps 118 / 190)
+                        stride = own(typ)
                     move = (typ, abs(x - x0) / stride * math.pi)
                     facing = -1.0 if a["to_x"] < x0 else 1.0
                     yaw = facing
@@ -271,6 +274,8 @@ class Scene:
         st["pose"] = pose
         if move is not None:
             st["pose"] = (rig.run_pose if move[0] == "run" else rig.walk_pose)(move[1])
+            if move[0] == "walk":
+                st["walk_phase"] = move[1]                 # (a 2.5D puppet steps with its own feet; the code rig ignores it)
             st["pose"]["torso"] += 2.0 * math.sin(2 * move[1])        # the body sways a little with each step
             st["head_pitch"] = 2.0 * math.sin(2 * move[1] + 0.6)      # the head bobs (it lags the body)
             if st_extra["lantern"] is not None:

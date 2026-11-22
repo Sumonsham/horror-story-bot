@@ -38,8 +38,10 @@ def body(rgba, rig, problems):
         p.append(f"body shape {h / w:.2f} (height/width) is not a standing person")
     if h / rgba.shape[0] < 0.55:
         p.append("the figure is too small in the picture")
-    if res["touches_border"] > 0.02:
+    if res["touches_border"] > 0.002:                     # (even a little: a cut hand or foot is a missing body part)
         p.append("the figure is cut by the picture edge")
+    if ys.min() < 0.015 * rgba.shape[0] or ys.max() > rgba.shape[0] * 0.99 or xs.min() < 3 or xs.max() > rgba.shape[1] - 4:
+        p.append("no empty margin round the figure (head, hands or feet at the edge)")
     if rig:
         need = [k for k in PARTS if not (rig.get("no_legs") and k.startswith(("thigh", "shin")))]
         if rig.get("no_legs"):
@@ -176,8 +178,10 @@ def reference(rgba):
         p.append(f"body shape {h / w:.2f} (height/width) is not a standing person")
     if h / rgba.shape[0] < 0.55:
         p.append("the figure is too small in the picture")
-    if res["touches_border"] > 0.02:
+    if res["touches_border"] > 0.002:                     # (even a little: a cut hand or foot is a missing body part)
         p.append("the figure is cut by the picture edge")
+    if ys.min() < 0.015 * rgba.shape[0] or ys.max() > rgba.shape[0] * 0.99 or xs.min() < 3 or xs.max() > rgba.shape[1] - 4:
+        p.append("no empty margin round the figure (head, hands or feet at the edge)")
     import cv2
     n, _, st, _ = cv2.connectedComponentsWithStats(m.astype(np.uint8), 8)
     big = sorted(st[1:, cv2.CC_STAT_AREA], reverse=True)
@@ -225,3 +229,38 @@ def part(rgba, kind, ref_rgba=None, M=None, wide=False, ghost=False):
     res["problems"] = p
     res["pass"] = not p
     return res
+
+
+SEATS = ("log", "stool", "bench", "chowki", "chair", "khat")
+
+
+def seat_rule(plan, reach=90.0):
+    """a 2.5D (cut-out) character SITS only on a seat that is in the scene (a bench, stool, log, chowki...). Without a
+    seat under it the sitting is NOT drawn: it stands (and the change is reported). The code-drawn characters keep
+    their old behaviour (this rule touches only characters with cut-out parts)."""
+    notes = []
+    props = plan.get("props") or []
+    acts = plan.get("actions") or []
+    for c in plan.get("characters") or []:
+        if not (c.get("design") or {}).get("cutout"):
+            continue
+        cid = c["id"]
+        sits = str(c.get("start_pose", "stand")).startswith("sit") or any(
+            a.get("who") == cid and (a.get("type") == "sit_down" or str(a.get("pose") or "").startswith("sit")) for a in acts)
+        if not sits:
+            continue
+        if any(p.get("type") in SEATS and abs(float(p.get("x", -1e9)) - float(c.get("x", 0))) <= reach for p in props):
+            continue
+        c["start_pose"] = "stand"
+        kept = []
+        for a in acts:
+            if a.get("who") == cid and a.get("type") in ("sit_down", "stand_up"):
+                continue
+            if a.get("who") == cid and str(a.get("pose") or "").startswith("sit"):
+                a = dict(a)
+                a.pop("pose", None)
+            kept.append(a)
+        acts = kept
+        notes.append(f"{cid}: no seat in the scene - stands instead of sitting (a 2.5D character never sits on nothing)")
+    plan["actions"] = acts
+    return notes

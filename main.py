@@ -6067,6 +6067,58 @@ def art_test_run():
     return rep
 
 
+def char_sheet_run():
+    """ORIGINAL 2D character sheets for Hari, Saraswati and Kishori (Cloudflare only, the existing reference given):
+    front A-pose, true side, standing, sitting, talking, pointing, 4 walking drawings + the cut body parts - one
+    approval page per character + a walking video to your Telegram. Nothing is posted. Nothing is approved
+    automatically: you look at the pages first."""
+    import char_sheet
+    if CF_QUOTA_OUT:
+        _tg_text("⚠️ character sheet: Cloudflare-এর আজকের ফ্রি সীমা শেষ - কাল আবার চালান।")
+        return None
+    rep = char_sheet.run(_cutout_image, log=log, budget=int(env("ART_MAX_IMAGES") or 45))
+    lines = [f"🎨 চরিত্রের ছবি (অনুমোদনের জন্য) - কিছু প্রকাশ হয়নি। নতুন ছবি: {rep['made']}"
+             + (" (ফ্রি সীমায় থেমেছে - বাকিটা পরের বার)" if rep["paused"] else "")]
+    for n, r in rep["characters"].items():
+        ok = sum(1 for v in r["drawings"].values() if v.get("status") == "passed")
+        lines.append(f"• {n}: {ok}/{len(char_sheet.VIEWS)} ছবি স্বয়ংক্রিয় পরীক্ষায় টিকেছে - "
+                     + ("2D cut-out চলতে পারে" if str(r.get("suggestion", "")).startswith("2D CUT-OUT")
+                        else "সম্পূর্ণ-ভঙ্গির 2D অ্যানিমেশন লাগবে" if str(r.get("suggestion", "")).startswith("FULL-POSE")
+                        else "এখনো ঠিক হয়নি") + " (প্রস্তাব মাত্র)")
+    if rep.get("blocker"):
+        lines.append(f"⛔ থেমেছে: {rep['blocker'][:150]}")
+    lines.append("আপনার চোখে দেখে অনুমোদন না দেওয়া পর্যন্ত কোনো চরিত্র ব্যবহার হবে না।")
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    try:
+        if tok and chat:
+            _tg_text("\n".join(lines))
+            for pg in rep["pages"]:
+                if pg and os.path.exists(pg):
+                    with open(pg, "rb") as f:
+                        requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat,
+                                      "caption": os.path.basename(pg)}, files={"document": (os.path.basename(pg), f, "image/jpeg")},
+                                      timeout=180)
+            for z in rep.get("zips", []):                 # every generated picture, as files
+                if z and os.path.exists(z) and os.path.getsize(z) < 48_000_000:
+                    with open(z, "rb") as f:
+                        requests.post(f"https://api.telegram.org/bot{tok}/sendDocument", data={"chat_id": chat,
+                                      "caption": os.path.basename(z)}, files={"document": (os.path.basename(z), f, "application/zip")},
+                                      timeout=300)
+            for v in rep["videos"]:
+                if v and os.path.exists(v):
+                    with open(v, "rb") as f:
+                        requests.post(f"https://api.telegram.org/bot{tok}/sendVideo", data={"chat_id": chat,
+                                      "caption": os.path.basename(v)}, files={"video": (os.path.basename(v), f, "video/mp4")},
+                                      timeout=300)
+    except Exception as e:
+        log("  character sheets not sent to Telegram:", str(e)[:120])
+    try:                                              # the drawings are kept (never made twice)
+        push_now([os.path.join(HERE, "assets", "cartoon_parts")], "character sheets")
+    except Exception:
+        pass
+    return rep
+
+
 def story_test_run():
     """V1.1: the story test (3 scenes from the real voice samples) with the three assistants - Gemini reads the
     lines when the key is there; the video + the Bengali match report go to your Telegram. Nothing is posted."""
@@ -12723,6 +12775,8 @@ def main():
     # a test answers nobody and posts nothing
     if env("MODE") == "art_test":                    # 2.5D: real AI character parts + background, cut + animated
         return art_test_run()
+    if env("MODE") == "char_sheet":                  # original 2D character sheets for YOUR approval (nothing posted)
+        return char_sheet_run()
     if env("MODE") == "full_test":                   # a WHOLE story video with the cartoon engine - nothing posted
         DRY_RUN = True
         os.environ["DRY_RUN"] = "1"

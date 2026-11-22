@@ -105,6 +105,8 @@ def engine_clip(scene, beats, audio, out, story_chars, W=1280, H=720, fps=25, ll
             plan["environment"].update(plate=os.path.join(art.root, pr["file"]), sky_parallax=0.75, dust=40 if loc["location"] == "house_interior" else 0, trees=[],
                                        bank_grass=0, clouds=2)
     import asset_qa                                        # BEFORE rendering: nobody the scene needs is missing
+    for n_ in asset_qa.seat_rule(plan):                    # (2.5D characters only: no sitting without a seat)
+        log("  " + n_)
     needed = {l["speaker"] for l in lines if l["speaker"] != "narrator"} | {l["listener"] for l in lines if l.get("listener")} | \
         {o["who"] for o in match["ops"] if o.get("who")}
     sq = asset_qa.scene(plan, {c["id"] for c in scast}, needed, {})

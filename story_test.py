@@ -293,6 +293,10 @@ def build_scene(sd, W, H, fps, llm=None, log=print, cast_all=None, art=None):
         pr = art.index["plates"].get(loc["location"], {})
         if pr.get("status") == "ready" and not plan.get("door"):
             plan["environment"].update(plate=os.path.join(art.root, pr["file"]), sky_parallax=0.75, dust=40 if loc["location"] == "house_interior" else 0, trees=[], bank_grass=0, clouds=2)
+    if art is not None:
+        import asset_qa
+        for n_ in asset_qa.seat_rule(plan):                # (2.5D characters only: no sitting without a seat)
+            log("  " + n_)
     plan["_clip_t0"] = {l["clip"]: l["t0"] for l in lines}
     audio = scene_audio(plan, clips, os.path.join(OUT, f"scene_{sd['id']}.wav"))
     video = os.path.join(OUT, f"scene_{sd['id']}.mp4")

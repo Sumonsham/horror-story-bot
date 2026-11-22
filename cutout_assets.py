@@ -70,8 +70,9 @@ def _decode(raw):
 
 
 # ====================================================================== background removal
-def key_out(bgr, tol=34.0):
-    """plain studio background -> alpha: the colour of the border is the background; only the big figure stays"""
+def key_out(bgr, tol=34.0, keep_all=False):
+    """plain studio background -> alpha: the colour of the border is the background; only the big figure stays
+    (keep_all: every sizeable figure stays - the 4 frames of a walk sheet, a stool under a sitting character)"""
     a = bgr.astype(np.float32)
     border = np.concatenate([a[:5].reshape(-1, 3), a[-5:].reshape(-1, 3), a[:, :5].reshape(-1, 3), a[:, -5:].reshape(-1, 3)])
     bg = np.median(border, axis=0)
@@ -83,6 +84,8 @@ def key_out(bgr, tol=34.0):
     if n > 1:
         big = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
         keep = (lab == big).astype(np.uint8)
+        if keep_all:
+            keep = np.isin(lab, [i for i in range(1, n) if stats[i, cv2.CC_STAT_AREA] >= 0.01 * stats[big, cv2.CC_STAT_AREA]]).astype(np.uint8)
         holes = cv2.morphologyEx(keep, cv2.MORPH_CLOSE, np.ones((15, 15), np.uint8))   # fill small holes inside
         alpha = np.maximum(alpha * cv2.dilate(keep, np.ones((5, 5), np.uint8)), holes * (alpha > 0.15))
     alpha = cv2.GaussianBlur(alpha.astype(np.float32), (0, 0), 0.8)
@@ -362,6 +365,17 @@ def face_marks(rgba, view):
             "skin": skin, "found_face": bool(box), "neck": (float((left + right) / 2), float(bot))}
 
 
+def save_ref_head(d, rig):
+    """the puppet's own head (cut from the reference) + its face landmarks, for blinking and talking"""
+    hp = rig["parts"]["head"]
+    spr = hp["sprite"]
+    marks = face_marks(spr, "three_q")
+    marks["neck"] = (float(hp["pivot"][0]), float(hp["pivot"][1]))
+    _atomic(os.path.join(d, "head_ref.png"), _png(spr))
+    _atomic(os.path.join(d, "head_ref.json"), json.dumps(marks))
+    return marks
+
+
 # ====================================================================== registry
 class Registry:
     def __init__(self, root):
@@ -386,8 +400,10 @@ class Registry:
         return d
 
     def ready(self, key):
+        """ready = its puppet PASSED the assembled check with the current builder (an older 'ready' does not count)"""
+        import puppet_builder as PB
         r = self.index["characters"].get(key)
-        return bool(r and r.get("status") == "ready")
+        return bool(r and r.get("status") == "ready" and r.get("builder") == PB.VERSION)
 
 
 # ====================================================================== making the assets
@@ -418,9 +434,9 @@ class Maker:
     PART_SIZE = {"torso": (576, 640), "arm": (384, 1024), "legs": (576, 768), "skirt": (576, 896), "pallu": (384, 896),
                  "hair_back": (448, 768)}
 
-    def _try(self, idx, rec, name, prompt, ref, seed, w, h, check, log_name):
+    def _try(self, idx, rec, name, prompt, ref, seed, w, h, check, log_name, retries=None):
         """one picture with its check and limited retries; returns the keyed RGBA that passed, or None"""
-        for att in range(self.retries + 1):
+        for att in range((self.retries if retries is None else retries) + 1):
             idx["attempts"][name] = idx["attempts"].get(name, 0) + 1
             img = self._pic(prompt, ref, seed + 101 * att, w, h)
             rgba = key_out(img)
@@ -433,98 +449,94 @@ class Maker:
                      + (" - again" if att < self.retries else ""))
         return None, None
 
+    MAX_REF_TRIES_PER_RUN = 3                              # new reference pictures for ONE character in one run
+    MAX_REF_TRIES = 6                                      # ... and in all (then it stays failed until its look changes)
+
     def character(self, rec):
-        """make (or finish) one character: the full-body REFERENCE, the separate torso / arm / legs pieces, the heads;
-        then the puppet is REBUILT from the pieces (or, if a piece failed, cut from the reference as before)"""
+        """make (or finish, or re-check) one character.
+        1) the full-body A-pose REFERENCE (one Cloudflare picture) - reused whenever it is still good
+        2) the puppet is cut from it (puppet_builder: head, torso, both arms, both legs / the cloth, round joints)
+        3) the MANDATORY assembled check (assembly_qa): the puppet drawn in 7 poses - only a pass makes it READY.
+        A failed check never becomes ready: the reason, the pose pictures and the rejected reference are kept, and
+        the only part that can be wrong - the reference - is drawn again (limited, so the free limit is not wasted).
+        (The separate piece / head pictures of the first version are no longer made: the real test showed that the
+        image model draws the whole person again instead of one piece, and changes the face between head views.)"""
+        import asset_plan
+        import assembly_qa as AQ
+        import cutout_rig as CR
+        import puppet_builder as PB
         key = char_key(rec)
         idx = self.reg.index["characters"].setdefault(key, {"name": rec.get("name"), "look": rec.get("look", "")[:600],
                                                             "ghost": bool((rec.get("design") or {}).get("ghost")),
                                                             "status": "pending", "files": {}, "qa": {}, "attempts": {}})
-        if idx.get("status") == "ready":
+        if idx.get("status") == "ready" and idx.get("builder") == PB.VERSION:
             return idx
-        if idx.get("status") == "failed" and idx["attempts"].get("body", 0) >= 6:
-            idx["note"] = "6 pictures failed the check - this character stays code-drawn until its look is changed"
-            return idx                                     # never waste the free limit on the same failure every day
+        if idx.get("status") == "failed" and idx["attempts"].get("body", 0) >= self.MAX_REF_TRIES:
+            idx["note"] = (f"{self.MAX_REF_TRIES} reference pictures failed the check - this character is NOT ready "
+                           "(the story's look may need changing); see assembly.jpg / assembly.json")
+            return idx
         d = self.reg.char_dir(key)
         seed0 = int(key[:6], 16) % 100000
+        design = rec.get("design") or {}
+        plan = asset_plan.plan(design)
+        idx["plan"] = {k: plan[k] for k in ("archetype", "pieces", "child", "floats")}
+        tries = 0
         try:
-            if "body" not in idx["files"]:                 # 1) the full-body reference
-                img, rgba = self._try(idx, rec, "body", AD.character_prompt(rec), None, seed0, BODY_W, BODY_H, QA.reference,
-                                      "full-body picture")
-                if rgba is None:
-                    idx["status"] = "failed"
-                    return idx
-                _atomic(os.path.join(d, "body.png"), _png(rgba))
-                _atomic(os.path.join(d, "body_src.png"), _png(img))
-                idx["files"]["body"] = "body.png"
-            ref = os.path.join(d, "body_src.png")
-            body_rgba = cv2.imread(os.path.join(d, "body.png"), cv2.IMREAD_UNCHANGED)
-            import asset_plan
-            import consistency
-            import cutout_rebuild as RB
-            plan = asset_plan.plan(rec.get("design") or {})  # THIS character's pieces (saree, ghost, child ...)
-            idx["plan"] = {k: plan[k] for k in ("archetype", "pieces", "child", "floats")}
-            cut_rig, cut_probs = auto_rig(body_rgba)
-            M = RB.measure(body_rgba, cut_rig)
-            for part in plan["pieces"]:                    # 2) the separate pieces, each from the reference
-                if part in idx["files"] or idx["attempts"].get(part, 0) >= 6:
-                    continue
-                w, h = self.PART_SIZE[part]
-                img, rgba = self._try(idx, rec, part, AD.part_prompt(rec, part), ref, seed0 + 7 + len(part), w, h,
-                                      lambda x, p_=part: QA.part(x, p_, body_rgba, M, wide=plan["wide_sleeves"], ghost=idx["ghost"]),
-                                      f"{part} piece")
-                if rgba is not None:
-                    _atomic(os.path.join(d, f"piece_{part}.png"), _png(rgba))
-                    idx["files"][part] = f"piece_{part}.png"
-            for view in VIEWS:                             # 3) the heads, made from the reference
-                if view in idx["files"] or idx["attempts"].get(view, 0) >= 6:
-                    continue
-                master = cv2.imread(os.path.join(d, "head_three_q.png"), cv2.IMREAD_UNCHANGED) if "three_q" in idx["files"] else None
-                mm = json.load(open(os.path.join(d, "head_three_q.json"))) if master is not None else None
-
-                def hcheck(x, v=view, master=master, mm=mm):
-                    mk = face_marks(x, v) if (x[..., 3] > 127).sum() > 1500 else None
-                    q = QA.head(x, mk, body_rgba, v, ghost=idx["ghost"])
-                    if mk is not None:                     # the same face: skin, hair, colours vs the master head
-                        c = consistency.check_head(x, body_rgba, M, master if v != "three_q" else None, mk, mm, ghost=idx["ghost"])
-                        q["consistency"] = c["metrics"]
-                        q["problems"] = q["problems"] + c["problems"]
-                        q["pass"] = q["pass"] and not c["problems"]
-                    q["_marks"] = mk
-                    return q
-                img, rgba = self._try(idx, rec, view, AD.head_prompt(rec, view), ref, seed0 + 13 + len(view), HEAD_W, HEAD_W,
-                                      hcheck, f"{view} head")
-                if rgba is not None:
-                    marks = idx["qa"][view].pop("_marks", None)
-                    _atomic(os.path.join(d, f"head_{view}.png"), _png(rgba))
-                    _atomic(os.path.join(d, f"head_{view}.json"), json.dumps(marks))
-                    idx["files"][view] = f"head_{view}.png"
-                else:
-                    idx["qa"].get(view, {}).pop("_marks", None)
-            # 4) the puppet: rebuilt from the pieces, else cut from the reference
-            rig, method = None, None
-            if all(p in idx["files"] for p in plan["pieces"]):
-                pieces = {p: cv2.imread(os.path.join(d, idx["files"][p]), cv2.IMREAD_UNCHANGED) for p in plan["pieces"]}
-                r_, probs = RB.rebuild(body_rgba, cut_rig, pieces, plan)
-                qa = QA.body(body_rgba, r_, probs)
-                idx["qa"]["rig_rebuilt"] = qa
-                if qa["pass"]:
-                    rig, method = r_, "rebuilt"
-            if rig is None:
-                qa = QA.body(body_rgba, cut_rig, cut_probs)
-                idx["qa"]["rig_cut"] = qa
-                if qa["pass"]:
-                    rig, method = cut_rig, "cut"
-            if rig is not None:
-                rig["method"] = method
-                self._save_rig(d, rig)
-                idx["rig_method"] = method
-            have = [v for v in VIEWS if v in idx["files"]]
-            if rig is not None and ("three_q" in have or "front" in have):
-                idx["status"] = "ready"
-            elif rig is None and all(p in idx["attempts"] for p in plan["pieces"]):
-                idx["status"] = "failed"
-            else:
+            while True:
+                if "body" not in idx["files"]:             # 1) a (new) reference picture
+                    if tries >= self.MAX_REF_TRIES_PER_RUN or idx["attempts"].get("body", 0) >= self.MAX_REF_TRIES:
+                        idx["status"] = "failed" if idx["attempts"].get("body", 0) >= self.MAX_REF_TRIES else "partial"
+                        break
+                    n_ = idx["attempts"].get("body", 0)
+                    img, rgba = self._try(idx, rec, "body", AD.character_prompt(rec), None, seed0 + 977 * n_,
+                                          BODY_W, BODY_H, QA.reference, "full-body picture", retries=0)
+                    tries += 1
+                    if rgba is None:
+                        continue
+                    _atomic(os.path.join(d, "body.png"), _png(rgba))
+                    _atomic(os.path.join(d, "body_src.png"), _png(img))
+                    idx["files"]["body"] = "body.png"
+                body_rgba = cv2.imread(os.path.join(d, "body.png"), cv2.IMREAD_UNCHANGED)
+                # 2) the puppet from the reference, 3) the assembled check
+                rig, probs, notes = PB.build(body_rgba, plan)
+                for f_ in ("rig.json",):                    # a rig is only on disk while it has PASSED
+                    if os.path.exists(os.path.join(d, f_)):
+                        os.remove(os.path.join(d, f_))
+                res = {"pass": False, "problems": list(probs), "poses": {}, "metrics": {}}
+                if rig is not None and not [p_ for p_ in probs if p_.startswith("missing body parts")]:
+                    self._save_rig(d, rig, name="rig_candidate.json")
+                    save_ref_head(d, rig)
+                    try:
+                        ch = CR.CutoutCharacter(rec.get("name", "x"), design, d, rig_file="rig_candidate.json")
+                        res = AQ.check(ch, body_rgba, probs, plan, out_dir=d)
+                    except Exception as e:                  # OUR error, not the picture's: the reference is kept,
+                        idx["status"] = "partial"            # the character is not ready, the error is reported
+                        idx["qa"]["assembly"] = {"pass": False, "problems": [f"internal error while checking the puppet: "
+                                                                             f"{type(e).__name__}: {str(e)[:160]}"]}
+                        self.log(f"    {rec.get('name')}: the puppet check could not run ({type(e).__name__}) - NOT ready, "
+                                 "reference kept")
+                        break
+                idx["builder"] = PB.VERSION
+                idx["qa"] = {"reference": idx["qa"].get("body", {}), "assembly": {k: res[k] for k in ("pass", "problems", "metrics")},
+                             "notes": {"problems": [], "notes": notes}}
+                self.reg.history({"char": rec.get("name"), "asset": "assembled puppet", "pass": res["pass"],
+                                  "problems": res["problems"][:8]})
+                if res["pass"]:
+                    rig["gate"] = "pass"
+                    self._save_rig(d, rig)                  # (rig.json = the checked puppet)
+                    idx["rig_method"] = "reference"
+                    idx["status"] = "ready"
+                    break
+                # failed: keep the evidence, draw the reference again
+                n_ = idx["attempts"].get("body", 0)
+                for src_, dst_ in (("body.png", f"rejected_{n_}_body.png"), ("body_src.png", f"rejected_{n_}_body_src.png"),
+                                   ("assembly.jpg", f"rejected_{n_}_assembly.jpg"), ("assembly.json", f"rejected_{n_}_assembly.json")):
+                    if os.path.exists(os.path.join(d, src_)):
+                        os.replace(os.path.join(d, src_), os.path.join(d, dst_))
+                idx["files"].pop("body", None)
+                idx.setdefault("rejected", []).append({"attempt": n_, "problems": res["problems"][:8]})
+                self.log(f"    {rec.get('name')}: the assembled puppet FAILED ({'; '.join(res['problems'][:2])}) - "
+                         "a new reference picture")
                 idx["status"] = "partial"
         except Paused as e:
             idx["status"] = "pending" if "body" not in idx["files"] else "partial"
@@ -536,13 +548,18 @@ class Maker:
         return idx
 
     @staticmethod
-    def _save_rig(d, rig):
-        meta = {k: v for k, v in rig.items() if k != "parts"}
+    def _save_rig(d, rig, name="rig.json"):
+        meta = {k: v for k, v in rig.items() if k not in ("parts", "props")}
         meta["parts"] = {}
-        for name, p in rig["parts"].items():
-            _atomic(os.path.join(d, f"part_{name}.png"), _png(p["sprite"]))
-            meta["parts"][name] = {"file": f"part_{name}.png", "pivot": list(p["pivot"]), "length": p["length"], "rest": p["rest"]}
-        _atomic(os.path.join(d, "rig.json"), json.dumps(meta, indent=1))
+        for pn, p in rig["parts"].items():
+            _atomic(os.path.join(d, f"part_{pn}.png"), _png(p["sprite"]))
+            meta["parts"][pn] = {"file": f"part_{pn}.png", "pivot": list(p["pivot"]), "length": p["length"], "rest": p["rest"],
+                                 "origin": list(p.get("origin", (0, 0)))}
+        meta["props"] = []
+        for i, pr in enumerate(rig.get("props") or []):       # props: separate layers, never body parts
+            _atomic(os.path.join(d, f"prop_{i}.png"), _png(pr["sprite"]))
+            meta["props"].append({"file": f"prop_{i}.png", **{k: v for k, v in pr.items() if k != "sprite"}})
+        _atomic(os.path.join(d, name), json.dumps(meta, indent=1, default=float))
 
     def plate(self, loc, weather=None):
         """one EMPTY illustrated background per place (reused for ever)"""
@@ -570,23 +587,31 @@ class Maker:
         return rec
 
 
+def status_of(registry, rec):
+    """the character's status - a 'ready' of an older, unchecked puppet does NOT count as ready"""
+    import puppet_builder as PB
+    idx = registry.index["characters"].get(char_key(rec), {})
+    st = idx.get("status", "pending")
+    if st == "ready" and idx.get("builder") != PB.VERSION:
+        return "needs re-check"
+    return st
+
+
 def ensure_cast(records, registry, image_fn, log=print, budget=30, places=()):
     """every character of the story (+ the places' plates): make what is missing. Returns a report."""
     mk = Maker(registry, image_fn, log=log, budget=budget)
     rep = {"characters": {}, "plates": {}, "paused": False, "made": 0}
-    for rec in records:
-        r = mk.character(rec)
-        rep["characters"][rec.get("name")] = {"key": char_key(rec), "status": r["status"],
+    for rec in records:                                    # (after a pause every character is still RE-CHECKED from the
+        r = mk.character(rec)                              # pictures it already has - that costs nothing; only new
+        rep["characters"][rec.get("name")] = {"key": char_key(rec), "status": r["status"],   # pictures wait)
                                               "problems": [p for q in r.get("qa", {}).values() for p in q.get("problems", [])][:6]}
-        if mk.paused:
-            break
     for loc, w in places:
         if mk.paused:
             break
         r = mk.plate(loc, w)
         rep["plates"][loc] = r.get("status")
     for rec in records:                                    # what was not reached is reported, never hidden
-        rep["characters"].setdefault(rec.get("name"), {"key": char_key(rec), "status": registry.index["characters"].get(
-            char_key(rec), {}).get("status", "pending"), "problems": ["not reached this run (paused)"]})
+        rep["characters"].setdefault(rec.get("name"), {"key": char_key(rec), "status": status_of(registry, rec),
+                                                       "problems": ["not reached this run (paused)"]})
     rep["paused"], rep["made"] = mk.paused, mk.made
     return rep
