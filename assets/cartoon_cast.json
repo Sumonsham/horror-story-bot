@@ -622,5 +622,402 @@
    "missing_fields": [],
    "complete": false
   }
+ },
+ "cac014cd877a": {
+  "name": "Animesh",
+  "look": "Investigative journalist in his late 30s, sharp intelligent face, short black hair, wearing spectacles, beige raincoat over a cotton shirt, holding a diary and metallic flashlight.",
+  "design": {
+   "skin": [
+    98,
+    136,
+    182
+   ],
+   "skin_dark": [
+    70,
+    100,
+    138
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    150,
+    96,
+    52
+   ],
+   "shirt_dark": [
+    112,
+    70,
+    38
+   ],
+   "lower": [
+    60,
+    70,
+    82
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "glasses": [
+    30,
+    30,
+    34
+   ],
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "hair colour: black",
+   "glasses",
+   "shirt",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "sharp intelligent face",
+    "short black hair",
+    "wearing spectacles",
+    "beige raincoat over a cotton shirt",
+    "metallic flashlight"
+   ],
+   "not_drawn": [
+    "holding a diary"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "7393a2abe903": {
+  "name": "Sukumar",
+  "look": "Villager groom in his late 20s, dark wheatish skin, anxious brown eyes, wearing a traditional white kurta-dhoti soaked in rain, gripping boat ropes with trembling hands.",
+  "design": {
+   "skin": [
+    98,
+    136,
+    182
+   ],
+   "skin_dark": [
+    76,
+    106,
+    141
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    228,
+    230,
+    232
+   ],
+   "shirt_dark": [
+    177,
+    179,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "hem": 52,
+   "sleeve": "long",
+   "dhoti": true
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "skin: 'wheat'",
+   "kurta",
+   "dhoti"
+  ],
+  "source": "offline-rules",
+  "audit": {
+   "drawn": [
+    "dark wheatish skin",
+    "anxious brown eyes",
+    "wearing a traditional white kurta-dhoti soaked in rain"
+   ],
+   "not_drawn": [
+    "gripping boat ropes",
+    "trembling hands"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "e9cd39112216": {
+  "name": "Piyali",
+  "look": "23-year-old bride, pale fair face with intense wide fearful eyes, wearing a heavy red Benarasi silk saree, silver nose ring, and traditional vermilion on her forehead.",
+  "design": {
+   "skin": [
+    125,
+    165,
+    212
+   ],
+   "skin_dark": [
+    97,
+    128,
+    165
+   ],
+   "hair": [
+    18,
+    18,
+    22
+   ],
+   "hair_style": "bun",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    40,
+    40,
+    180
+   ],
+   "shirt_dark": [
+    31,
+    31,
+    140
+   ],
+   "lower": [
+    40,
+    40,
+    180
+   ],
+   "shawl": [
+    70,
+    120,
+    190
+   ],
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.94,
+   "build": 0.9,
+   "sari": true,
+   "tilak": [
+    30,
+    30,
+    190
+   ]
+  },
+  "evidence": [
+   "মহিলা, তরুণ",
+   "skin: 'fair'",
+   "tilak / sindoor",
+   "saree (রং লেখা আছে)",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "pale fair face",
+    "intense wide fearful eyes",
+    "wearing a heavy red Benarasi silk saree",
+    "traditional vermilion on her forehead"
+   ],
+   "not_drawn": [
+    "23-year-old bride",
+    "silver nose ring"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "bf8e20f8beca": {
+  "name": "Brojonath",
+  "look": "50-year-old veteran boatman, deeply weathered dark skin, grey beard, piercing dark eyes, wearing a faded blue loincloth and coarse towel wrapped over shoulders, wrinkled face momentarily turned pale as moss",
+  "design": {
+   "skin": [
+    64,
+    94,
+    132
+   ],
+   "skin_dark": [
+    49,
+    73,
+    102
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    150,
+    154,
+    160
+   ],
+   "moustache": null,
+   "shirt": [
+    130,
+    132,
+    136
+   ],
+   "shirt_dark": [
+    101,
+    102,
+    106
+   ],
+   "lower": [
+    150,
+    96,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "beard_len": "short",
+   "sleeve": "none",
+   "hem": 8,
+   "dhoti": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "skin: 'dark skin'",
+   "beard: 'grey beard'",
+   "bare upper body",
+   "dhoti",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "deeply weathered dark skin",
+    "grey beard",
+    "piercing dark eyes",
+    "wearing a faded blue loincloth",
+    "wrinkled face momentarily turned pale as moss"
+   ],
+   "not_drawn": [
+    "50-year-old veteran boatman",
+    "coarse towel wrapped over shoulders"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "bb4c09650166": {
+  "name": "Kalnagini",
+  "look": "Spectral bride from 50 years ago, ultra-pale icy skin, pitch-black hollow eyes glowing faintly, matted wet black hair, tattered blood-stained red bridal attire.",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    156,
+    164,
+    171
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "topknot",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    40,
+    40,
+    180
+   ],
+   "shirt_dark": [
+    31,
+    31,
+    140
+   ],
+   "lower": [
+    40,
+    40,
+    180
+   ],
+   "shawl": [
+    70,
+    120,
+    190
+   ],
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.94,
+   "build": 0.9,
+   "sari": true,
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "pale": true,
+   "mist": true
+  },
+  "evidence": [
+   "মহিলা, প্রাপ্তবয়স্ক",
+   "skin: 'pale'",
+   "hair: matted, tied on top",
+   "hair colour: black",
+   "ghost: see-through, floating, glowing eyes",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "ultra-pale icy skin",
+    "pitch-black hollow eyes glowing faintly",
+    "matted wet black hair"
+   ],
+   "not_drawn": [
+    "tattered blood-stained red bridal attire"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
  }
 }
