@@ -1,0 +1,33 @@
+{
+ "why": "the hidden top of each trouser leg showed as a dark sliver at the waist in the walk",
+ "legs": {
+  "leg_r": {
+   "xl": 206,
+   "xr": 298,
+   "own_bgr": [
+    127,
+    125,
+    124
+   ],
+   "rows": [
+    598,
+    645
+   ],
+   "changed_pixels": 26746
+  },
+  "leg_l": {
+   "xl": 297,
+   "xr": 372,
+   "own_bgr": [
+    127,
+    126,
+    126
+   ],
+   "rows": [
+    598,
+    645
+   ],
+   "changed_pixels": 26822
+  }
+ }
+}
