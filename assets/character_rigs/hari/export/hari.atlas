@@ -1,0 +1,27 @@
+hari.png
+size: 512, 1024
+filter: Linear, Linear
+arm_l
+bounds: 134, 354, 103, 248
+arm_r
+bounds: 2, 354, 130, 263
+foot_l
+bounds: 2, 723, 128, 65
+foot_r
+bounds: 341, 619, 75, 85
+hand_l
+bounds: 69, 619, 86, 89
+hand_r
+bounds: 403, 354, 78, 112
+head
+bounds: 239, 354, 162, 206
+leg_l
+bounds: 321, 2, 86, 315
+leg_r
+bounds: 199, 2, 120, 325
+neck
+bounds: 2, 619, 65, 102
+pelvis
+bounds: 157, 619, 182, 86
+torso
+bounds: 2, 2, 195, 350
