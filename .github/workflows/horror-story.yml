@@ -10,7 +10,7 @@ on:
         required: false
         default: ""
       mode:
-        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted)."
+        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted)."
         required: false
         default: ""
   # V8 backup clock: ONLY if the cron-job.org start did not come. 75 minutes after the 2 PM and 8 PM story starts
@@ -264,6 +264,7 @@ jobs:
             work/art_test/art_sheet.jpg
             work/art_test/art_poses.jpg
             work/art_test/art_report.json
+            work/char_sheet/**
             work/story_test/story_test.mp4
             work/story_test/story_report.json
             work/story_test/story_match_report.md
