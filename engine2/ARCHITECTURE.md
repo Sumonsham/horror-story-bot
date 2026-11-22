@@ -1,6 +1,6 @@
 # Engine 2: architecture, audit and migration plan
 
-Status: **Stages 1 and 2 are implemented. Stages 3 to 12 are not started.** Nothing in engine 2 is used by production. `ART_MODE` stays off. Nothing is published.
+Status (updated): **Stages 1 and 2 are implemented. Stage 3 (hybrid) is implemented as code and previewed on the real ORIGINAL references (NOT approved). Stages 4, 5, 7 and 8 are partly done (see the table). Stage 9 onward needs Cloudflare drawings and the owner's approval.** Nothing in engine 2 is used by production. `ART_MODE` stays off. Nothing is published.
 
 ## Stage 1: repository audit (22 Nov 2026, from the live repository)
 
@@ -101,26 +101,23 @@ assets/character_library/
 - `character=Hari` limits a run to one character.
 - After each run the library is synced.
 
-## Stages 3 to 12: plan (not started; each needs real artwork and the owner's approval)
+## Stages 3 to 12: status
 
-| Stage | Needs | Gate |
+| Stage | Done | Still missing (honestly) |
 |---|---|---|
-| 3. Rig and both methods | Hari's char_sheet pictures (real) | The owner approves Hari v1 and chooses `cutout` or `full_pose` |
-| 4. Lip-sync and expressions | Approved face; expression drawings (happy, sad, angry, surprised, laughing, crying) made once | Visual review |
-| 5. Scene and camera | Existing `cinematic_camera`, `environment_animation`, `location_library` reused | Visual review |
-| 6. Story to video | Stages 3 to 5 | A dry-run video, not published |
-| 7. QA and approval workflow | Partly done here (statuses, integrity, approvals file) | — |
-| 8. Actions and Telegram | Partly done (`library_sync`, `char_sheet`) | — |
-| 9. Hari visual test | Cloudflare quota in the 5:30 to 7:00 AM IST window | The owner |
-| 10. Saraswati and Kishori | After Hari | The owner |
-| 11. The others | After 10 | The owner |
-| 12. Full-story test | All of the above | Not published |
+| 3. Hybrid animation | `engine2/hybrid.py`: method A (cut-out, `cutout_rig`) and method B (`engine2/fullpose.py`, complete drawings: stand, talk, point, sit, 4-frame walk). Per-frame choice: complex actions use the drawings, the rest the rig. An action table reports what is MISSING. | Approved assets. Drawings for running, falling, fighting, waving, namaste and fear do not exist yet. |
+| 4. Facial | Mouth from the real audio (`lip_sync`, amplitude-based visemes: a documented approximation, not Bengali phonemes). Blinking on the character's own face. | All expressions except neutral (each needs its own approved drawing). |
+| 5. Scene and camera | The existing scene engine is reused: backgrounds, layered environment, fog, dust, flicker, the camera (wide, medium, close, pans, focus on speaker), and the seat rule. | Reusable approved painted backgrounds (plates) for every location. |
+| 6. Story integration | The existing pipeline: story lines → the three assistants → scene planner → renderer, with hybrid characters (in `hybrid_test`). | Production integration behind `HYBRID_2D_MODE` (not added: nothing is approved). |
+| 7. Rendering | 1280×720, 24 fps, H.264 yuv420p, AAC (the existing renderer + mux). Per-shot chunks with a cache key. | Subtitles; a whole-story resume across runs. |
+| 8. QA | `engine2/videoqa.py` (resolution, fps, codecs, audio/picture length, black frames), the assembled gate, the library integrity check. | Visual QA = the owner. |
+| 9 to 12 | `hybrid_test` mode (Telegram + artifacts). | Hari's char_sheet drawings, then the owner's approval, then Saraswati and Kishori, then a full story test (not published). |
 
 ## Rollback
 
 Engine 2 is read by no production path. To remove it:
 1. Delete the `engine2/` folder.
-2. Delete the two functions `char_sheet_run` / `library_sync_run` and their two `MODE` lines in `main.py`.
+2. Delete the functions `char_sheet_run`, `library_sync_run` and `hybrid_test_run` and their `MODE` lines in `main.py`, and the `elif d.get("hybrid")` branch in `animation_renderer.py`.
 3. Remove `assets/character_library` from the workflow's commit list.
 
 `ANIM_MODE`, `ART_MODE` and every production route behave exactly as before. The library data (`assets/character_library/`) can be kept; nothing reads it.
