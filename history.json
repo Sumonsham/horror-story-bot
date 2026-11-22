@@ -5193,19 +5193,19 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-21T13:43+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 0,
+   "at": "2026-11-22T06:36+00:00",
+   "thumb": true
   }
  },
  {
   "date": "2026-11-21T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-21@14",
-  "pending_comments": [
-   {
-    "id": "1128143426779817",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2389080578162541",
-    "after": 1795322100.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": null,
@@ -5328,7 +5328,17 @@
   },
   "hook_style": "voice",
   "district": "kolkata",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-21-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-21-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 2,
+   "length_s": 1349,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-22T06:36+00:00"
+  }
  },
  {
   "date": "2026-11-21T14:32+00:00",
@@ -5459,5 +5469,154 @@
   "tagline": "চার নম্বর লিভারটা কখনো টানবি না...",
   "district": "purulia",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-21-20.mp4"
+ },
+ {
+  "date": "2026-11-22T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-22@14",
+  "pending_comments": [
+   {
+    "id": "1146181867807308",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1174243018279410"
+   },
+   {
+    "id": "1794693585145979",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1174243018279410",
+    "after": 1795408500.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A group of friends taking a winter midnight shortcut past an abandoned rural slaughterhouse guarded by a headless entity.",
+  "len_arm": null,
+  "listener_score": 5.0,
+  "fresh": {
+   "opening": "a song or lullaby nobody should know",
+   "telling": "third-person radio drama",
+   "ghost": "a ghost who only wants to be remembered",
+   "twist": "the curse was a promise never kept",
+   "setting": "a new high-rise flat",
+   "fear": "a family secret coming out",
+   "details": [
+    "a heavy melamine plate holding a single cold boiled potato stamped with an unfamiliar fami",
+    "the faint tearing sound of adhesive cello tape being slowly peeled off a freshly painted i",
+    "the unmistakable smell of damp cardboard boxes mixed with cheap cooling hair oil",
+    "the housing society rule requiring all residents to leave their flat keys inside the main ",
+    "a digital lift display that constantly flickers between floor twelve and a missing basemen"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_2.mp3",
+   "why": "entity, first, person, story",
+   "also": null
+  },
+  "discovery_id": "202611220100-x",
+  "story_class": "fiction",
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "sotti",
+  "question_post": null,
+  "title_b": "সপ্তর্ষি টাওয়ার্সের ১২বি ফ্ল্যাটে কারা ঢুকত মাঝরাতে? 🚪",
+  "theme": "A group of friends taking a winter midnight shortcut past an abandoned rural slaughterhouse guarded by a headless entity.",
+  "format": "third-person radio drama",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "বারো বি-র প্রেতশপথ | অভিশপ্ত ফ্ল্যাটের সেই রাত 😱",
+  "festival": null,
+  "summary": "রাজারহাটের নির্জন প্রান্তে সস্তায় ফ্ল্যাট কিনে মাঝরাতে গৃহপ্রবেশ করেছিল সুব্রত আর তুহিনা। কিন্তু বারো তলার বন্ধ দরজার ওপার থেকে ভেসে আসা দেশের বাড়ির সেই ঘুমপাড়ানি গান কার? জমির নিচে চাপা পড়া কোন সত্য তাদের তাড়া করছিল?",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1174243018279410",
+  "youtube": "DJlHksKfJPE",
+  "fb_reel": "1146181867807308",
+  "fb_story": "2279238645972778",
+  "fb_reel2": "1794693585145979",
+  "yt_short": "DwuyAAKhbm8",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1267,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     8,
+     "শুরু"
+    ],
+    [
+     16,
+     "1"
+    ],
+    [
+     119,
+     "2"
+    ],
+    [
+     188,
+     "3"
+    ],
+    [
+     266,
+     "4"
+    ],
+    [
+     356,
+     "5"
+    ],
+    [
+     442,
+     "6"
+    ],
+    [
+     523,
+     "7"
+    ],
+    [
+     590,
+     "8"
+    ],
+    [
+     686,
+     "অভিশপ্ত আইনি দলিল"
+    ],
+    [
+     772,
+     "জমে যাওয়া অন্ধকার"
+    ],
+    [
+     843,
+     "দেওয়ালের রহস্য"
+    ],
+    [
+     932,
+     "অদৃশ্য পদাঘাত"
+    ],
+    [
+     994,
+     "কবন্ধ ছায়ামূর্তি"
+    ],
+    [
+     1086,
+     "নবান্নের সমর্পণ"
+    ],
+    [
+     1167,
+     "ভোরের পলায়ন"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "n24",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-14.mp4"
  }
 ]
