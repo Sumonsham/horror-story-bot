@@ -6337,6 +6337,115 @@ def rig_test_run():
     return rep
 
 
+
+# ===================================================================================================== engine 2 MVP
+# Three more TEST modes (manual only, like rig_test): nothing is generated (no Cloudflare), nothing is published, no
+# history / schedule / website is changed. HYBRID_2D_MODE does not switch anything on - production never reads it.
+def _e2_send(lines, files=()):
+    tok, chat = env("TELEGRAM_BOT_TOKEN"), env("TELEGRAM_CHAT_ID")
+    if not (tok and chat):
+        return
+    try:
+        _tg_text("\n".join(lines))
+        for fp in files:
+            if fp and os.path.exists(fp) and os.path.getsize(fp) < 48_000_000:
+                kind = "video" if fp.endswith(".mp4") else "document"
+                with open(fp, "rb") as f:
+                    requests.post(f"https://api.telegram.org/bot{tok}/send{'Video' if kind == 'video' else 'Document'}",
+                                  data={"chat_id": chat, "caption": os.path.basename(fp)},
+                                  files={kind: (os.path.basename(fp), f)}, timeout=300)
+    except Exception as e:
+        log("  engine 2 report not sent to Telegram:", str(e)[:120])
+
+
+_E2_BN = {"A_rig": "rig", "A_rig_safe_range": "rig (হাত নিরাপদ সীমায়)", "B_complete_pose": "সম্পূর্ণ আঁকা ভঙ্গি",
+          "C_static_pose": "স্থির ছবি", "camera": "ক্যামেরা", "MISSING": "নেই"}
+
+
+def engine_audit_run():
+    """mode = engine_audit: what engine 2 has, what is approved, what each MVP action would use (preview and
+    production), the rig's safe arm range. Writes work/engine_audit/engine_audit.json."""
+    from engine2 import mvp
+    out = os.path.join(HERE, "work", "engine_audit")
+    os.makedirs(out, exist_ok=True)
+    rep = mvp.engine_audit()
+    fp = os.path.join(out, "engine_audit.json")
+    with open(fp, "w", encoding="utf-8") as f:
+        json.dump(rep, f, ensure_ascii=False, indent=1, default=str)
+    lines = ["🔍 Engine 2 audit - কিছু তৈরি বা প্রকাশ হয়নি। HYBRID_2D_MODE: " + str(rep["flag_HYBRID_2D_MODE"])]
+    for cid, c in rep["characters"].items():
+        lines.append(f"• {cid}: rig {'আছে' if c['rig'] else 'নেই'}, আঁকা ভঙ্গি {len(c['complete_poses'])}টা, "
+                     f"আপনার অনুমোদন: {c['owner_decision'] or 'এখনও নেই'}")
+        for d in c.get("decisions_preview") or []:
+            lines.append(f"   - {d['action']}: {_E2_BN.get(d['method'], d['method'])}")
+    _e2_send(lines, [fp])
+    return rep
+
+
+def asset_qa_run():
+    """mode = asset_qa: every complete pose drawing of the character checked against the ORIGINAL reference
+    (several identity measurements, one piece, not cut off) + cut-out sheet + 200 % / 400 % close-ups."""
+    from engine2 import mvp
+    cid = (env("RIG_CHARACTER") or "hari").strip().lower()
+    rep = mvp.asset_qa(cid)
+    out = os.path.join(HERE, "work", "asset_qa", cid)
+    lines = [f"🧪 Engine 2 asset পরীক্ষা: {cid} - কোনো ছবি তৈরি হয়নি, কিছু প্রকাশ হয়নি। পরীক্ষা অনুমোদন নয়।"]
+    for pid, r in rep["poses"].items():
+        lines.append(f"• {pid}: আগের পরীক্ষা {r['status']}, চেহারা-মিল {r['identity']['verdict']}"
+                     + (f" ({'; '.join(r['identity'].get('notes') or [])[:90]})" if r['identity'].get('notes') else ""))
+    _e2_send(lines, [os.path.join(out, "cutout_sheet.jpg"), os.path.join(out, "asset_qa_report.json")])
+    return rep
+
+
+def render_test_run():
+    """mode = render_test: a 60-second 1280x720 24 fps test video of Hari through the existing scene engine - the
+    ten MVP actions chosen by the hybrid decision engine, every frame marked TEST - NOT APPROVED. Missing poses are
+    shown neutral and reported, never drawn broken."""
+    from engine2 import mvp
+    try:                                                   # Rhubarb as in rig_test (mouth timing); else amplitude
+        import glob
+        import subprocess as sp_
+        if not os.environ.get("RHUBARB_BIN"):
+            tools = os.path.join(HERE, "work", "tools")
+            os.makedirs(tools, exist_ok=True)
+            if not glob.glob(os.path.join(tools, "Rhubarb*", "rhubarb")):
+                r = requests.get("https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.14.0/"
+                                 "Rhubarb-Lip-Sync-1.14.0-Linux.zip", timeout=120)
+                r.raise_for_status()
+                open(os.path.join(tools, "rh.zip"), "wb").write(r.content)
+                sp_.run(["unzip", "-q", "-o", os.path.join(tools, "rh.zip"), "-d", tools], check=True)
+            found = glob.glob(os.path.join(tools, "Rhubarb*", "rhubarb"))
+            if found:
+                os.chmod(found[0], 0o755)
+                os.environ["RHUBARB_BIN"] = found[0]
+    except Exception as e:
+        log("  rhubarb not available (amplitude lip-sync used instead):", str(e)[:120])
+    cid = (env("RIG_CHARACTER") or "hari").strip().lower()
+    rep = mvp.render_test(cid, log=log, preview=env("RENDER_PREVIEW") == "1")
+    extra = []
+    try:                                                   # the comparison sheets for your eyes
+        extra.append(mvp.scale_sheet(cid)[0])
+        extra.append(mvp.walk_closeup_sheet(cid))
+    except Exception as e:
+        log("  comparison sheets skipped:", str(e)[:120])
+    q = rep["checks"]["video_qa"]
+    ls = rep["checks"].get("lip_sync") or {}
+    lines = [f"🎬 Engine 2 render পরীক্ষা: {cid}, ৬০ সেকেন্ড - কোনো ছবি তৈরি হয়নি, কিছু প্রকাশ হয়নি।",
+             "ভিডিওতে কোনো লেখা নেই। কিন্তু কোনো ছবিই আপনার অনুমোদিত নয় - ফাইলের নামেই NOT_APPROVED লেখা।",
+             f"• ভিডিওর কারিগরি পরীক্ষা: {'✅' if q['pass'] else '❌ ' + '; '.join(q['problems'])}",
+             f"• ঠোঁট মেলানো: {'Rhubarb (ভাষা-নিরপেক্ষ, বাংলার নিজস্ব উচ্চারণ নয়)' if 'rhubarb' in str(ls.get('method')).lower() else 'শুধু আওয়াজের জোর দেখে (উচ্চারণ মেলানো নয়)'}",
+             "• প্রতিটা কাজ কীভাবে দেখানো হল:"]
+    for d in rep["decisions"]:
+        lines.append(f"   - {d['action']}: {_E2_BN.get(d['method'], d['method'])}")
+    if rep.get("missing_actions"):
+        lines.append("• ভিডিওতে রাখা হয়নি (ছবি নেই, আসল ভিডিওতেও বন্ধ): " + ", ".join(rep["missing_actions"]))
+    if rep.get("problems"):
+        lines.append("• সমস্যা: " + "; ".join(rep["problems"][:4]))
+    lines.append("কারিগরি পরীক্ষা শিল্পমানের অনুমোদন নয়। অনুমোদন শুধু আপনি দেবেন।")
+    _e2_send(lines, [rep["files"].get("video"), rep["files"].get("contact_sheet"),
+                     rep["files"].get("ground_shadow_comparison")] + extra)
+    return rep
+
 def library_sync_run():
     """ENGINE 2: the permanent Character Asset Library - brings every existing character asset in (no image is made,
     nothing is overwritten, nothing is approved), checks it technically, writes each manifest, reports to Telegram."""
@@ -13022,6 +13131,12 @@ def main():
         return rig_test_run()
     if env("MODE") == "pose_art":
         return pose_art_run()
+    if env("MODE") == "engine_audit":                # engine 2 MVP: audit snapshot (nothing made, nothing posted)
+        return engine_audit_run()
+    if env("MODE") == "asset_qa":                    # engine 2 MVP: identity / cut-out checks of the pose drawings
+        return asset_qa_run()
+    if env("MODE") == "render_test":                 # engine 2 MVP: 60-second 720p hybrid test video (not posted)
+        return render_test_run()
     if env("MODE") == "full_test":                   # a WHOLE story video with the cartoon engine - nothing posted
         DRY_RUN = True
         os.environ["DRY_RUN"] = "1"
