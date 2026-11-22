@@ -484,6 +484,491 @@
    "sources": [],
    "claim_kinds": null,
    "note": null
+  },
+  {
+   "id": "202611230100-x",
+   "at": "2026-11-23T01:00+00:00",
+   "slot": null,
+   "prefer": "mixed",
+   "queries": [
+    {
+     "source": "google_trends_rss",
+     "q": "geo=IN",
+     "n": 10,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "ভৌতিক ঘটনা",
+     "lang": "bn",
+     "n": 30,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "রহস্যময় ঘটনা পশ্চিমবঙ্গ",
+     "lang": "bn",
+     "n": 15,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "অলৌকিক ঘটনা গ্রাম",
+     "lang": "bn",
+     "n": 10,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "ভূতুড়ে বাড়ি",
+     "lang": "bn",
+     "n": 30,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "রহস্যজনক নিখোঁজ",
+     "lang": "bn",
+     "n": 23,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "haunted West Bengal",
+     "lang": "en",
+     "n": 30,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "mysterious incident Bengal villagers",
+     "lang": "en",
+     "n": 20,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "paranormal Kolkata",
+     "lang": "en",
+     "n": 22,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "haunted railway station India",
+     "lang": "en",
+     "n": 30,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "google_news_rss",
+     "q": "unexplained mystery India ghost",
+     "lang": "en",
+     "n": 30,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "wikipedia_en",
+     "q": "haunted places West Bengal",
+     "n": 8,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "wikipedia_en",
+     "q": "reportedly haunted India",
+     "n": 8,
+     "at": "2026-11-23T01:00+00:00"
+    },
+    {
+     "source": "wikipedia_bn",
+     "q": "ভূতুড়ে স্থান",
+     "n": 8,
+     "at": "2026-11-23T01:00+00:00"
+    }
+   ],
+   "pool_size": 141,
+   "candidates": [
+    {
+     "id": "7e0e44a1fe",
+     "kind": "news",
+     "title": "Bengali News: বড়পর্দায় সাহিত্যের গল্প, সঙ্গে ভৌতিক ছোঁয়া! ভূতপূর্ব-তে থাকছে কী কী চমক?",
+     "source": "ABP Ananda",
+     "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOaDJKUzNfbzdsVlFrRjZiU3hRYUpEOG53ZWV4M1BUaW1hVXJsOXl0ZUdlbG1fMzlRYmEtZHN5WXhzSlFwNDhjMG5EMkdZNks4d1VYX2pJUzRxc3hXR2w1c2kwM1VjYXNXMHV5OWtaX1VWME52WGk4ZThIa0R0VmJmSnFqUVRJdS1na1NVUXh4Sk85S2F1VGVkTG5oWmh3bEJJV0pIdXZmSWoxdTJaeXVxeFltQWd4Q29lRHhrVHh4T27SAcYBQVVfeXFMUGZHVWxES2RTcGxFamdjSm9zUnBpZEJkOWNDMlVZMGlkbU04ajgwdlF5dk5uTlU1UTZaazZBOE5oNHNtZ3pJQmJVdjNGNk5aME9fbTNPdzZZVGtBNDAwTzl2Y1ZXei1UTmM0QW5GdGJCSml5UE1EaDBOM3I2d2lhWmJ4cXZZU0g4Z2hjSGNBOE1ONFBSbFpHWTNSZXBNR2pVckY5ZVUzemhRejlaZjR0WlN5VDF4WEFtSld0ZFRhak0zM016czZB?oc=5",
+     "published": "Thu, 22 May 2025 07:00:00 GMT",
+     "query": "ভৌতিক ঘটনা",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 9,
+      "source": 8,
+      "originality": 10.0,
+      "narrative": 7,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 0.0,
+      "total": 5.5
+     },
+     "eligible": true,
+     "why": [],
+     "status": "rejected: নির্ভরযোগ্য তথ্য মেলেনি"
+    },
+    {
+     "id": "c21fb484a9",
+     "kind": "news",
+     "title": "কেনাকাটা করতে বেরিয়ে আর ফেরেনি বাড়ি, হাওড়ায় রহস্যজনক ভাবে নিখোঁজ রাজ্যস্তরের শুটার",
+     "source": "Ei Samay",
+     "link": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxOQ25NTmhNNFJLb1k0dlV0QVZOWWpPcV85bmNrZm0tVEZ6OTY3STVWdUE2Mi1DR1hLUmNsU29IT3ZVc1J0bU43LWxfVC1EbF9pRzdVU3QzVS12clViRVJkbHNLMVZyekdERTRzMUdEMzc0QmNtMFRvZEV5NXlidjNjaXFGYk9ldEY3UEtLX1J4TmV4Z0J1NnQwaTcycFRCbkxMNXIybXF1TkVtTnN0dFFOU0k3My1Sc0l1bUxsSVBHT2ItQXRCM3hxck9BOEQyZm9WVVpKY3BqRC00Y1FRbHpBVzZIT27SAfIBQVVfeXFMUGZvWVJvTHllSlBDUm50ZDZsRjQxaFV4LTFhcEppUUJDcjNDcWY1U2Q1ZXRKU1ZPS29aNmcwNHVwYmpFU3FpMU5PUDlxUzJlbnRPOHpveVV1UU9jQ21KdEtoUDg4Y1hOc2Q4RUt6WjA0ekk3QjAxNDQ5dVIyem1aQkNjZ0d0N0lUZFlOQlhFckVFNEFtUy1yX2lxWVFnRU92dHl4bkFhQmJ1VWpVd19pWkMzazh1cUxaZ0ZmTzdMZ1dHNFBLUE5yUnRGaHBxOWZhbTdkNlBWYlhZc3YtMlFnQWJoYTdkdC1XeHpHaEdqX2hVQWc?oc=5",
+     "published": "Thu, 16 Jul 2026 07:00:00 GMT",
+     "query": "রহস্যজনক নিখোঁজ",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 9,
+      "source": 8,
+      "originality": 10.0,
+      "narrative": 5,
+      "visual": 7,
+      "risk": 2,
+      "duplication": 0.0,
+      "total": 5.5
+     },
+     "eligible": true,
+     "why": [],
+     "status": "rejected: নির্ভরযোগ্য তথ্য মেলেনি"
+    },
+    {
+     "id": "5152894885",
+     "kind": "wiki",
+     "title": "আহসান মঞ্জিল",
+     "source": "Wikipedia",
+     "link": "https://bn.wikipedia.org/wiki/%E0%A6%86%E0%A6%B9%E0%A6%B8%E0%A6%BE%E0%A6%A8_%E0%A6%AE%E0%A6%9E%E0%A7%8D%E0%A6%9C%E0%A6%BF%E0%A6%B2",
+     "published": null,
+     "query": "ভূতুড়ে স্থান",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 9,
+      "source": 8,
+      "originality": 10.0,
+      "narrative": 5,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 0.0,
+      "total": 5.2
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "504705c3a3",
+     "kind": "news",
+     "title": "শিলিগুড়ি থানার উল্টোদিকে ‘ভূতের বাড়ি’ আজ শপিং মল",
+     "source": "Ei Samay",
+     "link": "https://news.google.com/rss/articles/CBMi_AFBVV95cUxNWDJiblJMd3laXzA4QW12S1FlbjdNSkh1TkJLMlpxMExaY1JELWQ1MEU5TlA1TVRsVU1pUHZXNmQ3eUNOVWl6OXJ5ck40UGtqcDBUUEY4UjJ4aXhQMHY0QzVHYUlkbG5CT2FlNXBvZnJuU0hlREo2c0VRY194WEk4UVBiS0VEVUxYc05ScXZWX3hUWmhORnFWM2oteVlzWXhJWWh1R0hmcy1tOUI3SThVRkNLSEZGM2ZUanJ1aHBsRnVHZ1dsRlFoNHN3NlU0VmlyUjVUUDBZVzI0TFNyRm9udE5tZDFCQkh0cTRtRGlGdFMyLTkyZ1l1RG52ZzTSAYoCQVVfeXFMTTlIdmRtR2ZHWmk3TUx1alF6cm5FOF9yRlRrd3lQOEZlM3QyQlBxcll3ZlpaMnRPazF2NEZ2eXNodGM0UWRDZzhWSHB2TW5SVUdSb0ZuaE9IdGxuUGt2OVA5NVFYeUdnb0syR0l3cDlxSjRyQmIxQ0hiMFZiYzhkWFlqbHdTM1hxeDQ1SkJuTFkyMmEydnpZRW1jM0hOcWhYSWFLdE81bV8yMGppWWhlTDVMMC1ISThMRTVkUTlMNmdiVHVoeWJXalNBZ1VleHREVklzV2tnbS1jclZ3RkhSQTJzVEhnOWJnbU84enFkN0Y2S0NPV2JWaEtjT2Y1OXo0dEJ4UGxLTVdjR2c?oc=5",
+     "published": "Sun, 27 Jul 2025 07:00:00 GMT",
+     "query": "ভূতুড়ে বাড়ি",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 9,
+      "source": 8,
+      "originality": 8.3,
+      "narrative": 5,
+      "visual": 7,
+      "risk": 2,
+      "duplication": 1.7,
+      "total": 5.16
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "0c188770fb",
+     "kind": "news",
+     "title": "Poroborti Station Begunkodar revisits Bengal’s haunted rail legend",
+     "source": "The Times of India",
+     "link": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxOMWZ0TUNIT29NUzlVdGNscnZkMTlHc2c4aUo0WjRIblpiZHg2REN1UDk0UGs1aExmTmpGT19ITUNtRTk1Z3VJYVNJQlUxbUR2a0h1bTNIRHVJQmpfenBJU1lMSldDMVRtUW83ZE1kSk1rdGdCaWg5dEctdWR3MVVPU1ZicVEzNmhua0MyXzNJbVI2Znk2LXo0T0dxQ0huTUZKMXhDY3dKQmZsbk5LMHpFdVRXRXk2d0lJYjJLVTdaOUppRU53VEtJbjVWV3hFTWhQSEpkdU5vbS1Qb1pmb0dsazVldWpJOEdBSE03d3Vmd21IcVnSAfgBQVVfeXFMT1dqZEg1UGFxYWRpTHFvWjRJekU5SGNLUFpHVjhGOGVoMWRaSGZXZVRfR0RNTmNCQlVSXzNEalJYeVpNOGNrN1UwVGhCbnRzSm1lVF9jQXNjTkh5YWdhNGNNcGdzdVRpSm1VcDZfb3RqTUVjTUdZTXo1bXNoMW91THJCR0EtWk45M2NsX2VqcF8xaUpweXVfSUVTc2Rtc1RGdk9oc1FnOHIwS0NYWTBTeXVUOUN5dllmYmNwMmg5NkZFLUU5Ym5sVFA1QUl0SG12eUJWMnhBeHk3YkdodlBJdTZTMUxXMzdHNFk4RllYMktDU3BaU05HV20?oc=5",
+     "published": "Mon, 09 Mar 2026 07:00:00 GMT",
+     "query": "haunted railway station India",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 8,
+      "source": 8,
+      "originality": 8.3,
+      "narrative": 5,
+      "visual": 7,
+      "risk": 2,
+      "duplication": 1.7,
+      "total": 5.01
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "8cd518931a",
+     "kind": "news",
+     "title": "Jhargram Tribal Hostel: তৃণমূল জমানায় তৈরি শিলদার ১০০ বেডের হস্টেল আজ ‘ভূতুড়ে বাড়ি’,...",
+     "source": "TV9 Bangla",
+     "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxObGxwN3RqemgzQTBtOGVFSjBBcmxReVB2Vm1fR3lSS0Q3S1dtaGxPNEpGc3FNWWNQc2l6RGRzRkJXb2J0TEphNU01eGhKSU16aUdiR0s4VGItWlE3MGtGOWgwQlJNdDhaejBycWNCOGZISUw2MjNEa2JKaERSUVhXZlZ0RGFHcUg5Mm9pSWN1TDVGOGljTWRBYWdWbHYyOW9RcWFQUmZMd1V5a1VnRGYyLWdJbUViTnRVR1BSQlVYbG9RYVhaU0ZQRHpNVmRlQ1c4V0FuYjdiQdIB3AFBVV95cUxOTGVSSVNqcV8wVHhUUVlLSWlqT3NObGJnR05TQjhnQXlkc3N0dHZ1WGVVc29oQ3FUc3J6ck9IUVVRczV6aHFUZlM2NG42NE1LRFV3RzRPUmZVSkljRk4zd3V2eHZqMkt5b3NNOEJSZlIzM0JIbVUwSURrOUUwakxzSmpWTWRuZEJPTmJHX0IydktxSERPX1V2Z0VKUkh6YnpZbE1WcXpjSktWdUtqbXRpdmo5VDFNUDY3bl9INGZTOXV2VTBZbk1qNzc2d21UeTdhcDhiTS1jZ25tSkZu?oc=5",
+     "published": "Wed, 15 Jul 2026 07:00:00 GMT",
+     "query": "ভূতুড়ে বাড়ি",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 9,
+      "source": 8,
+      "originality": 7.5,
+      "narrative": 5,
+      "visual": 7,
+      "risk": 2,
+      "duplication": 2.5,
+      "total": 5.0
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "a378e6bdc2",
+     "kind": "news",
+     "title": "‘Ghostbusters’ of Kolkata: Detectives of Supernatural investigate ‘paranormal’ inconveniences",
+     "source": "Telegraph India",
+     "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxNUUpMTmJPMGd4Ulc0Tmx4cmJ5ck1ZR1EtbDI0TzRmLTdrX1A4SGN0MHRfaFc4cGEtQnVYWG1PbUJ3Qk8xdDB0UTMyQndfbHU0bUVVekRCOG03ekhsb3NRVWJTaDVWNlZPNndyWE0yeE9CZHZwNDB6dWp1LTRad1Q5dkc3ZzZ2TkFfeGY2bnk1cVNVV0pWTzZ0RF8tYVVnQUdfSHFuQW9UTjdwZ2RoUWdKMlZRVHJ2eEdPTm9hZHJYaGljMkNhQk9PUG42MGxfT1JlSnpGeVBqMDFVNy1kS3BYUmJTcHZDd9IB6wFBVV95cUxQTmpzcmtOamZPc3N0NlZuSzMzVjVINkJmZXlhQmpZdFpMZGNEamxIY0N3T1JhaW1UR20wVlZHRE5NZWtpUHFTZU9NRDRDa0lUaXlndldnbWZIdTBIc2JLTW1lcFByQURPNXhhNXFNTGVOS28zVndQd1ZydXFNZXhtS3B5V2ZyZWY4blR3RGRGWXZQeU9Iamozd1VHeEE1RFo2VXB2NUhzNDBFa2NfVWxvTWR4VklJVS0wVkc5WHdSSDdYemhwd1VKRnJ5LWc1U0hJZVpleC1RVElyNUs4OG9Eay0yZ3hzNFhpMHVz?oc=5",
+     "published": "Thu, 19 Feb 2026 08:00:00 GMT",
+     "query": "paranormal Kolkata",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 8,
+      "source": 8,
+      "originality": 6.7,
+      "narrative": 9,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 3.3,
+      "total": 4.99
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "98a4b3e6fa",
+     "kind": "news",
+     "title": "Kolkata’s Haunted Bungalow: Anil Chaturvedi Reveals Chilling Ghost Encounters He Faced There",
+     "source": "The Times of India",
+     "link": "https://news.google.com/rss/articles/CBMihAJBVV95cUxQZHZZbXFGX2NNczM4U2dlcDZBNHg1cFJmWmthMWRheTBCX3NRTmhUeUc4enhGYW5IUUhwaTlYTFFmYmNabkdyZ1lmcXJMQzc4TklXcUxmNE9ybEp4MFYwdXFSSFVlT2lrVHdvblVGWFlkeUlsMFJXRDdGNVhjS0d2U2dpT2lXU2VVVHlLMG9TbXh0YmRNMmVhS2ZjS3cxNVgtQTJMY3Y1dkZxa08yTGxRSmpJWFhHeHJJRk1WRklJbVltTXBnVGMwdTI1MC1iZ1dPbzFxNUZsTGpfX0J0dm9uNkFOaWxqS2lXMHMwVklWajBvU2ROOW04Wml3RGRLYTZHdUdaMtIBigJBVV95cUxOSmZITmFveFdpUk93ZWhteUJidW1sRF9TODNVbFNVNlR2QnY1Qnl4SVBJbXUxSUdUZVdsUXM3cWFZLTQwZm45bEVuZFBXbGNPNUlvRVJ4UXNMVklTUE5yMkpIaG5fcFI0RTg3T3dLaHEyejNyQ1NWS0s4UmNRUnNBdW1LY2IxXzlyX2JZSmlaM0NSUk5CTHg4cjA5cG1USGdoSS1qd3BzVW9NNlpmNnZZN3Z0WWtQcjB4eW1wNFFwWFVaTVloMFZpMElPbXdJLXBSRUtfejFEZ2RYQ0h3TjhaTXlxWkoxdWRlLUp4SV84by1PeVRCb28xcXFPaFVYTTdMTDBoX1ZMdTlLdw?oc=5",
+     "published": "Fri, 26 Dec 2025 08:00:00 GMT",
+     "query": "paranormal Kolkata",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 8,
+      "source": 8,
+      "originality": 6.7,
+      "narrative": 7,
+      "visual": 7,
+      "risk": 2,
+      "duplication": 3.3,
+      "total": 4.99
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "d0550ed82a",
+     "kind": "news",
+     "title": "বর্ধমান মেডিক্যাল কলেজের ডাক্তারি পড়ুয়া নিখোঁজ, বেঁধেছে রহস্য",
+     "source": "Ei Samay",
+     "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOa296RjdKdWl2Z0kwSXZyaFpidE5TaFM5bDRKSjFLdXVmbUZKcjlubHlvQmFqcDcwVng5NG1hckRwMDlJcHFxRzRISk5Cb0pwek4zdlgxSmtJU0dJUlZxT0JweFhyQmFEd2xBRzVaZ2Fsd01NV2tCb1cwR0FEZ3RzbDBwU3ZwUEdpN2czazA3OFZfQlI5d3NGalkyOWVqQ1JVdWJDYXZsVWJUM0tfNDY1bDd0bURoWFk0d3dqa1ZZZGV0U2xMbGo2enVaQlRLOFM0NlpRVUpUNjNHSThsbXNiMGlRNNIB8AFBVV95cUxOSGxza1FlTGJmdVdzSy1ZTXBNd1NxQ3ZUVElzY0l1TzdsT3k1R1lGbmdaSlJXZVRPN2M4emM5VFNSbk9NbWRjSXM5Zm1Cbk9UNEFab2oybnAtUm5hMkpBUUpoYnZQWHlNZ2lXWDQzbUhMS1dST1JCT1VldjdsSW94azFWR2pDYzQ5ZmM3RjEyaTA1bmxHRl9La25tSnRkZHduRGl0cldXQU9GMC1kcXd5c2IyOWhLbnVMSkNfY3FYSGJGZFZBMmpxRnVTMURmaFYtSkJ5M2FhclJVakdQV0tlVjdZd1ZrNkVxMUhUSXhpcDg?oc=5",
+     "published": "Thu, 03 Sep 2026 07:00:00 GMT",
+     "query": "রহস্যজনক নিখোঁজ",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 9,
+      "source": 8,
+      "originality": 8.8,
+      "narrative": 5,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 1.2,
+      "total": 4.96
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "3cc6c8402a",
+     "kind": "wiki",
+     "title": "List of reportedly haunted locations in India",
+     "source": "Wikipedia",
+     "link": "https://en.wikipedia.org/wiki/List_of_reportedly_haunted_locations_in_India",
+     "published": null,
+     "query": "haunted places West Bengal",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 5,
+      "source": 8,
+      "originality": 10.0,
+      "narrative": 5,
+      "visual": 7,
+      "risk": 2,
+      "duplication": 0.0,
+      "total": 4.9
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "02733c4b0b",
+     "kind": "news",
+     "title": "East Bardhaman News: নম্বর প্লেটহীন রহস্যময় থার ঘিরে শোরগোল! গাড়ি থেকে যা সব উদ্ধার হল, তদন্তে মেমারি থানার পুলিশ",
+     "source": "News18 Bengali",
+     "link": "https://news.google.com/rss/articles/CBMihgJBVV95cUxORWVDdGpKUExIQ0ZfUmpIS1daMzU3YU1faHhqWlI2N3E1bGtIdnpjcWZvdDF4S1F6dVhKZEdYQ0JOcmFJRlN5c2tJZ1VpZFBKWkYxYVRmM3VDcWhJMUNWbDY2WVZyQlFmMlgxdjg5dDhvXzE3N2JBbGNrUG93ZXZkM2xLNnBQOGZIWmJJa3ZEQlAycklnWjB6andRQk9nS2dPdXFyMFBtQTVjS2xkc3FvM0htTjBHWm1zTmU4Y1pSNFBrbGJuOGUyaUxNb1Qya29FWnloRTd1ZE4tbGw0NC05akJEQTZVMk1oaVVWNXRzbEpMdUpNVHdzc3NlS25CS2xsbkU5RElB?oc=5",
+     "published": "Thu, 15 Jan 2026 08:00:00 GMT",
+     "query": "রহস্যময় ঘটনা পশ্চিমবঙ্গ",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 9,
+      "source": 8,
+      "originality": 8.3,
+      "narrative": 5,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 1.7,
+      "total": 4.86
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "9456bcb237",
+     "kind": "news",
+     "title": "Believing in Ghosts: ভূত, আত্মায় কেন বিশ্বাস করি আমরা? বিজ্ঞানের কাছে রয়েছে উত্তর",
+     "source": "ABP Ananda",
+     "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxQZWJzZzlyM1FOcTVEMEJEMHBVTnE1NC1BVEJDamJqTWQzTXNHY2VJNEEwVlZpOWIyU2dzbFYxSXZaSC1OdWJXTmNPMTJoOUItRUVHS3preUtIby14ZmpYUWJNaFNtZHJnRC12ZnNrenUxX3k2VlcyMjg0R2tZM1d4OXpzSkFOWEpYMFJocmxhWHRMdmN5VDB3eHRPc3I2Z0NGaVRiNzBaX3RQYUM3Rkt3d25mcXMwcXVxdC1WcDVZLTdpOVVjTFpwMXlYUTVZUzZsLU1PbU9Vc9IB3AFBVV95cUxOMjJTb1ptRGhTZmdibi1kRWNQQk5WNjV4LU4xZ2xzazNiMkRSM3NSTDlKYnF6ZlVpNUZxeDlBbGIwQ0VxS2FXcnNjWVcyUTM0aGk3TThEdUF5RWNlZlcxUFdhdDVrRWZmSkJkVV9TOE9ORXI1d1hfczJXWExfekh6RlJoRXlQcEJzY1hkYlFQSkxJT19DbFBPVUMwN2ZZWkE0V2h6R2xmblRNNU9TTlFfWW4ySkk3ekd3c2VqeFU3X20xS0pNRmNaNzNJeTBnZGszUExubU9Pd3Y5d1Nw?oc=5",
+     "published": "Sun, 06 Apr 2025 07:00:00 GMT",
+     "query": "ভৌতিক ঘটনা",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 4,
+      "source": 8,
+      "originality": 8.9,
+      "narrative": 9,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 1.1,
+      "total": 4.83
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "2d9cd5b487",
+     "kind": "news",
+     "title": "'Kaali Kheti' teaser: Jackie Shroff, Sharad Kelkar enter a mysterious village haunted by dark secrets",
+     "source": "The Times of India",
+     "link": "https://news.google.com/rss/articles/CBMinwJBVV95cUxPZ0NTbmJiYjdEMU9qUjBmZl9jVllRMGRudnJsYUUtMjRhc2c4bzhVT3c5bjhZOUs4VkpyWkl4VHZnVlE0LXBJV3U2Zlo5cmFEc3ppY0ZRTGJkSGFqd3Ewa0JWSWNmZFlsdUNENnVBdm5LTFNCTjJnSzRVRWZfNkFxcVAtZDR5VFMtN3R0Y2RTc1g2YmdaN296aHFXVDJRc1FaLTFfN3RNZm1SUnBhTHhLY0F5SmlaOFo5OGJTODJqSnRvSm5UX1B5dTd4UzBEZzN4MjA3SkxZWHFxUDNWZEZCY0dQUEFIb2FqMWJmYmNLMTdvSkozYzl1YUE2UHAzQWlGMF9pR1R2VVRDcXF3ZWpQYnRKVHFmVS1aVEFhRzA4SdIBpAJBVV95cUxQVTRhR0doclBmN0Z4VVB6aEpMTmN4YzR2bEZsSWQxSkJZZy10YlJpZXY4U2NMdEtPempfUFB5ZG92X1YwY1RWbWRkVXVzeUNQREEzYk1FRWJSajFMUFltenhSX21aNnlVLWQ0ckpCYzZlc2owMVk4NV9FU0lBaGpwejlDZURIMWJHR08wNm9lanQzaHE5bXAySHk5b2VQQkRFNHY2cnRUaEVxNXBoZEVoNnVGYkcyWldTUkpsX1doTWlDWGFfT09vSGtaaG1NWE9xRWxRMjZwQjZVdGJhNmNHOXFMNkVHOHFaUk1fbnZDR1JvZkNOZG1yXzQ4QjdKSEJyYjhVSDZTVzl0UXB5M2xEWlBKT0V0NnhwLWY3SDBqcjRzQ2NU?oc=5",
+     "published": "Tue, 03 Nov 2026 08:00:00 GMT",
+     "query": "mysterious incident Bengal villagers",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 3,
+      "relevance": 3,
+      "source": 8,
+      "originality": 10.0,
+      "narrative": 7,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 0.0,
+      "total": 4.8
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "d5e9297f1f",
+     "kind": "news",
+     "title": "Arrest: শুনশান শ্মশান চত্বরে রহস্যময় জমায়েত, সাদা পোশাকের পুলিশ হাতে পাকড়াও ৩! আসল মতলব কী? তদন্তে পুলিশ",
+     "source": "News18 Bengali",
+     "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxQNURSeFY0T2JLb0dNNXV4d203Y0FhVHAwUlhpSjFzZGN2RlBWVVV4ZkVTWUNickplcW5OZko1d0h5M05DNnpwYzdpMU10TWMyN2FmS1JjOHYwck45NXVzNXc3T0NrRG5TQi0wdmxBRUM2em9VNEk1TGdnU1dEU1pBYk5mYW42b0dzU2VITlZ4eDdKa3otQWwyb0EyQzZJV1ZYeTJnN2FwOVRhNzFjNHZHYkE2QjJ2YTdwTjNQVjA1T2lwcXBXVGRkR1AtWTR6RTdGM0xxWEV4YXNJQUhOVkRRaFZsMHlyclFDMklIT2RkbGFfUmhQdlpndWZTcU05c3BrdUJwbzdFNXFwM2RTb1gxQmhseUh2Zw?oc=5",
+     "published": "Wed, 30 Sep 2026 07:00:00 GMT",
+     "query": "রহস্যময় ঘটনা পশ্চিমবঙ্গ",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 4,
+      "source": 8,
+      "originality": 10.0,
+      "narrative": 5,
+      "visual": 7,
+      "risk": 2,
+      "duplication": 0.0,
+      "total": 4.75
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    },
+    {
+     "id": "dd0fd42574",
+     "kind": "news",
+     "title": "Snake: মাটি খুঁড়তেই ফোঁস ফোঁস শব্দ, শিকলে বাঁধা 'রহস্যময়' সিন্দুক পাহারা দিচ্ছিলেন 'ইনি'ই, শান্তিপুরে পরিত্যক্ত বিডিও ভবনে চাঞ্চল্য",
+     "source": "News18 Bengali",
+     "link": "https://news.google.com/rss/articles/CBMiqwJBVV95cUxQTE1QM0pCZ0w5WTJpOXpPSC0zakFidGdDRkE1LVVBN2NmN1dCanNTZV96TFZEM0tiRzVOUFV5eUYxaDRYZXZPMzRXeWFiZTh1MXlVMENGcGhjY19zeC1BcTE1WVluWjZZcmluX2FJTGt4RlRVSFdLNEJfVzl0d1BBVHJFZE5kYWNiQ1V3ZFZfVnRPS0d1NzQtTjRRdS1KV09iSXkxNExOZm1KVlpCTnlGV2NwQ2xFQTVMNWE3cDE5ZllhS0pZT2tzSWgxbWlNSGNObkdJMndESHhtZUdwODBJWkQ4Vjl5M0hNXzQtVUVqc3J5VmprYTVsVlRFYnJMbjBMTVQ0MEhnZHAzYXpySVNLRmZWTzQ4M0Zxci0ySV9ScXFoM0ZDLTljR0ZJbw?oc=5",
+     "published": "Mon, 17 Aug 2026 07:00:00 GMT",
+     "query": "রহস্যময় ঘটনা পশ্চিমবঙ্গ",
+     "outlets": 1,
+     "views": null,
+     "scores": {
+      "trend": 2,
+      "relevance": 4,
+      "source": 8,
+      "originality": 10.0,
+      "narrative": 7,
+      "visual": 4,
+      "risk": 2,
+      "duplication": 0.0,
+      "total": 4.75
+     },
+     "eligible": true,
+     "why": [],
+     "status": null
+    }
+   ],
+   "selected": "866374ac53",
+   "story_class": "fiction",
+   "sources": [],
+   "claim_kinds": null,
+   "note": null
   }
  ]
 }
