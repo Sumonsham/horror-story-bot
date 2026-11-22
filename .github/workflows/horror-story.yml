@@ -14,7 +14,7 @@ on:
         required: false
         default: ""
       mode:
-        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted). library_sync = engine 2: put every character asset into the permanent library + report (no picture made, nothing posted)."
+        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted). library_sync = engine 2: put every character asset into the permanent library + report (no picture made, nothing posted). hybrid_test = engine 2: hybrid 2D preview videos (720p) of Hari, Saraswati, Kishori + one story scene, marked NOT APPROVED (no picture made, nothing posted). rig_test = engine 2: Hari's skeletal rig (Rigby2D) - poses, walk cycle, hand/foot close-ups, 720p proof video with lip-sync, QA report (no picture made, nothing posted). pose_art = engine 2 POSE-FIRST step 1: SIX new complete high-resolution pictures of Hari (Cloudflare, uses the daily free allocation - run 5:35-7:00 AM India time) + contact sheet + old-vs-new sheet; stops with the exact error on HTTP 429 (nothing posted, nothing approved)."
         required: false
         default: ""
   # V8 backup clock: ONLY if the cron-job.org start did not come. 75 minutes after the 2 PM and 8 PM story starts
@@ -155,6 +155,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           LANGUAGE: ${{ github.event.inputs.language }}
           CHAR_SHEET_CHARACTER: ${{ github.event.inputs.character }}   # (char_sheet only: one character per run)
+          RIG_CHARACTER: ${{ github.event.inputs.character }}          # (rig_test: empty = Hari)
           CHANNEL_LANG: ${{ secrets.CHANNEL_LANG }}
           EVENT: ${{ github.event_name }}
           MODE: ${{ github.event.inputs.mode || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || (github.event.schedule == '0 15 * * 6' && 'live') || '' }}
@@ -217,7 +218,7 @@ jobs:
             fi
           fi
           # one by one: before, ONE missing file made git skip the whole list (lessons, series memory... never saved)
-          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json assets/true_web.json assets/discovery_ledger.json assets/topic_queue.json assets/publish_state.json assets/podcast_status.json assets/style_model.json assets/owner_voice/state.json assets/characters assets/cartoon_cast.json assets/cartoon_parts assets/character_library; do
+          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json assets/true_web.json assets/discovery_ledger.json assets/topic_queue.json assets/publish_state.json assets/podcast_status.json assets/style_model.json assets/owner_voice/state.json assets/characters assets/cartoon_cast.json assets/cartoon_parts assets/character_library assets/character_art; do
             if [ -e "$p" ]; then git add -A -f -- "$p" || true; fi
           done
           git commit -q -m "story posted $(date -u +%F_%H%M)" || echo "nothing new to remember"
@@ -270,6 +271,14 @@ jobs:
             work/art_test/art_poses.jpg
             work/art_test/art_report.json
             work/char_sheet/**
+            work/hybrid_test/*.mp4
+            work/hybrid_test/hybrid_report.json
+            work/rig_test/**/*.mp4
+            work/rig_test/**/*.png
+            work/rig_test/**/qa_report.json
+            assets/character_rigs/**
+            work/pose_art/**
+            assets/character_art/**
             work/story_test/story_test.mp4
             work/story_test/story_report.json
             work/story_test/story_match_report.md
