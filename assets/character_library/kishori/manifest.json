@@ -1,0 +1,117 @@
+{
+ "character_id": "kishori",
+ "name": "Kishori",
+ "registry_key": "0f3c9bbed3a6",
+ "asset_version": "v1",
+ "versions": [
+  "v1"
+ ],
+ "original_reference": "v1/reference/original.png",
+ "approval_status": "NOT APPROVED (waiting for the owner)",
+ "approved_method": null,
+ "body_proportions": {
+  "arm": {
+   "far": 0.3016876487140105,
+   "near": 0.31831599475832933
+  },
+  "leg": {
+   "far": 0.4793891402714932,
+   "near": 0.4703393665158371
+  },
+  "skirt": null
+ },
+ "head_fraction": 0.274,
+ "layer_order": [
+  "hair_back",
+  "shin_far",
+  "thigh_far",
+  "shin_near",
+  "thigh_near",
+  "skirt_lo",
+  "skirt_up",
+  "torso",
+  "uarm_far",
+  "farm_far",
+  "head",
+  "uarm_near",
+  "farm_near"
+ ],
+ "joint_coordinates": {
+  "neck": [
+   283.5,
+   322.0
+  ],
+  "hip": [
+   313.75,
+   539.0
+  ],
+  "shoulders": {
+   "far": [
+    194.17664958421497,
+    408.0
+   ],
+   "near": [
+    369.7413286302175,
+    395.0
+   ]
+  },
+  "leg_hips": {
+   "far": [
+    267.0,
+    539.0
+   ],
+   "near": [
+    339.0,
+    539.0
+   ]
+  }
+ },
+ "anchor_points": null,
+ "available_poses": [],
+ "available_parts": [],
+ "available_expressions": [
+  "neutral"
+ ],
+ "missing_expressions": [
+  "happy",
+  "sad",
+  "angry",
+  "surprised",
+  "laughing",
+  "crying"
+ ],
+ "missing_assets": [
+  "pose:front",
+  "pose:side",
+  "pose:stand",
+  "pose:sit",
+  "pose:talk",
+  "pose:point",
+  "pose:walk1",
+  "pose:walk2",
+  "pose:walk3",
+  "pose:walk4",
+  "part:head",
+  "part:torso",
+  "part:uarm_near",
+  "part:farm_near",
+  "part:uarm_far",
+  "part:farm_far",
+  "part:thigh_near",
+  "part:shin_near",
+  "part:thigh_far",
+  "part:shin_far"
+ ],
+ "validation_status": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+ "status_counts": {
+  "VISUAL_REVIEW_REQUIRED": 2
+ },
+ "integrity": {
+  "version": "v1",
+  "missing": [],
+  "corrupt": []
+ },
+ "props": [],
+ "design": null,
+ "updated": "2026-11-22T06:32:21+00:00"
+}

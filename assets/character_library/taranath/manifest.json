@@ -1,0 +1,117 @@
+{
+ "character_id": "taranath",
+ "name": "Taranath",
+ "registry_key": "2801f8120e5b",
+ "asset_version": "v1",
+ "versions": [
+  "v1"
+ ],
+ "original_reference": "v1/reference/original.png",
+ "approval_status": "NOT APPROVED (waiting for the owner)",
+ "approved_method": null,
+ "body_proportions": {
+  "arm": {
+   "far": 0.36957106876258783,
+   "near": 0.3683038936801455
+  },
+  "leg": {
+   "far": 0.498551912568306,
+   "near": 0.5007377049180328
+  },
+  "skirt": null
+ },
+ "head_fraction": 0.222,
+ "layer_order": [
+  "hair_back",
+  "shin_far",
+  "thigh_far",
+  "shin_near",
+  "thigh_near",
+  "skirt_lo",
+  "skirt_up",
+  "torso",
+  "uarm_far",
+  "farm_far",
+  "head",
+  "uarm_near",
+  "farm_near"
+ ],
+ "joint_coordinates": {
+  "neck": [
+   310.5,
+   263.0
+  ],
+  "hip": [
+   314.25,
+   515.0
+  ],
+  "shoulders": {
+   "far": [
+    188.0065903635088,
+    345.0
+   ],
+   "near": [
+    355.63517611142737,
+    338.0
+   ]
+  },
+  "leg_hips": {
+   "far": [
+    260.25,
+    515.0
+   ],
+   "near": [
+    353.5,
+    515.0
+   ]
+  }
+ },
+ "anchor_points": null,
+ "available_poses": [],
+ "available_parts": [],
+ "available_expressions": [
+  "neutral"
+ ],
+ "missing_expressions": [
+  "happy",
+  "sad",
+  "angry",
+  "surprised",
+  "laughing",
+  "crying"
+ ],
+ "missing_assets": [
+  "pose:front",
+  "pose:side",
+  "pose:stand",
+  "pose:sit",
+  "pose:talk",
+  "pose:point",
+  "pose:walk1",
+  "pose:walk2",
+  "pose:walk3",
+  "pose:walk4",
+  "part:head",
+  "part:torso",
+  "part:uarm_near",
+  "part:farm_near",
+  "part:uarm_far",
+  "part:farm_far",
+  "part:thigh_near",
+  "part:shin_near",
+  "part:thigh_far",
+  "part:shin_far"
+ ],
+ "validation_status": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+ "status_counts": {
+  "VISUAL_REVIEW_REQUIRED": 2
+ },
+ "integrity": {
+  "version": "v1",
+  "missing": [],
+  "corrupt": []
+ },
+ "props": [],
+ "design": null,
+ "updated": "2026-11-22T06:32:20+00:00"
+}

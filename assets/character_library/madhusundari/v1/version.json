@@ -1,0 +1,38 @@
+{
+ "version": "v1",
+ "created": "2026-11-22T06:32:21+00:00",
+ "assets": {
+  "reference": {
+   "file": "reference/original.png",
+   "kind": "reference",
+   "sha256": "4878af70bf8e512d0fade256dc938e2f0dfbb7fa01b94250e45c88816f0483f4",
+   "status": "VISUAL_REVIEW_REQUIRED",
+   "technical": {
+    "w": 576,
+    "h": 1024,
+    "coverage": 0.394
+   },
+   "problems": [],
+   "provider": "cloudflare",
+   "model": "@cf/black-forest-labs/flux-2-klein-4b",
+   "source": "cartoon_parts/0a313c6f5b4c/body.png",
+   "added": "2026-11-22T06:32:21+00:00"
+  },
+  "reference_src": {
+   "file": "reference/original_src.png",
+   "kind": "reference_src",
+   "sha256": "59a524dd27c99919d35a83469090d3df7cd305c5a8ca7a238825eb1b61413805",
+   "status": "VISUAL_REVIEW_REQUIRED",
+   "technical": {
+    "w": 576,
+    "h": 1024
+   },
+   "problems": [],
+   "provider": "cloudflare",
+   "model": "@cf/black-forest-labs/flux-2-klein-4b",
+   "source": "cartoon_parts/0a313c6f5b4c/body_src.png",
+   "added": "2026-11-22T06:32:21+00:00"
+  }
+ },
+ "derived_from": null
+}

@@ -1,0 +1,117 @@
+{
+ "character_id": "hari",
+ "name": "Hari",
+ "registry_key": "74f563185c40",
+ "asset_version": "v1",
+ "versions": [
+  "v1"
+ ],
+ "original_reference": "v1/reference/original.png",
+ "approval_status": "NOT APPROVED (waiting for the owner)",
+ "approved_method": null,
+ "body_proportions": {
+  "arm": {
+   "far": 0.33630142669999796,
+   "near": 0.32461840912394035
+  },
+  "leg": {
+   "far": 0.4781140350877193,
+   "near": 0.44741228070175443
+  },
+  "skirt": null
+ },
+ "head_fraction": 0.228,
+ "layer_order": [
+  "hair_back",
+  "shin_far",
+  "thigh_far",
+  "shin_near",
+  "thigh_near",
+  "skirt_lo",
+  "skirt_up",
+  "torso",
+  "uarm_far",
+  "farm_far",
+  "head",
+  "uarm_near",
+  "farm_near"
+ ],
+ "joint_coordinates": {
+  "neck": [
+   279.5,
+   274.0
+  ],
+  "hip": [
+   289.75,
+   540.0
+  ],
+  "shoulders": {
+   "far": [
+    189.89228972727273,
+    360.0
+   ],
+   "near": [
+    359.0670130100445,
+    349.0
+   ]
+  },
+  "leg_hips": {
+   "far": [
+    253.5,
+    540.0
+   ],
+   "near": [
+    322.5,
+    540.0
+   ]
+  }
+ },
+ "anchor_points": null,
+ "available_poses": [],
+ "available_parts": [],
+ "available_expressions": [
+  "neutral"
+ ],
+ "missing_expressions": [
+  "happy",
+  "sad",
+  "angry",
+  "surprised",
+  "laughing",
+  "crying"
+ ],
+ "missing_assets": [
+  "pose:front",
+  "pose:side",
+  "pose:stand",
+  "pose:sit",
+  "pose:talk",
+  "pose:point",
+  "pose:walk1",
+  "pose:walk2",
+  "pose:walk3",
+  "pose:walk4",
+  "part:head",
+  "part:torso",
+  "part:uarm_near",
+  "part:farm_near",
+  "part:uarm_far",
+  "part:farm_far",
+  "part:thigh_near",
+  "part:shin_near",
+  "part:thigh_far",
+  "part:shin_far"
+ ],
+ "validation_status": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+ "status_counts": {
+  "VISUAL_REVIEW_REQUIRED": 2
+ },
+ "integrity": {
+  "version": "v1",
+  "missing": [],
+  "corrupt": []
+ },
+ "props": [],
+ "design": null,
+ "updated": "2026-11-22T06:32:19+00:00"
+}

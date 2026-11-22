@@ -1,0 +1,197 @@
+{
+ "characters": {
+  "Hari": {
+   "id": "hari",
+   "version": "v1",
+   "approval": "NOT APPROVED (waiting for the owner)",
+   "validation": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+   "poses": [],
+   "parts": [],
+   "missing": [
+    "pose:front",
+    "pose:side",
+    "pose:stand",
+    "pose:sit",
+    "pose:talk",
+    "pose:point",
+    "pose:walk1",
+    "pose:walk2",
+    "pose:walk3",
+    "pose:walk4",
+    "part:head",
+    "part:torso",
+    "part:uarm_near",
+    "part:farm_near",
+    "part:uarm_far",
+    "part:farm_far",
+    "part:thigh_near",
+    "part:shin_near",
+    "part:thigh_far",
+    "part:shin_far"
+   ],
+   "counts": {
+    "VISUAL_REVIEW_REQUIRED": 2
+   }
+  },
+  "Saraswati": {
+   "id": "saraswati",
+   "version": "v1",
+   "approval": "NOT APPROVED (waiting for the owner)",
+   "validation": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+   "poses": [],
+   "parts": [],
+   "missing": [
+    "pose:front",
+    "pose:side",
+    "pose:stand",
+    "pose:sit",
+    "pose:talk",
+    "pose:point",
+    "pose:walk1",
+    "pose:walk2",
+    "pose:walk3",
+    "pose:walk4",
+    "part:head",
+    "part:torso",
+    "part:uarm_near",
+    "part:farm_near",
+    "part:uarm_far",
+    "part:farm_far",
+    "part:skirt_up",
+    "part:skirt_lo"
+   ],
+   "counts": {
+    "VISUAL_REVIEW_REQUIRED": 2
+   }
+  },
+  "Petni": {
+   "id": "petni",
+   "version": "v1",
+   "approval": "NOT APPROVED (waiting for the owner)",
+   "validation": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+   "poses": [],
+   "parts": [],
+   "missing": [
+    "pose:front",
+    "pose:side",
+    "pose:stand",
+    "pose:sit",
+    "pose:talk",
+    "pose:point",
+    "pose:walk1",
+    "pose:walk2",
+    "pose:walk3",
+    "pose:walk4",
+    "part:head",
+    "part:torso",
+    "part:uarm_near",
+    "part:farm_near",
+    "part:uarm_far",
+    "part:farm_far",
+    "part:skirt_up",
+    "part:skirt_lo"
+   ],
+   "counts": {
+    "VISUAL_REVIEW_REQUIRED": 2
+   }
+  },
+  "Taranath": {
+   "id": "taranath",
+   "version": "v1",
+   "approval": "NOT APPROVED (waiting for the owner)",
+   "validation": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+   "poses": [],
+   "parts": [],
+   "missing": [
+    "pose:front",
+    "pose:side",
+    "pose:stand",
+    "pose:sit",
+    "pose:talk",
+    "pose:point",
+    "pose:walk1",
+    "pose:walk2",
+    "pose:walk3",
+    "pose:walk4",
+    "part:head",
+    "part:torso",
+    "part:uarm_near",
+    "part:farm_near",
+    "part:uarm_far",
+    "part:farm_far",
+    "part:thigh_near",
+    "part:shin_near",
+    "part:thigh_far",
+    "part:shin_far"
+   ],
+   "counts": {
+    "VISUAL_REVIEW_REQUIRED": 2
+   }
+  },
+  "Kishori": {
+   "id": "kishori",
+   "version": "v1",
+   "approval": "NOT APPROVED (waiting for the owner)",
+   "validation": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+   "poses": [],
+   "parts": [],
+   "missing": [
+    "pose:front",
+    "pose:side",
+    "pose:stand",
+    "pose:sit",
+    "pose:talk",
+    "pose:point",
+    "pose:walk1",
+    "pose:walk2",
+    "pose:walk3",
+    "pose:walk4",
+    "part:head",
+    "part:torso",
+    "part:uarm_near",
+    "part:farm_near",
+    "part:uarm_far",
+    "part:farm_far",
+    "part:thigh_near",
+    "part:shin_near",
+    "part:thigh_far",
+    "part:shin_far"
+   ],
+   "counts": {
+    "VISUAL_REVIEW_REQUIRED": 2
+   }
+  },
+  "Madhusundari": {
+   "id": "madhusundari",
+   "version": "v1",
+   "approval": "NOT APPROVED (waiting for the owner)",
+   "validation": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+   "poses": [],
+   "parts": [],
+   "missing": [
+    "pose:front",
+    "pose:side",
+    "pose:stand",
+    "pose:sit",
+    "pose:talk",
+    "pose:point",
+    "pose:walk1",
+    "pose:walk2",
+    "pose:walk3",
+    "pose:walk4",
+    "part:head",
+    "part:torso",
+    "part:uarm_near",
+    "part:farm_near",
+    "part:uarm_far",
+    "part:farm_far",
+    "part:skirt_up",
+    "part:skirt_lo"
+   ],
+   "counts": {
+    "VISUAL_REVIEW_REQUIRED": 2
+   }
+  }
+ },
+ "time": "2026-11-22T06:32:19+00:00"
+}

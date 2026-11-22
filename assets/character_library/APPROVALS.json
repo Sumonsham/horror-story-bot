@@ -1,0 +1,3 @@
+{
+ "_how_to": "Only YOU edit this file (on GitHub: open it, the pencil, Commit). Example: \"hari\": {\"v1\": {\"status\": \"USER_APPROVED\", \"method\": \"full_pose\", \"note\": \"looked at the sheet on 23 Nov\"}}  - status USER_APPROVED or REJECTED; method full_pose (complete drawings) or cutout (separated parts). Nothing is used in a video before this."
+}

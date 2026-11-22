@@ -1,0 +1,108 @@
+{
+ "character_id": "madhusundari",
+ "name": "Madhusundari",
+ "registry_key": "0a313c6f5b4c",
+ "asset_version": "v1",
+ "versions": [
+  "v1"
+ ],
+ "original_reference": "v1/reference/original.png",
+ "approval_status": "NOT APPROVED (waiting for the owner)",
+ "approved_method": null,
+ "body_proportions": {
+  "arm": {
+   "far": 0.16072650920442816,
+   "near": 0.4229944822567704
+  },
+  "leg": {},
+  "skirt": 0.4797297297297297
+ },
+ "head_fraction": 0.089,
+ "layer_order": [
+  "hair_back",
+  "shin_far",
+  "thigh_far",
+  "shin_near",
+  "thigh_near",
+  "skirt_lo",
+  "skirt_up",
+  "torso",
+  "uarm_far",
+  "farm_far",
+  "head",
+  "uarm_near",
+  "farm_near"
+ ],
+ "joint_coordinates": {
+  "neck": [
+   287.5,
+   152.0
+  ],
+  "hip": [
+   287.5,
+   534.0
+  ],
+  "shoulders": {
+   "far": [
+    189.74025225197903,
+    221.0
+   ],
+   "near": [
+    373.6228135226921,
+    221.0
+   ]
+  },
+  "leg_hips": {}
+ },
+ "anchor_points": {
+  "waist": [
+   287.5,
+   534.0
+  ]
+ },
+ "available_poses": [],
+ "available_parts": [],
+ "available_expressions": [
+  "neutral"
+ ],
+ "missing_expressions": [
+  "happy",
+  "sad",
+  "angry",
+  "surprised",
+  "laughing",
+  "crying"
+ ],
+ "missing_assets": [
+  "pose:front",
+  "pose:side",
+  "pose:stand",
+  "pose:sit",
+  "pose:talk",
+  "pose:point",
+  "pose:walk1",
+  "pose:walk2",
+  "pose:walk3",
+  "pose:walk4",
+  "part:head",
+  "part:torso",
+  "part:uarm_near",
+  "part:farm_near",
+  "part:uarm_far",
+  "part:farm_far",
+  "part:skirt_up",
+  "part:skirt_lo"
+ ],
+ "validation_status": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+ "status_counts": {
+  "VISUAL_REVIEW_REQUIRED": 2
+ },
+ "integrity": {
+  "version": "v1",
+  "missing": [],
+  "corrupt": []
+ },
+ "props": [],
+ "design": null,
+ "updated": "2026-11-22T06:32:21+00:00"
+}

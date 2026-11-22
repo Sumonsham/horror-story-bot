@@ -1,0 +1,108 @@
+{
+ "character_id": "saraswati",
+ "name": "Saraswati",
+ "registry_key": "8c50bbc6b23f",
+ "asset_version": "v1",
+ "versions": [
+  "v1"
+ ],
+ "original_reference": "v1/reference/original.png",
+ "approval_status": "NOT APPROVED (waiting for the owner)",
+ "approved_method": null,
+ "body_proportions": {
+  "arm": {
+   "far": 0.3408256838607937,
+   "near": 0.32348899544262
+  },
+  "leg": {},
+  "skirt": 0.4797752808988764
+ },
+ "head_fraction": 0.202,
+ "layer_order": [
+  "hair_back",
+  "uarm_far",
+  "uarm_near",
+  "shin_far",
+  "thigh_far",
+  "shin_near",
+  "thigh_near",
+  "skirt_lo",
+  "skirt_up",
+  "torso",
+  "farm_far",
+  "head",
+  "farm_near"
+ ],
+ "joint_coordinates": {
+  "neck": [
+   293.0,
+   263.0
+  ],
+  "hip": [
+   293.0,
+   545.0
+  ],
+  "shoulders": {
+   "far": [
+    207.24630169528126,
+    342.0
+   ],
+   "near": [
+    400.6065647530183,
+    335.0
+   ]
+  },
+  "leg_hips": {}
+ },
+ "anchor_points": {
+  "waist": [
+   293.0,
+   545.0
+  ]
+ },
+ "available_poses": [],
+ "available_parts": [],
+ "available_expressions": [
+  "neutral"
+ ],
+ "missing_expressions": [
+  "happy",
+  "sad",
+  "angry",
+  "surprised",
+  "laughing",
+  "crying"
+ ],
+ "missing_assets": [
+  "pose:front",
+  "pose:side",
+  "pose:stand",
+  "pose:sit",
+  "pose:talk",
+  "pose:point",
+  "pose:walk1",
+  "pose:walk2",
+  "pose:walk3",
+  "pose:walk4",
+  "part:head",
+  "part:torso",
+  "part:uarm_near",
+  "part:farm_near",
+  "part:uarm_far",
+  "part:farm_far",
+  "part:skirt_up",
+  "part:skirt_lo"
+ ],
+ "validation_status": "TECHNICALLY VALID - VISUAL REVIEW REQUIRED",
+ "status_counts": {
+  "VISUAL_REVIEW_REQUIRED": 2
+ },
+ "integrity": {
+  "version": "v1",
+  "missing": [],
+  "corrupt": []
+ },
+ "props": [],
+ "design": null,
+ "updated": "2026-11-22T06:32:20+00:00"
+}
