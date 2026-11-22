@@ -6136,8 +6136,33 @@ def char_sheet_run():
                                       timeout=300)
     except Exception as e:
         log("  character sheets not sent to Telegram:", str(e)[:120])
+    try:                                              # engine 2: the passed pictures go into the permanent library
+        from engine2 import library as LIB_
+        LIB_.sync(log=log)
+    except Exception as e:
+        log("  character library not updated:", str(e)[:120])
     try:                                              # the pages + report (the pictures were pushed one by one)
-        push_now([os.path.join(HERE, "assets", "cartoon_parts")], "character sheets")
+        push_now([os.path.join(HERE, "assets", "cartoon_parts"), os.path.join(HERE, "assets", "character_library")],
+                 "character sheets")
+    except Exception:
+        pass
+    return rep
+
+
+def library_sync_run():
+    """ENGINE 2: the permanent Character Asset Library - brings every existing character asset in (no image is made,
+    nothing is overwritten, nothing is approved), checks it technically, writes each manifest, reports to Telegram."""
+    from engine2 import library as LIB_
+    rep = LIB_.sync(log=log)
+    lines = ["📚 চরিত্রের স্থায়ী লাইব্রেরি (engine 2) - কোনো ছবি তৈরি হয়নি, কিছু প্রকাশ হয়নি।"]
+    for n, r in rep["characters"].items():
+        lines.append(f"• {n} ({r['version']}): {r['validation']}; অনুমোদন: "
+                     + ("✅ আপনি অনুমোদন দিয়েছেন" if r["approval"] == "USER_APPROVED" else "এখনো নয়")
+                     + f"; ভঙ্গি {len(r['poses'])}/10, অংশ {len(r['parts'])}, বাকি {len(r['missing'])}টা")
+    lines.append("অনুমোদন শুধু আপনি দেন: GitHub-এ assets/character_library/APPROVALS.json-এ লিখে।")
+    _tg_text("\n".join(lines))
+    try:
+        push_now([os.path.join(HERE, "assets", "character_library")], "character library")
     except Exception:
         pass
     return rep
@@ -12801,6 +12826,8 @@ def main():
         return art_test_run()
     if env("MODE") == "char_sheet":                  # original 2D character sheets for YOUR approval (nothing posted)
         return char_sheet_run()
+    if env("MODE") == "library_sync":                # engine 2: the permanent character library (no picture is made)
+        return library_sync_run()
     if env("MODE") == "full_test":                   # a WHOLE story video with the cartoon engine - nothing posted
         DRY_RUN = True
         os.environ["DRY_RUN"] = "1"
