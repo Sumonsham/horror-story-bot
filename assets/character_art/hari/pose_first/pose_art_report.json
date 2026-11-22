@@ -1,0 +1,43 @@
+{
+ "made_this_run": 10,
+ "stopped_by_error": null,
+ "status": {
+  "master": "failed",
+  "arm45": "generated",
+  "arm90": "generated",
+  "arm120": "failed",
+  "both_up": "failed",
+  "point_index": "generated"
+ },
+ "classification": {
+  "old_artwork": "assets/character_library/hari/v1/reference/original.png (576x1024) - used ONLY as the identity input",
+  "newly_generated": {
+   "master": "originals/master_attempt2_ORIGINAL.jpg",
+   "arm45": "originals/arm45_attempt2_ORIGINAL.jpg",
+   "arm90": "originals/arm90_attempt1_ORIGINAL.jpg",
+   "arm120": "originals/arm120_attempt2_ORIGINAL.jpg",
+   "both_up": "originals/both_up_attempt2_ORIGINAL.jpg",
+   "point_index": "originals/point_index_attempt1_ORIGINAL.jpg"
+  },
+  "mock_or_test_artwork": "none (no mock picture is ever used in this mode)",
+  "approved_artwork": "none - waiting for the owner's visual approval"
+ },
+ "contact_sheet": "/home/runner/work/horror-story-bot/horror-story-bot/work/pose_art/hari/Hari_NEW_six_poses_contact_sheet.jpg",
+ "comparison_sheet": "/home/runner/work/horror-story-bot/horror-story-bot/work/pose_art/hari/Hari_OLD_vs_NEW_comparison.jpg",
+ "estimate": {
+  "pictures": 6,
+  "neurons_each": {
+   "master": 318.0,
+   "arm45": 318.0,
+   "arm90": 318.0,
+   "arm120": 318.0,
+   "both_up": 318.0,
+   "point_index": 318.0
+  },
+  "neurons_if_all_pass_first_time": 1908,
+  "neurons_if_every_picture_needs_a_second_try": 3816,
+  "daily_free_neurons": 10000,
+  "note": "published price per 512x512 tile, whole tiles assumed; the neurons already used today (the daily story pictures use the same account) are only on the Cloudflare dashboard. Free allocation resets at 00:00 UTC (5:30 AM India time)."
+ },
+ "approved": false
+}
