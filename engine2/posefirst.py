@@ -307,9 +307,17 @@ def make(rec, ref_rgba, pic, pose_ids, store, log=print, on_saved=None, per_run=
                 orig_name = f"{pid}_attempt{n}_ORIGINAL{ext}"   # the provider's file, byte for byte, full size
                 with open(os.path.join(store.originals, orig_name), "wb") as fh:
                     fh.write(raw)
-                img = CA._decode(raw)
-                rgba = CA.key_out(img, keep_all=pid in ("sit_stool", "stand_up") or pid.startswith("hand_"))
-                q = check(rgba, ref_rgba, pid)
+                try:                                        # a picture came back but cannot be read / checked:
+                    img = CA._decode(raw)                   # STOP too (the provider's file stays in originals/)
+                    rgba = CA.key_out(img, keep_all=pid in ("sit_stool", "stand_up") or pid.startswith("hand_"))
+                    q = check(rgba, ref_rgba, pid)
+                except Exception as e:
+                    r.update(status="failed", original_file=f"originals/{orig_name}", error=f"{type(e).__name__}: {e}"[:600])
+                    store.idx[pid] = r
+                    store.idx["_stopped_by_error"] = {"pose": pid, "error": f"the returned file could not be read / checked - "
+                                                      f"{type(e).__name__}: {e}"[:600]}
+                    store.save()
+                    raise _Stop(str(e))
                 r.update(qa=q, prompt=prompt, seed=seed, size_asked=[w, h], size_returned=[int(img.shape[1]), int(img.shape[0])],
                          provider="cloudflare", model="flux-2-klein-4b", original_file=f"originals/{orig_name}",
                          reference_input="the ORIGINAL reference, shrunk to fit 511x511", kind="NEWLY GENERATED - NOT APPROVED")
