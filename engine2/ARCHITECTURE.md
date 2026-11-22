@@ -121,3 +121,19 @@ Engine 2 is read by no production path. To remove it:
 3. Remove `assets/character_library` from the workflow's commit list.
 
 `ANIM_MODE`, `ART_MODE` and every production route behave exactly as before. The library data (`assets/character_library/`) can be kept; nothing reads it.
+
+## Hybrid 2D MVP layer (23 Nov 2026) - `engine2/mvp.py`
+
+```
+character library (approvals) ─┐
+pose-first drawings + inbox ───┼─> pose_inventory ─┐
+Hari rig + arm-lift test ──────┴─> rig_limits ─> anim_safety ─> decide(action) ─> A rig (safe range, clamp_arms)
+                                                                              ├─> B complete drawing (ComplexPose)
+                                                                              ├─> C static drawing
+                                                                              └─> MISSING (reported, shown neutral)
+scene engine (location_library, environment_animation, cinematic_camera) + rigby raster/face + videoqa
+  -> render_test: 60 s 1280x720 24 fps, decision table, contact sheet, report
+identity (region Lab + hue histogram + face structure) -> asset_qa sheets; never an approval
+```
+
+Test modes: `engine_audit`, `asset_qa`, `render_test` (see `GITHUB_ACTIONS_GUIDE.md`). Status per stage: `MVP_STAGE_STATUS.md`.
