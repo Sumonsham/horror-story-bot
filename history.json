@@ -538,7 +538,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -568,7 +568,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -598,7 +598,7 @@
    "yt_views": 3,
    "yt_avg_s": 11,
    "yt_avg_pct": 2,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -811,7 +811,7 @@
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -1066,10 +1066,10 @@
    "comments": 2,
    "views": 4,
    "length_s": 2215,
-   "yt_views": 3,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 517,
+   "yt_avg_pct": 23.4,
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -1106,7 +1106,7 @@
    "yt_views": 7,
    "yt_avg_s": 36,
    "yt_avg_pct": 1.5,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -1318,7 +1318,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1364,7 +1364,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1582,12 +1582,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 4,
+   "views": 5,
    "length_s": 993,
-   "yt_views": 6,
-   "yt_avg_s": 472,
-   "yt_avg_pct": 47.5,
-   "checked": "2026-11-19T07:03+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-22T13:32+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1626,12 +1626,12 @@
   "stats": {
    "likes": 1,
    "comments": 1,
-   "views": 0,
+   "views": 1,
    "length_s": 989,
    "yt_views": 1,
-   "yt_avg_s": 989,
-   "yt_avg_pct": 99.9,
-   "checked": "2026-11-19T07:03+00:00"
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-22T13:32+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1678,7 +1678,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "checked": "2026-11-22T13:32+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -3353,8 +3353,8 @@
    "views": 1,
    "yt_views": 1,
    "yt_avg_s": 30,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "yt_avg_pct": 0.3,
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -3367,12 +3367,12 @@
   "stats": {
    "likes": 2,
    "comments": 0,
-   "views": 16,
+   "views": 17,
    "length_s": 24,
    "yt_views": 17,
-   "yt_avg_s": 22,
-   "yt_avg_pct": 95.5,
-   "checked": "2026-11-19T07:03+00:00"
+   "yt_avg_s": 25,
+   "yt_avg_pct": 106.1,
+   "checked": "2026-11-22T13:32+00:00"
   }
  },
  {
@@ -4399,12 +4399,13 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 143,
+   "views": 152,
    "length_s": 1901,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-19T07:03+00:00"
+   "yt_views": 147,
+   "yt_avg_s": 188,
+   "yt_avg_pct": 9.9,
+   "yt_drop_at": 3,
+   "checked": "2026-11-22T13:32+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -5338,19 +5339,17 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-22T06:36+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 4
   }
  },
  {
   "date": "2026-11-21T14:32+00:00",
   "lang": "bn",
   "slot": "2026-11-21@20",
-  "pending_comments": [
-   {
-    "id": "2546361522518949",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1140141738984103",
-    "after": 1795343761.279184
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A night-shift railway signalman at an abandoned Purulia junction who notices a phantom express train scheduled at 3:15 AM that never appears in any official rai",
@@ -5468,17 +5467,23 @@
   "hook_style": "sound",
   "tagline": "চার নম্বর লিভারটা কখনো টানবি না...",
   "district": "purulia",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-21-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-21-20.mp4",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 1,
+   "length_s": 1066,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-22T13:32+00:00"
+  }
  },
  {
   "date": "2026-11-22T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-22@14",
   "pending_comments": [
-   {
-    "id": "1146181867807308",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1174243018279410"
-   },
    {
     "id": "1794693585145979",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1174243018279410",
@@ -5618,5 +5623,139 @@
   "hook_style": "voice",
   "district": "n24",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-14.mp4"
+ },
+ {
+  "date": "2026-11-22T14:28+00:00",
+  "lang": "bn",
+  "slot": "2026-11-22@20",
+  "pending_comments": [
+   {
+    "id": "2354030322036208",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1538336454859057"
+   },
+   {
+    "id": "1413844630613494",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1538336454859057",
+    "after": 1795430100.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": null,
+  "len_arm": null,
+  "listener_score": null,
+  "fresh": null,
+  "style_pick": {
+   "sample": "style_sample_2.mp3",
+   "why": "classic, ghost, story",
+   "also": null
+  },
+  "discovery_id": null,
+  "story_class": null,
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "classic",
+  "question_post": null,
+  "title_b": "রাজবাড়ির দেওয়ালে কি আজও রক্ত ঝরে? 🩸",
+  "theme": "the classic: Rabindranath Tagore's 'Kshudhita Pashan' (The Hungry Stones, 1895)",
+  "format": "told in first person by someone who lived through it ('that night I...'), as if sharing a true experience",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "ক্ষুধিত পাষাণ | রবীন্দ্রনাথ ঠাকুর",
+  "festival": null,
+  "summary": "হায়দরাবাদের এক অভিশপ্ত রাজবাড়িতে সরকারি কাজে গিয়ে অবনীবাবু মুখোমুখি হয়েছিলেন এক ভয়াবহ অতৃপ্ত আত্মার। পাথরের দেওয়ালে আজও শোনা যায় সেই নূপুরের রুনঝুন শব্দ। এই ক্ষুধিত পাষাণ কি আজও কাউকে গিলে খাওয়ার অপেক্ষায় আছে?",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "classic",
+  "viewer_story_id": null,
+  "classic_id": "tagore_kshudhita",
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1538336454859057",
+  "youtube": "dWkkBPykpOY",
+  "fb_reel": "2354030322036208",
+  "fb_story": "1413315708537816",
+  "fb_reel2": "1413844630613494",
+  "yt_short": "CYMQy4LGLSY",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 998,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     9,
+     "শুরু"
+    ],
+    [
+     18,
+     "ক্ষুধিত পাষাণ"
+    ],
+    [
+     129,
+     "2"
+    ],
+    [
+     215,
+     "3"
+    ],
+    [
+     291,
+     "4"
+    ],
+    [
+     361,
+     "5"
+    ],
+    [
+     420,
+     "6"
+    ],
+    [
+     474,
+     "7"
+    ],
+    [
+     534,
+     "8"
+    ],
+    [
+     598,
+     "গোপন মহলের হাতছানি"
+    ],
+    [
+     656,
+     "বরফশীতল দীর্ঘশ্বাস"
+    ],
+    [
+     713,
+     "মেহের আলির সাবধানবাণী"
+    ],
+    [
+     775,
+     "জ্যান্ত পাথরের দেওয়াল"
+    ],
+    [
+     835,
+     "নিকষ অন্ধকার ও প্রেতাত্মার নাচ"
+    ],
+    [
+     885,
+     "মেহের আলির চিৎকার ও মুক্তি"
+    ],
+    [
+     925,
+     "অতৃপ্ত ক্ষুধার দৃষ্টি"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-20.mp4"
  }
 ]
