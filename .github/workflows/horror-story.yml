@@ -9,6 +9,10 @@ on:
         description: "Force language (hi or bn). Leave empty to alternate."
         required: false
         default: ""
+      character:
+        description: "Only for mode = char_sheet: ONE character to draw this run (Hari, Saraswati or Kishori). Empty = all three."
+        required: false
+        default: ""
       mode:
         description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted)."
         required: false
@@ -150,6 +154,7 @@ jobs:
           TTS_PAID: ${{ secrets.TTS_PAID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           LANGUAGE: ${{ github.event.inputs.language }}
+          CHAR_SHEET_CHARACTER: ${{ github.event.inputs.character }}   # (char_sheet only: one character per run)
           CHANNEL_LANG: ${{ secrets.CHANNEL_LANG }}
           EVENT: ${{ github.event_name }}
           MODE: ${{ github.event.inputs.mode || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || (github.event.schedule == '0 15 * * 6' && 'live') || '' }}
