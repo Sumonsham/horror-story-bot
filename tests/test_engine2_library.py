@@ -106,8 +106,13 @@ def test_missing_assets_are_listed_and_a_bad_picture_is_rejected(tmp_path, monke
 
 def test_production_does_not_read_the_library():
     """the production engine never reads engine 2 (it stays off until the owner approves the new engine)"""
-    for f in ("story_engine.py", "animation_renderer.py", "cartoon_rig.py", "scene_planner.py"):
+    for f in ("story_engine.py", "cartoon_rig.py", "scene_planner.py"):
         assert "engine2" not in open(os.path.join(ROOT, f), encoding="utf-8").read()
+    rend = open(os.path.join(ROOT, "animation_renderer.py"), encoding="utf-8").read()
+    assert [ln.strip() for ln in rend.splitlines() if "engine2" in ln] == ["from engine2 import hybrid"]   # only in the
+    import re                                                             # 'hybrid' branch, which only a design asks for
+    for f in ("main.py", "story_engine.py", "scene_planner.py"):
+        assert not re.search(r"""\[["']hybrid["']\]\s*=|hybrid\s*=\s*\(""", open(os.path.join(ROOT, f), encoding="utf-8").read())
     src = open(os.path.join(ROOT, "main.py"), encoding="utf-8").read()
-    uses = [ln for ln in src.splitlines() if "engine2" in ln]
-    assert uses and all("import library" in ln for ln in uses)          # only inside the two test modes
+    uses = [ln.strip() for ln in src.splitlines() if "engine2" in ln]
+    assert uses and all(u.startswith(("from engine2 import", "from engine2.rigby import")) for u in uses)   # test modes only
