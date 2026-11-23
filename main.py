@@ -2652,7 +2652,7 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
         raise RuntimeError("no story details for the whole script")
     story = dict(top)
     story["title"] = story.get("title") or title
-    line_keys = ("en", "emotion", "delivery", "voice_text", "sfx", "jump_scare", "ghost_laugh", "image")
+    line_keys = ("en", "emotion", "delivery", "voice_text", "sfx", "jump_scare", "ghost_laugh", "image", "action")
     scene_keys = ("follows_from", "characters", "action", "place", "mood", "ambience", "chapter")
     step = 8
     out_scenes = []
@@ -3099,6 +3099,25 @@ def chapter_prompt(prompt, extra_rules):
     return p
 
 
+
+STORY_STRENGTH = """
+STORY STRENGTH (the owner's rule, 23 Nov 2026 - read it before writing a single line):
+1. ONE gripping question from the first minute (what is it? who is it? will they get out?) - answered only at the end.
+2. EVERY scene changes something: a new clue, the danger comes closer, a secret comes out, someone decides
+   something. No scene that only repeats a feeling or a description.
+3. The fear climbs in steps: a small strange sign -> proof it is real -> the first direct meeting -> the worst
+   moment -> the answer / twist. Each step bigger than the last.
+4. The people ACT: they decide, search, follow, hide, run, fight back, save someone - they do not only talk about
+   being afraid.
+5. The ending pays off what was planted earlier: a surprise that is fair, never a cheat; one strong last image.
+6. NEVER say anything twice: no sentence, idea, description or 'as I said' that the listener has already heard,
+   no recap, no line repeated by another character. Every line is NEW information or a NEW feeling.
+7. Concrete senses (a sound, a smell, an object, the name of a place) instead of general words like 'scary'.
+8. Say plainly what the body does in the narration (walks in, sits down, runs, looks back, points at the door,
+   falls, hides) - and give every spoken line the key "action": ENGLISH, 2-8 words, what the SPEAKER does while
+   saying it (e.g. "steps back, pointing at the door"), or "" when the speaker stands still. The cartoon acts it.
+"""
+
 def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2, length=None, min_w=None,
                prompt_only=False):
     """part=0: one complete story; part=1: first half of a 2-part series (ends on a cliffhanger);
@@ -3216,7 +3235,7 @@ Story rules:
 - Each scene has 4 to 7 lines. The narrator describes; characters speak only their own words
   (no "he said" inside dialogue). Narrator lines 25-50 words, dialogue lines 4-20 words.
 - Telling style for this story: {fmt}
-{series_rule}{extra_rules}
+{series_rule}{extra_rules}{STORY_STRENGTH}
 - Every picture must show exactly what that scene's lines describe.
 - THE STORY IS TOLD IN ORDER like a real storyteller (never a flash-forward). It OPENS exactly the way the FRESH
   BRIEF below says (its opening device) - never the same kind of opening as our earlier stories, never a stock
@@ -3293,6 +3312,7 @@ Return ONLY JSON with exactly these keys:
                 "emotion": "one of {EMOTIONS}",
                 "delivery": "ENGLISH acting direction for the voice (pitch, speed, loudness, feeling)",
                 "voice_text": "same words as text, with 0-2 sound tags like <gasp> or <sigh> where they fit",
+                "action": "ENGLISH 2-8 words: what the SPEAKER's body does while saying this line (walks in / sits down / points at the door / runs away / looks back / claps / bows) or ''",
                 "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
                           "word": "the EXACT word of this line's text (copied letter by letter) at which the sound is heard, e.g. for 'হঠাৎ দরজায় তিনবার টোকা পড়ল' the word is 'টোকা' - the sound plays exactly on that word; '' if the sound is not mentioned in the words",
                           "when": "only when word is '': before (sound first, then the line), during, or after (line first, then the sound)"}}],
@@ -5241,6 +5261,14 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             shutil.move(p, raw_g)
             ghost_fx(raw_g, p, spec[3] if isinstance(spec[3], str) else "male")
         a = read_wav(p)
+        try:                                          # 23 Nov 2026: a voice that says its line twice / thrice is cut back
+            from tvtoon import voicecheck as _VC
+            a, rep_ = _VC.fix_repeats(a, SR, extras.strip_tags(text))
+            if rep_:
+                write_wav(p, a)
+                log(f"    the voice repeated itself in scene {idx + 1} line {j + 1} ({rep_}) - the repeat was cut")
+        except Exception as e_:
+            log("    repeat check skipped:", str(e_)[:80])
         pk = np.abs(a).max()
         if pk > 0:                                    # every voice equally clear; whispers softer
             emo = str(ln.get("emotion", "normal")).lower()
@@ -10109,6 +10137,52 @@ def write_day_stories(history):
     return done
 
 
+def cartoon_prep_run():
+    """YOUR WISH (23 Nov 2026): a run of its own at 4 AM (cron-job.org, Request body
+    {"ref":"main","inputs":{"mode":"assets"}}) does ONLY this for the day's two stories that the 2 AM run wrote:
+    the STORY SCOUT (tvtoon/prep.py) reads each story and finds every character (and element) the asset library
+    does not have yet, with its details; the CHARACTER ASSET BUILDER makes each of them as a permanent character
+    (its own face, clothes and colours from the story's words), draws and checks it, and saves it in
+    assets/tvtoon_library.json. The 2 PM / 8 PM runs take the characters from there. At most PREP_HOURS (default
+    5) hours. No voice, no animation, nothing posted, no picture service."""
+    import time as _t
+    from tvtoon import prep as PRP
+    now = dt.datetime.now(extras.IST)
+    day = (now + dt.timedelta(days=1)).date() if now.hour >= 18 else now.date()
+    hours = float(env("PREP_HOURS") or 5)
+    start = _t.time()
+    log(f"=== CHARACTER ASSET RUN: the stories of {day.isoformat()} (at most {hours:g} hours) - nothing is posted ===")
+    saved, notes = [], []
+    for h in (NOON, EVENING):
+        key = f"{day.isoformat()}@{h}"
+        plan = load_plan(key)
+        if not plan:
+            log(f"  {SLOT_BN[h]}: no story written yet - nothing to make")
+            notes.append(f"{SLOT_BN[h]}: গল্প এখনও লেখা হয়নি")
+            continue
+        left = hours - (_t.time() - start) / 3600.0
+        if left < 0.05:
+            log("  the time is over")
+            break
+        try:
+            path, rep = PRP.make_assets(_story_cast(plan), key, bot="horror", hours=left, log=log)
+            saved.append(path)
+            notes.append(f"{SLOT_BN[h]}: '{rep['title']}' - নতুন চরিত্র {len(rep['built'])}টা"
+                         + (f" ({', '.join(b['name'] for b in rep['new'])})" if rep["new"] else "")
+                         + (f", আঁকা যায়নি {len(rep['failed'])}টা" if rep["failed"] else "")
+                         + (f"; নিজস্ব ছবি নেই এমন জায়গা: {', '.join(rep['missing_elements'][:3])}" if rep["missing_elements"] else ""))
+        except Exception as e:
+            log(f"  {key}: character assets failed ({str(e)[:200]}) - the story run casts as before")
+            notes.append(f"{SLOT_BN[h]}: চরিত্র তৈরি হয়নি - গল্পের run আগের মতো করবে")
+    for fn in PRP.cleanup():
+        log("  old report removed:", fn)
+    if saved:
+        push_now(saved + [PRP.LIB_FILE, PRP.REPORT_DIR], f"character assets for {day.isoformat()}")
+    if not MOCK and notes:
+        _tg_text("🎭 রাতের চরিত্র-তৈরি:\n" + "\n".join(notes))
+    return saved
+
+
 def chatgpt_prompt(plan, tall=False):
     """what you paste into ChatGPT for this story's thumbnail picture (your formula, this story's ghost and place)"""
     story = _story_cast(plan)
@@ -13230,6 +13304,8 @@ def main():
                  "(GitHub-এ ৩ দিন রাখা থাকবে)। চালু করতে: /autopublish_on")
     if env("MODE") == "write":                       # v110: the 2 AM run - ONLY the day's two stories, written + saved
         return write_day_stories(history)
+    if env("MODE") in ("assets", "cartoon_prep"):    # 23 Nov 2026: 4 AM - ONLY the new characters of the day's stories
+        return cartoon_prep_run()
     global SLOT
     SLOT = None if env("MODE") in ("amavasya", "compilation") or env("FULL_TEST") == "1" else extras.current_slot(TRIGGERS)
     extras.plan_publish(SLOT)
