@@ -4883,12 +4883,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 2,
+   "views": 1,
    "length_s": 1052,
-   "yt_views": 0,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T13:33+00:00"
+   "checked": "2026-11-23T13:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4906,11 +4906,11 @@
   "stats": {
    "likes": 0,
    "comments": 0,
-   "views": 0,
-   "yt_views": 0,
+   "views": 2,
+   "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T13:33+00:00"
+   "checked": "2026-11-23T13:34+00:00"
   }
  },
  {
@@ -5632,19 +5632,19 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-23T06:34+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 0,
+   "at": "2026-11-23T13:34+00:00",
+   "thumb": true
   }
  },
  {
   "date": "2026-11-22T14:28+00:00",
   "lang": "bn",
   "slot": "2026-11-22@20",
-  "pending_comments": [
-   {
-    "id": "1413844630613494",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1538336454859057",
-    "after": 1795430100.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": null,
@@ -5762,17 +5762,23 @@
    ]
   },
   "hook_style": "sound",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-20.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 1,
+   "length_s": 998,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-23T13:34+00:00"
+  }
  },
  {
   "date": "2026-11-23T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-23@14",
   "pending_comments": [
-   {
-    "id": "940911509105847",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1172465555438755"
-   },
    {
     "id": "1859578175226612",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1172465555438755",
@@ -5928,5 +5934,211 @@
   "hook_style": "voice",
   "district": "kolkata",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-14.mp4"
+ },
+ {
+  "date": "2026-11-23T15:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-23@20",
+  "pending_comments": [
+   {
+    "id": "2406369863236406",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2093169838061351"
+   },
+   {
+    "id": "2023356025022997",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2093169838061351",
+    "after": 1795520144.016599
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A newlywed bride trapped inside\n a cursed bridal palanquin in a remote village during a stormy midnight.",
+  "len_arm": null,
+  "listener_score": 8.0,
+  "fresh": {
+   "opening": "a child's question nobody can answer",
+   "telling": "a young reporter investigating, interviewing people",
+   "ghost": "a spirit that imitates the voices of the living",
+   "twist": "the ghost was protecting them",
+   "setting": "a Sundarbans fishing village",
+   "fear": "isolation - nobody believes the hero",
+   "details": [
+    "a rusted tin box containing salt-crusted silver nose-rings buried beneath the porch floorb",
+    "the damp scratching sound of dried mangrove crab shells scraping against the corrugated ti",
+    "the sharp, medicinal scent of crushed neem leaves mixed with stagnant tidal river mud",
+    "the local custom of hanging a hollowed-out gourd filled with river silt from the main raft",
+    "the everyday village habit of scrubbing aluminum rice pots with coarse riverbank sand unti"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_2.mp3",
+   "why": "horror, mystery, remote",
+   "also": "style_sample_1.mp3"
+  },
+  "discovery_id": null,
+  "story_class": null,
+  "true_sources": null,
+  "crossover": true,
+  "opening": "flash",
+  "category": "rohoshyo",
+  "question_post": null,
+  "title_b": "বিদ্যাধরী নদীর অভিশপ্ত পালকি ও কালনাগিনীর নিশি-ডাক 😱 | পর্ব 1",
+  "theme": "A newlywed bride trapped inside\n a cursed bridal palanquin in a remote village during a stormy midnight.",
+  "format": "a listener's letter read out by the narrator, then the events play out",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-11-23T13:34+00:00",
+  "title": "ভৈরব ঠাকুরের কেস #3: মহা-কেস: অভিশপ্ত পালকির নিশি-ডাক 🩸 | রাত ১২টার ঝোড়ো নদী ও কালনাগিনী রূপ 😱",
+  "festival": null,
+  "summary": "সুন্দরবনের বিদ্যাধরী নদীর উত্তাল বুকে এক প্রাচীন মেহগনি পালকি। শ্রাবণের নিঝুম রাতে চেনা কণ্ঠস্বর যখন বাইরে থেকে খিল খুলতে বলে, তখন খিল খুললে কি সত্যি প্রাণ ফেরে? শুনুন সাংবাদিক অনিমেষ দাসের রোমহর্ষক ডায়েরি থেকে সংগৃহীত সত্যের উন্মোচন।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "bhairab",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "2093169838061351",
+  "youtube": "L8REhXFkmcU",
+  "fb_reel": "2406369863236406",
+  "fb_story": "29260245816927932",
+  "fb_reel2": "2023356025022997",
+  "yt_short": "6fxqqBOPxrA",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1752,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     9,
+     "শুরু"
+    ],
+    [
+     24,
+     "অভিশপ্ত অডিও রিল"
+    ],
+    [
+     91,
+     "স্মৃতির ডায়েরি"
+    ],
+    [
+     145,
+     "খেয়াঘাটের কালরাত"
+    ],
+    [
+     249,
+     "অভিশপ্ত মেহগনি পালকি"
+    ],
+    [
+     314,
+     "রক্তমাখা ক্ষোদাই"
+    ],
+    [
+     380,
+     "চালি-কলসির راز"
+    ],
+    [
+     447,
+     "নদীর অলিখিত নিয়ম"
+    ],
+    [
+     548,
+     "১৩৩৫ বঙ্গাব্দের ধাঁধা"
+    ],
+    [
+     620,
+     "নিচ্ছিদ্র নিশার অন্ধকার"
+    ],
+    [
+     686,
+     "বাইরের কোনো ডাক"
+    ],
+    [
+     749,
+     "ভুল কণ্ঠস্বর"
+    ],
+    [
+     801,
+     "তক্তার নীচের রহস্য"
+    ],
+    [
+     867,
+     "জং-ধরা টিনের বাক্স"
+    ],
+    [
+     927,
+     "কালনাগিনীর অভিশাপ"
+    ],
+    [
+     1045,
+     "মৃত্যুর মুখে পা"
+    ],
+    [
+     1099,
+     "ডাকাতদের আক্রমণ"
+    ],
+    [
+     1157,
+     "পালকির ভেতর আতঙ্ক"
+    ],
+    [
+     1216,
+     "ভয়ের অদ্ভুত উপলব্ধি"
+    ],
+    [
+     1266,
+     "নৌকার খোলে বন্দি অনিমেষ"
+    ],
+    [
+     1306,
+     "মায়ের নিশি-ডাক"
+    ],
+    [
+     1354,
+     "দরজায় কুঠারের কোপ"
+    ],
+    [
+     1394,
+     "হিমশীতল উপস্থিতি"
+    ],
+    [
+     1439,
+     "নিজ গলার অশরীরী বাণী"
+    ],
+    [
+     1479,
+     "শতর নারীর আর্তনাদ"
+    ],
+    [
+     1504,
+     "শান্ত সকালের উদ্ধার"
+    ],
+    [
+     1550,
+     "পালকির রহস্য উন্মোচন"
+    ],
+    [
+     1589,
+     "অভিশপ্ত পালকির বিসর্জন"
+    ],
+    [
+     1641,
+     "শহরের রাতের আতঙ্ক"
+    ],
+    [
+     1681,
+     "শেষের শুরু"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "tagline": "ঝড়ের রাতে নদী থেকে কে ডেকেছিল কনের নাম?",
+  "district": "kolkata",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-20.mp4"
  }
 ]

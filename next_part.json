@@ -1,1 +1,110 @@
-{}
+{
+ "rohoshyo": {
+  "created": "2026-11-23T15:31:41.124756+00:00",
+  "category": "rohoshyo",
+  "lang": "bn",
+  "theme": "A newlywed bride trapped inside\n a cursed bridal palanquin in a remote village during a stormy midnight.",
+  "fmt": "a listener's letter read out by the narrator, then the events play out",
+  "special": "bhairab",
+  "title": "ভৈরব ঠাকুরের কেস #3: মহা-কেস: অভিশপ্ত পালকির নিশি-ডাক 🩸",
+  "done": 1,
+  "total": 2,
+  "series_id": "2026-11-23T13:34+00:00",
+  "case_no": 3,
+  "summary": "\nPart 1: সুন্দরবনের বিদ্যাধরী নদীর উত্তাল বুকে এক প্রাচীন মেহগনি পালকি। শ্রাবণের নিঝুম রাতে চেনা কণ্ঠস্বর যখন বাইরে থেকে খিল খুলতে বলে, তখন খিল খুললে কি সত্যি প্রাণ ফেরে? শুনুন সাংবাদিক অনিমেষ দাসের রোমহর্ষক ডায়েরি থেকে সংগৃহীত সত্যের উন্মোচন।",
+  "last_lines": "ল্যাম্পের আলোটা নিভে যাওয়ার ঠিক আগের মুহূর্তে অনিমেষের ঘাড়ের পেছনে এসে পড়ল এক অতীব শীতল বরফতুল্য নিঃশ্বাস। / আর অন্ধকারের ভেতর থেকে পিয়ালীর অতি পরিচিত কণ্ঠস্বর ফিসফিস করে বলে উঠল— / অনিমেষবাবু... ডায়েরি বন্ধ করলেন কেন? আমাদের গল্প তো এখনো শেষ হয়নি! / ঘরের আলো নিভে গেল এক লহমায়... আর চারপাশ ঘিরে ধরল এক অনন্ত, হিমশীতল অন্ধকার!",
+  "outline": "{\"premise\": \"An investigative journalist uncovers the eerie truth behind a stormy midn\", \"when_where\": \"July, rainy Tuesday, 11:30 PM midnight storm; Kumirmari village near Gosa\", \"characters\": [{\"name\": \"Animesh Das\", \"gender\": \"male\", \"age\": \"28\", \"kind\": \"human\", \"who\": \"Investigative journalist from Kolkata visiting rural Sundarbans\", \"wants\": \"To document isolated river communities and find the truth behind local gh\", \"fears\": \"Getting stranded alone in an unpredictable tidal surge\", \"secret\": \"He fabricated part of his previous breaking story to boost his career and\"}, {\"name\": \"Piyali Roy\", \"gender\": \"female\", \"age\": \"21\", \"kind\": \"human\", \"who\": \"Newlywed bride traveling across the river to her husband's home\", \"wants\": \"To safely complete her bridal journey despite the dangerous storm\", \"fears\": \"Claustrophobia inside the dark, heavy wooden bridal palanquin\", \"secret\": \"She contemplated running away from the marriage before boarding the vesse\"}, {\"name\": \"Sukumar Mondal\", \"gender\": \"male\", \"age\": \"26\", \"kind\": \"human\", \"who\": \"Piyali's husband, a local river trader\", \"wants\": \"To reach his ancestral village before high tide floods the banks\", \"fears\": \"Losing his family's pride and vessel to river thieves or bad weather\", \"secret\": \"He borrowed heavy funds from river dacoits to pay for the wedding feast.\"}, {\"name\": \"Brojonath Bagdi\", \"gender\": \"male\", \"age\": \"59\", \"kind\": \"human\", \"who\": \"Veteran boatman and palanquin bearer of Kumirmari\", \"wants\": \"To honor an ancient river tradition and protect village brides\", \"fears\": \"The wrath of river dacoits and unquiet spirits during a dark surge\", \"secret\": \"He knew river dacoits were stalking the river route that night and intent\"}], \"beats\": [{\"n\": 1, \"part\": 1, \"step\": 1, \"what_happens\": \"A recorded audio snippet plays heavy rain noise, followed by a frantic vo\", \"because\": \"Opening hook audio device establishing the core audio horror of mimicking\", \"decision\": \"Animesh plays this tape for his radio audience to hook them into the case\", \"follow_up\": \"He explains how he acquired this tape from Gosaba in Beat 2.\", \"new_fear\": \"Hearing a loved one's exact voice coming from a dangerous supernatural en\"}, {\"n\": 2, \"part\": 1, \"step\": 2, \"what_happens\": \"Animesh narrates reading a listener's letter detailing an incident in Gos\", \"because\": \"The tape recording in Beat 1 was sent to Animesh alongside this cryptic l\", \"decision\": \"Animesh decides to travel into the deep mangrove delta of Kumirmari to in\", \"follow_up\": \"His arrival at the storm-swept river deck occurs in Beat 3.\", \"new_fear\": \"An unanswerable question from an innocent child pointing toward eerie rea\"}, {\"n\": 3, \"part\": 1, \"step\": 3, \"what_happens\": \"Animesh arrives at Kumirmari jetty amidst a blinding monsoon downpour, me\", \"because\": \"Animesh's passenger launch docked at the final river outpost just as Suku\", \"decision\": \"Sukumar hires old boatman Brojonath to pilot them across before the tide \", \"follow_up\": \"The entire group boards the motorized country boat in Beat 4.\", \"new_fear\": \"Rising muddy river tides threatening to swallow the last ferry deck.\"}, {\"n\": 4, \"part\": 1, \"step\": 4, \"what_happens\": \"As the boat pushes off, Piyali steps inside the palanquin for cover and n\", \"because\": \"The storm wind intensifies, soaking the open deck and driving her into th\", \"decision\": \"Piyali traces the carved symbols with her fingers, uneasy about their rit\", \"follow_up\": \"Animesh inspects the outer roof structure of the palanquin in Beat 5.\", \"new_fear\": \"Realizing the traditional wedding vessel is covered in protective blood-c\"}, {\"n\": 5, \"part\": 1, \"step\": 4, \"what_happens\": \"Animesh notices a hollowed-out gourd filled with tidal river silt suspend\", \"because\": \"He stepped closer to inspect the strange craftsmanship of the bridal box.\", \"decision\": \"Brojo sharply pulls Animesh back and forbids anyone from touching the cha\", \"follow_up\": \"Brojo issues a strict ritual warning to the entire party in Beat 6.\", \"new_fear\": \"A sacred ritual object defying natural physics inside a confined space.\"}, {\"n\": 6, \"part\": 1, \"step\": 5, \"what_happens\": \"Brojo delivers a grave warning: 'Once the palanquin doors are bolted for \", \"because\": \"Brojo knows the river's deadly history and the supernatural rule binding \", \"decision\": \"Sukumar dismisses the warning as old superstition, but Piyali takes it to\", \"follow_up\": \"Piyali remembers this exact rule when the haunting begins in Beat 8.\", \"new_fear\": \"A strict supernatural tabu that carries fatal consequences if broken.\"}, {\"n\": 7, \"part\": 1, \"step\": 5, \"what_happens\": \"Animesh detects a pungent scent of crushed neem leaves mixed with stagnan\", \"because\": \"He leaned against the wooden box to shelter from driving spray while list\", \"decision\": \"Animesh writes down the inscription in his notebook as a historical clue.\", \"follow_up\": \"This inscription serves as a vital clue for the midpoint reveal and twist\", \"new_fear\": \"A suffocating smell of herbal preservation masking historical tragedy.\"}, {\"n\": 8, \"part\": 1, \"step\": 6, \"what_happens\": \"The boat's generator dies in mid-river, plunging the deck into darkness; \", \"because\": \"The electrical short cuts off all lights, triggering the entity's approac\", \"decision\": \"Piyali remembers Brojo's warning and refuses to unbolt the window latch.\", \"follow_up\": \"Her refusal causes the entity outside to attack the door in Beat 9.\", \"new_fear\": \"A trusted loved one's voice making a unnaturally sinister request from th\"}, {\"n\": 9, \"part\": 1, \"step\": 6, \"what_happens\": \"When Piyali holds the bolt tight, the voice outside distorts into a guttu\", \"because\": \"The voice entity reacts aggressively to her refusal to open the door.\", \"decision\": \"Piyali screams in terror while clinging to the iron bolt with both hands.\", \"follow_up\": \"Sukumar and Animesh rush down the darkened deck to investigate in Beat 10\", \"new_fear\": \"Violent physical assault on the narrow wooden shell separating victim fro\"}, {\"n\": 10, \"part\": 1, \"step\": 7, \"what_happens\": \"Sukumar and Animesh reach the palanquin; Piyali tearfully accuses Sukumar\", \"because\": \"Piyali's screams alerted the men on the upper deck.\", \"decision\": \"Sukumar decides to search the lower deck under-planks for an intruder.\", \"follow_up\": \"Their search reveals a hidden artifact under the floorboards in Beat 11.\", \"new_fear\": \"The chilling realization that the speaker outside was an impossible dupli\"}, {\"n\": 11, \"part\": 1, \"step\": 7, \"what_happens\": \"Sukumar wrenches up a loose floorboard near the palanquin base, uncoverin\", \"because\": \"He was searching for mechanical speakers or a hidden prankster.\", \"decision\": \"Animesh examines the silver nose-rings, realizing they belonged to past b\", \"follow_up\": \"Brojo explains the origin of these tragic relics in Beat 12.\", \"new_fear\": \"Finding gruesome tokens of previous victims hidden beneath your feet.\"}, {\"n\": 12, \"part\": 1, \"step\": 8, \"what_happens\": \"Brojo reveals that 50 years ago, river dacoits ambushed a bridal palanqui\", \"because\": \"Animesh confronts Brojo with the blood-stained nose-rings from the tin bo\", \"decision\": \"Brojo admits the dark history of the ancestral palanquin.\", \"follow_up\": \"Animesh demands they turn the boat around in Beat 13.\", \"new_fear\": \"Learning that the vessel you occupy is anchored to a horrific historical \"}, {\"n\": 13, \"part\": 1, \"step\": 8, \"what_happens\": \"Animesh demands they return to Kumirmari jetty, but Sukumar refuses, reve\", \"because\": \"The midpoint reveal of the murder history terrifies Animesh.\", \"decision\": \"Sukumar pushes the boat throttle forward directly into the storm center.\", \"follow_up\": \"The vessel is caught in the full brunt of the tidal surge in Beat 14.\", \"new_fear\": \"Being trapped on a vessel driven by human desperation into supernatural p\"}, {\"n\": 14, \"part\": 1, \"step\": 9, \"what_happens\": \"A rogue wave strikes the hull; armed dacoits in a skiff board in the chao\", \"because\": \"The storm surge and dacoit ambush hit simultaneously at the channel conve\", \"decision\": \"Piyali stays locked inside the palanquin as instructed by Brojo's earlier\", \"follow_up\": \"The ghost moves closer to Piyali inside the grounded boat in Beat 15.\", \"new_fear\": \"The total collapse of human defense as violent criminals overpower the ve\"}, {\"n\": 15, \"part\": 1, \"step\": 9, \"what_happens\": \"Inside the pitch-black palanquin, Piyali hears Animesh's voice right outs\", \"because\": \"The supernatural force intensifies around the palanquin as threat mounts \", \"decision\": \"Piyali presses her back against the inner door, holding the latch shut wi\", \"follow_up\": \"The dacoits surround the palanquin deck in Beat 16.\", \"new_fear\": \"Hearing a single person's voice screaming from two separate locations at \"}, {\"n\": 16, \"part\": 1, \"step\": 10, \"what_happens\": \"The dacoits drag Animesh down into the flooded bilge hold, pinning him in\", \"because\": \"The dacoits are systematically securing the vessel to break open the brid\", \"decision\": \"Animesh struggles frantically in the dark hold but cannot break free.\", \"follow_up\": \"Piyali faces total isolation inside the palanquin in Beat 17.\", \"new_fear\": \"Complete helplessness while hearing armed attackers surround your hiding \"}, {\"n\": 17, \"part\": 1, \"step\": 10, \"what_happens\": \"A voice mimicking Piyali's mother weepingly begs her from outside to unbo\", \"because\": \"The entity tests Piyali's resolve with her deepest emotional vulnerabilit\", \"decision\": \"Piyali almost unlatches the door, but the intense smell of neem leaves in\", \"follow_up\": \"She chooses to stay locked inside as all hope seems lost in Beat 18.\", \"new_fear\": \"An agonizing choice between emotional instinct and cold survival rules.\"}, {\"n\": 18, \"part\": 1, \"step\": 10, \"what_happens\": \"The last lantern shatters; iron cleavers begin chopping into the outer wo\", \"because\": \"The dacoits lose patience and begin violently breaking into the palanquin\", \"decision\": \"Piyali curls into a ball, resigning herself to her fate.\", \"follow_up\": \"The entity manifests face-to-face inside the box in Beat 19.\", \"new_fear\": \"Physical destruction of your final barrier by armed men.\"}, {\"n\": 19, \"part\": 1, \"step\": 11, \"what_happens\": \"An ice-cold weight settles directly onto the mattress beside Piyali insid\", \"because\": \"The supernatural spirit manifests its full presence inside the palanquin.\", \"decision\": \"Piyali freezes completely, holding her breath in utter terror.\", \"follow_up\": \"The entity speaks directly into Piyali's ear in Beat 20.\", \"new_fear\": \"Feeling an invisible, freezing physical presence sitting right beside you\"}, {\"n\": 20, \"part\": 1, \"step\": 11, \"what_happens\": \"The presence inside whispers in Piyali's own exact voice: 'Do not open th\", \"because\": \"The guardian spirit is taking direct action to protect the bride inside.\", \"decision\": \"Piyali stays silent and lets the spirit act.\", \"follow_up\": \"The spirit unleashes its sonic power across the storm deck in Beat 21.\", \"new_fear\": \"Hearing your own voice whispered into your ear by an spectral entity.\"}, {\"n\": 21, \"part\": 1, \"step\": 11, \"what_happens\": \"The spirit projects a terrifying chorus of roaring voices through the dec\", \"because\": \"The spirit uses its mimicry to trick and terrify the human attackers outs\", \"decision\": \"The dacoits drop their axes in blind panic, believing an armed police bat\", \"follow_up\": \"The dacoits flee into the dark mangroves in Beat 22.\", \"new_fear\": \"A deafening, chaotic explosion of supernatural voices shaking the grounde\"}, {\"n\": 22, \"part\": 1, \"step\": 12, \"what_happens\": \"Brojo—who survived being pushed overboard by swimming to the nearby river\", \"because\": \"Brojo raised the alarm at the outpost, and the ghost's voice projection g\", \"decision\": \"The river police sweep the mudbank and capture the fleeing dacoits.\", \"follow_up\": \"Sukumar and Animesh are freed from their bindings in Beat 23.\", \"new_fear\": \"The overwhelming sensory shock of violent chaos turning into sudden rescu\"}, {\"n\": 23, \"part\": 1, \"step\": 12, \"what_happens\": \"Animesh puts the clues together: the ghost was NEVER trying to lure Piyal\", \"because\": \"The neem scent, the brass inscription ('She guards the chaste from evil m\", \"decision\": \"Animesh unbolts the palanquin door from the outside to release Piyali.\", \"follow_up\": \"Piyali steps out unharmed into the morning light in Beat 24.\", \"new_fear\": \"The chilling realization that what felt like demonic terror was a dead br\"}, {\"n\": 24, \"part\": 1, \"step\": 13, \"what_happens\": \"At dawn, Sukumar is untied unharmed, the dacoits are taken into custody, \", \"because\": \"The police secure the area and the midnight storm dissipates.\", \"decision\": \"Piyali embraces Sukumar, forgiving his foolish debt decisions as they sur\", \"follow_up\": \"They decide the ritual fate of the ancient palanquin in Beat 25.\", \"new_fear\": \"The heavy, quiet stillness of a violent battleground in dawn daylight.\"}, {\"n\": 25, \"part\": 1, \"step\": 13, \"what_happens\": \"Brojo and Sukumar ceremonially submerge the ancestral palanquin in the de\", \"because\": \"To honor the spirit that saved Piyali and ensure no future bride is put i\", \"decision\": \"Animesh records the sinking of the palanquin on camera before taking the \", \"follow_up\": \"Animesh returns to his city studio in Beat 26.\", \"new_fear\": \"Watching a heavy wooden sanctuary sink forever into dark, murky river sil\"}, {\"n\": 26, \"part\": 1, \"step\": 13, \"what_happens\": \"Back in his Kolkata apartment, Animesh finishes typing his investigative \", \"because\": \"He is completing his final manuscript for his radio documentary series.\", \"decision\": \"He closes his notebook and prepares to turn off his desk lamp.\", \"follow_up\": \"The final haunting twist occurs in Beat 27.\", \"new_fear\": \"The eerie residual silence of a late-night city room after surviving horr\"}, {\"n\": 27, \"part\": 1, \"step\": 14, \"what_happens\": \"As Animesh reaches to switch off his desk lamp, an ice-cold breath touche\", \"because\": \"The voice-mimicking entity attached itself to the journalist who brought \", \"decision\": \"Animesh freezes in total terror as the lamp clicks off.\", \"follow_up\": \"Story ends on absolute darkness.\", \"new_fear\": \"Discovering that the mimicking entity followed you home into your safe ci\"}], \"clues\": [\"The hollowed-out silt gourd and carved blood-clay runes - planted in Step\", \"The engraved brass plate stating 'She guards the chaste from evil men' an\", \"The tin box of salt-crusted silver nose-rings under the floorboards - pla\"], \"twist\": \"The terrifying ghost mimicking voices was NOT trying to trick Piyali into\", \"resolution\": \"The river dacoits are arrested by patrol police guided by the ghost's boo\", \"last_line\": \"As Animesh reached to switch off his desk lamp, an ice-cold breath touche\"}",
+  "characters": [
+   {
+    "name": "Animesh",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "Investigative journalist in his late 30s, sharp intelligent face, short black hair, wearing spectacles, beige raincoat over a cotton shirt, holding a diary and metallic flashlight.",
+    "name_local": "অনিমেষ",
+    "intro": "সাংবাদিক অনিমেষ দাস - কলকাতার আকাশবাণী ভবনের অনুসন্ধানী সাংবাদিক, সুন্দরবনের রহস্যের সত্য উন্মোচন করতে ব্যাকুল।",
+    "intro_en": "Journalist Animesh Das - an investigative reporter from Kolkata Akashvani Bhavan, desperate to uncover the truth behind Sundarban's mystery."
+   },
+   {
+    "name": "Sukumar",
+    "gender": "male",
+    "age": "young",
+    "kind": "human",
+    "look": "Villager groom in his late 20s, dark wheatish skin, anxious brown eyes, wearing a traditional white kurta-dhoti soaked in rain, gripping boat ropes with trembling hands.",
+    "name_local": "সুকুমার",
+    "intro": "কুমিড়মাড়ি গ্রামের সুকুমার মণ্ডল - ঋণগ্রস্ত সদ্যবিবাহিত যুবক, যে নতুন বউ নিয়ে ঝোড়ো রাতে নদী পার হওয়ার জেদ ধরেছে।",
+    "intro_en": "Sukumar Mondal from Kumirmari village - a newlywed young man in debt, determined to cross the stormy river with his bride."
+   },
+   {
+    "name": "Piyali",
+    "gender": "female",
+    "age": "young",
+    "kind": "human",
+    "look": "23-year-old bride, pale fair face with intense wide fearful eyes, wearing a heavy red Benarasi silk saree, silver nose ring, and traditional vermilion on her forehead.",
+    "name_local": "পিয়ালী",
+    "intro": "তেইশ বছরের সদ্যবিবাহিত কনে পিয়ালী - যে সুকুমারের হাত ধরে এক অভিশপ্ত প্রাচীন কাঠের পালকিতে আশ্রয় নিয়েছে।",
+    "intro_en": "Twenty-three-year-old newlywed bride Piyali - who takes shelter inside an ancient cursed wooden palanquin holding Sukumar's hand."
+   },
+   {
+    "name": "Brojonath",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "50-year-old veteran boatman, deeply weathered dark skin, grey beard, piercing dark eyes, wearing a faded blue loincloth and coarse towel wrapped over shoulders, wrinkled face momentarily turned pale as moss",
+    "name_local": "ব্রজনাথ",
+    "intro": "প্রবীণ মাঝি ব্রজনাথ বাগদী - বিদ্যাধরী নদীর অলিখিত নিয়ম ও প্রাচীন অভিশাপের নীরব প্রত্যক্ষদর্শী।",
+    "intro_en": "Veteran boatman Brojonath Bagdi - a silent eyewitness to the unwritten rules and ancient curse of the Vidyadhari river."
+   },
+   {
+    "name": "Kalnagini",
+    "gender": "female",
+    "age": "adult",
+    "kind": "ghost",
+    "look": "Spectral bride from 50 years ago, ultra-pale icy skin, pitch-black hollow eyes glowing faintly, matted wet black hair, tattered blood-stained red bridal attire.",
+    "name_local": "কালনাগিনী",
+    "intro": "পঁচাশ বছর আগের এক নিহত কনের প্রতিশোধপরায়ণ আত্মা - যে নদীর নিশি-ডাক হয়ে অন্যের চেনা কণ্ঠ চুরি করে ফিরে আসে।",
+    "intro_en": "The vengeful spirit of a murdered bride from 50 years ago - who returns as the river's Nishi-Dak mimicking loved ones' voices."
+   },
+   {
+    "name": "Bhairab Thakur",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "a tall thin old Bengali tantrik of about seventy, long grey matted hair tied on top of his head, thick grey beard, sharp kind eyes lined with kohl, red tilak on forehead, deep red dhoti and a black shawl, rudraksha beads, carries an old brass lantern and a bamboo staff"
+   },
+   {
+    "name": "Paltu",
+    "gender": "male",
+    "age": "young",
+    "kind": "human",
+    "look": "a chubby nervous young Bengali man of about twenty-two, round face, messy short black hair, big round glasses, yellow checked shirt and blue jeans, cloth sling bag, always holding a small torch"
+   },
+   {
+    "name": "Nilkantha",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "Nilkantha Acharya, a thin Bengali astrologer of about sixty, grey hair combed back, grey stubble, deep tired eyes with dark circles, a red-and-black thread and a copper ring on his left hand, a cream panjabi and white dhoti, a brown woollen shawl, small round brass-rimmed glasses"
+   },
+   {
+    "name": "Bapi",
+    "gender": "male",
+    "age": "young",
+    "kind": "human",
+    "look": "Bapi, Nilkantha's nephew, a slim Bengali college student of about twenty, short messy black hair, light moustache, a checked half-sleeve shirt and grey trousers, a cloth bag, a torch in his hand"
+   },
+   {
+    "name": "Pishachini",
+    "gender": "female",
+    "age": "young",
+    "kind": "ghost",
+    "look": "the Karna Pishachini, a fierce tantric yogini spirit: tall, dark-skinned, wild loose black hair down to her knees, burning red eyes, a red sindoor mark on the forehead, a black saree with a blood-red border, bone and rudraksha ornaments, silver anklets, long thin fingers; she stays in smoke and lamp-shadow, mostly only a dark shape at the left shoulder; her face is seen only for a moment"
+   }
+  ],
+  "setting": "A tempestuous monsoon midnight on the Vidyadhari river in Sundarbans Bengal, aboard a wooden double-deck ferry carrying an ancient mahogany bridal palanquin with brass fittings under heavy downpour and petromax light.",
+  "arc": "finale",
+  "crossover": true,
+  "source": "",
+  "updated": "2026-11-23T15:31:41.124944+00:00"
+ }
+}
