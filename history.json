@@ -630,7 +630,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -664,7 +664,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -700,7 +700,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -848,7 +848,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -885,7 +885,7 @@
    "yt_views": 1,
    "yt_avg_s": 17,
    "yt_avg_pct": 1.7,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -922,7 +922,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -1142,7 +1142,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -1408,9 +1408,9 @@
    "views": 2,
    "length_s": 1791,
    "yt_views": 2,
-   "yt_avg_s": 677,
-   "yt_avg_pct": 37.8,
-   "checked": "2026-11-20T06:33+00:00"
+   "yt_avg_s": 904,
+   "yt_avg_pct": 50.5,
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1457,7 +1457,7 @@
    "yt_views": 3,
    "yt_avg_s": 29,
    "yt_avg_pct": 1.2,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1721,10 +1721,10 @@
    "comments": 2,
    "views": 7,
    "length_s": 1128,
-   "yt_views": 6,
-   "yt_avg_s": 133,
-   "yt_avg_pct": 11.8,
-   "checked": "2026-11-20T06:33+00:00"
+   "yt_views": 7,
+   "yt_avg_s": 99,
+   "yt_avg_pct": 8.8,
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1866,9 +1866,9 @@
    "views": 13,
    "length_s": 934,
    "yt_views": 13,
-   "yt_avg_s": 52,
-   "yt_avg_pct": 5.7,
-   "checked": "2026-11-20T06:33+00:00"
+   "yt_avg_s": 57,
+   "yt_avg_pct": 6.2,
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2451,7 +2451,7 @@
    "yt_views": 2,
    "yt_avg_s": 34,
    "yt_avg_pct": 2.1,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2637,7 +2637,7 @@
    "yt_views": 4,
    "yt_avg_s": 13,
    "yt_avg_pct": 0.7,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2794,9 +2794,9 @@
    "views": 1,
    "length_s": 1052,
    "yt_views": 1,
-   "yt_avg_s": 421,
-   "yt_avg_pct": 40.0,
-   "checked": "2026-11-20T06:33+00:00"
+   "yt_avg_s": 418,
+   "yt_avg_pct": 39.7,
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3553,10 +3553,10 @@
    "comments": 2,
    "views": 3,
    "length_s": 1272,
-   "yt_views": 2,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 23,
+   "yt_avg_pct": 1.8,
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3728,7 +3728,7 @@
    "yt_views": 1,
    "yt_avg_s": 190,
    "yt_avg_pct": 15.4,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -3749,10 +3749,10 @@
    "comments": 0,
    "views": 5,
    "length_s": 21,
-   "yt_views": 4,
+   "yt_views": 5,
    "yt_avg_s": 4,
    "yt_avg_pct": 22.5,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   }
  },
  {
@@ -3916,7 +3916,7 @@
    "yt_views": 2,
    "yt_avg_s": 318,
    "yt_avg_pct": 29.8,
-   "checked": "2026-11-20T06:33+00:00"
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4607,12 +4607,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 9,
+   "views": 10,
    "length_s": 1083,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-19T13:33+00:00"
+   "yt_views": 10,
+   "yt_avg_s": 50,
+   "yt_avg_pct": 4.6,
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4758,10 +4758,10 @@
    "comments": 2,
    "views": 1,
    "length_s": 856,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-20T06:33+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 29,
+   "yt_avg_pct": 3.4,
+   "checked": "2026-11-23T06:34+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -5477,19 +5477,19 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-22T13:32+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 0,
+   "at": "2026-11-23T06:36+00:00",
+   "thumb": true
   }
  },
  {
   "date": "2026-11-22T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-22@14",
-  "pending_comments": [
-   {
-    "id": "1794693585145979",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1174243018279410",
-    "after": 1795408500.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A group of friends taking a winter midnight shortcut past an abandoned rural slaughterhouse guarded by a headless entity.",
@@ -5622,7 +5622,17 @@
   },
   "hook_style": "voice",
   "district": "n24",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-14.mp4",
+  "stats": {
+   "likes": 0,
+   "comments": 2,
+   "views": 0,
+   "length_s": 1267,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-23T06:34+00:00"
+  }
  },
  {
   "date": "2026-11-22T14:28+00:00",
@@ -5753,5 +5763,170 @@
   },
   "hook_style": "sound",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-22-20.mp4"
+ },
+ {
+  "date": "2026-11-23T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-23@14",
+  "pending_comments": [
+   {
+    "id": "940911509105847",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1172465555438755"
+   },
+   {
+    "id": "1859578175226612",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1172465555438755",
+    "after": 1795494900.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A solo vlogger recording a night tour of an abandoned railway quarter near Howrah captures a ghostly shadow mimicking his exact movements in the background.",
+  "len_arm": null,
+  "listener_score": 5.0,
+  "fresh": {
+   "opening": "a dying person's last words",
+   "telling": "first person, the one who lived it, years later",
+   "ghost": "a guardian spirit misunderstood as evil",
+   "twist": "the helper was the ghost all along",
+   "setting": "a tea garden in the hills",
+   "fear": "isolation - nobody believes the hero",
+   "details": [
+    "A small, hand-carved wooden tea-plucker’s peg embedded with a singular human molar found i",
+    "The distinct, wet sound of a heavy copper kettle being dragged across gravel that syncs pe",
+    "The sharp, stinging scent of crushed rhododendron petals mixed with the faint, ozonic smel",
+    "The local custom of 'tying a thread of unspun jute' around the third tea bush of every row",
+    "The ubiquitous, silent habit of the garden workers hanging their damp, black rain-capes in"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_3.mp3",
+   "why": "ghostly, horror, night, railway, shadow, train",
+   "also": null
+  },
+  "discovery_id": "202611230100-x",
+  "story_class": "fiction",
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "shohor",
+  "question_post": null,
+  "title_b": "রংটং লাইনের ছায়া-পাহারাদার 👻",
+  "theme": "A solo vlogger recording a night tour of an abandoned railway quarter near Howrah captures a ghostly shadow mimicking his exact movements in the background.",
+  "format": "first person, the one who lived it, years later",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "ছায়া-পাহারাদার 😱 | রংটং লাইনের সেই অভিশপ্ত রাত | Real Horror Story",
+  "festival": null,
+  "summary": "১৯৯৪ সালের এক শীতের রাতে রংটং ন্যারোগেজ লাইনের পরিত্যক্ত কোয়ার্টারে সুব্রত সেনের মুখোমুখি হতে হয়েছিল এক আদিম হররের। হরিশ ছেত্রীর ছায়া কি আজও পাহাড়ের খাদে ঘোরে? শেষ পর্যন্ত কি সত্যি প্রকাশিত হলো?",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1172465555438755",
+  "youtube": "rQNQX9UX9yE",
+  "fb_reel": "940911509105847",
+  "fb_story": "1696844275212100",
+  "fb_reel2": "1859578175226612",
+  "yt_short": "TY4fuRzFqqA",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1739,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     7,
+     "শুরু"
+    ],
+    [
+     18,
+     "অভিশপ্ত টেপ"
+    ],
+    [
+     86,
+     "হাসপাতালের সতর্কতা"
+    ],
+    [
+     159,
+     "রংটং কাটিং"
+    ],
+    [
+     263,
+     "বারান্দার অশুভ মাদুলি"
+    ],
+    [
+     345,
+     "সুতার সীমানা"
+    ],
+    [
+     411,
+     "অদৃশ্য ঘর্ষণের শব্দ"
+    ],
+    [
+     521,
+     "ছায়ার ফাঁদ"
+    ],
+    [
+     602,
+     "গুদামঘরের রহস্য"
+    ],
+    [
+     712,
+     "উনুনের লাল আগুন"
+    ],
+    [
+     805,
+     "আটষট্টির অভিশাপ"
+    ],
+    [
+     908,
+     "ঘন অন্ধকার ও পচা গন্ধ"
+    ],
+    [
+     994,
+     "সিলিংয়ের উল্টো ছায়া"
+    ],
+    [
+     1082,
+     "তামার ঘটির আওয়াজ"
+    ],
+    [
+     1155,
+     "জানলার নোংরা হাত"
+    ],
+    [
+     1226,
+     "পায়ের নিখুঁত ছন্দ"
+    ],
+    [
+     1310,
+     "ভাসমান শূন্য পা"
+    ],
+    [
+     1403,
+     "ভোরের নীল বিদ্যুৎ"
+    ],
+    [
+     1532,
+     "অতীতের রহস্য"
+    ],
+    [
+     1634,
+     "অনন্ত ছায়া"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "kolkata",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-14.mp4"
  }
 ]
