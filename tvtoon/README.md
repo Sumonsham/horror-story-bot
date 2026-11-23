@@ -328,3 +328,69 @@ The owner decided that from now on the horror story comes out as a cartoon. `hor
 Approval: the owner gave a standing approval in chat on 23 Nov 2026, so `approvals.json` has `"_all": USER_APPROVED`, which also covers new characters, disguises and ghost forms.
 
 Speed: about 2.3 seconds of rendering per second of video on 2 cores at 1280×720, so a 15-minute story takes about 35 minutes. The run's time limit is 6 hours.
+
+## Places change with the story (23 Nov 2026)
+The owner saw every indoor scene come out as the same bedroom. `rooms.py` now gives 11 kinds of room plus the boat, and `story.place_of` and `story.room_kind` choose them from the place text:
+
+| Kind | Example place text |
+|---|---|
+| bedroom | an old room, a quarter room |
+| kitchen | clay stove with embers and smoke |
+| hall | a palace or zamindar hall, with pillars, arches, a chequered floor, portraits and a chandelier |
+| hospital | a ward with a flickering tube light |
+| office / study | a desk, a table lamp and a bookshelf |
+| studio | a radio or recording room |
+| corridor | swinging bulbs |
+| shed / store | light through the planks, tools |
+| flat | a Kolkata flat with the city outside |
+| hold | inside a boat; it rocks |
+| palki | inside a palanquin; it sways |
+| boat | on the river: waves, mangroves, the canopy, a swinging lantern, a storm, a palanquin on the deck |
+
+**Other rules:**
+- Within one story, the same kind of room keeps the same look.
+- No rain falls inside a room.
+- Inside a palanquin or a boat's hold, the people sit.
+- "radio station" and "police station" are rooms, not railway stations; a railway cutting or track is a road.
+- A speaker's name written in English letters is drawn with a Latin font, not as empty boxes.
+
+## The Cartoon Studio: your story in, a finished episode out (23 Nov 2026)
+`tvtoon/studio.py` is a real multi-agent pipeline on this engine. Each agent has its own job, reads only earlier agents' files and writes only its own. Each one checks its own output and has its own error handling.
+
+The Production Manager (agent 01):
+- runs the agents in dependency order;
+- keeps one shared state, `episode_state.json`, the single source of truth: each agent's status, tries, time, inputs and outputs, and every error;
+- retries a failed agent a limited number of times;
+- resumes from the last successful checkpoint: an agent whose inputs did not change is not run again, so no voice, picture or render is paid for twice;
+- sends Quality Control's failures back to the agent responsible, except the voices, which are never recorded twice.
+
+| # | Agent | Reads | Writes |
+|---|---|---|---|
+| 02 | Story Analyst | story.txt | analysis.json: genre, mood, audience, people, places, times, weather, emotions |
+| 03 | Scriptwriter | story, analysis | screenplay.json, screenplay.md. A script is kept line for line; prose becomes narration plus speech |
+| 04 | Character Director | screenplay | casting.json: a library actor per role (gender, age, human or ghost), or a new supporting character saved in assets/characters, plus the registry |
+| 05 | Location Designer | screenplay | locations.json: place, room, hour, light, weather, season |
+| 06 | Background Artist | locations | assets/backgrounds/*.jpg, props.json |
+| 07 | Storyboard Director | screenplay, casting, locations | scene_breakdown.json: placement, sitting and riding, shots, transitions; every line checked |
+| 08 | Voice Director | breakdown, casting | audio/*.wav and voice_map.json: one voice per character, each line recorded once |
+| 09 | Animation Director | breakdown | acting.json: entrances, gestures from the words |
+| 10 | Environment Director | breakdown, locations | environment.json: wind, rain, fog; a rainy day is grey |
+| 11 | Cinematographer | composed specs | scenes/*.mp4: camera, lip-sync, subtitles |
+| 08b | Sound Designer | scenes, locations | scenes/*_mix.mp4: the place's ambience and music by mood |
+| 11b | Editor | mixed scenes | final_episode.mp4: title card, fades or cuts, end card |
+| 12 | Quality Control | everything | qc_report.md / .json; see the checks below |
+
+Quality Control checks: character consistency, scene and background correctness, dialogue completeness, voices, lip-sync, resolution, fps, duration, audio, file integrity, black frames, and that the picture keeps moving.
+
+**Run.**
+- Locally: `python -m tvtoon.studio story.txt [out] --voice gemini|chirp|none [--portrait] [--max-scenes N]`.
+- On GitHub: upload a `.txt` into `studio/inbox/` and the "Cartoon Studio" workflow starts by itself. The episode folder comes as an artifact.
+
+**Voices and pictures.**
+- Voices: the normal mode uses Gemini; `test` uses Chirp only.
+- Gemini also helps the analyst and the scriptwriter when `GEMINI_API_KEY` is set (at most two calls to the free lite model). Without it, rules do the work offline.
+- No picture service is used.
+
+**New places:** market, temple, mountain, seaside and school (`outdoors.py`), and a classroom room kind.
+
+**Casting:** the bot's own daily story uses the same casting rule. A role that no library actor suits gets a new character instead of a wrong one.

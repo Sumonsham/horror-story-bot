@@ -25,12 +25,13 @@ PLACE_WORDS = [  # first match wins (inside a vehicle before the station / stree
     ("bus_inside", ["inside the bus", "in the bus", "on the bus", "bus journey", "night bus", "বাসে", "বাসের ভেতর"]),
     ("tram_inside", ["inside the tram", "in the tram", "on the tram", "tram ride", "ট্রামে"]),
     ("ride", ["auto", "toto", "rickshaw", "e-rickshaw", "টোটো", "অটো", "রিকশা"]),
-    ("station", ["station", "platform", "railway", "train", "local train", "স্টেশন", "প্ল্যাটফর্ম"]),
+    ("station", ["station", "platform", "স্টেশন", "প্ল্যাটফর্ম"]),
     ("shmashan", ["cremation", "shmashan", "burning ghat", "pyre", "graveyard", "cemetery", "শ্মশান", "কবর"]),
     ("bansh_bon", ["bamboo", "forest", "jungle", "woods", "grove", "বাঁশ", "জঙ্গল"]),
     ("pukur_ghat", ["pond", "ghat", "lake", "river", "pukur", "পুকুর", "ঘাট", "নদী"]),
     ("city_street", ["kolkata street", "city street", "tram", "street", "lane", "market", "কলকাতা"]),
-    ("village_road", ["road", "highway", "path", "field", "paddy", "bridge", "রাস্তা", "মাঠ"]),
+    ("village_road", ["road", "highway", "path", "field", "paddy", "bridge", "railway", "track", "cutting", "jeep",
+                      "mountain", "hill", "রাস্তা", "মাঠ"]),
     ("ghar", ["room", "bedroom", "chamber", "office", "studio", "flat", "apartment", "kitchen", "hall", "interior", "inside", "veranda",
               "doorway", "hearth", "corridor", "attic", "ঘর", "বারান্দা"]),
     ("zamindar_bari", ["palace", "mansion", "zamindar", "haveli", "bungalow", "rajbari", "fort", "ruin", "house",
@@ -94,16 +95,99 @@ def cast_story(characters, reveal=None):
                 continue
         prefs = ACTORS.get((kind, g)) if kind == "ghost" else ACTORS.get((kind, g, _age(ch.get("age"))))
         prefs = list(prefs or []) + (["petni", "shakchunni"] if g == "female" and kind == "ghost" else [])
-        pool = [a for a in prefs if a not in used] or [a for a in CH.horror_cast() if a not in used and
-                                                       (CH.get(a).get("ghost") is not None) == (kind == "ghost")]
-        actor = pool[0] if pool else prefs[0]
-        used.add(actor)
+        age = _age(ch.get("age"))
+        pool = [a for a in prefs if a not in used] or \
+            [a for a in CH.library() if a not in used and CH.profile(a) == (kind, g, age if kind == "human" else CH.profile(a)[2])]
+        if pool:
+            actor = pool[0]
+        else:                                               # nobody in the library suits the role: a NEW character
+            import hashlib as _hl
+            cid = "ep_" + _hl.sha1(str(name).encode()).hexdigest()[:8]
+            if cid not in CH.SPECS:
+                CH.new_character(cid, ch.get("name_local") or name, g, age, ch.get("look", ""), seed=len(used))
+                from tvtoon import voices as VO
+                VO.VOICE.setdefault(cid, ("Kore" if g == "female" else "Orus", f"a Bengali {age} {'woman' if g == 'female' else 'man'}"))
+                if g == "female":
+                    VO.FEMALE.add(cid)
+            actor = cid + ("__ghost" if kind == "ghost" else "")
+        used.add(actor.split("__")[0])
         out[name] = (actor, ch.get("name_local") or name)
     return out
 
 
+BOAT = ["boat", "deck", "launch", "ferry", "steamer", "bilge", "hull", "middle of the river", "river channel", "tidal river",
+        "roaring river", "waves", "নৌকা", "বজরা", "লঞ্চ", "ডিঙি"]
+HOLD = ["bilge", "lower deck", "under floorboards", "under the floor", "hold of", "cabin of the boat", "inside the boat", "খোল"]
+PALKI = ["palanquin", "palki", "পালকি"]
+INDOOR = ["classroom", "kitchen", "ward", "hospital", "clinic", "office", "study", "studio", "recording", "radio", "corridor", "hallway",
+          "passage", "lobby", "shed", "store room", "storeroom", "godown", "attic", "cellar", "basement", "bedroom", "room",
+          "chamber", "interior", "inside", "apartment", "flat ", "flat,", "doorway", "doorstep", "entrance", "living",
+          "police station", "thana", "রান্নাঘর", "হাসপাতাল", "ঘর", "অফিস"]
+ROOM_KINDS = [  # first match wins
+    ("palki", PALKI),
+    ("hold", HOLD),
+    ("classroom", ["classroom", "class room", "ক্লাসঘর", "ক্লাসরুম"]),
+    ("kitchen", ["kitchen", "stove", "hearth", "রান্নাঘর", "হেঁশেল", "উনুন"]),
+    ("hospital", ["hospital", "ward", "clinic", "nursing", "হাসপাতাল"]),
+    ("studio", ["studio", "radio", "recording", "tape"]),
+    ("office", ["office", "study", "desk", "library", "police station", "thana", "অফিস", "থানা"]),
+    ("corridor", ["corridor", "hallway", "passage", "lobby", "stair", "বারান্দা-পথ"]),
+    ("shed", ["shed", "store room", "storeroom", "godown", "barn", "attic", "cellar", "basement", "গুদাম"]),
+    ("hall", ["grand hall", "durbar", "darbar", "palace hall", "hall of", "stone hall", "nat mandir", "mandir", "temple",
+              "palace living", "palace office", "palace secret", "দরবার"]),
+    ("flat", ["flat ", "flat,", "flat.", "apartment", "tower", "kolkata bedroom", "kolkata apartment", "ফ্ল্যাট"]),
+]
+
+
+OUTDOOR_WORDS = [
+    ("seaside", ["sea", "beach", "seaside", "shore", "digha", "puri", "সমুদ্র", "সৈকত"]),
+    ("mountain", ["mountain", "darjeeling", "hill station", "himalaya", "peak", "dooars", "kalimpong", "পাহাড়"]),
+    ("market", ["market", "bazaar", "bazar", "haat", "fair", "mela", "বাজার", "হাট", "মেলা"]),
+    ("temple", ["temple", "mandir", "shrine", "kali bari", "kalibari", "মন্দির", "কালীবাড়ি"]),
+    ("school", ["school", "স্কুল", "বিদ্যালয়"]),
+]
+
+
+def room_kind(text):
+    """which room an indoor place is (rooms.py): bedroom, kitchen, hall, hospital, office, studio, corridor, shed,
+    flat, hold (inside a boat), palki (inside a palanquin)"""
+    t = (text or "").lower()
+    for kind, words in ROOM_KINDS:
+        if any(w in t for w in words):
+            return kind
+    if any(w in t for w in ("palace", "rajbari", "zamindar", "mansion", "haveli")) and \
+            not any(w in t for w in ("bed", "chamber")):
+        return "hall"
+    return "bedroom"
+
+
 def place_of(text):
     t = (text or "").lower()
+    if any(w in t for w in PALKI) and not any(w in t for w in ("inside", "interior", "cramped", "ভেতর")) and \
+            any(w in t for w in BOAT):
+        return "boat"                                       # the palanquin standing on the boat's deck
+    if any(w in t for w in PALKI):
+        return "ghar"
+    if any(w in t for w in HOLD):
+        return "ghar"
+    if any(w in t for w in BOAT):
+        return "boat"
+    if "radio station" in t or "police station" in t:
+        return "ghar"
+    for loc, words in PLACE_WORDS[:4]:                      # inside a train / bus / tram, or riding
+        if loc == "ride":
+            if any(re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", t) for w in words):
+                return loc
+        elif any(w in t for w in words):
+            return loc
+    indoor = any(w in t for w in INDOOR)
+    if indoor and not any(w in t for w in ("platform", "waiting room", "station")):
+        return "ghar"                                       # a room of some kind (room_kind says which)
+    if any(w in t for w in ("verandah", "veranda", "বারান্দা")):
+        return "village_courtyard"
+    for loc, words in OUTDOOR_WORDS:                        # the other outdoor worlds (outdoors.py), whole words
+        if any(re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", t) for w in words):
+            return loc
     for loc, words in PLACE_WORDS:
         if loc == "ride":                                   # whole words only ('auto' is not 'autumn')
             if any(re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", t) for w in words):
@@ -128,7 +212,7 @@ def hours_of(text, mood="", inherit=None):
     return 21.0 if str(mood).lower() in ("scare", "eerie", "creepy") else 15.5
 
 
-def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9"):
+def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9", cast=None):
     ghosts_seen = set()
     # the bot's story says in which scene the LISTENERS first learn that a character is a ghost ("ghost_reveal":
     # {name: scene number, 1 = first}). Before that scene the ghost comes as an ordinary person (its disguise); in
@@ -140,7 +224,7 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9"):
         except (TypeError, ValueError):
             pass
     revealed = set()
-    cast = cast_story(story.get("characters", []), reveal)
+    cast = cast if cast is not None else cast_story(story.get("characters", []), reveal)   # (studio: its own casting)
     scenes = []
     whole = " ".join(str(story.get(k, "")) for k in ("title", "logline", "premise", "setting", "summary")).lower()
     hour = None
@@ -161,7 +245,7 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9"):
             if sp in cast and sp not in speakers:
                 speakers.append(sp)
         speakers = speakers[:4] if not ride_kind else speakers[:3]
-        inside = loc.endswith("_inside")
+        inside = loc.endswith("_inside") or (loc == "ghar" and room_kind(place) in ("palki", "hold"))   # people sit
         offs = [-280, 280, -760, 760]
         cast_spec, ids = [], {}
         disguised = {sp for sp in speakers if sp in reveal and sp not in revealed and CH.get(cast[sp][0]).get("ghost") is not None}
@@ -181,10 +265,17 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9"):
         hour = hours_of(place, sc.get("mood", ""), inherit=hour)
         world = {"hours": [[0, hour]], "wind": 0.5}
         pl = place.lower()
-        if any(w in pl for w in ("rain", "storm", "বৃষ্টি", "ঝড়")):
+        indoor_loc = loc == "ghar" or loc.endswith("_inside")
+        if loc == "ghar":                                   # which room (rooms.py), its look chosen by the place text
+            world["kind"] = room_kind(place)
+            world["text"] = f"{story.get('title', '')}|{world['kind']}"   # the same room looks the same all story
+        if loc == "boat":
+            world["storm"] = 1.0 if any(w in pl for w in ("storm", "roaring", "torrential", "tidal", "waves", "ঝড়")) else 0.0
+            world["palki"] = any(w in pl for w in PALKI)
+        if any(w in pl for w in ("rain", "storm", "বৃষ্টি", "ঝড়")) and not indoor_loc:   # (no rain falls inside a room)
             world["rain"] = [[0.0, 9999.0]]
             world["wind"] = 0.9 if "storm" in pl or "ঝড়" in pl else 0.6
-        if any(w in pl for w in ("mist", "fog", "কুয়াশা")):
+        if any(w in pl for w in ("mist", "fog", "কুয়াশা")) and not indoor_loc:
             world["fog"] = 0.45
         beats = [{"pause": 1.4}]
         vehicles = []
@@ -195,8 +286,20 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9"):
                 world["flicker"] = [[1.6, 2.8]]             # the lamps fail when the ghost is in the carriage
         elif ride_kind:
             vehicles.append({"id": "ride", "kind": ride_kind, "x": -600, "z": 0.0})
-            for k, sp in enumerate(speakers):
-                beats.append({"who": ids[sp], "ride": "ride", "seat": k + 1, "with_prev": True})
+            drv = next((sp for sp in speakers if re.search(r"ওয়ালা|চালক|ড্রাইভার|driver|wala", str(sp).lower())), None)
+            if drv is None:                                 # nobody in the story drives it: a silent driver who does
+                taken = {v[0].split("__")[0] for v in cast.values()}
+                extra = next((a for a in ("ramu_chowkidar", "haripada", "bhattacharya", "abhishek") if a not in taken), None)
+                if extra:
+                    cast_spec.append({"id": extra, "x": 600, "z": 0.0, "name_bn": "চালক"})
+                    beats.append({"who": extra, "ride": "ride", "seat": 0, "with_prev": True})
+            seat = 1
+            for sp in speakers:
+                if sp == drv:
+                    beats.append({"who": ids[sp], "ride": "ride", "seat": 0, "with_prev": True})
+                else:
+                    beats.append({"who": ids[sp], "ride": "ride", "seat": seat, "with_prev": True})
+                    seat += 1
             beats.append({"vehicle": "ride", "drive_to": 3700, "sec": "end", "background": True,
                           "shot": {"type": "track", "who": "ride"}})
         elif loc == "station":

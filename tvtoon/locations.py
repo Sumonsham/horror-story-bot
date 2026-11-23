@@ -1073,8 +1073,14 @@ def make(name, spec=None):
 
 def _register_interiors():
     from tvtoon import interiors as IN
+    from tvtoon import rooms as RM
     LOCATIONS.update(IN.INTERIORS)
     NAMES_BN.update(IN.NAMES_BN)
+    LOCATIONS["ghar"] = RM.Room                     # every kind of room (spec 'kind'); the default is the bedroom
+    LOCATIONS["boat"] = RM.Boat
+    NAMES_BN["boat"] = "নদীতে নৌকা"
+    from tvtoon import outdoors as OD
+    OD.register(LOCATIONS, NAMES_BN)                # market, temple, mountain, seaside, school
 
 
 _register_interiors()

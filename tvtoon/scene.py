@@ -760,6 +760,10 @@ def subtitle_maker(scene, font_path, size_frac=0.045):
         rows.append(cur)
         groups = [rows[i:i + 2] for i in range(0, len(rows), 2)] or [[""]]
         nf = font.font_variant(size=int(font.size * 0.78))
+        if cmap is not None and any(ord(ch) not in cmap and not ch.isspace() for ch in name):   # a name in English letters
+            latin = next((f for f in ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                                      "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf") if os.path.exists(f)), None)
+            nf = ImageFont.truetype(latin, nf.size) if latin else ImageFont.load_default(size=nf.size)
         out = []
         for g in groups:
             im = Image.new("RGBA", (scene.W, int(scene.H * 0.24)), (0, 0, 0, 0))

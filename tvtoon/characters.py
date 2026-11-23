@@ -4,6 +4,7 @@ SAMPLE PACK; the second waits for the owner's approval of the samples (same stan
 Every character differs in head shape, face structure, eyes, nose, hairstyle, body proportions, costume, palette and
 personality - never 'the same body in other clothes'."""
 import copy
+import random
 
 CATEGORIES = ["adult_male", "adult_female", "elderly_male", "elderly_female", "boy", "girl"]
 HORROR_CATEGORIES = CATEGORIES + ["ghost"]
@@ -428,3 +429,81 @@ def get(cid):
 
 def samples():
     return [c for c, s in SPECS.items() if s.get("sample") and s.get("cast") != "horror"]
+
+
+# ------------------------------------------------------------------ the library: profiles, new characters (23 Nov 2026)
+def profile(cid):
+    """(kind, gender, age group) of a character, for casting"""
+    s = get(cid)
+    cat = str(s.get("category", ""))
+    kind = "ghost" if s.get("ghost") is not None or cat == "ghost" else "human"
+    female = "female" in cat or cat == "girl" or s["costume"]["type"] in ("saree", "frock") or bool(s["face"].get("lashes"))
+    a = s.get("age") or 30
+    grp = "child" if a < 13 else "young" if a < 25 else "adult" if a < 58 else "old"
+    if cat in ("boy", "girl"):
+        grp = "child" if a < 13 else "young"
+    return kind, "female" if female else "male", grp
+
+
+def library():
+    """every approved library character (the horror cast first, then the samples)"""
+    return list(dict.fromkeys(horror_cast() + [c for c in SPECS if SPECS[c].get("sample") or SPECS[c].get("cast") == "horror"]))
+
+
+BASES = {("male", "child"): "bappa", ("male", "young"): "sayan", ("male", "adult"): "ramu_chowkidar", ("male", "old"): "shibu_dadu",
+         ("female", "child"): "kishori", ("female", "young"): "riya", ("female", "adult"): "parul", ("female", "old"): "mokkhoda"}
+SKINS = ["#c48a62", "#a87452", "#d9a07a", "#b98060", "#8e5e40", "#cf9a72"]
+CLOTH = ["#2f3e5c", "#7a2a22", "#2e6a3a", "#5a3a7a", "#a8862a", "#1f5f7a", "#8a4a2a", "#3a3a3a", "#c0603a", "#6a6a2a"]
+HAIR_M = ["side_part", "crop", "curly", "spiky"]
+HAIR_F = ["braid_long", "bun_black"]
+
+
+def new_character(cid, name_bn, gender="male", age="adult", look="", seed=0, avoid=()):
+    """a NEW supporting character with its own identity, made from the library's design rules (same drawing style,
+    proportions of a real age group), different face, hair, skin and clothes. It is registered for this run (SPECS)
+    and returned so the episode can save it in its own asset library."""
+    rnd = random.Random(seed)
+    base = BASES.get((gender, age), "ramu_chowkidar")
+    s = copy.deepcopy(SPECS[base])
+    lk = str(look or "").lower()
+    s.update({"name_bn": name_bn, "name_en": cid, "cast": "episode", "sample": False})
+    s.pop("ghost", None)
+    s["head"]["shape"] = rnd.choice(["round", "oval", "egg", "square", "long", "heart"])
+    s["head"]["w"] = round(s["head"]["w"] * rnd.uniform(0.92, 1.08), 3)
+    s["height"] = round(s["height"] * rnd.uniform(0.95, 1.05), 3)
+    f = s["face"]
+    f["eye_style"] = rnd.choice(["almond", "round", "narrow"])
+    f["nose"] = rnd.choice(["button", "round", "long", "pointed", "broad"])
+    f["nose_size"] = round(rnd.uniform(0.85, 1.15), 2)
+    f["eye_size"] = round(f.get("eye_size", 0.075) * rnd.uniform(0.92, 1.1), 3)
+    f.pop("ghost_eyes", None)
+    s["colours"]["skin"] = rnd.choice(SKINS)
+    if age == "old":
+        s["colours"]["hair"] = rnd.choice(["#d8d8d0", "#a8a8a0", "#e8e8e0"])
+    else:
+        s["colours"]["hair"] = rnd.choice(["#120e0c", "#1e1410", "#2a1a10"])
+    if gender == "male" and age != "old":
+        s["hair"] = {"style": rnd.choice(HAIR_M)}
+    elif gender == "female" and age != "old":
+        s["hair"] = {"style": rnd.choice(HAIR_F if age != "child" else ["braid_long", "pigtails"])}
+    for k in list(s["colours"]):
+        if k in ("shirt", "trousers", "kurta", "dhoti", "saree", "blouse", "tshirt", "shorts", "frock", "border"):
+            s["colours"][k] = rnd.choice(CLOTH)
+    if any(w in lk for w in ("glasses", "spectacle", "চশমা")):
+        s.setdefault("accessories", []).append("glasses_round")
+    if gender == "male" and any(w in lk for w in ("beard", "দাড়ি")):
+        f["beard"] = 1.0
+        s["colours"].setdefault("beard", s["colours"]["hair"])
+    if gender == "male" and any(w in lk for w in ("moustache", "mustache", "গোঁফ")):
+        s["colours"]["moustache"] = s["colours"]["hair"]
+    if any(w in lk for w in ("white", "সাদা")):
+        for k in ("shirt", "kurta", "saree", "dhoti"):
+            if k in s["colours"]:
+                s["colours"][k] = "#f2f0e8"
+    SPECS[cid] = s
+    return s
+
+
+def register(cid, spec):
+    """put a saved episode character back into the library for this run"""
+    SPECS[cid] = copy.deepcopy(spec)
