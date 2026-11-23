@@ -6537,9 +6537,17 @@ def render_clips(jobs):
     about 3x faster than one after the other. If the video is running late, the simpler (faster) motion is used."""
     at = extras.PUBLISH.get("at")
     left = (at - dt.datetime.now(extras.IST)).total_seconds() / 60 if at else 999
-    if (left < 25 + len(jobs) * 0.8 or job_minutes_left() < 40 + len(jobs) * 0.6) and env("SIMPLE_MOTION") != "1":
-        log(f"  only {left:.0f} minutes left - simpler picture motion today, so the video is on time")
-        os.environ["SIMPLE_MOTION"] = "1"
+    ran = (time.time() - JOB_START) / 60
+    full_for = float(env("FULL_MOTION_MINUTES") or 240)   # 23 Nov 2026, the owner: full motion for at least 4 hours
+    short = left < 25 + len(jobs) * 0.8 or job_minutes_left() < 40 + len(jobs) * 0.6
+    if short and env("SIMPLE_MOTION") != "1":
+        if ran >= full_for or job_minutes_left() < 20 + len(jobs) * 0.4:   # (only when GitHub's 6-hour limit is near)
+            log(f"  the run has gone {ran / 60:.1f} hours and only {min(left, job_minutes_left()):.0f} minutes are left - "
+                "simpler picture motion now")
+            os.environ["SIMPLE_MOTION"] = "1"
+        else:
+            log(f"  {left:.0f} minutes to the publish time, but the run has gone only {ran / 60:.1f} hours - full motion "
+                f"anyway (the owner's rule: no simple motion before {full_for / 60:.0f} hours)")
     workers = max(1, min(int(env("CLIP_WORKERS") or 4), os.cpu_count() or 2))
     t0 = time.time()
     if workers > 1 and len(jobs) > 1:
