@@ -1,0 +1,101 @@
+name: TV Cartoon Test (Bengali cartoon engine)
+
+# Manual start only. Renders the Bengali TV cartoon test story (engine v2: animated village, conversation, Bengali
+# lip-sync, camera) or the 6-character sample pack. Characters are vector drawings made in code: NO Cloudflare,
+# NO image API. VOICES (the owner's rule, 23 Nov 2026): every TEST uses ONLY Google Chirp 3 HD (secret
+# GOOGLE_TTS_KEY, the free monthly share, the bot's own CHIRP_MONTH_CAP); only the normal story mode
+# (what = story_episode) uses the Gemini voice (secret GEMINI_TTS_KEY). Women and girls get female voices.
+# Nothing is published, posted, committed or approved. Results come as a downloadable artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "story_test = the bot's latest story as a cartoon, Chirp voices (test); story_episode = the same in the normal story mode with the Gemini voice; horror_episode = the test episode; travel_episode = train / bus / tram / toto / cycle and side views; reveal_episode = a ghost comes as a girl and changes; v2_test = the village test; sample_pack = the 6 sample characters"
+        type: choice
+        options: ["story_test", "story_episode", "horror_episode", "travel_episode", "reveal_episode", "v2_test", "sample_pack"]
+        default: "story_test"
+      story_key:
+        description: "story_test / story_episode: a key of assets/today_scripts.json (e.g. 2026-11-22@20) or latest"
+        default: "latest"
+      max_scenes:
+        description: "story_test / story_episode: how many scenes (0 = the whole story)"
+        default: "3"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tv-cartoon-test
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      HYBRID_2D_MODE: "0"
+      ART_MODE: "off"
+      ZERO_COST_MODE: "1"
+      TVTOON_VOICE: ${{ inputs.what == 'story_episode' && 'gemini' || 'chirp' }}
+      CHIRP: ${{ inputs.what == 'story_episode' && '0' || '1' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ffmpeg, cairo and Python packages
+        timeout-minutes: 15
+        run: |
+          sudo timeout 300 apt-get -o Acquire::Retries=3 update -qq || true
+          sudo timeout 300 apt-get -o Acquire::Retries=3 install -y -qq ffmpeg libcairo2-dev pkg-config libraqm0 > /dev/null 2>&1 || true
+          pip install -q numpy scipy opencv-python-headless pillow pycairo fonttools requests pytest
+
+      - name: Keep the voices between runs (no line is spoken twice)
+        uses: actions/cache@v4
+        with:
+          path: work/tvtoon_voices
+          key: tvtoon-${{ inputs.what == 'story_episode' && 'gemini' || 'chirp' }}-${{ hashFiles('tvtoon/production.py', 'tvtoon/voices.py') }}
+          restore-keys: tvtoon-${{ inputs.what == 'story_episode' && 'gemini' || 'chirp' }}-
+
+      - name: Tests
+        run: python -m pytest -q tests/test_tvtoon.py
+
+      - name: Render (tests - Chirp only)
+        if: inputs.what != 'story_episode'
+        env:
+          GOOGLE_TTS_KEY: ${{ secrets.GOOGLE_TTS_KEY }}
+        run: |
+          if [ "${{ inputs.what }}" = "sample_pack" ]; then
+            python -m tvtoon.production sample work/tvtoon_out
+          elif [ "${{ inputs.what }}" = "story_test" ]; then
+            TVTOON_MAX_SCENES="${{ inputs.max_scenes }}" python -m tvtoon.production story "${{ inputs.story_key }}" work/tvtoon_out
+          elif [ "${{ inputs.what }}" = "reveal_episode" ]; then
+            python -m tvtoon.production reveal work/tvtoon_out
+          elif [ "${{ inputs.what }}" = "travel_episode" ]; then
+            python -m tvtoon.production travel work/tvtoon_out
+          elif [ "${{ inputs.what }}" = "horror_episode" ]; then
+            python -m tvtoon.production horror work/tvtoon_out
+          else
+            python -m tvtoon.production v2test work/tvtoon_out
+          fi
+
+      - name: Render (normal story mode - Gemini voice)
+        if: inputs.what == 'story_episode'
+        env:
+          GEMINI_TTS_KEY: ${{ secrets.GEMINI_TTS_KEY }}
+        run: |
+          TVTOON_MAX_SCENES="${{ inputs.max_scenes }}" python -m tvtoon.production story "${{ inputs.story_key }}" work/tvtoon_out
+
+      - name: Upload the result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tv-cartoon-${{ inputs.what }}-${{ github.run_number }}
+          path: |
+            work/tvtoon_out/**
+            !work/tvtoon_out/_work*/**
+            !work/tvtoon_out/lipsync/_work_*/**
+          retention-days: 14

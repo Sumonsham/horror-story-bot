@@ -101,7 +101,11 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python packages
-        run: pip install -q ephem fonttools requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
+        run: |
+          pip install -q ephem fonttools requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
+          # the TV cartoon (tvtoon) draws with cairo; if it cannot be installed, the classic pictures are used
+          ( sudo timeout 180 apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=15 install -y -qq libcairo2-dev pkg-config > /dev/null 2>&1 || true )
+          pip install -q pycairo || echo "pycairo not installed - the cartoon falls back to the classic pictures"
 
       - name: Keep the free voice model saved between runs
         if: env.USE_FREE_MODEL == '1'
@@ -173,7 +177,9 @@ jobs:
           SPOTIFY_SHOW_ID: ${{ vars.SPOTIFY_SHOW_ID }}     # (optional) for the Spotify status check
           APPLE_PODCAST_ID: ${{ vars.APPLE_PODCAST_ID }}   # (optional) Apple Podcasts show id
           GITHUB_REPOSITORY: ${{ github.repository }}
-          ANIM_MODE: ${{ vars.ANIM_MODE }}                 # empty/classic = as before; character = new characters; cartoon = engine + 3 story assistants
+          # 23 Nov 2026, the owner: "from now on the horror story comes out as a cartoon" -> tvtoon is the default.
+          # (to go back: repo Settings > Variables, TVTOON_OFF = 1; then ANIM_MODE works as before)
+          ANIM_MODE: ${{ vars.TVTOON_OFF == '1' && vars.ANIM_MODE || 'tvtoon' }}
           ANIM_QUALITY: ${{ vars.ANIM_QUALITY }}           # BALANCED (default) or FAST
           ART_MODE: ${{ vars.ART_MODE }}                   # empty = code-drawn characters; cutout = 2.5D AI-drawn parts (when ready)
           ART_MAX_IMAGES: ${{ vars.ART_MAX_IMAGES }}       # pictures one run may make for the 2.5D parts (default 30)
