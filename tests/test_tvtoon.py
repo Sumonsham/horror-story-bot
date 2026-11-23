@@ -141,8 +141,33 @@ def test_v2_gestures_anticipate_and_overshoot():
     assert abs(w[-1] - 1.0) < 0.02                 # ... and settle on it
 
 
-def test_v2_conversation_acting_lipsync_and_camera():
-    from tvtoon import production as P, qa_motion as Q, scene as S
+def _fake_voice(tmp_dir):
+    """an offline stand-in voice for the tests: one short tone burst per Bengali syllable (no voice service, no
+    recording - the tests never generate or use a real voice; the videos use Chirp in tests, Gemini in production)"""
+    import wave
+    from tvtoon import lipsync as LS
+
+    def line(cid, text, emotion="neutral", log=print):
+        n = max(1, len(LS.syllables(text)))
+        sr = 16000
+        sig = []
+        for k in range(n):
+            t = np.arange(int(sr * 0.17)) / sr
+            sig.append(np.sin(2 * np.pi * 180 * t) * np.sin(np.pi * t / 0.17) * 9000)
+            sig.append(np.zeros(int(sr * 0.05)))
+        p = os.path.join(tmp_dir, f"{abs(hash((cid, text))) % 10 ** 8}.wav")
+        with wave.open(p, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(sr)
+            w.writeframes(np.concatenate(sig).astype(np.int16).tobytes())
+        return p, "test tone"
+    return line
+
+
+def test_v2_conversation_acting_lipsync_and_camera(tmp_path, monkeypatch):
+    from tvtoon import production as P, qa_motion as Q, scene as S, voices as VO
+    monkeypatch.setattr(VO, "line", _fake_voice(str(tmp_path)))       # the same result with any voice setting
     spec = P.v2_test_spec()
     sc = S.Scene(spec)
     assert 30 <= sc.duration <= 45
