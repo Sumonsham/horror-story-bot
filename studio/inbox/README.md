@@ -1,0 +1,7 @@
+# Put your story here
+
+Upload a story as a `.txt` file into this folder (Add file → Upload files → Commit). The **Cartoon Studio** workflow then starts by itself and makes the finished cartoon episode (Actions → Cartoon Studio → the run → Artifacts).
+
+The story can be in either form:
+- **Prose:** the studio's agents find the people, places, times and lines themselves.
+- **Script:** one line per speech, `নাম: কথা`. Each blank line starts a new scene; a scene's first line should say where and when (for example, `রাত এগারোটা। হাওড়া স্টেশনের প্ল্যাটফর্ম...`).
