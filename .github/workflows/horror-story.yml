@@ -14,7 +14,7 @@ on:
         required: false
         default: ""
       mode:
-        description: "Leave empty. voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted). library_sync = engine 2: put every character asset into the permanent library + report (no picture made, nothing posted). hybrid_test = engine 2: hybrid 2D preview videos (720p) of Hari, Saraswati, Kishori + one story scene, marked NOT APPROVED (no picture made, nothing posted). rig_test = engine 2: Hari's skeletal rig (Rigby2D) - poses, walk cycle, hand/foot close-ups, 720p proof video with lip-sync, QA report (no picture made, nothing posted). pose_art = engine 2 POSE-FIRST step 1: SIX new complete high-resolution pictures of Hari (Cloudflare, uses the daily free allocation - run 5:35-7:00 AM India time) + contact sheet + old-vs-new sheet; stops with the exact error on HTTP 429 (nothing posted, nothing approved). engine_audit = engine 2 MVP snapshot (what exists, what is approved, what each action would use). asset_qa = engine 2: identity + cut-out checks and close-ups of the pose drawings. render_test = engine 2: 60-second 720p hybrid test video of Hari (nothing generated, nothing posted)."
+        description: "Leave empty. assets = 4 AM: ONLY the new characters of the day's two stories are made (Story Scout + Character Asset Builder; at most 5 hours; nothing posted). voice_demo = voice sample only. compilation = weekly long video. amavasya = new-moon special. live = Saturday 10 PM YouTube Live. pilot = 60-second character-animation test (nothing posted). anim_test = 60-second cinematic animation-engine test (nothing posted). story_test = the 3 story assistants + engine on real story lines (nothing posted). art_test = 2.5D: real AI character parts + background, cut, checked, animated (nothing posted). full_test = a whole story video with the cartoon engine, dry run (nothing posted). char_sheet = original 2D character sheets of Hari, Saraswati, Kishori for your approval (nothing posted). library_sync = engine 2: put every character asset into the permanent library + report (no picture made, nothing posted). hybrid_test = engine 2: hybrid 2D preview videos (720p) of Hari, Saraswati, Kishori + one story scene, marked NOT APPROVED (no picture made, nothing posted). rig_test = engine 2: Hari's skeletal rig (Rigby2D) - poses, walk cycle, hand/foot close-ups, 720p proof video with lip-sync, QA report (no picture made, nothing posted). pose_art = engine 2 POSE-FIRST step 1: SIX new complete high-resolution pictures of Hari (Cloudflare, uses the daily free allocation - run 5:35-7:00 AM India time) + contact sheet + old-vs-new sheet; stops with the exact error on HTTP 429 (nothing posted, nothing approved). engine_audit = engine 2 MVP snapshot (what exists, what is approved, what each action would use). asset_qa = engine 2: identity + cut-out checks and close-ups of the pose drawings. render_test = engine 2: 60-second 720p hybrid test video of Hari (nothing generated, nothing posted)."
         required: false
         default: ""
   # V8 backup clock: ONLY if the cron-job.org start did not come. 75 minutes after the 2 PM and 8 PM story starts
@@ -37,7 +37,7 @@ permissions:
   contents: write
 
 concurrency:                # (a website update never waits for or cancels a video run)
-  group: ${{ github.event_name == 'push' && 'horror-website' || (github.event.inputs.mode == 'live' && 'horror-live' || 'horror-story') }}
+  group: ${{ github.event_name == 'push' && 'horror-website' || (github.event.inputs.mode == 'live' && 'horror-live' || ((github.event.inputs.mode == 'assets' || github.event.inputs.mode == 'cartoon_prep') && 'horror-prep' || 'horror-story')) }}
   cancel-in-progress: false
 
 jobs:
@@ -180,6 +180,8 @@ jobs:
           # 23 Nov 2026, the owner: "from now on the horror story comes out as a cartoon" -> tvtoon is the default.
           # (to go back: repo Settings > Variables, TVTOON_OFF = 1; then ANIM_MODE works as before)
           ANIM_MODE: ${{ vars.TVTOON_OFF == '1' && vars.ANIM_MODE || 'tvtoon' }}
+          PREP_HOURS: ${{ vars.PREP_HOURS }}               # the 4 AM character-asset run: at most this many hours (empty = 5)
+          TVTOON_LOOK: ${{ vars.TVTOON_LOOK }}             # empty = the cinematic film look; flat = the plain TV cartoon
           ANIM_QUALITY: ${{ vars.ANIM_QUALITY }}           # BALANCED (default) or FAST
           ART_MODE: ${{ vars.ART_MODE }}                   # empty = code-drawn characters; cutout = 2.5D AI-drawn parts (when ready)
           ART_MAX_IMAGES: ${{ vars.ART_MAX_IMAGES }}       # pictures one run may make for the 2.5D parts (default 30)
