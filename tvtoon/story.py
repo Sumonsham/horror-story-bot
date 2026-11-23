@@ -74,7 +74,7 @@ def _age(a):
     return "adult"
 
 
-def cast_story(characters, reveal=None):
+def cast_story(characters, reveal=None, use_library=True):
     """story character name -> (actor id, name shown). A MALE ghost that first comes as an ordinary man (the story
     has a 'ghost_reveal' for him) is played by a human actor of his age, whose ghost form is that same man as a
     ghost ('<actor>__ghost'): the dead person himself. Female ghosts keep the designed ghosts (petni, shakchunni),
@@ -87,6 +87,16 @@ def cast_story(characters, reveal=None):
             continue
         kind = "ghost" if str(ch.get("kind", "human")).lower() in ("ghost", "spirit", "demon", "entity") else "human"
         g = "female" if str(ch.get("gender", "male")).lower().startswith("f") else "male"
+        if use_library:                                     # built for this name at night (prep.py): that character
+            try:
+                from tvtoon import prep as _PRP
+                lib_ = _PRP.actor_for(name, "horror", g) or _PRP.actor_for(ch.get("name_local"), "horror", g)
+            except Exception:
+                lib_ = None
+            if lib_ and lib_.split("__")[0] not in used:
+                used.add(lib_.split("__")[0])
+                out[name] = (lib_, ch.get("name_local") or name)
+                continue
         if kind == "ghost" and g == "male" and name in reveal:
             prefs = [a for a in ACTORS.get(("human", "male", _age(ch.get("age"))), []) if a not in used and a in CH.SPECS]
             if prefs:
@@ -134,7 +144,8 @@ ROOM_KINDS = [  # first match wins
     ("corridor", ["corridor", "hallway", "passage", "lobby", "stair", "বারান্দা-পথ"]),
     ("shed", ["shed", "store room", "storeroom", "godown", "barn", "attic", "cellar", "basement", "গুদাম"]),
     ("hall", ["grand hall", "durbar", "darbar", "palace hall", "hall of", "stone hall", "nat mandir", "mandir", "temple",
-              "palace living", "palace office", "palace secret", "দরবার"]),
+              "palace living", "palace office", "palace secret", "দরবার", "royal court", "king's court", "'s court", "court of",
+              "throne", "royal hall", "রাজসভা", "রাজদরবার", "दरबार", "राजसभा"]),
     ("flat", ["flat ", "flat,", "flat.", "apartment", "tower", "kolkata bedroom", "kolkata apartment", "ফ্ল্যাট"]),
 ]
 
@@ -245,6 +256,18 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9", ca
             if sp in cast and sp not in speakers:
                 speakers.append(sp)
         speakers = speakers[:4] if not ride_kind else speakers[:3]
+        if len(speakers) < (3 if ride_kind else 4):          # someone the narration says DOES something is there too
+            from tvtoon import actions as AC
+            nm = AC.name_map(cast)
+            for ln in lines:
+                if ln.get("speaker") in cast:
+                    continue
+                low = str(ln.get("text", "")).lower() + " " + str(ln.get("en", "")).lower()
+                for n_, a_ in sorted(nm.items(), key=lambda r: -len(r[0])):
+                    sp_ = next((k for k, v in cast.items() if v[0] == a_), None)
+                    if sp_ and sp_ not in speakers and len(n_) >= 2 and re.search(AC.B + re.escape(n_.lower()), low) \
+                            and AC.cues(low) and len(speakers) < (3 if ride_kind else 4):
+                        speakers.append(sp_)
         inside = loc.endswith("_inside") or (loc == "ghar" and room_kind(place) in ("palki", "hold"))   # people sit
         offs = [-280, 280, -760, 760]
         cast_spec, ids = [], {}
@@ -261,6 +284,8 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9", ca
                 cast_spec.append({"id": actor, "x": 1600 + offs[k], "z": 0.45 if ghost else 0.05 * k, "name_bn": shown})
             if sp in disguised:
                 cast_spec[-1]["disguise"] = True
+            if CH.SPECS.get(actor, {}).get("cast") not in (None, "kids", "horror", "library") or actor.startswith(("ka_", "kp_", "new_")):
+                cast_spec[-1]["spec"] = CH.SPECS[actor]           # (made for this story: its look travels with the plan)
             ids[sp] = actor
         hour = hours_of(place, sc.get("mood", ""), inherit=hour)
         world = {"hours": [[0, hour]], "wind": 0.5}
@@ -312,6 +337,11 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9", ca
             vehicles.append({"id": "toto", "kind": "toto", "x": 4300, "z": 0.4, "facing": -1})
             beats.append({"vehicle": "toto", "drive_to": -900, "sec": 7.0, "with_prev": True, "shot": "establish"})
         last = None
+        from tvtoon import actions as AC                   # the story moves the characters (actions.py)
+        fixed = [b["who"] for b in beats if b.get("sit") or b.get("ride")]
+        dr = AC.Director(cast_spec, AC.name_map({k: v for k, v in cast.items() if k in ids}), fixed=fixed,
+                         still=loc == "boat" or (loc == "ghar" and room_kind(place) in ("palki", "hold")))
+        dr.prepare(lines, lambda ln_: ids.get(ln_.get("speaker")))
         n_lines = {sp: sum(1 for ln in lines if ln.get("speaker") == sp) for sp in change_here}
         said = {sp: 0 for sp in change_here}
         for ln in lines:
@@ -319,7 +349,8 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9", ca
             text = ln["text"].strip()
             raw = str(ln.get("emotion") or "").lower()
             if sp not in ids:
-                beats.append({"narrate": text, "shot_type": "wide"})
+                items, _g, _e = dr.line(ln, None)
+                beats += AC.in_order(items, {"narrate": text, "shot_type": "wide"})
                 continue
             actor = ids[sp]
             if sp in change_here:                           # the change: before its last line (or after its only one)
@@ -336,9 +367,13 @@ def episode_from_story(story, max_scenes=None, max_lines=None, aspect="16:9", ca
                     world["door_open_at"] = 1.2                 # the door opens before the ghost is there
             to = last if last and last != actor else next((ids[o] for o in speakers if ids[o] != actor), None)
             b = {"who": actor, "say": text, "to": to}
+            items, g_, e_ = dr.line(ln, actor, to)
+            emo = emo or (None if is_ghost else e_)
             if emo:
                 b["emotion"] = emo
-            beats.append(b)
+            if g_:
+                b["gesture"] = g_
+            beats += AC.in_order(items, b)
             last = actor
             if sp in change_here and n_lines[sp] == 1 and sp not in revealed:
                 beats.append({"who": actor, "transform": True})

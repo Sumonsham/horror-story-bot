@@ -394,3 +394,39 @@ Quality Control checks: character consistency, scene and background correctness,
 **New places:** market, temple, mountain, seaside and school (`outdoors.py`), and a classroom room kind.
 
 **Casting:** the bot's own daily story uses the same casting rule. A role that no library actor suits gets a new character instead of a wrong one.
+
+## The story moves the characters (actions.py, 23 Nov 2026)
+Every line is read (Bengali, Hindi, English; the writer's `action`, the storyboard's `image.people` and the English
+translation too) for what the body does: walk in, leave, run, run away, chase, come closer, fly (birds), sit, stand
+up, jump, play, dance, fall, hide, look back, bow, namaste, wave, point, point up, clap, laugh, cry, think, shrug,
+afraid, angry, bless, give, nod, shake the head; orders said to the listener ("sit down", "come here", "stand up").
+Spoken words are not narration: "I will run" does not make anyone run. Whoever the story brings IN waits off screen
+and walks / runs in at that line. bot.py puts the movements on the bot's own sound times.
+
+## People face each other; the cinematic look
+Talking people turn deep three-quarter to each other and stay turned between their lines. `look`: horror (cool
+shadows, warm lamps, deep vignette, grain, bloom), kids (bright, warm, soft), film, flat (the plain TV cartoon);
+repo variable TVTOON_LOOK. A slow hand-held drift on the camera.
+
+## The place is alive (life.py)
+By day: passers-by, children playing catch, shoppers at the market stalls, devotees at the temple. At night and in
+horror after dusk: nobody. Extras are new faces, smaller and farther back, and never take the camera.
+
+## Night character assets (prep.py) - both bots
+Mode `assets` (horror 4 AM, cartoon 2 AM) does only this: the STORY SCOUT reads each written story and lists every
+character the library lacks (no fitting actor, or a role the actor does not show: sadhu, priest, police, doctor,
+king, queen, sahib) with a full brief; the CHARACTER ASSET BUILDER makes each one from the brief (base costume,
+colours of each garment, hair, beard, glasses, role marks, height, build, skin), keeps the design most unlike every
+existing face, checks it in front and side view, and saves it in `assets/tvtoon_library.json`. At video time the
+casting (story.cast_story, kids.kids_cast) takes these first, by name (same gender / species).
+
+## A voice that repeats itself (voicecheck.py)
+Every recorded line is compared with itself; a stretch said again (twice, three times) is cut out with a cross-fade,
+unless the words themselves repeat.
+
+## The kids' cartoon bot (kids.py, kidsbot.py) - Sumonsham/hindi-story-bot
+67 recurring characters (Gopal's court, Akbar-Birbal, Vikram-Betal, Lumi Didi + Mithu, Sumon, Sayan's family, Bhutu,
+Tublu, Mini, Rimli + Bhola, Tukai + Bhulu, Didima, Pupu, Tatai, Robi, Jhilik, the gods and the epics) + 24 animal
+species (animals.py) for Panchatantra / Jataka; aliases in Bengali, Hindi and English. ANIM_MODE=tvtoon in
+daily-story.yml; every story scene, the hook and Lumi Didi's parts are cartoon scenes (plus a 9:16 render for
+Facebook / Reels); quiz / lesson / word cards stay pictures.

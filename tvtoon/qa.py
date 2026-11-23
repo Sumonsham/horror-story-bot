@@ -67,7 +67,10 @@ def validate(cid, layer_dir=None):
     if miss:
         res["problems"].append(f"identity sheet is missing: {miss}")
     # different from every other designed character
-    dists = {o: identity_distance(spec, CH.get(o)) for o in CH.SPECS if o != cid}
+    # (within its own cast: the horror cast, the kids' cast; passers-by and one-story faces are not compared)
+    grp = spec.get("cast")
+    dists = {o: identity_distance(spec, CH.get(o)) for o, so in list(CH.SPECS.items())
+             if o != cid and not so.get("extra") and so.get("cast") == grp and not so.get("animal")}
     c["min_identity_distance"] = min(dists.values()) if dists else None
     if dists and min(dists.values()) < 4:
         res["problems"].append(f"too similar to {min(dists, key=dists.get)} ({min(dists.values())} features differ)")

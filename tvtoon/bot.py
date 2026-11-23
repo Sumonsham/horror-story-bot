@@ -27,7 +27,7 @@ def plan(story):
     key = (story.get("title"), len(story.get("scenes") or []))
     if _STATE.get("key") != key:
         _STATE["key"] = key
-        _STATE["ep"] = STY.episode_from_story(story)
+        _STATE["ep"] = STY.episode_from_story(story)      # (the characters made at night come from the library)
     return _STATE["ep"]
 
 
@@ -40,8 +40,8 @@ def _setup_beats(base):
     """the beats of a scene that are not lines: sitting, riding, driving (all from the start, under the lines)"""
     out = []
     for b in base.get("beats", []):
-        if "say" in b or "narrate" in b or "pause" in b or b.get("transform"):
-            continue
+        if "say" in b or "narrate" in b or "pause" in b or b.get("transform") or b.get("from_story"):
+            continue                                       # (the story's own actions are placed on the line times)
         b = dict(b)
         b.pop("with_prev", None)
         b["at"] = 0.0
@@ -71,7 +71,7 @@ def part_spec(ep, si, lines, subs, line_wavs, dur, W, H, fps):
     base = ep["scenes"][max(0, min(si, len(ep["scenes"]) - 1))]
     spec = {"location": base["location"], "world": copy.deepcopy(base.get("world", {})), "cast": copy.deepcopy(base["cast"]),
             "vehicles": copy.deepcopy(base.get("vehicles", [])), "fps": int(fps), "size": [int(W), int(H)],
-            "subtitles": False, "t_start": 0.0}
+            "subtitles": False, "t_start": 0.0, "look": os.environ.get("TVTOON_LOOK") or ep.get("look") or "horror"}
     names = _names(ep)
     ids = {c["id"] for c in spec["cast"]}
     anchors = _transform_anchor(base)
@@ -88,6 +88,11 @@ def part_spec(ep, si, lines, subs, line_wavs, dur, W, H, fps):
                     c.pop("disguise", None)
         anchors.pop(actor)
     beats = _setup_beats(base)
+    from tvtoon import actions as AC                       # the story moves the characters, on the bot's line times
+    dr = AC.Director(spec["cast"], AC.name_map(ep.get("cast", {})),
+                     fixed=[b["who"] for b in beats if b.get("sit") or b.get("ride")],
+                     still=base.get("location") == "boat" or (base.get("world", {}).get("kind") in ("palki", "hold")))
+    dr.prepare(lines[:len(subs)], lambda ln_: (lambda a_: a_ if a_ in ids else None)(names.get(str(ln_.get("speaker", "")).lower())))
     changed = set()
     last = None
     end = 0.0
@@ -112,15 +117,22 @@ def part_spec(ep, si, lines, subs, line_wavs, dur, W, H, fps):
             b = {"who": actor, "say": text or tx, "to": to, "at": st}
             if wav:
                 b["audio"] = wav
+            items, g_, e_ = dr.line(ln, actor, to)
+            emo = emo or (None if is_ghost else e_)
             if emo:
                 b["emotion"] = emo
+            if g_:
+                b["gesture"] = g_
             beats.append(b)
+            beats += AC.timed(items, st, du)
             last = actor
         else:
             b = {"narrate": text or tx, "at": st, "shot_type": "wide"}
             if wav:
                 b["audio"] = wav
             beats.append(b)
+            items, _g, _e = dr.line(ln, None)
+            beats += AC.timed(items, st, du)
         end = max(end, st + du)
         for a, (mode, txt) in anchors.items():                 # ... or right after its only line
             if a not in changed and mode == "after" and txt == text:
@@ -157,6 +169,7 @@ def still(ep, si, out_jpg, W, H):
     base = ep["scenes"][max(0, min(si, len(ep["scenes"]) - 1))]
     spec = {"location": base["location"], "world": copy.deepcopy(base.get("world", {})), "cast": copy.deepcopy(base["cast"]),
             "vehicles": copy.deepcopy(base.get("vehicles", [])), "size": [int(W), int(H)], "fps": 24, "subtitles": False,
+            "look": os.environ.get("TVTOON_LOOK") or ep.get("look") or "horror",
             "beats": [dict(b, at=0.0) for b in _setup_beats(base)] + [{"pause": 2.5, "at": 0.0, "shot": "wide"}]}
     sc = SC.Scene(spec)
     t = 1.6

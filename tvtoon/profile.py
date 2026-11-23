@@ -665,6 +665,7 @@ def _head(ctx, pp, J, st, col, lw):
     _group(ctx, [(skull, skin, face_det)], lw)
     _group(ctx, [(ear, skin, ear_det)], lw * 0.8)
     _hair_cap(ctx, pp, st, col, lw, Dp, hh, ox)
+    _headwear_side(ctx, pp, st, col, lw, Dp, hh, ox)
     if "sindoor" in acc:
         G.line(ctx, [(ox + 0.12 * Dp, -1.0 * hh), (ox + 0.3 * Dp, -0.92 * hh)], hh * 0.025, G.rgb("#c62828"))
     ctx.restore()
@@ -801,6 +802,47 @@ def _face_side(ctx, pp, face, col, Dp, hh, ox, mouth, outline):
         ctx.arc(ox + 0.43 * Dp, -0.66 * hh, hh * 0.022, 0, 2 * math.pi)
         ctx.set_source_rgb(0.8, 0.1, 0.15)
         ctx.fill()
+
+
+def _headwear_side(ctx, pp, st, col, lw, Dp, hh, ox):
+    """turban, crown / mukut (with Krishna's feather) and Ganesha's trunk in the side view"""
+    acc = pp.spec.get("accessories", [])
+    cols = pp.spec["colours"]
+    if "turban" in acc:
+        tc = G.rgb(cols.get("turban", "#f2efe6"))
+        pts = [(ox + 0.4 * Dp, -0.78 * hh), (ox + 0.42 * Dp, -1.05 * hh), (ox + 0.1 * Dp, -1.3 * hh), (ox - 0.42 * Dp, -1.22 * hh),
+               (ox - 0.6 * Dp, -0.9 * hh), (ox - 0.52 * Dp, -0.66 * hh)]
+        _group(ctx, [(lambda: G.smooth(ctx, pts, tension=0.4), tc,
+                      lambda: [G.line(ctx, [(ox - 0.5 * Dp, (-0.75 - 0.13 * k) * hh), (ox + 0.38 * Dp, (-0.85 - 0.12 * k) * hh)], lw * 0.9,
+                                      G.shade(tc, 0.7)) for k in range(3)])], lw)
+        if "plume" in acc:
+            sw = math.sin(st["side"].get("t", 0.0) * 2.0) * 0.04 * Dp
+            G.line(ctx, [(ox + 0.25 * Dp, -1.15 * hh), (ox + 0.1 * Dp + sw, -1.45 * hh), (ox - 0.15 * Dp + sw * 2, -1.6 * hh)], lw * 3, (0.98, 0.98, 0.96))
+    if "crown" in acc or "mukut" in acc:
+        cc = G.rgb(cols.get("crown", "#e0b030"))
+        tall = 0.55 if "mukut" in acc else 0.35
+        pts = [(ox + 0.36 * Dp, -0.82 * hh), (ox + 0.38 * Dp, -(0.95 + tall * 0.7) * hh), (ox + 0.15 * Dp, -(0.95 + tall) * hh),
+               (ox - 0.05 * Dp, -(0.95 + tall * 0.6) * hh), (ox - 0.25 * Dp, -(0.95 + tall * 0.85) * hh), (ox - 0.48 * Dp, -(0.95 + tall * 0.5) * hh),
+               (ox - 0.5 * Dp, -0.8 * hh)]
+
+        def det():
+            ctx.new_path()
+            G.ellipse(ctx, ox + 0.18 * Dp, -1.0 * hh, 0.06 * Dp, 0.05 * hh)
+            ctx.set_source_rgb(0.78, 0.16, 0.16)
+            ctx.fill()
+            if "peacock_feather" in acc:
+                ctx.new_path()
+                G.ellipse(ctx, ox - 0.2 * Dp, -(1.3 + tall) * hh, 0.12 * Dp, 0.14 * hh, ang=-0.3)
+                ctx.set_source_rgb(*G.rgb("#2a9a6a"))
+                ctx.fill()
+        ctx.new_path()
+        _group(ctx, [(lambda: (ctx.move_to(*pts[0]), [ctx.line_to(*p) for p in pts[1:]], ctx.close_path()), cc, det)], lw)
+    if "elephant_head" in acc:
+        sw = math.sin(st["side"].get("t", 0.0) * 1.3) * 0.05 * Dp
+        trunk = [(ox + 0.45 * Dp, -0.45 * hh), (ox + 0.62 * Dp, -0.2 * hh), (ox + 0.6 * Dp + sw, 0.15 * hh), (ox + 0.72 * Dp + sw, 0.32 * hh)]
+        G.line(ctx, trunk, 0.22 * Dp + lw * 2, LINE)
+        G.line(ctx, trunk, 0.22 * Dp, col["skin"])
+        _group(ctx, [(lambda: G.ellipse(ctx, ox - 0.15 * Dp, -0.5 * hh, 0.32 * Dp, 0.42 * hh), G.shade(col["skin"], 0.9), None)], lw)
 
 
 # ------------------------------------------------------------------------------------------------- hair

@@ -62,6 +62,14 @@ def audio_len(path):
 
 class Scene:
     def __init__(self, spec):
+        from tvtoon import life as LF                      # the place's own people (life.py)
+        try:
+            lc, lb = LF.plan(spec)
+        except Exception:
+            lc, lb = [], []
+        if lc:
+            spec = dict(spec, cast=list(spec["cast"]) + lc, beats=list(spec["beats"]) + lb)
+        self.life = [c["id"] for c in lc]
         self.spec = spec
         self.fps = int(spec.get("fps", 24))
         self.aspect = spec.get("aspect", "16:9")
@@ -72,13 +80,15 @@ class Scene:
         self.perf, self.puppets, self.order = {}, {}, []
         self.depth = {}
         for c in spec["cast"]:
+            if c.get("spec") and c["id"] not in CH.SPECS:          # a character made for this story (it travels with it)
+                CH.SPECS[c["id"]] = c["spec"]
             disguised = bool(c.get("disguise")) and CH.get(c["id"]).get("ghost") is not None
             human_id = (c["id"][: -len("__ghost")] if c["id"].endswith("__ghost") else c["id"] + "__human")
-            pp = PP.Puppet(CH.get(human_id if disguised else c["id"]))
+            pp = PP.make(CH.get(human_id if disguised else c["id"]))
             self.puppets[c["id"]] = pp
             pf = AN.Perf(c["id"], pp, float(c["x"]))
             if disguised:                                      # the ghost comes as an ordinary person first
-                pf.forms = (pp, PP.Puppet(CH.get(c["id"])))
+                pf.forms = (pp, PP.make(CH.get(c["id"])))
             self.depth[c["id"]] = float(c.get("z", 0.0))       # 0 = front row, 1 = far back (smaller, higher)
             if c.get("name_bn"):
                 self.names = getattr(self, "names", {})
@@ -89,6 +99,9 @@ class Scene:
             if c.get("facing") in ("left", "right"):                         # standing in profile from the start
                 pf.facing_side = -1.0 if c["facing"] == "left" else 1.0
             self.perf[c["id"]] = pf
+            if c.get("extra"):
+                pf.extra = True                                # a passer-by: never speaks, never takes the camera
+                continue
             self.order.append(c["id"])
         from tvtoon import locations as LC
         from tvtoon import vehicles as VH
@@ -250,6 +263,11 @@ class Scene:
                     self.world.lamp_off = min(self.world.lamp_off, t0 + 0.6)    # the lantern goes out
                 shot = {"type": "close", "move": "push"}
                 auto.append((t0 + 1.25, t0 + 2.6, {"type": "wide", "who": who}))   # then: the whole horror
+            elif "act" in b:                                   # a body action from the story (jump, dance, nod, bow...)
+                t1 = t0 + float(b.get("sec", {"jump": 0.65, "dance": 2.9, "nod": 0.9, "shake": 0.9, "bow": 1.4,
+                                               "fall": 1.6}.get(b["act"], 1.0)))
+                pf.acts.append((t0, t1, b["act"]))
+                shot = {"type": "full" if b["act"] in ("jump", "dance", "fall", "bow") else "medium"}
             elif "look_back" in b:                             # turn and look back over the shoulder
                 t1 = t0 + float(b["look_back"])
                 pf.lookbacks.append((t0, t1))
@@ -273,6 +291,9 @@ class Scene:
                 pf.facing.append((t0, float(b["face"])))
             else:
                 t1 = t0
+            if b.get("life"):                                  # the place's own people never take the camera
+                shot = None
+                b = dict(b, shot=None)
             if b.get("shot"):                                  # manual override
                 shot = b["shot"] if isinstance(b["shot"], dict) else {"type": b["shot"]}
             if shot and not (b.get("with_prev") and not b.get("shot")):
@@ -440,6 +461,12 @@ class Scene:
         if typ == "full":
             z = self.H * 0.66 / h if not portrait else self.W / 760.0
             return sx + look * 60, gy - (0.30 if portrait else 0.42) * self.H / z, z
+        if typ in ("ecu", "close", "reaction", "medium") and self.puppets[who].spec.get("animal"):
+            # an animal: its head is not on top of a body like a person's - frame the whole animal, close
+            z = self.H / (h * (1.45 if typ == "medium" else 1.2)) if not portrait else self.W / max(300.0, h * 1.3)
+            if shot.get("move") == "push":
+                z *= 1.0 + 0.06 * G.ease(u)
+            return sx + look * 40, gy - h * 0.52, min(z, self.H / max(520.0, h * 2.2))
         if typ == "ecu":                                      # extreme close-up: the eyes
             hh = self.puppets[who].P["head_h"] * self.cscale(who)
             z = self.H / (hh * 1.2)
@@ -483,6 +510,14 @@ class Scene:
                 k = G.ease((t - shot["t0"]) / ed)
                 cx, cy = p0[0] + (cx - p0[0]) * k, p0[1] + (cy - p0[1]) * k
                 z = math.exp(math.log(p0[2]) + (math.log(z) - math.log(p0[2])) * k)
+        look = self.look()
+        if look != "flat" and idx is not None:             # CINEMATIC: a camera operator's hand - a slow, tiny drift
+            amp = (0.006 if look == "horror" else 0.0035) * self.W / z
+            typ = self.shots[idx].get("type")
+            if typ not in ("track",):
+                k_ = 0.45 if typ in ("establish", "wide") else 1.0
+                cx += k_ * amp * (math.sin(t * 0.61 + 1.3) + 0.45 * math.sin(t * 1.37))
+                cy += k_ * amp * 0.6 * (math.sin(t * 0.47) + 0.4 * math.sin(t * 1.91 + 0.7))
         if self.world is not None and hasattr(self.world, "shake"):   # the camera rides with the carriage
             sx_, sy_ = self.world.shake(t)
             cx, cy = cx + sx_ / max(0.3, z) * 0.6, cy + sy_ / max(0.3, z) * 0.6
@@ -527,6 +562,13 @@ class Scene:
             ctx.paint()
         sun = self.world.sun_dx(t) if self.world is not None else 0.0
         items = [(self.depth[c], 1, i, c) for i, c in enumerate(self.order)]
+        sh_ = self.shot_at(t)
+        if self.life and (sh_ or {}).get("type") not in ("close", "ecu", "reaction", "ots"):
+            # passers-by inside the picture (not in the close shots: the face is the picture there)
+            vw_ = self.W / cam[2]
+            for i, c in enumerate(self.life):
+                if abs(self.perf[c].x_at(t) - cam[0]) < vw_ / 2 + 400:
+                    items.append((self.depth[c], 1, 100 + i, c))
         items += [(v.z, 0, i, vid) for i, (vid, v) in enumerate(self.vehicles.items()) if v.lane != "tracks"]
         items.sort(key=lambda r: (-r[0], r[1], r[2]))            # far first; at one depth the vehicle, then people
         props = {pr["behind"]: pr for pr in self.props}
@@ -597,9 +639,80 @@ class Scene:
                 ctx.restore()
         buf = np.ndarray((self.H, self.W, 4), np.uint8, surf.get_data()).copy()
         img = buf[:, :, :3]
+        if self.look() != "flat":
+            img = self._grade(np.ascontiguousarray(img), t)
         if subtitles:
             img = subtitles(img, t)
         return img
+
+    # -------------------------------------------------------------- the cinematic look (owner, 23 Nov 2026)
+    def look(self):
+        """horror = film look (cool shadows, warm light, deep vignette, grain); kids = bright, warm, soft; flat = the
+        plain TV cartoon. TVTOON_LOOK overrides the scene's own choice."""
+        lk = (os.environ.get("TVTOON_LOOK") or self.spec.get("look") or "cinematic").strip().lower()
+        return {"cinematic": "horror" if self.spec.get("horror") else "film"}.get(lk, lk)
+
+    def _grade_setup(self, look):
+        import cv2
+        W, H = self.W, self.H
+        yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+        r = np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2) / math.sqrt(2)
+        strength = {"horror": 0.55, "film": 0.32, "kids": 0.16}.get(look, 0.3)
+        vig = 1.0 - strength * np.clip((r - 0.35) / 0.65, 0, 1) ** 1.7
+        self._vig = cv2.merge([(vig * 255).astype(np.uint8)] * 3)
+        rng = np.random.default_rng(7)
+        self._grain = [(rng.normal(128, 40, (H // 2, W // 2)).clip(0, 255).astype(np.uint8)) for _ in range(6)]
+        self._grain = [cv2.merge([cv2.resize(g, (W, H), interpolation=cv2.INTER_LINEAR)] * 3) for g in self._grain]
+        self._luts = {}
+
+    def _lut(self, look, hour):
+        """a film curve per channel for the time of day: a soft S-curve, warm light, cool shadows (teal / amber)"""
+        key = (look, round(hour * 2) / 2)
+        if key in self._luts:
+            return self._luts[key]
+        x = np.arange(256, dtype=np.float32) / 255.0
+        night = hour >= 19.5 or hour < 5.0
+        dusk = 16.5 <= hour < 19.5 or 5.0 <= hour < 7.0
+        s_amt = {"horror": 0.22, "film": 0.14, "kids": 0.07}.get(look, 0.12)
+        curve = x + s_amt * (x - 0.5) * (1 - np.abs(2 * x - 1)) * 1.6        # contrast around the middle
+        sh = np.clip(1 - x * 2.2, 0, 1)                                    # how much a value is a shadow
+        hi = np.clip(x * 2.0 - 1.0, 0, 1)                                  # ... a highlight
+        if look == "horror":
+            warm = (0.05, 0.015, -0.04) if not night else (0.02, 0.0, -0.02)
+            cool = (-0.05, 0.0, 0.06) if night else (-0.03, 0.005, 0.035)
+            lift = 0.0
+        elif look == "kids":
+            warm, cool, lift = (0.035, 0.02, -0.01), (0.0, 0.01, 0.025), 0.02
+        else:
+            warm, cool, lift = ((0.06, 0.02, -0.035) if dusk else (0.03, 0.012, -0.015)), (-0.02, 0.0, 0.03), 0.01
+        chans = []
+        for c in range(3):                                 # the frame is B, G, R (cairo): the tuples above are R, G, B
+            v = curve + warm[2 - c] * hi + cool[2 - c] * sh + lift * (1 - x)
+            chans.append((np.clip(v, 0, 1) * 255).astype(np.uint8))
+        lut = np.dstack(chans).reshape(1, 256, 3)
+        self._luts[key] = lut
+        return lut
+
+    def _grade(self, img, t):
+        import cv2
+        look = self.look()
+        if not hasattr(self, "_vig"):
+            self._grade_setup(look)
+        hour = self.world.hour(t) if self.world is not None else 12.0
+        out = cv2.LUT(img, self._lut(look, hour))
+        # bloom: light spills from the lamps, the windows, the sun - the brightest parts, blurred, added back
+        small = cv2.resize(out, (self.W // 4, self.H // 4), interpolation=cv2.INTER_AREA)
+        thr = 200 if look != "horror" else 185
+        bright = cv2.subtract(small, (thr, thr, thr, 0))
+        bright = cv2.GaussianBlur(bright, (0, 0), 6)
+        bright = cv2.resize(bright, (self.W, self.H), interpolation=cv2.INTER_LINEAR)
+        out = cv2.addWeighted(out, 1.0, bright, {"horror": 0.9, "film": 0.7, "kids": 0.5}.get(look, 0.6), 0)
+        out = cv2.multiply(out, self._vig, scale=1 / 255.0)                # the lens vignette
+        if look in ("horror", "film"):                                     # a fine film grain, alive every frame
+            g = self._grain[int(t * 24) % len(self._grain)]
+            a = 0.05 if look == "horror" else 0.03
+            out = cv2.addWeighted(out, 1.0, g, a, -a * 128)
+        return out
 
     def _draw_person(self, ctx, cid, t, sun, st=None, x=None, lift=0.0, shadow=True):
         if True:
@@ -619,7 +732,7 @@ class Scene:
             if not ghost and shadow:
                 self._shadow(ctx, x, pf.pp.P["H"] * sc_, gy, sun)
             ctx.save()
-            if ghost:
+            if st.get("float_y"):                              # a ghost floating, a child jumping
                 ctx.translate(0, -st.get("float_y", 0.0))
             q = st.get("squash", 0.0)
             if q:                                              # squash and stretch from the feet, volume kept

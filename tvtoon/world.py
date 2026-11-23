@@ -213,6 +213,14 @@ class World:
                 ctx.set_source_rgba(1, 1, 0.9, night * tw)
                 ctx.fill()
         sy = H * (0.62 - 0.5 * max(-0.4, min(1.0, sun_h)))      # the sun sinks; the moon rises at night
+        if sun_h > -0.1:                                        # the sun's glow spreads over the sky (warmer when low)
+            gl = cairo.RadialGradient(W * 0.78, sy, H * 0.04, W * 0.78, sy, H * 0.55)
+            warm = (1.0, 0.95, 0.75) if sun_h > 0.3 else (1.0, 0.72, 0.42)
+            gl.add_color_stop_rgba(0, *warm, 0.55 if sun_h > 0.3 else 0.7)
+            gl.add_color_stop_rgba(0.35, *warm, 0.18)
+            gl.add_color_stop_rgba(1, *warm, 0.0)
+            ctx.set_source(gl)
+            ctx.paint()
         ctx.new_path()
         if sun_h > -0.1:
             ctx.arc(W * 0.78, sy, H * 0.05, 0, 2 * math.pi)

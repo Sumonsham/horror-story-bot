@@ -395,6 +395,13 @@ def draw_face(ctx, C):
             G.ellipse(ctx, ex + s * hw * 0.11, ty + hh * 0.012, hw * 0.035, hh * 0.022)
             ctx.set_source_rgba(0.55, 0.8, 1.0, 0.9 * a)
             ctx.fill()
+    if "vanara" in spec.get("accessories", []):           # Hanuman's vanara face: a pale muzzle round nose and mouth
+        mx_, my_ = L["mouth"]
+        ctx.new_path()
+        G.ellipse(ctx, (L["nose"][0] + mx_) / 2, (L["nose"][1] + my_) / 2 + hh * 0.03, hw * 0.55, hh * 0.2)
+        fill(ctx, G.rgb(spec["colours"].get("muzzle", "#f0c89a")))
+        stroke(ctx, LINE, P["lw"] * 0.9)
+    draw_nose(ctx, P, spec, L["nose"][0], L["nose"][1], C.turn)
     if f.get("beard"):                                   # a beard round the chin (white for old men)
         bcol = G.rgb(spec["colours"].get("beard", spec["colours"]["hair"]))
         ctx.new_path()
@@ -404,7 +411,7 @@ def draw_face(ctx, C):
                        (mx - hw * 0.55, my + hh * 0.12)])
         fill(ctx, bcol)
         stroke(ctx, LINE, P["lw"] * 0.8)
-        draw_mouth(ctx, P, spec, face, mx, my, C.turn)
+    draw_mouth(ctx, P, spec, face, mx, my, C.turn)
     if "tilak" in spec.get("accessories", []):            # a red / sandal tilak on the forehead
         G.line(ctx, [(L["fx"], L["brow_y"] - hh * 0.02), (L["fx"], L["brow_y"] - hh * 0.16)], P["lw"] * 1.6,
                G.rgb(spec["colours"].get("tilak", "#c8102e")))
@@ -694,7 +701,121 @@ def hair_parts(spec, P):
                 t = C.turn * hw * 0.1
                 G.ellipse(ctx, t - C.turn * hw * 0.4 + sx * hw * 0.04, -hh * 1.02, hw * 0.45, hh * 0.22)
         front.append(Part("head", f_sil, None))
+    headwear(spec, P, back, front)
     return back, front
+
+
+def headwear(spec, P, back, front):
+    """turbans and crowns for kings, ministers and guards; the gods' crown (mukut), peacock feather and halo;
+    Ganesha's elephant ears and trunk. Colours: 'turban', 'crown' (default gold)."""
+    acc = spec.get("accessories", [])
+    hw, hh = P["head_w"] / 2, P["head_h"]
+    cols = spec["colours"]
+
+    def T(C):
+        return C.turn * hw * 0.1
+
+    if "halo" in acc:                                     # a soft golden halo behind the head (no outline)
+        def h_sil(ctx, C):
+            ctx.arc(T(C), -hh * 0.62, hh * 0.95, 0, 2 * math.pi)
+
+        def h_paint(ctx, C):
+            ctx.new_path()
+            g = cairo.RadialGradient(T(C), -hh * 0.62, hh * 0.3, T(C), -hh * 0.62, hh * 0.95)
+            g.add_color_stop_rgba(0, 1.0, 0.9, 0.5, 0.0)
+            g.add_color_stop_rgba(0.75, 1.0, 0.85, 0.35, 0.55)
+            g.add_color_stop_rgba(1, 1.0, 0.85, 0.35, 0.0)
+            ctx.set_source(g)
+            ctx.arc(T(C), -hh * 0.62, hh * 0.95, 0, 2 * math.pi)
+            ctx.fill()
+        back.insert(0, Part("head", lambda ctx, C: None, h_paint, outline=False))
+    if "elephant_head" in acc:                            # Ganesha: big ears behind, the trunk in front
+        def e_sil(ctx, C):
+            for s_ in (-1, 1):
+                G.ellipse(ctx, T(C) + s_ * hw * 1.25, -hh * 0.55, hw * 0.7, hh * 0.5, ang=s_ * 0.2)
+
+        def e_paint(ctx, C):
+            ctx.new_path()
+            e_sil(ctx, C)                       # (the base fill was the part's default colour)
+            fill(ctx, G.shade(cols["skin"], 0.9), keep=False)
+        back.append(Part("head", e_sil, e_paint))
+
+        def tr_sil(ctx, C):
+            sw_ = math.sin(C.st.get("t", 0.0) * 1.3) * hw * 0.12 + C.turn * hw * 0.3
+            G.smooth(ctx, [(T(C) - hw * 0.22, -hh * 0.45), (T(C) + hw * 0.22, -hh * 0.45), (T(C) + hw * 0.18 + sw_, -hh * 0.05),
+                           (T(C) + hw * 0.45 + sw_, hh * 0.18), (T(C) + hw * 0.32 + sw_, hh * 0.25), (T(C) + sw_ * 0.5, hh * 0.02),
+                           (T(C) - hw * 0.18, -hh * 0.2)], tension=0.4)
+
+        def tr_paint(ctx, C):
+            ctx.new_path()
+            tr_sil(ctx, C)                       # (the base fill was the part's default colour)
+            fill(ctx, G.rgb(cols["skin"]), keep=False)
+            G.line(ctx, [(T(C) + hw * 0.3, -hh * 0.3), (T(C) + hw * 0.55, -hh * 0.18)], P["lw"] * 3, (0.97, 0.95, 0.88))
+        front.append(Part("head", tr_sil, tr_paint))
+    if "turban" in acc:
+        tc = G.rgb(cols.get("turban", "#f2efe6"))
+
+        def t_sil(ctx, C):
+            t = T(C)
+            G.smooth(ctx, [(t - hw * 1.08, -hh * 0.72), (t - hw * 1.12, -hh * 1.0), (t - hw * 0.6, -hh * 1.3), (t + hw * 0.4, -hh * 1.32),
+                           (t + hw * 1.1, -hh * 1.05), (t + hw * 1.06, -hh * 0.72), (t, -hh * 0.8)], tension=0.4)
+
+        def t_paint(ctx, C):
+            t = T(C)
+            ctx.new_path()
+            t_sil(ctx, C)                       # (the base fill was the part's default colour)
+            fill(ctx, tc, keep=False)
+            for k in range(3):
+                G.line(ctx, [(t - hw * 1.0, -hh * (0.8 + 0.12 * k)), (t, -hh * (0.92 + 0.14 * k)), (t + hw * 1.0, -hh * (0.82 + 0.12 * k))],
+                       P["lw"] * 0.9, G.shade(tc, 0.7))
+            if "jewel" in acc or "plume" in acc:
+                ctx.new_path()
+                G.ellipse(ctx, t + C.turn * hw * 0.25, -hh * 1.0, hw * 0.12, hh * 0.08)
+                fill(ctx, G.rgb("#c62828"))
+                stroke(ctx, LINE, P["lw"] * 0.7)
+            if "plume" in acc:
+                sw_ = math.sin(C.st.get("t", 0.0) * 2.0) * hw * 0.08
+                G.line(ctx, [(t + C.turn * hw * 0.25, -hh * 1.08), (t + hw * 0.1 + sw_, -hh * 1.35), (t + hw * 0.35 + sw_ * 2, -hh * 1.55)],
+                       P["lw"] * 3.2, (0.98, 0.98, 0.96))
+        front.append(Part("head", t_sil, t_paint))
+    if "crown" in acc or "mukut" in acc:
+        cc = G.rgb(cols.get("crown", "#e0b030"))
+        tall = 0.55 if "mukut" in acc else 0.35
+
+        def c_sil(ctx, C):
+            t = T(C)
+            pts = [(t - hw * 0.9, -hh * 0.82), (t - hw * 0.95, -hh * (0.95 + tall * 0.6))]
+            for k in range(5):
+                x = t - hw * 0.7 + k * hw * 0.35
+                pts += [(x, -hh * (0.95 + tall * (1.0 if k == 2 else 0.75))), (x + hw * 0.17, -hh * (0.95 + tall * 0.45))]
+            pts += [(t + hw * 0.95, -hh * (0.95 + tall * 0.6)), (t + hw * 0.9, -hh * 0.82)]
+            ctx.move_to(*pts[0])
+            for p in pts[1:]:
+                ctx.line_to(*p)
+            ctx.close_path()
+
+        def c_paint(ctx, C):
+            t = T(C)
+            ctx.new_path()
+            c_sil(ctx, C)                       # (the base fill was the part's default colour)
+            fill(ctx, cc, keep=False)
+            G.line(ctx, [(t - hw * 0.9, -hh * 0.9), (t + hw * 0.9, -hh * 0.9)], P["lw"] * 2.5, G.shade(cc, 0.7))
+            for k, c in ((-1, "#c62828"), (0, "#1e88e5"), (1, "#2e7d32")):
+                ctx.new_path()
+                G.ellipse(ctx, t + k * hw * 0.45, -hh * 1.0, hw * 0.09, hh * 0.06)
+                fill(ctx, G.rgb(c))
+                stroke(ctx, LINE, P["lw"] * 0.6)
+            if "peacock_feather" in acc:                  # Krishna's peacock feather
+                sw_ = math.sin(C.st.get("t", 0.0) * 1.7) * hw * 0.06
+                G.line(ctx, [(t + hw * 0.3, -hh * (1.0 + tall)), (t + hw * 0.5 + sw_, -hh * (1.25 + tall))], P["lw"] * 1.5, G.rgb("#2a6a3a"))
+                ctx.new_path()
+                G.ellipse(ctx, t + hw * 0.55 + sw_, -hh * (1.32 + tall), hw * 0.16, hh * 0.13, ang=0.4)
+                fill(ctx, G.rgb("#2a9a6a"))
+                stroke(ctx, LINE, P["lw"] * 0.6)
+                ctx.new_path()
+                G.ellipse(ctx, t + hw * 0.56 + sw_, -hh * (1.32 + tall), hw * 0.07, hh * 0.06)
+                fill(ctx, G.rgb("#1a3a9a"), keep=False)
+        front.append(Part("head", c_sil, c_paint))
 
 
 # ----------------------------------------------------------------------------------------------- body
@@ -995,6 +1116,55 @@ def hand_shape(ctx, P, shape, inner):
         ctx.restore()
 
 
+def hand_detail(ctx, P, shape, inner, skin, lw):
+    """what makes a cartoon hand read as a HAND (23 Nov 2026): a soft shade on the palm's outer edge, the lines
+    between the fingers, the thumb's crease, knuckles on a fist, light nails on open fingertips"""
+    L = P["hand"]
+    pw = P["arm_r"] * 1.05
+    palm_l = L * 0.48
+    dark = G.shade(skin, 0.58)
+    ctx.save()                                            # the palm's outer edge in shade (light from the thumb side)
+    ctx.new_path()
+    G.ellipse(ctx, -inner * pw * 0.45, palm_l * 0.6, pw * 0.55, palm_l * 0.55)
+    ctx.set_source_rgba(*G.shade(skin, 0.8), 0.55)
+    ctx.fill()
+    ctx.restore()
+    geo = []
+    for i, (a, ln, curl) in enumerate(HANDS[shape]):
+        bx = inner * pw * 0.75 if i == 0 else (-pw * 0.62 + (i - 1) * pw * 0.41) * -inner
+        by = palm_l * (0.45 if i == 0 else 0.95)
+        ang = math.radians(a) * inner
+        geo.append((bx, by, ang, L * 0.52 * ln * (1 - 0.55 * curl), curl))
+    if shape == "fist":                                   # knuckles
+        for i in range(1, 5):
+            bx, by, ang, fl, _c = geo[i]
+            ctx.new_path()
+            ctx.arc(bx, by + fl * 0.55, pw * 0.16, 0.15 * math.pi, 0.85 * math.pi)
+            ctx.set_source_rgb(*dark)
+            ctx.set_line_width(lw * 0.5)
+            ctx.stroke()
+    else:
+        for i in range(1, 4):                             # the gaps between the fingers
+            b1, b2 = geo[i], geo[i + 1]
+            if b1[4] > 0.8 and b2[4] > 0.8:
+                continue
+            mx, my = (b1[0] + b2[0]) / 2, (b1[1] + b2[1]) / 2 - palm_l * 0.05
+            ang = (b1[2] + b2[2]) / 2
+            ln_ = min(b1[3], b2[3]) * 0.8
+            G.line(ctx, [(mx, my), (mx - math.sin(ang) * ln_, my + math.cos(ang) * ln_)], lw * 0.5, dark, smooth_it=False)
+        if shape in ("open", "flat", "point"):            # light nails on the fingertips
+            for i, (bx, by, ang, fl, curl) in enumerate(geo):
+                if curl > 0.5:
+                    continue
+                tx, ty = bx - math.sin(ang) * fl * 0.88, by + math.cos(ang) * fl * 0.88
+                ctx.new_path()
+                G.ellipse(ctx, tx, ty, pw * 0.09, pw * 0.11, ang=ang)
+                ctx.set_source_rgba(1.0, 0.93, 0.88, 0.85)
+                ctx.fill()
+    bx, by, ang, fl, _c = geo[0]                          # the thumb's crease
+    G.line(ctx, [(bx * 0.55, by + palm_l * 0.05), (bx * 0.85, by + palm_l * 0.35)], lw * 0.55, dark, smooth_it=False)
+
+
 def arm_parts(spec, P, side):
     """one arm group: upper arm, forearm, hand (+ sleeves). side 'a' (screen-left) or 'b'"""
     cos = spec["costume"]
@@ -1071,9 +1241,7 @@ def arm_parts(spec, P, side):
 
     def h_paint(ctx, C):
         shp = C.st.get("hands", {}).get(side, "relax")
-        if shp in ("relax", "fist", "point"):
-            G.line(ctx, [(inner * P["arm_r"] * 0.2, P["hand"] * 0.3), (inner * P["arm_r"] * 0.5, P["hand"] * 0.45)], lw * 0.6,
-                   G.shade(C.col["skin"], 0.6))
+        hand_detail(ctx, P, shp, inner * C.st.get("hand_flip", {}).get(side, 1), C.col["skin"], lw)
     return [Part("uarm_" + side, ua_sil, ua_paint), Part("farm_" + side, fa_sil, fa_paint), Part("hand_" + side, h_sil, h_paint)]
 
 
@@ -1280,3 +1448,11 @@ class Puppet:
             return {"shirt_trousers": "shirt", "tshirt_shorts": "tshirt", "kurta_dhoti": "kurta", "saree": "blouse",
                     "frock": "frock"}[typ]
         return "skin"
+
+
+def make(spec):
+    """a puppet for any character: people (Puppet) or animals, birds and magic friends (animals.Animal)"""
+    if spec.get("animal"):
+        from tvtoon import animals as AM
+        return AM.Animal(spec)
+    return Puppet(spec)

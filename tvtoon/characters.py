@@ -424,6 +424,13 @@ def get(cid):
         return ghost_form(cid[: -len("__ghost")])
     if cid.endswith("__human"):
         return human_form(cid[: -len("__human")])
+    if cid not in SPECS:                                   # the kids' cast (kids.py) registers itself when imported,
+        try:                                               # the characters made at night (prep.py) are in the library
+            from tvtoon import kids  # noqa: F401
+            from tvtoon import prep
+            prep.load_library()
+        except Exception:
+            pass
     return copy.deepcopy(SPECS[cid])
 
 
@@ -435,6 +442,8 @@ def samples():
 def profile(cid):
     """(kind, gender, age group) of a character, for casting"""
     s = get(cid)
+    if s.get("animal"):
+        return "animal", s.get("gender", "male"), "adult"
     cat = str(s.get("category", ""))
     kind = "ghost" if s.get("ghost") is not None or cat == "ghost" else "human"
     female = "female" in cat or cat == "girl" or s["costume"]["type"] in ("saree", "frock") or bool(s["face"].get("lashes"))
@@ -458,12 +467,12 @@ HAIR_M = ["side_part", "crop", "curly", "spiky"]
 HAIR_F = ["braid_long", "bun_black"]
 
 
-def new_character(cid, name_bn, gender="male", age="adult", look="", seed=0, avoid=()):
+def new_character(cid, name_bn, gender="male", age="adult", look="", seed=0, avoid=(), base=None):
     """a NEW supporting character with its own identity, made from the library's design rules (same drawing style,
     proportions of a real age group), different face, hair, skin and clothes. It is registered for this run (SPECS)
     and returned so the episode can save it in its own asset library."""
     rnd = random.Random(seed)
-    base = BASES.get((gender, age), "ramu_chowkidar")
+    base = base if base in SPECS else BASES.get((gender, age), "ramu_chowkidar")
     s = copy.deepcopy(SPECS[base])
     lk = str(look or "").lower()
     s.update({"name_bn": name_bn, "name_en": cid, "cast": "episode", "sample": False})

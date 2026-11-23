@@ -37,8 +37,27 @@ def cons_vis(c):
     return "LTD"
 
 
+def _from_devanagari(text):
+    """Hindi: the Devanagari letters map one to one onto the Bengali ones (both follow the same old Indian order,
+    0x80 apart), so the same syllable rules work; Hindi's inherent vowel is 'a' (A), not the Bengali 'o'"""
+    out = []
+    for ch in text:
+        o = ord(ch)
+        if 0x0900 <= o <= 0x097F and ch not in "।॥":
+            if ch == "व":
+                out.append("ভ")                               # (v / w is a lip sound)
+            else:
+                out.append(chr(o + 0x80))
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
 def syllables(text):
     """[(onset_viseme or None, vowel_viseme or None, phrase_break_after)]"""
+    hindi = any(0x0900 <= ord(c) <= 0x097F for c in text)
+    if hindi:
+        text = _from_devanagari(text)
     out = []
     words = text.replace("\n", " ").split(" ")
     for w in words:
@@ -79,12 +98,12 @@ def syllables(text):
                     word_syl.append((onset, None, False))
                     i += 1
                 else:
-                    word_syl.append((onset, "O", False))          # the inherent vowel
+                    word_syl.append((onset, "A" if hindi else "O", False))   # the inherent vowel
                 while i < n and w[i] in "ঁংঃ":
                     i += 1
                 continue
             i += 1
-        if word_syl and word_syl[-1][1] == "O" and len(word_syl) > 1 and word_syl[-1][0] is not None:
+        if word_syl and word_syl[-1][1] == ("A" if hindi else "O") and len(word_syl) > 1 and word_syl[-1][0] is not None:
             on, _v, br = word_syl[-1]                               # word-final inherent vowel is silent
             word_syl[-1] = (on, None, br)
         out += word_syl

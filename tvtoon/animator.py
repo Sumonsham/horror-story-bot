@@ -80,6 +80,7 @@ class Perf:
         self.looks = []      # (t0, t1, target_x or None)
         self.facing = []     # (t0, turn)
         self.lookbacks = []  # (t0, t1): looking back over the shoulder
+        self.acts = []       # (t0, t1, kind): jump / dance / nod / shake / bow / fall (actions.py, from the story)
         self.side_talk = False
         self.facing_side = None
         self.rng = random.Random(zlib.crc32(cid.encode()) % 1000 + seed)   # stable: every character blinks on its own clock
@@ -212,7 +213,7 @@ class Perf:
         ride = scene.riding(self.cid, t) if hasattr(scene, "riding") else None
         if ride:
             x = scene.vehicle_seat_x(ride[2], ride[3], t, self.cid)
-        st = {"rot": {}, "len": {}, "hands": {"a": "relax", "b": "relax"}, "face": {}, "turn": 0.0}
+        st = {"rot": {}, "len": {}, "hands": {"a": "relax", "b": "relax"}, "face": {}, "turn": 0.0, "t": t}
         rot = st["rot"]
         # ---- facing: toward who I speak to / listen to, else the camera
         sp = self.speaking(t)
@@ -220,15 +221,26 @@ class Perf:
         tgt = None
         if sp and sp[6] is not None:
             tgt = scene.x_of(sp[6], t)
-        else:
+        elif not getattr(self, "extra", False):
             other = scene.current_speaker(t)
             if other and other != self.cid:
                 tgt = scene.x_of(other, t)
         for t0, t1, lx in self.looks:
             if t0 <= t < t1:
                 tgt = lx
-        if tgt is not None:                                    # a clear three-quarter look at the partner
-            turn = 0.55 if tgt > x else -0.55
+        linger = False
+        if tgt is None and getattr(self, "last_tgt", None) and t - self.last_tgt[1] < 7.0:
+            # between the lines people still stand turned to the one they were talking with (not to the camera)
+            ox_ = scene.x_of(self.last_tgt[0], t) if self.last_tgt[0] else None
+            if ox_ is not None and abs(ox_ - x) < 1100:
+                tgt = ox_
+                linger = True
+        elif tgt is not None:
+            who_ = sp[6] if sp and sp[6] is not None else scene.current_speaker(t)
+            self.last_tgt = (who_, t)
+        if tgt is not None and abs(tgt - x) > 5:                # turned to each other, like people really talk:
+            near = abs(tgt - x) < 900                         # a deep three-quarter (body and head) toward the partner
+            turn = (0.5 if linger else 0.72 if near else 0.55) * (1 if tgt > x else -1)
         mv = self.moving(t)
         if mv:
             turn = 0.6 if mv[3] > mv[2] else -0.6
@@ -410,6 +422,7 @@ class Perf:
         st["cloth"] = max(-1.0, min(1.0, self.cloth[0] * 5))
         if side_d is not None:
             self._side(st, t, scene, x, side_d, mv, ride, emo, P)
+        self._acts(st, t, P)
         gh = self.pp.spec.get("ghost")
         if gh:                                                     # a ghost floats and drifts up and down
             sc_ = getattr(self, "scale", 1.0)
@@ -421,6 +434,47 @@ class Perf:
         return st, x
 
     # ----------------------------------------------------------------- pieces
+    def _acts(self, st, t, P):
+        """the body actions the STORY asks for (actions.py): a jump (anticipation squash, flight, landing squash), a
+        dance (hops, swaying hips, clapping arms), a nod / a head shake, a bow (pranam), a fall (and getting up)"""
+        sc_ = getattr(self, "scale", 1.0)
+        rot = st["rot"]
+        for a0, a1, kind in self.acts:
+            if not (a0 <= t < a1):
+                continue
+            u = t - a0
+            if kind in ("jump", "dance"):
+                per = 0.62 if kind == "jump" else 0.48
+                ph = (u % per) / per
+                hgt = (0.16 if kind == "jump" else 0.06) * P["H"] * sc_
+                if ph < 0.2:                                   # anticipation: crouch
+                    st["squash"] = st.get("squash", 0.0) - 0.08 * math.sin(math.pi * ph / 0.2)
+                elif ph < 0.82:                                # in the air (stretched going up)
+                    v = (ph - 0.2) / 0.62
+                    st["float_y"] = st.get("float_y", 0.0) + hgt * 4 * v * (1 - v)
+                    st["squash"] = st.get("squash", 0.0) + 0.06 * (1 - v)
+                else:                                          # landing squash
+                    st["squash"] = st.get("squash", 0.0) - 0.06 * math.sin(math.pi * (ph - 0.82) / 0.18)
+                if kind == "dance":
+                    rot["spine"] = rot.get("spine", 0.0) + D(9) * math.sin(2 * math.pi * u / (2 * per))
+                    rot["head"] = rot.get("head", 0.0) - D(6) * math.sin(2 * math.pi * u / (2 * per))
+                    if "walk" not in st:
+                        st["turn"] = max(-0.8, min(0.8, 0.5 * math.sin(2 * math.pi * u / (4 * per))))
+                st["face"]["mouth"] = st["face"].get("mouth") or "SMILE"
+            elif kind == "nod":
+                rot["head"] = rot.get("head", 0.0) + D(9) * max(0.0, math.sin(2 * math.pi * u / 0.45)) * min(1.0, (a1 - t) / 0.3)
+            elif kind == "shake":
+                st["head_turn"] = max(-0.8, min(0.8, st.get("head_turn", st["turn"]) + 0.45 * math.sin(2 * math.pi * u / 0.42)))
+            elif kind == "bow":                                # bend forward from the waist and come back
+                w = math.sin(math.pi * min(1.0, u / max(0.3, a1 - a0)))
+                rot["spine"] = rot.get("spine", 0.0) + D(28) * w
+                rot["head"] = rot.get("head", 0.0) + D(14) * w
+            elif kind == "fall":                               # a tumble: down on the bottom, then up again
+                w = math.sin(math.pi * min(1.0, u / max(0.4, a1 - a0)))
+                st["squash"] = st.get("squash", 0.0) - 0.12 * w
+                rot["spine"] = rot.get("spine", 0.0) - D(16) * w
+                st["face"]["wide"] = 1.0
+
     def _side(self, st, t, scene, x, d, mv, ride, emo, P):
         """the TRUE SIDE VIEW state (drawn by profile.py)"""
         sc = getattr(self, "scale", 1.0)
