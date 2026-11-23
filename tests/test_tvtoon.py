@@ -525,3 +525,70 @@ def test_bot_cartoon_follows_the_bots_own_line_timing(tmp_path):
     assert "|| 'tvtoon' }}" in wf and "pycairo" in wf                    # production makes the cartoon by default
     src = open(os.path.join(ROOT, "main.py"), encoding="utf-8").read()
     assert 'env("ANIM_MODE") == "tvtoon"' in src and "made the classic way" in src
+
+
+def test_places_change_with_the_story_many_rooms_and_the_boat():
+    from tvtoon import story as S, locations as L, qa_motion as Q
+    cases = {"Dilapidated quarter kitchen, night, glowing embers of wood stove": ("ghar", "kitchen"),
+             "Sambhunath Pandit Hospital ward, Kolkata, twilight": ("ghar", "hospital"),
+             "Kolkata radio station studio, midnight": ("ghar", "studio"),
+             "Inside the grand stone hall of the palace, dusk": ("ghar", "hall"),
+             "Hallway outside the bedchamber, early morning": ("ghar", "corridor"),
+             "Damp tool shed adjoining quarter, night": ("ghar", "shed"),
+             "Kolkata apartment, night, dim red light": ("ghar", "flat"),
+             "Kolkata study room, midnight, dim amber table lamp": ("ghar", "office"),
+             "boat bilge under floorboards, damp mud smell": ("ghar", "hold"),
+             "inside the cramped dark palanquin": ("ghar", "palki"),
+             "River boat deck under heavy wooden canopy, roaring river": ("boat", None),
+             "Rangtong railway cutting, night, thick mountain fog": ("mountain", None),
+             "Railway station waiting room at midnight": ("station", None)}
+    for text, (loc, kind) in cases.items():
+        assert S.place_of(text) == loc, text
+        if kind:
+            assert S.room_kind(text) == kind, text
+    cam = (1600.0, 500.0, 320 / 1920)
+    frames = {}
+    for k in ("bedroom", "kitchen", "hall", "hospital", "office", "studio", "corridor", "shed", "flat", "hold", "palki"):
+        w = L.make("ghar", {"kind": k, "text": k, "hours": [[0, 20.0]]})
+        frames[k] = Q._world_frame(w, 320, 180, cam, 1.0).astype(int)
+    ks = list(frames)
+    for i in range(len(ks)):                                             # every room really looks different
+        for j in range(i + 1, len(ks)):
+            assert abs(frames[ks[i]] - frames[ks[j]]).mean() > 4, (ks[i], ks[j])
+    b = L.make("boat", {"storm": 1.0, "palki": True})
+    a1, a2 = Q._world_frame(b, 320, 180, cam, 0.5), Q._world_frame(b, 320, 180, cam, 1.5)
+    assert abs(a1.astype(int) - a2.astype(int)).mean() > 0.5 and b.shake(0.7) != (0.0, 0.0)   # waves move, it rocks
+    ep = S.episode_from_story({"title": "x", "characters": [{"name": "a", "gender": "male"}],
+                               "scenes": [{"place": "Inside a train compartment, heavy rain outside", "lines": [{"speaker": "a", "text": "হুঁ।"}]},
+                                          {"place": "inside the dark palanquin", "lines": [{"speaker": "a", "text": "কে?"}]}]})
+    assert not ep["scenes"][0]["world"].get("rain")                       # no rain falls inside
+    assert any(b_.get("sit") for b_ in ep["scenes"][1]["beats"])          # in a palanquin one sits
+
+
+def test_studio_story_in_episode_out(tmp_path, monkeypatch):
+    """the multi-agent studio end to end on a small story (small picture, offline voice stand-in)"""
+    from tvtoon import studio as ST, voices as VO
+    monkeypatch.setattr(VO, "line", _fake_voice(str(tmp_path)))
+    monkeypatch.setenv("STUDIO_GEMINI", "0")
+    story = ("সন্ধের হাট\n\nসন্ধেবেলা গ্রামের হাটে খুব ভিড়। দোকানে আলো জ্বলছে।\n"
+             "রিনা: দাদা, এই আলুর দাম কত?\nদোকানদার কানুদা: কুড়ি টাকা কিলো দিদি!\n\n"
+             "রাতে রিনা বাড়ির রান্নাঘরে উনুনে ভাত চাপাল।\nরিনা: আজ হাটে খুব মজা হল।\n")
+    out = str(tmp_path / "episode_001")
+    assert ST.produce(story, out, voice="gemini", preview=True, log=lambda *a: None)
+    ep = ST.Episode(out, {})
+    for f in ("final_episode.mp4", "screenplay.md", "scene_breakdown.json", "production_report.md", "qc_report.md",
+              "episode_state.json", "casting.json", "locations.json", "voice_map.json"):
+        assert os.path.exists(ep.p(f)), f
+    st = json.load(open(ep.p("episode_state.json"), encoding="utf-8"))
+    assert all(st["stages"][c.id]["status"] == "done" for c in ST.PIPELINE)          # every agent ran and checked itself
+    locs = ep.read("locations.json")
+    assert [o["location"] for o in locs] == ["market", "ghar"] and locs[1]["room"] == "kitchen"   # the story's own places
+    cast = ep.read("casting.json")["cast"]
+    assert set(cast) == {"রিনা", "দোকানদার কানুদা"}
+    qc = ep.read("qc_report.json")
+    assert qc["pass"], [c for c in qc["checks"] if not c["pass"]]
+    assert len(os.listdir(ep.p("audio"))) == 5                                        # every line (2 narration + 3) once
+    # resume: nothing is made again when nothing changed
+    msgs = []
+    assert ST.produce(story, out, voice="gemini", preview=True, log=msgs.append)
+    assert sum("kept" in m for m in msgs) >= len(ST.PIPELINE)
