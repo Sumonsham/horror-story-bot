@@ -592,3 +592,13 @@ def test_studio_story_in_episode_out(tmp_path, monkeypatch):
     msgs = []
     assert ST.produce(story, out, voice="gemini", preview=True, log=msgs.append)
     assert sum("kept" in m for m in msgs) >= len(ST.PIPELINE)
+
+
+def test_no_simple_motion_before_four_hours():
+    """the owner (23 Nov 2026): the bot may fall back to the simpler motion for lack of time only after the run has
+    gone 4 hours (or when GitHub's 6-hour limit is really near) - never because the publish time is close"""
+    src = open(os.path.join(ROOT, "main.py"), encoding="utf-8").read()
+    body = src.split("def render_clips(jobs):")[1].split("\ndef ")[0]
+    assert 'FULL_MOTION_MINUTES") or 240' in body and "ran >= full_for" in body
+    head = body.split("workers =")[0]
+    assert head.count('os.environ["SIMPLE_MOTION"] = "1"') == 1
