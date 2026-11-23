@@ -1019,5 +1019,852 @@
    "missing_fields": [],
    "complete": false
   }
+ },
+ "167805cba54b": {
+  "name": "Debabrata",
+  "look": "68-year-old retired teacher with silver grey hair, wearing a white cotton kurta and round spectacles, calm but troubled eyes.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "short",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    228,
+    230,
+    232
+   ],
+   "shirt_dark": [
+    177,
+    179,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "glasses": [
+    30,
+    30,
+    34
+   ],
+   "hem": 52,
+   "sleeve": "long"
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "hair: short",
+   "hair colour: silver",
+   "glasses",
+   "kurta",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "silver grey hair",
+    "wearing a white cotton kurta",
+    "round spectacles",
+    "calm but troubled eyes"
+   ],
+   "not_drawn": [
+    "68-year-old retired teacher"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "9640e32eed2f": {
+  "name": "Naran",
+  "look": "60-year-old dark-skinned river ferryman, lean body, wearing a faded loincloth and Gamchha, hollow eyes full of superstitious fear.",
+  "design": {
+   "skin": [
+    64,
+    94,
+    132
+   ],
+   "skin_dark": [
+    49,
+    73,
+    102
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    64,
+    94,
+    132
+   ],
+   "shirt_dark": [
+    49,
+    73,
+    102
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 0.86,
+   "sleeve": "none",
+   "hem": 8,
+   "dhoti": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "skin: 'dark-skinned'",
+   "bare upper body",
+   "dhoti",
+   "build: thin",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "60-year-old dark-skinned river ferryman",
+    "lean body",
+    "wearing a faded loincloth",
+    "hollow eyes full of superstitious fear"
+   ],
+   "not_drawn": [],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": true
+  }
+ },
+ "e4ef6d50507c": {
+  "name": "Subhash",
+  "look": "52-year-old stern headmaster with slicked black hair, wearing heavy frame glasses and a crisp cream shirt, constantly sweating despite the winter.",
+  "design": {
+   "skin": [
+    98,
+    136,
+    182
+   ],
+   "skin_dark": [
+    70,
+    100,
+    138
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    196,
+    222,
+    236
+   ],
+   "shirt_dark": [
+    152,
+    173,
+    184
+   ],
+   "lower": [
+    34,
+    32,
+    36
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "glasses": [
+    30,
+    30,
+    34
+   ],
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "hair colour: black",
+   "glasses",
+   "shirt",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "slicked black hair",
+    "wearing heavy frame glasses",
+    "a crisp cream shirt"
+   ],
+   "not_drawn": [
+    "52-year-old stern headmaster",
+    "constantly sweating despite the winter"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "a90c21940fe4": {
+  "name": "Bishnu",
+  "look": "55-year-old school night-watchman, wearing a khaki jacket and carrying a heavy brass torch, anxious face with deep forehead lines.",
+  "design": {
+   "skin": [
+    98,
+    136,
+    182
+   ],
+   "skin_dark": [
+    70,
+    100,
+    138
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    150,
+    96,
+    52
+   ],
+   "shirt_dark": [
+    112,
+    70,
+    38
+   ],
+   "lower": [
+    60,
+    70,
+    82
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "carry": "torch"
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "carries a torch"
+  ],
+  "source": "offline-rules",
+  "audit": {
+   "drawn": [
+    "carrying a heavy brass torch",
+    "anxious face"
+   ],
+   "not_drawn": [
+    "55-year-old school night-watchman",
+    "wearing a khaki jacket",
+    "deep forehead lines"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "c8a69330cc3b": {
+  "name": "Bikram",
+  "look": "14-year-old schoolboy silhouette, dripping wet clothes covered in river silt, face hidden behind drenched matted hair, leaving grey ash footprints.",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    156,
+    164,
+    171
+   ],
+   "hair": [
+    150,
+    154,
+    160
+   ],
+   "hair_style": "topknot",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    70,
+    60,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.72,
+   "build": 0.86,
+   "child": true,
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "pale": true,
+   "mist": true
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "hair: matted, tied on top",
+   "hair colour: grey",
+   "child: smaller body, bigger head",
+   "ghost: see-through, floating, glowing eyes"
+  ],
+  "source": "offline-rules",
+  "audit": {
+   "drawn": [
+    "dripping wet clothes covered in river silt",
+    "face hidden behind drenched matted hair"
+   ],
+   "not_drawn": [
+    "14-year-old schoolboy silhouette",
+    "leaving grey ash footprints"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "3260e0a60b58": {
+  "name": "Ratan",
+  "look": "A 25-year-old young man, wearing a modern sweatshirt. He has a skeptical but curious expression, leaning forward with wide eyes.",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    20,
+    20,
+    24
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    70,
+    60,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.92,
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "shirt",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "wearing a modern sweatshirt. He has a skeptical but curious expression",
+    "leaning forward",
+    "wide eyes"
+   ],
+   "not_drawn": [],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": true
+  }
+ },
+ "5341129b1b7f": {
+  "name": "Sarala",
+  "look": "A 62-year-old woman in a simple cotton saree, holding a prayer bead bag. She looks anxious and keeps glancing at the dark corners of the room.",
+  "design": {
+   "skin": [
+    106,
+    144,
+    186
+   ],
+   "skin_dark": [
+    78,
+    108,
+    146
+   ],
+   "hair": [
+    200,
+    204,
+    210
+   ],
+   "hair_style": "bun",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    215,
+    218,
+    222
+   ],
+   "shirt_dark": [
+    175,
+    178,
+    182
+   ],
+   "lower": [
+    215,
+    218,
+    222
+   ],
+   "shawl": [
+    215,
+    218,
+    222
+   ],
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 0.9,
+   "build": 0.88,
+   "sari": true,
+   "bag": [
+    70,
+    110,
+    140
+   ]
+  },
+  "evidence": [
+   "মহিলা, বৃদ্ধ",
+   "saree",
+   "bag",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "holding a prayer bead bag. She looks anxious"
+   ],
+   "not_drawn": [],
+   "not_appearance": [
+    "keeps glancing at the dark corners of the room"
+   ],
+   "missing_fields": [],
+   "complete": true
+  }
+ },
+ "e8c3c43186be": {
+  "name": "Bapi",
+  "look": "22 years old, slim build, short black hair, wearing a simple cotton t-shirt and pajamas. His face is pale with terror, eyes wide, and he has a distinct six-fingered shadow appearing on his shoulder, his eyes are now pitch black",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    152,
+    160,
+    166
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    70,
+    60,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.86,
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "skin: 'pale'",
+   "hair colour: black",
+   "shirt",
+   "build: thin"
+  ],
+  "source": "offline-rules",
+  "audit": {
+   "drawn": [
+    "22 years old",
+    "slim build",
+    "short black hair",
+    "wearing a simple cotton t-shirt",
+    "pajamas. His face is pale",
+    "eyes wide",
+    "he has a distinct six-fingered shadow appearing on his shoulder",
+    "his eyes are now pitch black"
+   ],
+   "not_drawn": [
+    "terror"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "68a2e7528517": {
+  "name": "Nilkantha",
+  "look": "60 years old, salt-and-pepper beard, wearing a white dhoti and a worn-out kurta. He has deep-set eyes reflecting years of trauma and carries an old leather diary, his eyes are now pitch black",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    200,
+    204,
+    208
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "beard_len": "short",
+   "hem": 52,
+   "sleeve": "long",
+   "dhoti": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "beard: 'beard'",
+   "kurta",
+   "dhoti",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "60 years old",
+    "salt-and-pepper beard",
+    "wearing a white dhoti",
+    "a worn-out kurta. He has deep-set eyes reflecting years of trauma",
+    "his eyes are now pitch black"
+   ],
+   "not_drawn": [
+    "carries an old leather diary"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "fcd0d93f2868": {
+  "name": "Hari-kaka",
+  "look": "70 years old, hunched back, dark weathered skin, wearing a lungi and a thin towel over his shoulder. He carries a dim lantern and looks constantly anxious.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 0.86,
+   "dhoti": true,
+   "carry": "lantern"
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "dhoti",
+   "build: thin",
+   "carries a lantern",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "70 years old",
+    "dark weathered skin",
+    "wearing a lungi",
+    "a thin towel over his shoulder. He carries a dim lantern"
+   ],
+   "not_drawn": [
+    "hunched back",
+    "looks constantly anxious"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "873b6339a9df": {
+  "name": "Sulekha",
+  "look": "A tall, ethereal figure in a tattered black saree with a red border. She has knee-length disheveled black hair, glowing amber eyes, and six long, skeletal fingers on each hand.",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    156,
+    164,
+    171
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "bun",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    34,
+    32,
+    36
+   ],
+   "shirt_dark": [
+    26,
+    24,
+    28
+   ],
+   "lower": [
+    34,
+    32,
+    36
+   ],
+   "shawl": [
+    70,
+    120,
+    190
+   ],
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.07,
+   "build": 0.9,
+   "sari": true,
+   "border": [
+    40,
+    40,
+    180
+   ],
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "pale": true,
+   "mist": true
+  },
+  "evidence": [
+   "মহিলা, প্রাপ্তবয়স্ক",
+   "hair colour: black",
+   "saree (রং লেখা আছে) + border",
+   "ghost: see-through, floating, glowing eyes",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "ethereal figure in a tattered black saree",
+    "a red border. She has knee-length disheveled black hair",
+    "glowing amber eyes"
+   ],
+   "not_drawn": [
+    "six long",
+    "skeletal fingers on each hand"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
  }
 }
