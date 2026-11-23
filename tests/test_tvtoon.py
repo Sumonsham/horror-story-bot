@@ -309,6 +309,8 @@ def test_every_character_has_a_true_side_view():
     from tvtoon import characters as CH, puppet as PP, profile as PR
     ids = list(dict.fromkeys(list(CH.SPECS) + CH.horror_cast()))
     for cid in ids:
+        if CH.get(cid).get("animal"):                     # (animals have their own drawing: test_animals_draw)
+            continue
         pp = PP.Puppet(CH.get(cid))
         P = pp.P
         for st in (_side_state("stand"), _side_state("sit", sit=(1.0, P["foot_h"] + P["shin"] + P["thigh"] * 0.34)),
@@ -602,3 +604,167 @@ def test_no_simple_motion_before_four_hours():
     assert 'FULL_MOTION_MINUTES") or 240' in body and "ran >= full_for" in body
     head = body.split("workers =")[0]
     assert head.count('os.environ["SIMPLE_MOTION"] = "1"') == 1
+
+
+# ----------------------------------------------------------------- 23 Nov 2026: the story moves the characters
+def test_actions_read_the_story_in_three_languages():
+    from tvtoon import actions as AC
+    acts = lambda t, sp=False: [a for a, _ in AC.cues(t, speech=sp)]
+    assert acts("গোপাল দৌড়ে রাজার কাছে এল।")[:1] == ["run"]
+    assert "run_away" in acts("The fox ran away into the forest.")
+    assert acts("He arranged the range randomly.") == []          # 'ran' is not 'range'
+    assert acts("बच्चे नाचने लगे और ताली बजाई") == ["dance", "clap"]
+    assert acts("সে হাসপাতালে গেল") == []                           # hospital is not laughing
+    assert acts("Don't be afraid", True) == []
+    assert acts("আমি দৌড়ে যাব!", True) == []                       # speech: saying is not doing
+    assert "point" in acts("ওই দেখো!", True)
+    assert AC.orders("हाँ, ठीक है। बैठो!") == ["sit"]
+
+
+def test_story_actions_become_movements_in_the_scene():
+    from tvtoon import kids as K
+    story = {"title": "t", "characters": [{"name": "Gopal", "gender": "male"}, {"name": "Raja", "gender": "male"},
+                                          {"name": "Monkey", "name_local": "বাঁদর", "kind": "animal", "look": "brown monkey"}],
+             "scenes": [{"place": "the royal court (darbar)", "lines": [
+                 {"speaker": "narrator", "text": "গোপাল দৌড়ে রাজসভায় এল।"},
+                 {"speaker": "Gopal", "text": "প্রণাম মহারাজ!"},
+                 {"speaker": "Raja", "text": "এসো গোপাল, বসো।", "action": "the king points to a seat"},
+                 {"speaker": "narrator", "text": "হঠাৎ একটা বাঁদর লাফিয়ে সভায় ঢুকল।"},
+                 {"speaker": "narrator", "text": "বাঁদরটা ভয় পেয়ে পালিয়ে গেল।"}]}]}
+    sc = K.plan(story, "gopal")["scenes"][0]
+    x0 = {c["id"]: c["x"] for c in sc["cast"]}
+    beats = [b for b in sc["beats"] if b.get("from_story")]
+    monkey = next(c for c in x0 if c.startswith("ka_"))
+    assert x0["gopal"] < 300 and x0[monkey] < 0                        # both wait off screen: they COME IN
+    assert any(b.get("who") == "gopal" and b.get("gait") == "run" for b in beats)
+    assert any(b.get("who") == "gopal" and b.get("sit") for b in beats)
+    assert any(b.get("who") == monkey and b.get("act") == "jump" for b in beats)
+    assert any(b.get("who") == monkey and b.get("gait") == "run" and b["walk_to"] < -500 for b in beats)   # runs off
+    says = {b["who"]: b for b in sc["beats"] if "say" in b}
+    assert says["gopal"]["gesture"] == "namaste" and says["raja"]["gesture"] == "point"
+
+
+def test_bot_parts_put_the_actions_on_the_bots_own_times():
+    from tvtoon import bot, kids as K
+    story = {"title": "t2", "characters": [{"name": "Tukai", "gender": "male", "age": "child"}],
+             "scenes": [{"place": "village", "lines": [{"speaker": "narrator", "text": "টুকাই লাফিয়ে উঠল আর নাচতে লাগল।"},
+                                                       {"speaker": "Tukai", "text": "হ্যাঁ!"}]}]}
+    ep = K.plan(story, "")
+    spec = bot.part_spec(ep, 0, story["scenes"][0]["lines"], [(0.5, 2.0, True, "x"), (3.0, 1.0, False, "y")], [], 5.0,
+                         640, 360, 24)
+    acts = [b for b in spec["beats"] if b.get("from_story")]
+    assert acts and all("at" in b and b["background"] for b in acts)
+    assert {b.get("act") for b in acts} >= {"jump", "dance"}
+
+
+def test_the_place_is_alive_by_day_and_lonely_at_night():
+    from tvtoon import life as LF, scene as SC
+    day = {"location": "market", "world": {"hours": [[0, 10.0]]}, "cast": [{"id": "abhishek", "x": 1600}], "beats": []}
+    cast, beats = LF.plan(day)
+    assert len(cast) >= 4 and all(b.get("life") for b in beats)
+    assert not LF.plan(dict(day, location="village_road", look="horror", world={"hours": [[0, 22.0]]}))[0]
+    assert not LF.plan(dict(day, location="ghar"))[0]
+    sc = SC.Scene({"location": "school", "size": [320, 180], "world": {"hours": [[0, 10.0]]},
+                   "cast": [{"id": "abhishek", "x": 1600}], "beats": [{"pause": 1.0}]})
+    assert sc.life and not set(sc.life) & set(sc.order)                # passers-by never take the camera
+    assert all(s.get("who") not in sc.life for s in sc.shots)
+
+
+def test_cinematic_look_and_people_face_each_other():
+    import numpy as np
+    from tvtoon import scene as SC
+    spec = {"location": "village_courtyard", "life": False, "size": [320, 180], "world": {"hours": [[0, 11.0]]},
+            "cast": [{"id": "abhishek", "x": 1450}, {"id": "parul", "x": 1750}],
+            "beats": [{"pause": 0.5}, {"who": "abhishek", "say": "চলো।", "to": "parul"}, {"pause": 1.0}]}
+    flat = SC.Scene(dict(spec, look="flat")).render_frame(1.0).astype(int)
+    film = SC.Scene(dict(spec, look="horror")).render_frame(1.0).astype(int)
+    assert np.abs(flat - film).mean() > 2                              # graded
+    assert film[:8, :8].mean() < flat[:8, :8].mean()                   # the vignette darkens the corners
+    sc = SC.Scene(spec)
+    st_a, _ = sc.perf["abhishek"].state(1.2, sc)
+    st_b, _ = sc.perf["parul"].state(1.2, sc)
+    assert st_a["turn"] > 0.3 and st_b["turn"] < -0.3                  # turned to each other
+
+
+def test_night_assets_scout_and_builder(tmp_path, monkeypatch):
+    from tvtoon import prep as P, story as STY, characters as CH, kids as K
+    monkeypatch.setattr(P, "LIB_FILE", str(tmp_path / "lib.json"))
+    monkeypatch.setattr(P, "REPORT_DIR", str(tmp_path / "rep"))
+    P._LOADED["mtime"] = None
+    men = [{"name": f"Man{k}", "gender": "male", "age": "adult"} for k in range(5)]
+    story = {"title": "assets", "characters": men + [
+        {"name": "Sadhu Baba", "gender": "male", "age": "old", "look": "a tall sadhu in a saffron robe, white beard"},
+        {"name": "Mrs Sen", "gender": "female", "age": "adult", "look": "red saree, glasses, married"}],
+        "scenes": [{"place": "under the old well", "lines": [{"speaker": "Sadhu Baba", "text": "কে?"}]}]}
+    path, rep = P.make_assets(story, "2026-11-24@14", bot="horror", log=lambda *a: None)
+    names = {b["name"] for b in rep["new"]}
+    assert "Sadhu Baba" in names and rep["built"] and not rep["failed"]
+    lib = P._read_lib()["characters"]
+    sadhu = next(r for r in lib.values() if "Sadhu Baba" in r["names"])
+    assert sadhu["spec"]["hair"]["style"] == "jata" and "rudraksha" in sadhu["spec"]["accessories"]
+    sen = next((r for r in lib.values() if "Mrs Sen" in r["names"]), None)
+    if sen:
+        assert sen["spec"]["colours"].get("saree") == "#c62828" and "glasses_round" in sen["spec"]["accessories"]
+    cast = STY.cast_story(story["characters"])                      # at video time: the very same characters
+    assert cast["Sadhu Baba"][0] == next(k for k, r in lib.items() if "Sadhu Baba" in r["names"])
+    rep2 = P.StoryScout("horror", log=lambda *a: None).run(story)    # the next night: nothing new any more
+    assert not rep2["new"]
+    kid = {"title": "k", "characters": [{"name": "Gajraj", "kind": "animal", "look": "big grey elephant"}], "scenes": []}
+    _p, rk = P.make_assets(kid, "2026-11-24@07", bot="kids", log=lambda *a: None)
+    assert rk["built"] and CH.get(rk["built"][0])["animal"]["species"] == "elephant"
+    assert K.kids_cast(kid)["Gajraj"][0] == rk["built"][0]
+
+
+def test_voice_that_repeats_itself_is_cut():
+    import numpy as np
+    from tvtoon import voicecheck as VC
+    sr = 24000
+    rng = np.random.default_rng(1)
+
+    def phrase(seed, n=12):
+        r = np.random.default_rng(seed)
+        out = []
+        for _ in range(n):
+            d = r.uniform(0.12, 0.3)
+            t = np.arange(int(sr * d)) / sr
+            f0, f1 = r.uniform(100, 250), r.uniform(400, 2500)
+            out.append(np.sin(np.pi * t / d) ** 0.5 * (np.sin(2 * np.pi * f0 * t) + 0.5 * np.sin(2 * np.pi * f1 * t)) * 0.3)
+        return np.concatenate(out) + rng.normal(0, 0.01, sum(len(o) for o in out))
+    A, B = phrase(5), phrase(9)
+    text = "এক দুই তিন চার পাঁচ ছয় সাত আট নয় দশ এগারো বারো তেরো"
+    same, note = VC.fix_repeats(np.concatenate([A, B]), sr, text)
+    assert note == "" and len(same) == len(A) + len(B)
+    cut, note = VC.fix_repeats(np.concatenate([A, B, A, B]), sr, text)
+    assert note and abs(len(cut) - (len(A) + len(B))) < sr * 0.3
+    cut3, note3 = VC.fix_repeats(np.concatenate([A, A, A]), sr, "এক দুই তিন চার পাঁচ ছয় সাত আট")
+    assert note3 and len(cut3) < len(A) * 1.2
+
+
+def test_hands_have_fingers_drawn():
+    import numpy as np
+    from tvtoon import puppet as PP, characters as CH
+    pp = PP.Puppet(CH.get("abhishek"))
+    for shape in ("open", "point", "fist", "relax"):
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
+        ctx = cairo.Context(surf)
+        ctx.translate(100, 60)
+        ctx.scale(2.5, 2.5)
+        PP.hand_shape(ctx, pp.P, shape, 1)
+        ctx.set_source_rgb(0.8, 0.6, 0.4)
+        ctx.fill()
+        PP.hand_detail(ctx, pp.P, shape, 1, (0.8, 0.6, 0.4), pp.P["lw"])
+        a = np.ndarray((200, 200, 4), np.uint8, surf.get_data())
+        assert (a[:, :, 3] > 0).sum() > 500
+
+
+def test_kids_cast_and_host():
+    from tvtoon import kids as K, kidsbot as KB, characters as CH, scene as SC
+    assert len(K.KIDS) >= 60
+    cast = K.kids_cast({"characters": [{"name": "Krishna"}, {"name": "बीरबल"}, {"name": "Crocodile", "kind": "animal"},
+                                       {"name": "Ramu", "gender": "male"}]}, "")
+    assert cast["Krishna"][0] == "krishna" and cast["बीरबल"][0] == "birbal"
+    assert CH.get(cast["Crocodile"][0])["animal"]["species"] == "crocodile"
+    assert K.kids_place("under the big tree").startswith("village courtyard")
+    sp = KB.host_spec([{"speaker": "narrator", "text": "নমস্কার!"}], [(0.3, 1.0, True, "নমস্কার!")], [], 2.0, 320, 180, 24)
+    sc = SC.Scene(sp)
+    assert set(sc.order) == {"lumi_didi", "mithu"} and sc.lines[0]["who"] == "lumi_didi"
