@@ -6615,6 +6615,18 @@ def build_video(scene_parts, lang, out):
                        (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx) for k, (st, du, nar, tx) in enumerate(subs)]
             comp_ = {"engine": {"scene": {"place": sp.get("place", "")}, "beats": beats_, "chars": sp["engine"]["chars"],
                                 "designs": sp["engine"].get("designs") or {}}}
+        if sp.get("tvtoon") is not None and not comp_:   # 23 Nov 2026: the TV cartoon, on the bot's own lines
+            try:
+                from tvtoon import bot as tvbot
+                j_ok = [j for j, ln in enumerate(sp["lines"]) if str(ln.get("text", "")).strip()]
+                lw_ = [os.path.join(WORK, f"v_{i:02d}_{j:02d}.wav") for j in j_ok]
+                spec_ = tvbot.part_spec(tvbot._STATE["ep"], sp["tvtoon"], spoken, subs, lw_, duration(a), W, H, FPS)
+                tvbot.render_part(spec_, a, c, W, H, FPS, SR, WORK, log)
+                log(f"  cartoon scene {i + 1}: {spec_['location']}, {len(spec_['cast'])} people")
+            except Exception as e:
+                log(f"  cartoon scene {i + 1} failed ({str(e)[:160]}) - this scene is made the classic way")
+                if os.path.exists(c):
+                    os.remove(c)
         jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk, comp_))
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
@@ -13389,7 +13401,25 @@ def main():
         except Exception as e:
             log("  character mode failed - the classic pictures are made instead:", str(e)[:200])
             char_mode = None
+    tv_ep = None
+    if env("ANIM_MODE") == "tvtoon":                 # 23 Nov 2026: the horror story as a TV cartoon (tvtoon/bot.py)
+        try:
+            from tvtoon import bot as tvbot
+            tv_ep = tvbot.plan(story)
+            log(f"Cartoon (tvtoon): {len(tv_ep['scenes'])} scenes, cast " +
+                ", ".join(f"{k}={v['actor']}" for k, v in tv_ep.get("cast", {}).items()))
+        except Exception as e:
+            log("  cartoon plan failed - the classic pictures are made instead:", str(e)[:200])
+            tv_ep = None
     for i, (s, lines) in enumerate(zip(scenes, scene_lines)):
+        if tv_ep:                                    # the cartoon's own picture of the scene (no picture service)
+            try:
+                p_ = tvbot.still(tv_ep, i, os.path.join(WORK, f"tv_still_{i:02d}.jpg"), W, H)
+                shots_per_scene.append([p_] * max(1, len(lines)))
+                imgs.append(p_)
+                continue
+            except Exception as e:
+                log(f"  cartoon picture {i + 1} failed - a classic picture:", str(e)[:150])
         if char_mode:                                # (the empty background of this place is the scene's picture)
             shots_per_scene.append([char_mode["bgs"][i][0]] * max(1, len(lines)))
             imgs.append(char_mode["bgs"][i][0])
@@ -13604,7 +13634,9 @@ def main():
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
-        if char_mode:
+        if tv_ep:
+            parts[-1]["tvtoon"] = k_
+        elif char_mode:
             parts[-1]["comp"] = {"scene": s, "index": k_, "bg": char_mode["bgs"][k_], "records": char_mode["records"],
                                  "by_name": char_mode["by_name"]}
         elif env("ANIM_MODE") == "cartoon":          # V1.1: the cartoon engine + the three story assistants
@@ -13619,6 +13651,8 @@ def main():
         himg = (shots_per_scene[hi][0] if shots_per_scene[hi] else imgs[hi])
         parts.insert(0, {"image": himg, "lines": hlines, "sounds": [], "mood": "scary", "voices": voices,
                          "hook_part": True})
+        if tv_ep:                                    # the gripping moment as a cartoon too
+            parts[0]["tvtoon"] = hi
         cold = True
         log(f"Hook at the start (from scene {hi + 1}): {str(hlines[0].get('text', ''))[:80]}")
         if env("TENSION_BRIDGE") == "1":             # (13 Nov 2026: OFF - the same 3 lines came in every story)
