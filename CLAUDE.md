@@ -18,3 +18,4 @@ Ground rules (details in the skill and `engine2/RIG_PIPELINE.md`):
 - `tvtoon/bot.py` replaces only the scene pictures. The bot's own lines, voices, sound, subtitles, thumbnail and uploads are unchanged. A scene that fails is made the classic way.
 - Voices: tests use Chirp only; the normal story mode uses Gemini.
 - Approvals: the owner gave a standing approval for every tvtoon character (`tvtoon/approvals.json` `_all`). He is not to be asked again.
+- The Cartoon Studio (`tvtoon/studio.py`) turns the owner's own story into a finished episode. When he gives a story in chat, run `python -m tvtoon.studio <story.txt> <out> --voice ...` and deliver `final_episode.mp4` with its reports; don't ask about agents, backgrounds or characters. On GitHub, a story uploaded to `studio/inbox/` starts the "Cartoon Studio" workflow.
