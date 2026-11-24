@@ -1866,5 +1866,634 @@
    "missing_fields": [],
    "complete": false
   }
+ },
+ "2a37137d85b5": {
+  "name": "Subhash",
+  "look": "24-year-old Bengali food delivery boy, short black hair, tan skin, wearing a blue jacket and denim jeans, tense fearful eyes, carrying a smartphone.",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    150,
+    96,
+    52
+   ],
+   "shirt_dark": [
+    117,
+    74,
+    40
+   ],
+   "lower": [
+    150,
+    96,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.92
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "hair colour: black",
+   "trousers",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "24-year-old Bengali food delivery boy",
+    "short black hair",
+    "tan skin",
+    "denim jeans",
+    "tense fearful eyes"
+   ],
+   "not_drawn": [
+    "wearing a blue jacket",
+    "carrying a smartphone"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "aac6bb7fa19c": {
+  "name": "Nimai",
+  "look": "25-year-old slim Bengali youth, messy hair, wearing a grey hooded sweatshirt and dark trousers, alert and protective demeanor.",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    20,
+    20,
+    24
+   ],
+   "hair_style": "messy",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    130,
+    132,
+    136
+   ],
+   "shirt_dark": [
+    101,
+    102,
+    106
+   ],
+   "lower": [
+    90,
+    90,
+    96
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.86,
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "hair: messy",
+   "shirt",
+   "trousers",
+   "build: thin",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "25-year-old slim Bengali youth",
+    "messy hair",
+    "wearing a grey hooded sweatshirt",
+    "dark trousers"
+   ],
+   "not_drawn": [
+    "alert",
+    "protective demeanor"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "6195ba64b3c5": {
+  "name": "Paresh",
+  "look": "70-year-old hunchbacked watchman, dirty frayed white dhoti, deeply wrinkled sly face, holding a wooden walking stick.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "dhoti": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "dhoti",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "dirty frayed white dhoti",
+    "deeply wrinkled sly face"
+   ],
+   "not_drawn": [
+    "70-year-old hunchbacked watchman",
+    "holding a wooden walking stick"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "fc1c87f8be34": {
+  "name": "Haradhan",
+  "look": "Tall gaunt spirit with hollow dark eyes, ash-smears on grey skin, ragged 1940s British surveyor clothes, holding heavy rusting iron chains.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    130,
+    132,
+    136
+   ],
+   "shirt_dark": [
+    101,
+    102,
+    106
+   ],
+   "lower": [
+    130,
+    132,
+    136
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.07,
+   "build": 1.05,
+   "necklace": [
+    40,
+    170,
+    220
+   ],
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "mist": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "necklace / ornaments",
+   "ghost: see-through, floating, glowing eyes",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "hollow dark eyes",
+    "ash-smears on grey skin",
+    "ragged 1940s British surveyor clothes",
+    "holding heavy rusting iron chains"
+   ],
+   "not_drawn": [],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": true
+  }
+ },
+ "2c625bf58ea9": {
+  "name": "Taranath",
+  "look": "A wise elderly Bengali tantrik practitioner in his sixties, with sharp calm eyes, gray hair, wearing a white cotton dhoti and simple shawl, holding a clay smoking pipe, making a strange clicking sound from his mouth like an old iron machine, picked up a glowing coal ember with tongs and placed it on his chillum, holding an ice-cold chain in his hands that suddenly heats up like burning coal, having a dark smudge of raw coal on his skin that would not rub off with the corner of his cloth, pulling out a brass Ganges water pot and sacred river stone from his bag",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    150,
+    154,
+    160
+   ],
+   "hair_style": "short",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": [
+    60,
+    70,
+    90
+   ],
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "dhoti": true,
+   "bag": [
+    70,
+    110,
+    140
+   ],
+   "necklace": [
+    40,
+    170,
+    220
+   ]
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "hair: short",
+   "hair colour: gray",
+   "dhoti",
+   "shawl",
+   "bag",
+   "necklace / ornaments",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "sharp calm eyes",
+    "gray hair",
+    "wearing a white cotton dhoti",
+    "simple shawl",
+    "holding an ice-cold chain in his hands that suddenly heats up like burning coal",
+    "having a dark smudge of raw coal on his skin that would not rub off",
+    "the corner of his cloth",
+    "sacred river stone from his bag"
+   ],
+   "not_drawn": [
+    "holding a clay smoking pipe",
+    "making a strange clicking sound from his mouth like an old iron machine",
+    "picked up a glowing coal ember",
+    "tongs",
+    "placed it on his chillum",
+    "pulling out a brass Ganges water pot"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "3c205b3ccae5": {
+  "name": "Kishori",
+  "look": "A young Bengali man in his twenties, curious wide eyes, neat short dark hair, wearing a simple handloom kurta, listening intently, sitting stiff with fear on a mat",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    20,
+    20,
+    24
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    70,
+    60,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.92,
+   "build": 0.92,
+   "hem": 52,
+   "sleeve": "long"
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "kurta"
+  ],
+  "source": "offline-rules",
+  "audit": {
+   "drawn": [
+    "curious wide eyes",
+    "neat short dark hair",
+    "wearing a simple handloom kurta"
+   ],
+   "not_drawn": [
+    "fear on a mat"
+   ],
+   "not_appearance": [
+    "listening intently",
+    "sitting stiff"
+   ],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "6ff16c14daed": {
+  "name": "Bhimrao",
+  "look": "A middle-aged coal mine owner, pale sweat-streaked face, dark circles around anxious eyes, wearing fine but soiled silk kurta and gold rings, stepping within two arm-lengths of the altar",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    152,
+    160,
+    166
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    40,
+    170,
+    220
+   ],
+   "shirt_dark": [
+    31,
+    132,
+    171
+   ],
+   "lower": [
+    60,
+    70,
+    82
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "hem": 52,
+   "sleeve": "long"
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "skin: 'pale'",
+   "kurta",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "pale sweat-streaked face",
+    "dark circles around anxious eyes",
+    "wearing fine but soiled silk kurta",
+    "stepping within two arm-lengths of the altar"
+   ],
+   "not_drawn": [
+    "gold rings"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "162fa93ca7a9": {
+  "name": "Haradhan",
+  "look": "An eerie old caretaker with pitch-black coal-dusted skin, hollow eyes, crushed back of the skull, dressed in ragged dark cloth smelling of damp decay, having ice-cold hands with fingernails caked in thick raw coal dust",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    196,
+    200,
+    204
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "mist": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "ghost: see-through, floating, glowing eyes",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "pitch-black coal-dusted skin",
+    "hollow eyes",
+    "dressed in ragged dark cloth smelling of damp decay"
+   ],
+   "not_drawn": [
+    "crushed back of the skull",
+    "having ice-cold hands",
+    "fingernails caked in thick raw coal dust"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
  }
 }

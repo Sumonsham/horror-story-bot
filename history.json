@@ -5638,7 +5638,8 @@
    "views_before": 0,
    "at": "2026-11-23T13:34+00:00",
    "thumb": true
-  }
+  },
+  "hook_done": true
  },
  {
   "date": "2026-11-22T14:28+00:00",
@@ -5778,7 +5779,8 @@
    "views_before": 0,
    "at": "2026-11-24T04:33+00:00",
    "thumb": true
-  }
+  },
+  "hook_done": true
  },
  {
   "date": "2026-11-23T08:31+00:00",
@@ -5953,13 +5955,7 @@
   "date": "2026-11-23T15:31+00:00",
   "lang": "bn",
   "slot": "2026-11-23@20",
-  "pending_comments": [
-   {
-    "id": "2023356025022997",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2093169838061351",
-    "after": 1795520144.016599
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A newlywed bride trapped inside\n a cursed bridal palanquin in a remote village during a stormy midnight.",
@@ -6404,10 +6400,6 @@
   "lang": "bn",
   "slot": "2026-11-24@20",
   "pending_comments": [
-   {
-    "id": "4116716085290249",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1865198217968605"
-   },
    {
     "id": "1148776224309341",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1865198217968605",
