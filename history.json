@@ -5038,12 +5038,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 5,
+   "views": 4,
    "length_s": 864,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-21T06:32+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 19,
+   "yt_avg_pct": 2.3,
+   "checked": "2026-11-24T10:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -5784,13 +5784,7 @@
   "date": "2026-11-23T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-23@14",
-  "pending_comments": [
-   {
-    "id": "1859578175226612",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1172465555438755",
-    "after": 1795494900.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A solo vlogger recording a night tour of an abandoned railway quarter near Howrah captures a ghostly shadow mimicking his exact movements in the background.",
@@ -5949,6 +5943,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-24T04:33+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 3
   }
  },
  {
@@ -6158,10 +6156,6 @@
   "lang": "bn",
   "slot": "2026-11-24@14",
   "pending_comments": [
-   {
-    "id": "4763192307303259",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2084597222112421"
-   },
    {
     "id": "2319196325314942",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2084597222112421",
@@ -6404,5 +6398,164 @@
   "district_week": "n24",
   "district": "n24",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-24-14.mp4"
+ },
+ {
+  "date": "2026-11-24T14:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-24@20",
+  "pending_comments": [
+   {
+    "id": "4116716085290249",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1865198217968605"
+   },
+   {
+    "id": "1148776224309341",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1865198217968605",
+    "after": 1795602900.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "An isolated crematorium beside a dried-up riverbank in rural Nadia, where a night-guard hears the distinct\n sound of anklets and a dead woman calling his name.",
+  "len_arm": null,
+  "listener_score": 7.0,
+  "fresh": {
+   "opening": "an old photograph with one face too many",
+   "telling": "an elderly relative telling the family on a stormy night",
+   "ghost": "a child spirit looking for its mother",
+   "twist": "the 'cure' makes it worse",
+   "setting": "a temple town during a festival",
+   "fear": "slow dread - nothing seen until late",
+   "details": [
+    "a damp, miniature terracotta horse head marked with a fresh thumbprint of vermilion found ",
+    "the dry, rattling rasp of empty conch shells sliding across stone courtyard steps during t",
+    "the thick, cloying smell of boiled sugar syrup mixed with stale damp straw from the collap",
+    "the local belief that locking an unused brass temple gate during the Ashtami midnight sand",
+    "the town's peculiar habit of leaving a single lit earthen lamp floating inside a cracked b"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_3.mp3",
+   "why": "isolated, night",
+   "also": null
+  },
+  "discovery_id": null,
+  "story_class": null,
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "karna",
+  "question_post": null,
+  "title_b": "শ্মশানের সেই ছয় আঙুলের ছায়া কি আজও পিছু ছাড়ে না? 🕯️ | পর্ব 1",
+  "theme": "a new Karna Pishachini case - its topic: An isolated crematorium beside a dried-up riverbank in rural Nadia, where a night-guard hears the distinct\n sound of anklets and a dead woman calling his name.",
+  "format": "Bapi tells his uncle Nilkantha's case, with real dialogue between the characters",
+  "part": 1,
+  "continues": true,
+  "series_id": "2026-11-24T10:33+00:00",
+  "title": "কর্ণপিশাচিনী #4: নদীয়ার শ্মশানে সেই অভিশপ্ত ডাক | পর্ব ১",
+  "festival": null,
+  "summary": "মামার পুরনো ডায়েরি থেকে বেরিয়ে এল এক ভয়ংকর ইতিহাস। নদিয়ার শ্মশানে সেই রাতে ঠিক কী ঘটেছিল? কেন বাপির শরীরে ফুটে উঠছে সেই অভিশপ্ত চিহ্ন? জানুন এই পর্বে।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "karna",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": "",
+  "karna_origin": true,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1865198217968605",
+  "youtube": "3tmpmXmcmCI",
+  "fb_reel": "4116716085290249",
+  "fb_story": "1475654864667642",
+  "fb_reel2": "1148776224309341",
+  "yt_short": "c0vKtsuxch4",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 1023,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     11,
+     "শুরু"
+    ],
+    [
+     24,
+     "অভিশপ্ত ডায়েরি"
+    ],
+    [
+     104,
+     "শ্মশানের প্রহরী"
+    ],
+    [
+     152,
+     "সিঁদুরের টিপ"
+    ],
+    [
+     224,
+     "মধ্যরাতের ডাক"
+    ],
+    [
+     264,
+     "নীল শিখা"
+    ],
+    [
+     322,
+     "ছয় আঙুলের স্পর্শ"
+    ],
+    [
+     376,
+     "কর্ণপিশাচিনী সুলেখা"
+    ],
+    [
+     423,
+     "অভিশাপের উত্তরাধিকার"
+    ],
+    [
+     477,
+     "নীল শিখার অভিশাপ"
+    ],
+    [
+     526,
+     "উত্তরাধিকারের অভিশাপ"
+    ],
+    [
+     617,
+     "রূপান্তরের বিভীষিকা"
+    ],
+    [
+     714,
+     "কর্ণপিশাচিনীর আবির্ভাব"
+    ],
+    [
+     776,
+     "নতুন পাহারাদার"
+    ],
+    [
+     854,
+     "শ্মশানের নতুন প্রহরী"
+    ],
+    [
+     920,
+     "চিরতরে বন্ধ"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "tagline": "বংশপরম্পরায় বয়ে চলা এক হাড়হিম করা অভিশাপ!",
+  "district": "nadia",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-24-20.mp4"
+ },
+ {
+  "date": "2026-11-24T14:32+00:00",
+  "lang": "bn",
+  "kind": "old_short",
+  "from_video": "MDSuW5JFXkU",
+  "title": "বেলগাছের ব্রহ্মদৈত্য 🪔 😱 #shorts",
+  "youtube": "Iz2UQIkqwNw",
+  "facebook": null
  }
 ]
