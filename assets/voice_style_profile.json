@@ -1,0 +1,158 @@
+{
+ "version": 1,
+ "made": "2026-11-24T07:26+00:00",
+ "reference": {
+  "style_sample_1.mp3": {
+   "minutes": 60.0,
+   "pieces": 11
+  },
+  "style_sample_2.mp3": {
+   "minutes": 24.4,
+   "pieces": 5
+  },
+  "style_sample_3.mp3": {
+   "minutes": 22.7,
+   "pieces": 5
+  }
+ },
+ "locked": true,
+ "note": "THE default narration reference for every episode until the owner changes it.",
+ "measured": {
+  "opening": {
+   "minutes": 2.0,
+   "speech_share": 0.519,
+   "syllables_per_second": 5.73,
+   "syllables_per_second_with_pauses": 3.12,
+   "rhythm_rate_sd": 1.04,
+   "pause_word_s": 0.15,
+   "pause_sentence_s": 0.59,
+   "pause_paragraph_s": 1.31,
+   "sentence_pauses_per_min": 15.0,
+   "long_pauses_per_min": 9.0,
+   "breath_pauses_per_min": 24.0,
+   "dynamics_db_p10_p90": 13.4,
+   "near_whisper_share": 0.063,
+   "raised_voice_share": 0.091,
+   "pitch": {
+    "median_hz": 129.0,
+    "range_semitones_p10_p90": 10.67,
+    "movement_semitones_sd": 4.35,
+    "sentence_end_change_semitones": -1.06,
+    "falling_ends_share": 0.58
+   }
+  },
+  "middle": {
+   "minutes": 3.0,
+   "speech_share": 0.43,
+   "syllables_per_second": 6.97,
+   "syllables_per_second_with_pauses": 3.02,
+   "rhythm_rate_sd": 1.07,
+   "pause_word_s": 0.15,
+   "pause_sentence_s": 0.7,
+   "pause_paragraph_s": 1.35,
+   "sentence_pauses_per_min": 11.3,
+   "long_pauses_per_min": 11.0,
+   "breath_pauses_per_min": 22.3,
+   "dynamics_db_p10_p90": 13.5,
+   "near_whisper_share": 0.056,
+   "raised_voice_share": 0.089,
+   "pitch": {
+    "median_hz": 131.1,
+    "range_semitones_p10_p90": 10.83,
+    "movement_semitones_sd": 4.24,
+    "sentence_end_change_semitones": -0.94,
+    "falling_ends_share": 0.56
+   }
+  },
+  "final": {
+   "minutes": 4.0,
+   "speech_share": 0.613,
+   "syllables_per_second": 5.24,
+   "syllables_per_second_with_pauses": 3.08,
+   "rhythm_rate_sd": 1.23,
+   "pause_word_s": 0.15,
+   "pause_sentence_s": 0.6,
+   "pause_paragraph_s": 1.33,
+   "sentence_pauses_per_min": 10.5,
+   "long_pauses_per_min": 6.3,
+   "breath_pauses_per_min": 19.3,
+   "dynamics_db_p10_p90": 13.5,
+   "near_whisper_share": 0.051,
+   "raised_voice_share": 0.137,
+   "pitch": {
+    "median_hz": 131.1,
+    "range_semitones_p10_p90": 11.78,
+    "movement_semitones_sd": 3.69,
+    "sentence_end_change_semitones": -0.5,
+    "falling_ends_share": 0.5
+   }
+  },
+  "all": {
+   "minutes": 3.0,
+   "speech_share": 0.463,
+   "syllables_per_second": 6.17,
+   "syllables_per_second_with_pauses": 3.03,
+   "rhythm_rate_sd": 1.15,
+   "pause_word_s": 0.15,
+   "pause_sentence_s": 0.68,
+   "pause_paragraph_s": 1.33,
+   "sentence_pauses_per_min": 11.3,
+   "long_pauses_per_min": 10.3,
+   "breath_pauses_per_min": 22.0,
+   "dynamics_db_p10_p90": 13.5,
+   "near_whisper_share": 0.058,
+   "raised_voice_share": 0.09,
+   "pitch": {
+    "median_hz": 131.1,
+    "range_semitones_p10_p90": 10.83,
+    "movement_semitones_sd": 4.24,
+    "sentence_end_change_semitones": -0.83,
+    "falling_ends_share": 0.56
+   }
+  }
+ },
+ "listening_notes": {
+  "narrator_presentation": [
+   "Third-person omniscient narrator with a close focus on Aparna's perspective, using a rich, theatrical, literary Bengali cadence designed to evoke mood and tension directly for the listener.",
+   "Third-person omniscient dramatic narrator focusing on Aparna's psychic sensitivities and internal unease, delivering narration in a deep, deliberate, suspenseful baritone.",
+   "third-person narrator speaking directly and dramatically to the listener",
+   "Third-person narrator, formal and descriptive, addressing the listener directly."
+  ],
+  "opening_and_hook": [
+   "The opening 90 seconds establish an unsettling Himalayan atmosphere: contrast between chaotic city noise and dead mountain silence, textured by rolling thunder, distant stream sounds, and bird calls. Four travelers are dropped off on a lonely road as their driver leaves in bad weather, and they look up wooden steps to discover a neon-signed blue lodge called Paradise Homestay surrounded by dense woods.",
+   "The first 90 seconds ground Aparna's heightened psychic sensitivity by recalling an eerie trip to Purulia. The four friends enter a ruined jungle mansion where Aparna immediately senses hostile, non-human presences. While framing a photograph against a veranda, she experiences intense paranoia, feeling an invisible entity hovering behind her and peering directly into her camera monitor.",
+   "sets the dense, mysterious forest atmosphere, tracing the characters as they move through fog and strange lights"
+  ],
+  "suspense_build": [
+   "Fear begins purely atmospherically with deep isolation, dense fog, and unnatural stillness. The first real omen occurs around 03:35 with an impossible musty room-like odor in the mountain breeze, followed by an inexplicable icy gust inside the reception (05:33) and the caretaker's piercing gaze. Scares escalate through environmental claustrophobia (storm and power cut) into visceral biological dread when the phantom odor transforms into the scent of rotting meat creeping down the hallway.",
+   "Fear builds through layered storytelling, using two separate chilling memories to prove that Aparna's intuition is never wrong. First, fear is a tactile chill (freezing breath), then a psychological omen (an empty swing moving during a distant suicide), and finally an external, hypnotic force in the present that isolates her and lures her into a misty ravine.",
+   "slow build from atmospheric unease to sudden physical terror, first real scare around 1:46"
+  ],
+  "climax_and_ending": [
+   "The turn occurs when the blackout traps the group, shifting their adventure from an entertaining vlog shoot to real peril as Aparna realizes the rumors are authentic. The segment does not conclude the story; its final 30 seconds transition into a flashback about Aparna's uncanny sixth sense during an earlier trek to Purulia, leaving the current homestay danger suspended on a cliffhanger.",
+   "The turn occurs at 10:37 when Aparna stops resisting her dread and falls under a trance-like compulsion after the rain ceases. In the final 30 seconds, she blindly steps past the safety of the homestay gate and begins descending a dangerous cliff into the foggy ravine, tracking a beckoning shadow figure.",
+   "the truth unfolds through daytime investigation; ends with lingering dread and unresolved mystery"
+  ],
+  "craft": [
+   "Use a rich, theatrical third-person omniscient voice or an intimate first-person survivor narrator who speaks directly to the listener in a suspenseful Bengali cadence.",
+   "Hook the listener within the first 90 seconds purely through sensory environment contrast rather than fast action.",
+   "Build fear progressively: begin with olfactory and tactile anomalies, shift to psychological dread, and end with direct supernatural force.",
+   "Scale runtime up to 20 minutes by expanding lived sensory moments (breath on skin, heavy silence, flickering lights) rather than inserting new plot events.",
+   "Keep narration dominant at 75-85%, using dialogue sparingly (15-25%) for maximum dramatic punch during tense moments.",
+   "Contrast modern urban Bengali youth slang and flippant banter with formal, archaic, cryptic, or hushed speech from local figures or entities.",
+   "Construct a three-layer audio environment: atmospheric baseline (rain, train tracks), low-frequency horror drones for supernatural tension, and sharp foley stabs for scares.",
+   "Demarcate scene transitions and memory shifts using environmental sound markers like thunder claps, flickering light hums, or musical stingers."
+  ]
+ },
+ "direction": "Storyteller's delivery (measured from the approved reference): calm, moderate - about 3.0 syllables a second; natural pitch movement, warm and conversational; sentences usually settle DOWN at the end (a gentle fall), never a sing-song rise. Pause about 0.7 s after a sentence and about 1.3 s between paragraphs, longer just before a reveal. The opening keeps the same calm pace as the rest; mystery builds gradually; the climax is not shouted: the same controlled pace, the weight comes from pauses and emphasis. The voice drops to a hushed, close-to-the-microphone level now and then - only at secret, dreadful moments. Normal narration sounds natural and conversational, not every sentence frightening, no exaggerated horror voice; emotional scenes are told with feeling; a sudden horror event gets a short silence, then a firm, clear emphasis. The ending is told quietly, letting the last line hang.",
+ "direction_short": "Pace calm, moderate; natural, warm pitch movement; sentences settle down at the end; a short pause after each sentence, longer before a reveal; hushed only at dreadful moments; not every sentence frightening; the climax controlled, weight from pauses; the ending quiet",
+ "pauses_for_the_sound_track": {
+  "between_lines_s": 0.68,
+  "between_scenes_s": 1.33
+ },
+ "limitations": [
+  "Voice identity: the reference presenter's own voice is not cloned (it is a real person's voice); the approved Gemini narrator voice is used, with this presenter's storytelling style.",
+  "Speed, pauses, pitch movement, dynamics and rhythm are measured and directed; the voice provider follows directions, it cannot be set to an exact number - each episode is measured and reported.",
+  "Pronunciation and emotional colour cannot be measured from sound alone here: they are directed from the listening notes, and checked only for speed / pitch / pauses."
+ ]
+}
