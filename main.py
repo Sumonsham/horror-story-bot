@@ -3849,6 +3849,15 @@ NARRATOR_GEMINI = ((os.environ.get("NARRATOR_VOICE") or "Algenib").strip(),
                    "little slow, every word clear. NOT theatrical, NOT sing-song, NOT like jatra or stage drama: no "
                    "musical rise and fall, no exaggerated stress, no singing tone")
 GHOST_GEMINI = ("Enceladus", "a ghost: a hollow, breathy, cold, slow, otherworldly whispering voice")
+try:                                                 # 24 Nov 2026: THE narration style, measured from the approved
+    import voice_style as _VS                        # reference recordings (assets/voice_style_profile.json, locked)
+    _VSP = _VS.profile()
+    if _VSP and env("VOICE_STYLE") != "0":
+        NARRATOR_GEMINI = (NARRATOR_GEMINI[0], NARRATOR_GEMINI[1] + ". " + (_VSP.get("direction_short") or ""))
+except Exception:
+    _VSP = None
+NARR_WAVS = []                                       # the narrator's clean lines of this video (for the style check)
+NARR_TEMPO = [1.0]                                   # the narrator's speed change to the reference style (0.9-1.06)
 
 
 def gemini_persona(voices, speaker, revealed=True):
@@ -5204,6 +5213,8 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     np = _np()
     rnd = np.random.default_rng(1000 + idx)
     gap, lead, tail = 0.35, 0.5, 1.0
+    if _VSP and env("VOICE_STYLE") != "0":           # the reference presenter's own pause between sentences
+        gap = float(_VSP.get("pauses_for_the_sound_track", {}).get("between_lines_s", gap))
     pieces, subs, cues, silences, t = [], [], [], [], lead
     if idx == STING_AT[0] and env("MOOD_BED") != "0" and VOICE_CONTEXT[0] == "main":
         cues.append((0.0, mood_bed(9.0, mood, MOOD_SEED[0]), 0.32, "mood_bed"))   # v115: the story's own score
@@ -5264,6 +5275,15 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             raw_g = p.replace(".wav", "_g.wav")
             shutil.move(p, raw_g)
             ghost_fx(raw_g, p, spec[3] if isinstance(spec[3], str) else "male")
+        if NARR_TEMPO[0] != 1.0 and VOICE_CONTEXT[0] == "main" and \
+                str(ln.get("speaker", "narrator")).lower().startswith("narrat"):
+            try:                                      # the reference presenter's pace (pitch unchanged)
+                tp_ = p.replace(".wav", "_tempo.wav")
+                subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", p, "-af", f"atempo={NARR_TEMPO[0]:.3f}",
+                                "-ar", str(SR), "-ac", "1", tp_], check=True)
+                os.replace(tp_, p)
+            except Exception as e_:
+                log("    narrator speed not changed:", str(e_)[:80])
         a = read_wav(p)
         try:                                          # 23 Nov 2026: a voice that says its line twice / thrice is cut back
             from tvtoon import voicecheck as _VC
@@ -5285,6 +5305,8 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
         sp = ascii_text(ln.get("speaker", "")).lower()
         is_nar = (not sp) or sp.startswith("narrat") or voices.cast.find(sp) is None
         subs.append((t, len(a) / SR, is_nar, text))
+        if is_nar and VOICE_CONTEXT[0] == "main":
+            NARR_WAVS.append(p)
         if not is_nar:                               # the speaker's name shown in the subtitles
             c_ = voices.cast.find(sp)
             SUB_NAME[text] = NAME_LOCAL.get(c_["name"].lower(), c_["name"]) if c_ else ""
@@ -6623,6 +6645,18 @@ def build_video(scene_parts, lang, out):
         log("  English check skipped:", str(e_)[:100])
     prepare_gemini_voices(scene_parts, voices, lang)       # all lines (intro + story + ending) or none
     extras.parler_unload()                           # (frees ~4 GB before the video is put together)
+    NARR_TEMPO[0] = 1.0
+    NARR_WAVS.clear()
+    if _VSP and env("VOICE_STYLE") != "0" and VOICE_CONTEXT[0] == "main":
+        try:                                         # 24 Nov 2026: the narrator at the reference presenter's speed
+            import voice_style as _VS3
+            nar_ = [GEMINI_CACHE[(i, j)] for i, sp in enumerate(scene_parts) for j, ln in enumerate(sp.get("lines") or [])
+                    if (i, j) in GEMINI_CACHE and str(ln.get("speaker", "narrator")).lower().startswith("narrat")]
+            NARR_TEMPO[0] = _VS3.tempo_for(nar_[:60])
+            if NARR_TEMPO[0] != 1.0:
+                log(f"  narrator speed set to the reference style: x{NARR_TEMPO[0]:.2f} (the pitch stays)")
+        except Exception as e_:
+            log("  narrator speed check skipped:", str(e_)[:100])
     for i, sp in enumerate(scene_parts):
         log(f"Voices + sound {i + 1}/{len(scene_parts)}" + extras.machine_room())
         part_times.append(t)
@@ -6670,8 +6704,13 @@ def build_video(scene_parts, lang, out):
                 spec_ = tvbot.part_spec(tvbot._STATE["ep"], sp["tvtoon"], spoken, subs, lw_, duration(a), W, H, FPS)
                 tvbot.render_part(spec_, a, c, W, H, FPS, SR, WORK, log)
                 log(f"  cartoon scene {i + 1}: {spec_['location']}, {len(spec_['cast'])} people")
+                qc_ = STATE.setdefault("tvtoon_qc", {"scenes": [], "failed": []})
+                qc_["scenes"].append({"part": i + 1, "location": spec_["location"], "people": [c_["id"] for c_ in spec_["cast"]],
+                                      "story_actions": sum(1 for b_ in spec_["beats"] if b_.get("from_story")),
+                                      "spoken_lines": sum(1 for b_ in spec_["beats"] if "say" in b_)})
             except Exception as e:
                 log(f"  cartoon scene {i + 1} failed ({str(e)[:160]}) - this scene is made the classic way")
+                STATE.setdefault("tvtoon_qc", {"scenes": [], "failed": []})["failed"].append({"part": i + 1, "error": str(e)[:200]})
                 if os.path.exists(c):
                     os.remove(c)
         jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk, comp_))
@@ -13822,6 +13861,13 @@ def main():
         return
     log(f"Video ready: {duration(video):.0f} seconds")
     learn_length(duration(video))
+    try:                                             # 24 Nov 2026: the narration against the reference style
+        import voice_style as _VS2
+        rep_ = _VS2.check_narration(list(NARR_WAVS), os.path.join(WORK, "narration_consistency_report.json"), log=log)
+        if rep_:
+            STATE["voice_style_check"] = {"matches": rep_["matches"], "of": len(rep_["comparison"]), "differs": rep_["differs"]}
+    except Exception as e:
+        log("  narration style check skipped:", str(e)[:120])
     cards_ = []                                      # pictures laid over the video (one re-encode for all)
     if special in NEW_SERIES and env("PREV_CARD") != "0":
         try:                                         # v82: 'আগের পর্বে: ...' over the first seconds (no voice)
@@ -13933,6 +13979,34 @@ def main():
     except Exception as e:
         log("  safety check skipped:", str(e)[:120])
 
+    gate_, integ_ = {"passed": True, "problems": [], "note": "not checked"}, None
+    try:                                             # 24 Nov 2026: the QUALITY GATE before anything is posted
+        import episode_ledger as _EL
+        integ_ = _EL.integrity(story, list(TIMELINE[1]) if len(TIMELINE) > 1 else [])
+        log(f"  story ledger: {integ_['in_video']}/{integ_['sentences']} sentences in the video, "
+            f"{len(integ_['missing'])} missing, {len(integ_['said_twice'])} twice, ending "
+            + ("present" if integ_["ending_present"] else "MISSING"))
+        fw_ = os.path.join(WORK, "full.wav")
+        ok_, gate_ = _EL.quality_gate(video, duration(fw_) if os.path.exists(fw_) else None, (W, H), log=log)
+    except Exception as e:
+        log("  quality gate could not run:", str(e)[:150])
+        ok_ = True
+    if not ok_ and env("QC_GATE") != "0":
+        msg_ = "; ".join(gate_.get("problems", []))[:300]
+        log("QUALITY GATE FAILED - the video is NOT posted:", msg_)
+        if not (MOCK or DRY_RUN):
+            _tg_text(f"⛔ ভিডিওটা পোস্ট করা হয়নি - শেষ পরীক্ষায় সমস্যা: {msg_}\nভিডিওটা run-এর artifact-এ ৩ দিন থাকবে।")
+        try:
+            _EL.write_package(WORK, SLOT, story, parts, list(TIMELINE[1]), title, description, tags, thumb, {}, gate_,
+                              integ_, STATE, log=log)
+        except Exception:
+            pass
+        with open(os.path.join(HERE, "fail_reason.txt"), "w", encoding="utf-8") as f_:
+            f_.write("শেষ মান-পরীক্ষায় ভিডিও আটকেছে: " + msg_)
+        raise SystemExit("quality gate failed - not posted")
+    if integ_ and not integ_["ending_present"] and not MOCK:
+        extras.note("গল্পের শেষ অংশ ভিডিওতে পাওয়া যায়নি - production_report দেখুন")
+
     results = {}
     if DRY_RUN:
         log("DRY RUN - not posting. Files are in the 'work' folder.")
@@ -13967,6 +14041,19 @@ def main():
             except Exception as e:
                 log("  second thumbnail not kept:", str(e)[:100])
 
+    try:                                             # 24 Nov 2026: the episode's delivery package
+        import episode_ledger as _EL2
+        _EL2.write_package(WORK, SLOT, story, parts, list(TIMELINE[1]) if len(TIMELINE) > 1 else [], title, description,
+                           tags, thumb, results, gate_, integ_, STATE, log=log)
+        if results.get("facebook") or results.get("youtube"):
+            links_ = [f"Facebook: https://www.facebook.com/watch/?v={results['facebook']}" if results.get("facebook") else "",
+                      f"YouTube: https://youtu.be/{results['youtube']}" if results.get("youtube") else ""]
+            vs_ = STATE.get("voice_style_check") or {}
+            extras.note("✅ মান-পরীক্ষা পাস, প্রকাশিত। " + " | ".join(x for x in links_ if x)
+                        + (f" | গল্পের {integ_['in_video']}/{integ_['sentences']} বাক্য ভিডিওতে" if integ_ else "")
+                        + (f" | বলার ধরন রেফারেন্সের সঙ্গে {vs_.get('matches')}/{vs_.get('of')} মিলেছে" if vs_ else ""))
+    except Exception as e:
+        log("  episode package skipped:", str(e)[:150])
     STATE["adda_q"] = str(story.get("comment_question", "")).strip()
     first = [vote_text or str(story.get("comment_question", "")).strip()]
     if hidden and not NO_BAIT:
