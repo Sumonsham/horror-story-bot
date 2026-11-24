@@ -6839,8 +6839,8 @@ def _ecg(ph):
 def fear_meter(part_times, moods, total, start=6.0):
     """Small looping heartbeat films (one per mood that occurs) + when each is shown: [(file, enable-expression)].
     The line, the little heart and the number beat faster and turn from green to red as the scenes get darker."""
-    if env("FEAR_METER") == "0" or not part_times:
-        return []
+    if env("FEAR_METER") != "1" or not part_times:      # (owner's audit, 24 Nov 2026: the heartbeat overlay is not
+        return []                                       #  part of the story - OFF; the repo variable FEAR_METER=1 brings it back)
     mw, mh = 300, 80
     ends = list(part_times[1:]) + [total]
     spans = {}

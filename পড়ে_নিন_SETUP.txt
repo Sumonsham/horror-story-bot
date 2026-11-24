@@ -1,68 +1,27 @@
-হরর বট (Sumonsham/horror-story-bot) — সম্পূর্ণ ফাইনাল ফাইল (২৪ নভেম্বর ২০২৬)
+হরর বট (Sumonsham/horror-story-bot) — ভিডিও কোয়ালিটি সংশোধন (২৪ নভেম্বর ২০২৬, সন্ধ্যা)
 
-এই zip-এ যা আছে:
-১) গল্পের মাঝে ইংরেজি বলা বন্ধ (textclean), গল্পের প্লট ঠিক রাখার নিয়ম।
-২) ভিডিও আরও উজ্জ্বল।
-৩) স্ক্রিপ্টে যেমন লেখা, ঠিক তেমন চরিত্র তৈরি হয় (রাজা, রাজকন্যা, দৈত্য, সাদা শাড়ির মেয়ে...)।
-৪) কথকের ধরন: নমুনা রেকর্ডিং মেপে তৈরি voice_style_profile.json (গতি, বিরতি, স্বর) — প্রতিটা পর্বে মিলিয়ে দেখার রিপোর্ট।
-৫) পোস্টের আগে কোয়ালিটি গেট: ভিডিও ভাঙা / কালো / ছোট হলে পোস্ট হবে না; প্রতিটা পর্বের সম্পূর্ণ প্যাকেজ।
-৬) পায়ের শব্দ, দৌড়, দরজার শব্দ ছবির সাথে মিলিয়ে।
-৭) নতুন ঠিক করা (acceptance test দেখে): বিকেল/ভোর/সকাল/দুপুর ঠিক সময়ের আলো; "জমিদারবাড়ির বড় ঘর" এখন হলঘর;
-   যে মেয়ের "চোখ লাল হয়ে ওঠে" সে ভূত — প্রথমে মানুষ, তারপর রূপ বদলায়; "দৌড়ে পালাল" এখন পুরো দৌড়;
-   ভিড়ের লোকের পায়ের শব্দ কমানো।
+শুধু বদলানো ফাইলগুলো আছে। বাকি সব ফাইল যেমন আছে তেমনই থাকবে।
 
-আপলোড করার নিয়ম:
-ক) GitHub-এ রিপো খুলুন → Add file → Upload files।
-খ) এই zip খুলে নিচের ফোল্ডার ও ফাইলগুলো (.github বাদে) টেনে ছেড়ে দিন: tvtoon ফোল্ডার, main.py, voice_style.py,
-   episode_ledger.py, CLAUDE.md, assets ফোল্ডার, tests ফোল্ডার, studio ফোল্ডার → Commit changes।
-গ) yml ফাইল দুটো আলাদা করে: GitHub-এ .github/workflows/horror-story.yml খুলুন → পেন্সিল ✏️ → সব মুছে
-   এই zip-এর ফাইলের লেখা পেস্ট করুন → Commit। একইভাবে cartoon-studio.yml।
-ঘ) আপলোডের পর লাইন সংখ্যা মিলিয়ে নিন:
-  .github/workflows/cartoon-studio.yml             102 লাইন
-  .github/workflows/horror-story.yml               351 লাইন
-  CLAUDE.md                                         27 লাইন
-  assets/voice_style_profile.json                  157 লাইন
-  episode_ledger.py                                272 লাইন
-  main.py                                        15276 লাইন
-  studio/acceptance_story.txt                       24 লাইন
-  tests/test_production_gate.py                     70 লাইন
-  tests/test_tvtoon.py                             814 লাইন
-  tvtoon/README.md                                 432 লাইন
-  tvtoon/__init__.py                                10 লাইন
-  tvtoon/actions.py                                535 লাইন
-  tvtoon/animals.py                                655 লাইন
-  tvtoon/animator.py                               675 লাইন
-  tvtoon/approvals.json                             86 লাইন
-  tvtoon/backgrounds.py                            199 লাইন
-  tvtoon/bot.py                                    193 লাইন
-  tvtoon/characters.py                             519 লাইন
-  tvtoon/face.py                                    35 লাইন
-  tvtoon/geom.py                                    95 লাইন
-  tvtoon/interiors.py                              267 লাইন
-  tvtoon/kids.py                                   392 লাইন
-  tvtoon/kidsbot.py                                 51 লাইন
-  tvtoon/life.py                                   144 লাইন
-  tvtoon/lipsync.py                                275 লাইন
-  tvtoon/locations.py                             1086 লাইন
-  tvtoon/outdoors.py                               308 লাইন
-  tvtoon/prep.py                                   673 লাইন
-  tvtoon/production.py                             566 লাইন
-  tvtoon/profile.py                                974 লাইন
-  tvtoon/puppet.py                                1458 লাইন
-  tvtoon/qa.py                                     154 লাইন
-  tvtoon/qa_motion.py                              163 লাইন
-  tvtoon/rig.py                                     85 লাইন
-  tvtoon/rooms.py                                  664 লাইন
-  tvtoon/scene.py                                 1069 লাইন
-  tvtoon/sheets.py                                 268 লাইন
-  tvtoon/story.py                                  429 লাইন
-  tvtoon/studio.py                                1375 লাইন
-  tvtoon/textclean.py                               71 লাইন
-  tvtoon/vehicles.py                               455 লাইন
-  tvtoon/voicecheck.py                             124 লাইন
-  tvtoon/voices.py                                 132 লাইন
-  tvtoon/world.py                                  489 লাইন
-  voice_style.py                                   431 লাইন
+কী বদলেছে:
+• বর্ণনার সময় চরিত্ররা আর দাঁড়িয়ে থাকে না: চারপাশে তাকায়, অন্যজনের দিকে তাকায়, হাত ভাঁজ করে, থুতনিতে হাত দেয়,
+  মাথা নাড়ে, এক পা সরে আবার ফেরে, ভয়ে চমকে ওঠে। শ্বাস নেওয়া আর শরীরের দোলাও এখন চোখে পড়ে।
+• গল্পের শব্দ ধরে অভিনয়: পিছিয়ে যাওয়া, কাঁধ চেপে ধরা, নাক/মুখ চেপে ধরা, লণ্ঠন/টর্চ হাতে ধরা, চারদিকে তাকানো, চিৎকার।
+• লম্বা বর্ণনায় ক্যামেরা একই দূরের শটে আটকে থাকে না: জায়গা → চরিত্রের কাছে → দুজনকে একসাথে।
+• বাইরের জায়গা আর ঘর হয়ে যায় না (যেমন ডরমিটরির লোহার গেট এখন স্কুলের বাইরের দৃশ্য; নৌকা বাঁধা ঘাট এখন ঘাট)।
+• কুয়াশা এখন ভেসে ভেসে সরে; ঝড়ের দৃশ্যে বিদ্যুৎ চমকায়।
+• বাঁ দিকের ওপরের হার্টবিট লাইনটা (fear meter) বন্ধ। কখনো ফেরাতে চাইলে: Settings → Variables → FEAR_METER = 1।
 
-ভয়েস দিয়ে acceptance test (Chirp, শুধু টেস্ট):
-Actions → Cartoon Studio → Run workflow → story_file: studio/acceptance_story.txt , voice: test → Run।
+আপলোড: GitHub-এ রিপো খুলুন → Add file → Upload files → zip খুলে tvtoon ফোল্ডার, tests ফোল্ডার, main.py, CLAUDE.md
+টেনে ছেড়ে দিন → Commit changes। (কোনো yml বদলায়নি।)
+
+লাইন সংখ্যা:
+  CLAUDE.md                        28 লাইন
+  main.py                       15276 লাইন
+  tests/test_tvtoon.py            834 লাইন
+  tvtoon/actions.py               562 লাইন
+  tvtoon/animator.py              684 লাইন
+  tvtoon/bot.py                   207 লাইন
+  tvtoon/kids.py                  392 লাইন
+  tvtoon/scene.py                1169 লাইন
+  tvtoon/story.py                 452 লাইন
+  tvtoon/world.py                 517 লাইন
