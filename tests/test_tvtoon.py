@@ -10,6 +10,17 @@ cairo = pytest.importorskip("cairo")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+
+@pytest.fixture(autouse=True)
+def _night_library_in_tmp(tmp_path, monkeypatch):
+    """(the characters built while testing never go into the real assets/tvtoon_library.json)"""
+    from tvtoon import prep as P
+    monkeypatch.setattr(P, "LIB_FILE", str(tmp_path / "tvtoon_library.json"))
+    monkeypatch.setattr(P, "REPORT_DIR", str(tmp_path / "tvtoon_prep"))
+    P._LOADED["mtime"] = None
+    yield
+    P._LOADED["mtime"] = None
+
 def test_twelve_characters_two_per_category_and_six_samples():
     from tvtoon import characters as CH
     cats = {}
@@ -634,7 +645,7 @@ def test_story_actions_become_movements_in_the_scene():
     sc = K.plan(story, "gopal")["scenes"][0]
     x0 = {c["id"]: c["x"] for c in sc["cast"]}
     beats = [b for b in sc["beats"] if b.get("from_story")]
-    monkey = next(c for c in x0 if c.startswith("ka_"))
+    monkey = next(c for c in x0 if c not in ("gopal", "raja"))
     assert x0["gopal"] < 300 and x0[monkey] < 0                        # both wait off screen: they COME IN
     assert any(b.get("who") == "gopal" and b.get("gait") == "run" for b in beats)
     assert any(b.get("who") == "gopal" and b.get("sit") for b in beats)
@@ -698,13 +709,12 @@ def test_night_assets_scout_and_builder(tmp_path, monkeypatch):
         "scenes": [{"place": "under the old well", "lines": [{"speaker": "Sadhu Baba", "text": "কে?"}]}]}
     path, rep = P.make_assets(story, "2026-11-24@14", bot="horror", log=lambda *a: None)
     names = {b["name"] for b in rep["new"]}
-    assert "Sadhu Baba" in names and rep["built"] and not rep["failed"]
+    assert {"Sadhu Baba", "Mrs Sen"} <= names and rep["built"] and not rep["failed"]
     lib = P._read_lib()["characters"]
     sadhu = next(r for r in lib.values() if "Sadhu Baba" in r["names"])
     assert sadhu["spec"]["hair"]["style"] == "jata" and "rudraksha" in sadhu["spec"]["accessories"]
-    sen = next((r for r in lib.values() if "Mrs Sen" in r["names"]), None)
-    if sen:
-        assert sen["spec"]["colours"].get("saree") == "#c62828" and "glasses_round" in sen["spec"]["accessories"]
+    sen = next(r for r in lib.values() if "Mrs Sen" in r["names"])
+    assert sen["spec"]["colours"].get("saree") == "#c62828" and "glasses_round" in sen["spec"]["accessories"]
     cast = STY.cast_story(story["characters"])                      # at video time: the very same characters
     assert cast["Sadhu Baba"][0] == next(k for k, r in lib.items() if "Sadhu Baba" in r["names"])
     rep2 = P.StoryScout("horror", log=lambda *a: None).run(story)    # the next night: nothing new any more
@@ -768,3 +778,37 @@ def test_kids_cast_and_host():
     sp = KB.host_spec([{"speaker": "narrator", "text": "নমস্কার!"}], [(0.3, 1.0, True, "নমস্কার!")], [], 2.0, 320, 180, 24)
     sc = SC.Scene(sp)
     assert set(sc.order) == {"lumi_didi", "mithu"} and sc.lines[0]["who"] == "lumi_didi"
+
+
+def test_english_stage_directions_are_never_spoken():
+    from tvtoon import textclean as T
+    assert T.clean_text('"smiles warmly while opening her bag of stories" নিঝুম রাতের আঁধারে') == \
+        ("নিঝুম রাতের আঁধারে", "smiles warmly while opening her bag of stories")
+    assert T.clean_text("(whispering softly) কে ওখানে?")[0] == "কে ওখানে?"
+    assert T.clean_text("सुनो! \"points at the door\" वहाँ कौन है?")[0] == "सुनो! वहाँ कौन है?"
+    for keep in ("আমার শীত করছে... <evil laugh> হা-হা-হা!", "sorry দাদা, আমি পুলিশ ডাকব। OK?", "Thank you very much বন্ধু",
+                 "Princess Mayuri এসেছেন", "Just an English line, left alone."):
+        assert T.clean_text(keep) == (keep, "")
+    story = {"scenes": [{"lines": [{"speaker": "Pupu", "text": '"claps her hands" মায়াবী দরজা?'}]}]}
+    assert T.clean_story(story) == 1
+    ln = story["scenes"][0]["lines"][0]
+    assert ln["text"] == "মায়াবী দরজা?" and ln["action"] == "claps her hands"
+
+
+def test_characters_are_made_exactly_as_the_script_says():
+    from tvtoon import kids as K, characters as CH
+    story = {"title": "t", "characters": [
+        {"name": "Sayan", "gender": "male", "age": "child", "look": "a light-pink polo T-shirt, black cargo trousers"},
+        {"name": "King Hemanta", "gender": "male", "age": "old", "look": "a tall king in rich royal blue robes, gold crown, white moustache"},
+        {"name": "Princess Mayuri", "gender": "female", "age": "young", "look": "a princess in pink and gold silk royal dress, sparkling tiara, long dark hair"},
+        {"name": "Maya Demon", "gender": "male", "age": "adult", "look": "a shadow-like sorcerer with glowing red eyes, dark misty robes"}]}
+    cast = K.kids_cast(story, "didima")
+    sayan = CH.get(cast["Sayan"][0])
+    assert cast["Sayan"][0].startswith("sayan_kid") and sayan["colours"]["tshirt"] == "#f48fb1"
+    king = CH.get(cast["King Hemanta"][0])
+    assert cast["King Hemanta"][0] != "raja" and "crown" in king["accessories"] and king["colours"]["kurta"] == "#1e5aa8"
+    pr = CH.get(cast["Princess Mayuri"][0])
+    assert pr["colours"]["saree"] == "#f48fb1" and "crown" in pr["accessories"] and "sindoor" not in pr["accessories"]
+    dm = CH.get(cast["Maya Demon"][0])
+    assert dm["face"]["iris"] == "#c62828" and dm.get("ghost")
+    assert K.kids_cast(story, "didima") == cast                     # the same people again (the library)
