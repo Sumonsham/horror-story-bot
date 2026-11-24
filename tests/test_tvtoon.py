@@ -812,3 +812,23 @@ def test_characters_are_made_exactly_as_the_script_says():
     dm = CH.get(cast["Maya Demon"][0])
     assert dm["face"]["iris"] == "#c62828" and dm.get("ghost")
     assert K.kids_cast(story, "didima") == cast                     # the same people again (the library)
+
+
+def test_audit_24nov_places_acting_and_no_heartbeat():
+    """owner's audit of the 24 Nov 2 PM episode: outdoor places are not rooms, the writer's acting words are acted,
+    nobody stands still for long under the narration, the heartbeat overlay is off"""
+    from tvtoon import story as T, actions as AC, scene as SC
+    assert T.place_of("Iron gate outside Dormitory #3 under towering old trees.") == "school"
+    assert T.place_of("Ferry ghat with wooden boat moored to a bamboo pole.") == "pukur_ghat"
+    assert T.place_of("On the boat in the middle of the river") == "boat"
+    acts = [a for a, _ in AC.cues("Debabrata steps back with wide terrified eyes and looks around, then grabs Naran's shoulder")]
+    assert "step_back" in acts and "look_back" in acts and "grab" in acts
+    spec = {"location": "village_courtyard", "fps": 12, "size": [320, 180], "subtitles": False,
+            "cast": [{"id": "sayan", "x": 1300}, {"id": "abhishek", "x": 1900}],
+            "beats": [{"pause": 1.0}, {"narrate": "অনেকক্ষণ ধরে কথক গল্প বলে চলেছেন।", "at": 1.0},
+                      {"pause": 20.0, "at": 2.0}]}
+    sc = SC.Scene(spec)
+    idle = [x for x in sc.log if x.startswith("idle")]
+    assert len(idle) >= 6, idle
+    import main  # noqa: F401  (MOCK) - the fear meter is off unless FEAR_METER=1
+    assert main.fear_meter([0.0, 10.0], ["creepy", "creepy"], 20.0) == []
