@@ -3113,9 +3113,13 @@ STORY STRENGTH (the owner's rule, 23 Nov 2026 - read it before writing a single 
 6. NEVER say anything twice: no sentence, idea, description or 'as I said' that the listener has already heard,
    no recap, no line repeated by another character. Every line is NEW information or a NEW feeling.
 7. Concrete senses (a sound, a smell, an object, the name of a place) instead of general words like 'scary'.
-8. Say plainly what the body does in the narration (walks in, sits down, runs, looks back, points at the door,
-   falls, hides) - and give every spoken line the key "action": ENGLISH, 2-8 words, what the SPEAKER does while
-   saying it (e.g. "steps back, pointing at the door"), or "" when the speaker stands still. The cartoon acts it.
+8. Say plainly what the body does IN THE NARRATION, in the story's own language (walks in, sits down, runs, looks
+   back, points at the door, falls, hides). The spoken words are ONLY what is said aloud: NEVER put an English
+   word, a stage direction or a note in quotes / brackets inside "text" - the voice would read it out. (A line's
+   own JSON key "action", where the format has one, may say in English what the speaker does.)
+9. The plot holds together from the first line to the last: every event follows from the one before, the same
+   person keeps the same name, the same place stays the same place, nothing that happened is forgotten or
+   contradicted, and the ending answers the question of the beginning.
 """
 
 def make_story(lang, theme, history, fmt=None, part=0, prev=None, extra_rules="", total=2, length=None, min_w=None,
@@ -3312,7 +3316,7 @@ Return ONLY JSON with exactly these keys:
                 "emotion": "one of {EMOTIONS}",
                 "delivery": "ENGLISH acting direction for the voice (pitch, speed, loudness, feeling)",
                 "voice_text": "same words as text, with 0-2 sound tags like <gasp> or <sigh> where they fit",
-                "action": "ENGLISH 2-8 words: what the SPEAKER's body does while saying this line (walks in / sits down / points at the door / runs away / looks back / claps / bows) or ''",
+                "action": "ENGLISH 2-8 words, ONLY here (never inside text): what the SPEAKER's body does while saying this line (walks in / sits down / points at the door / runs away / looks back / claps / bows) or ''",
                 "sfx": [{{"sound": "ENGLISH short sound name of what HAPPENS in this line, e.g. 'old wooden door creaks open', 'slow footsteps on wooden floor', 'glass shatters', 'three knocks on door', 'woman screams far away', 'dog howls', 'match strike', 'thunder crack', 'bangles jingling', 'heavy breathing'",
                           "word": "the EXACT word of this line's text (copied letter by letter) at which the sound is heard, e.g. for 'হঠাৎ দরজায় তিনবার টোকা পড়ল' the word is 'টোকা' - the sound plays exactly on that word; '' if the sound is not mentioned in the words",
                           "when": "only when word is '': before (sound first, then the line), during, or after (line first, then the sound)"}}],
@@ -6610,6 +6614,13 @@ def build_video(scene_parts, lang, out):
     global TIMELINE
     clips, segs, t, wavs, part_times, jobs = [], [], 0.0, [], [], []
     voices = scene_parts[0]["voices"]
+    try:                                             # 24 Nov 2026: no English stage direction is ever spoken
+        from tvtoon import textclean as _TC
+        n_ = sum(_TC.clean_story({"scenes": [{"lines": sp.get("lines") or []}]}) for sp in scene_parts)
+        if n_:
+            log(f"  {n_} line(s): an English stage direction was taken out of the spoken words (kept as the action)")
+    except Exception as e_:
+        log("  English check skipped:", str(e_)[:100])
     prepare_gemini_voices(scene_parts, voices, lang)       # all lines (intro + story + ending) or none
     extras.parler_unload()                           # (frees ~4 GB before the video is put together)
     for i, sp in enumerate(scene_parts):
