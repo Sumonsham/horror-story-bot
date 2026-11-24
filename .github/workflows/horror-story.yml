@@ -299,6 +299,8 @@ jobs:
             work/story_test/ledgers/*.json
             work/story_match_report.md
             work/engine_ledgers/*.json
+            work/episode_*/**
+            work/narration_consistency_report.json
           retention-days: 3
           if-no-files-found: ignore
 

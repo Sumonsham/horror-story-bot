@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       story_file:
-        description: "a file in studio/inbox/ (e.g. amar_golpo.txt); empty = the newest one"
+        description: "a file in studio/inbox/ (e.g. amar_golpo.txt), or studio/acceptance_story.txt for the acceptance test; empty = the newest one"
         default: ""
       voice:
         description: "story = Gemini voice (normal); test = Chirp only; none = subtitles only"
@@ -69,6 +69,8 @@ jobs:
           if [ -z "$f" ]; then
             f=$(git diff --name-only HEAD~1 HEAD -- 'studio/inbox/*.txt' 2>/dev/null | tail -1)
             [ -z "$f" ] && f=$(ls -t studio/inbox/*.txt 2>/dev/null | head -1)
+          elif [ -f "$f" ]; then
+            echo "a story by its path (e.g. studio/acceptance_story.txt - the acceptance test)"
           else
             f="studio/inbox/$(basename "$f")"
           fi
