@@ -307,7 +307,7 @@ jobs:
   # (GitHub never rebuilds a "Deploy from a branch" site for the bot's own commits - so the map is published here.)
   site:
     needs: post
-    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'pose_art' && github.event.inputs.mode != 'rig_test' && github.event.inputs.mode != 'hybrid_test' && github.event.inputs.mode != 'library_sync' && github.event.inputs.mode != 'engine_audit' && github.event.inputs.mode != 'asset_qa' && github.event.inputs.mode != 'render_test'   # (engine 2 test modes never touch the website)
+    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'pose_art' && github.event.inputs.mode != 'rig_test' && github.event.inputs.mode != 'hybrid_test' && github.event.inputs.mode != 'library_sync' && github.event.inputs.mode != 'engine_audit' && github.event.inputs.mode != 'asset_qa' && github.event.inputs.mode != 'render_test' && github.event.inputs.mode != 'assets' && github.event.inputs.mode != 'cartoon_prep' && github.event.inputs.mode != 'write'   # (test modes and the night runs never touch the website)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     continue-on-error: true
@@ -336,4 +336,14 @@ jobs:
 
       - name: Publish the website
         id: deployment
+        continue-on-error: true      # (24 Nov 2026: GitHub's Pages service sometimes cannot find the upload at once)
+        uses: actions/deploy-pages@v4
+
+      - name: Wait a minute (only if the first try failed)
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
+
+      - name: Publish the website - second try
+        if: steps.deployment.outcome == 'failure'
+        continue-on-error: true
         uses: actions/deploy-pages@v4
