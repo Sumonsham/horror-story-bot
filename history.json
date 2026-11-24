@@ -5772,6 +5772,12 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-23T13:34+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 0,
+   "at": "2026-11-24T04:33+00:00",
+   "thumb": true
   }
  },
  {
@@ -5933,7 +5939,17 @@
   },
   "hook_style": "voice",
   "district": "kolkata",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 3,
+   "length_s": 1739,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-24T04:33+00:00"
+  }
  },
  {
   "date": "2026-11-23T15:31+00:00",
@@ -6136,5 +6152,257 @@
   "tagline": "ঝড়ের রাতে নদী থেকে কে ডেকেছিল কনের নাম?",
   "district": "kolkata",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-20.mp4"
+ },
+ {
+  "date": "2026-11-24T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-24@14",
+  "pending_comments": [
+   {
+    "id": "4763192307303259",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2084597222112421"
+   },
+   {
+    "id": "2319196325314942",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2084597222112421",
+    "after": 1795581300.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A boatman ferrying passengers across a foggy river at midnight realizes one passenger leaves wet muddy footprints that dissolve into ash",
+  "len_arm": null,
+  "listener_score": 7.0,
+  "fresh": {
+   "opening": "an object bought cheaply at a market",
+   "telling": "an elderly relative telling the family on a stormy night",
+   "ghost": "a ghost who repeats its last day",
+   "twist": "the victim is the one who caused it",
+   "setting": "a boarding school",
+   "fear": "slow dread - nothing seen until late",
+   "details": []
+  },
+  "style_pick": {
+   "sample": "style_sample_1.mp3",
+   "why": "foggy, with",
+   "also": "style_sample_3.mp3"
+  },
+  "discovery_id": "202611240100-x",
+  "story_class": "fiction",
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "gram",
+  "question_post": null,
+  "title_b": "নদীর ঘাটে কার ভেজা পায়ের ছাপ ছাই হয়ে গেল? 🩸",
+  "theme": "A boatman ferrying passengers across a foggy river at midnight realizes one passenger leaves wet muddy footprints that dissolve into ash",
+  "format": "an elderly relative telling the family on a stormy night",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "জলঙ্গির ছাইমেটে যাত্রী 🌊 | অগ্রহায়ণের অভিশপ্ত খেয়া ঘাটের রহস্য",
+  "festival": null,
+  "summary": "Chapter 1: In 1984, newly appointed science teacher Debabrata arrives at a riverine boarding school near the Jalangi river in Ogrohayon. He witnesses boatman Naran ferrying a silent passenger whose wet muddy footprints instantly sizzle into dry grey ash upon touching wood. Caretaker Bishnu warns him against answering midnight calls near the river. Upon investigating a mystery in Dormitory #3, Debabrata discovers a torn page from 1972 in Headmaster Subhash's office register smudged with dried riv",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 3,
+  "mystery_answer": 0,
+  "facebook": "2084597222112421",
+  "youtube": "eJ5i_2MTu3k",
+  "fb_reel": "4763192307303259",
+  "fb_story": "1009168152243487",
+  "fb_reel2": "2319196325314942",
+  "yt_short": "dwIx1OMUvMQ",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 1310,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     14,
+     "শুরু"
+    ],
+    [
+     27,
+     "ঝড়বৃষ্টির রাত ও পুরোনো পিতলের ঘণ্টা"
+    ],
+    [
+     72,
+     "জলঙ্গির তীর ও বোর্ডিং স্কুল"
+    ],
+    [
+     110,
+     "তিন নম্বর ডরমিটরি ও প্রহরীর সতর্কতা"
+    ],
+    [
+     157,
+     "নদীর ঘাটের দুর্গন্ধ ও অদ্ভুত ছাপ"
+    ],
+    [
+     216,
+     "অন্ধকার রাত ও অলৌকিক ছায়ামূর্তি"
+    ],
+    [
+     265,
+     "পুরোনো রেজিস্টার ও ছেঁড়া পাতা"
+    ],
+    [
+     323,
+     "সম্মোহন ও মধ্যরাতের খেয়া"
+    ],
+    [
+     358,
+     "পরিত্যক্ত পূর্ব ব্লক"
+    ],
+    [
+     388,
+     "মেঝের নিচের রহস্য"
+    ],
+    [
+     411,
+     "জলে ভেজা বাঁধন"
+    ],
+    [
+     436,
+     "কুয়াশার ঘেরাটোপ"
+    ],
+    [
+     457,
+     "শব্দ-শিকারির যন্ত্র"
+    ],
+    [
+     479,
+     "জলে ডোবা কণ্ঠস্বর"
+    ],
+    [
+     519,
+     "প্রধান শিক্ষকের ঘরে প্রমাণ"
+    ],
+    [
+     545,
+     "আতঙ্কের বিস্ফোরণ"
+    ],
+    [
+     575,
+     "বিচ্ছিন্ন দ্বীপ"
+    ],
+    [
+     608,
+     "দরজার বাইরে শব্দ"
+    ],
+    [
+     631,
+     "ভেজা মাটির ছাই"
+    ],
+    [
+     651,
+     "হিমশীতল প্রবেশ"
+    ],
+    [
+     691,
+     "অদৃশ্য পদছাপ"
+    ],
+    [
+     704,
+     "মৃত্যুদূতের মুখোমুখি"
+    ],
+    [
+     738,
+     "মৃতের উপস্থিতি"
+    ],
+    [
+     746,
+     "মরচে ধরা অপরাধ"
+    ],
+    [
+     776,
+     "ছাইয়ের পদচিহ্ন"
+    ],
+    [
+     788,
+     "নিষ্ঠুর শাসন"
+    ],
+    [
+     820,
+     "প্রতিশোধের হাসি"
+    ],
+    [
+     852,
+     "ছাইয়ে রূপান্তর"
+    ],
+    [
+     877,
+     "হিসেব নিকেশ"
+    ],
+    [
+     910,
+     "ছাইয়ের চাদর"
+    ],
+    [
+     946,
+     "অশরীরী ছোঁয়া"
+    ],
+    [
+     971,
+     "শেষ নির্দেশ"
+    ],
+    [
+     1006,
+     "আর্তচিৎকার"
+    ],
+    [
+     1020,
+     "চেনা অভিশাপ"
+    ],
+    [
+     1057,
+     "বন্ধ জানালার ওপার"
+    ],
+    [
+     1065,
+     "ভোরের কুয়াশা"
+    ],
+    [
+     1086,
+     "নৌকা যখন একা"
+    ],
+    [
+     1115,
+     "পচা ফুলের গন্ধ"
+    ],
+    [
+     1144,
+     "গরম লোহা"
+    ],
+    [
+     1173,
+     "পাপের প্রায়শ্চিত্ত"
+    ],
+    [
+     1201,
+     "পলায়ন"
+    ],
+    [
+     1224,
+     "পিছুটান"
+    ],
+    [
+     1246,
+     "স্মৃতির পাতা"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district_week": "n24",
+  "district": "n24",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-24-14.mp4"
  }
 ]
