@@ -5333,12 +5333,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 2,
+   "views": 3,
    "length_s": 1349,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-22T06:36+00:00"
+   "yt_views": 4,
+   "yt_avg_s": 1330,
+   "yt_avg_pct": 98.6,
+   "checked": "2026-11-25T10:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -6165,13 +6165,7 @@
   "date": "2026-11-24T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-24@14",
-  "pending_comments": [
-   {
-    "id": "2319196325314942",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=2084597222112421",
-    "after": 1795581300.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A boatman ferrying passengers across a foggy river at midnight realizes one passenger leaves wet muddy footprints that dissolve into ash",
@@ -6417,6 +6411,12 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-25T04:33+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 1,
+   "at": "2026-11-25T10:34+00:00",
+   "thumb": true
   }
  },
  {
@@ -6563,7 +6563,17 @@
   "hook_style": "sound",
   "tagline": "বংশপরম্পরায় বয়ে চলা এক হাড়হিম করা অভিশাপ!",
   "district": "nadia",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-24-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-24-20.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 6,
+   "length_s": 1023,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-25T10:34+00:00"
+  }
  },
  {
   "date": "2026-11-24T14:32+00:00",
@@ -6572,17 +6582,22 @@
   "from_video": "MDSuW5JFXkU",
   "title": "বেলগাছের ব্রহ্মদৈত্য 🪔 😱 #shorts",
   "youtube": "Iz2UQIkqwNw",
-  "facebook": null
+  "facebook": null,
+  "stats": {
+   "likes": 0,
+   "comments": 0,
+   "views": 2,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-25T10:34+00:00"
+  }
  },
  {
   "date": "2026-11-25T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-25@14",
   "pending_comments": [
-   {
-    "id": "1612454297318996",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1977696770280654"
-   },
    {
     "id": "1237102688827921",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1977696770280654",
@@ -6718,5 +6733,151 @@
   "hook_style": "voice",
   "district": "bardhaman_w",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-14.mp4"
+ },
+ {
+  "date": "2026-11-25T14:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-25@20",
+  "pending_comments": [
+   {
+    "id": "41414153094850135",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1117134314697766"
+   },
+   {
+    "id": "29295023163496231",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1117134314697766",
+    "after": 1795689300.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A remote tantrik's secluded hermitage near a burning cremation ground where a desperate zamindar seeks a blood ritual to reverse his family's sudden ruin.",
+  "len_arm": null,
+  "listener_score": 9.0,
+  "fresh": {
+   "opening": "a smell that should not be there",
+   "telling": "two friends taking turns to tell what each saw",
+   "ghost": "a vengeful spirit of an old injustice",
+   "twist": "a quiet twist in the last line that changes everything before it",
+   "setting": "a coal-belt mining town",
+   "fear": "a puzzle the hero must solve",
+   "details": [
+    "A rusted tin surveyor's chain coiled into a figure-eight that feels burning hot only when ",
+    "The hollow, rhythmic clicking of a coal-crusher's mechanical counter resetting itself ever",
+    "The suffocating, chalky scent of limestone dust mixed with the sweet, sickening aroma of d",
+    "The local tradition of pressing a hot, coal-stained thumbprint onto the forehead of any st",
+    "The town's widespread practice of stacking flat river stones in a pyramid atop the kitchen"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_2.mp3",
+   "why": "remote, story",
+   "also": "style_sample_1.mp3"
+  },
+  "discovery_id": null,
+  "story_class": null,
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "tantrik",
+  "question_post": null,
+  "title_b": "রানীগঞ্জের পোড়ো খাদে রক্ততর্পণ! 🩸 তারানাথ তান্ত্রিকের ভৌতিক গল্প",
+  "theme": "A remote tantrik's secluded hermitage near a burning cremation ground where a desperate zamindar seeks a blood ritual to reverse his family's sudden ruin.",
+  "format": "Taranath Tantrik telling his own true experience to Kishori, in first person",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "তারানাথ তান্ত্রিক #4: নিমাঞ্চা শ্মশানের রক্ততর্পণ 🩸 | Bengali Horror Story",
+  "festival": null,
+  "summary": "রানীগঞ্জের নিমাঞ্চা শ্মশানের এক পোড়ো আশ্রমে অমাবস্যার রাতে নেমে এল অতীতে ঘটে যাওয়া চরম পাপের অভিশাপ। ১৯৩৮ সালের ধসে যাওয়া কয়লাখাদের বারো জন শ্রমিক কি ফিরে এলো নিজেদের বকেয়া পাওনা মেটাতে? শুনুন তারানাথ তান্ত্রিকের কণ্ঠহিম করা রক্ততর্পণের কাহিনী।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "taranath",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1117134314697766",
+  "youtube": "7YgBQooUFDQ",
+  "fb_reel": "41414153094850135",
+  "fb_story": "2167649094623493",
+  "fb_reel2": "29295023163496231",
+  "yt_short": "0raPrXXsy7Y",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 1045,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     10,
+     "শুরু"
+    ],
+    [
+     19,
+     "পুরোনো আশঙ্কার শব্দ"
+    ],
+    [
+     101,
+     "অদ্ভুত চুনাপাথরের গন্ধ"
+    ],
+    [
+     172,
+     "নিমাঞ্চা শ্মশানের আগমন"
+    ],
+    [
+     249,
+     "রক্ত-ভৈরবীর বেদী"
+    ],
+    [
+     320,
+     "হারাধনের হুঁশিয়ারি"
+    ],
+    [
+     409,
+     "বন্ধ শেডের যান্ত্রিক শব্দ"
+    ],
+    [
+     463,
+     "গোপন সুড়ঙ্গ"
+    ],
+    [
+     521,
+     "পাপের স্বীকারোক্তি"
+    ],
+    [
+     582,
+     "পাপের বিচার"
+    ],
+    [
+     644,
+     "প্রেতাত্মার আহ্বান"
+    ],
+    [
+     729,
+     "রক্ত-ভৈরবীর বেদী"
+    ],
+    [
+     791,
+     "কালচে হাতের গ্রাস"
+    ],
+    [
+     868,
+     "মহাপ্রলয় ও পলায়ন"
+    ],
+    [
+     925,
+     "কয়লার কালো দাগ"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "tagline": "চার নম্বর খাদের গভীরে আজ রাতে কার পাওনা শোধ হবে?",
+  "district": "kolkata",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-20.mp4"
  }
 ]
