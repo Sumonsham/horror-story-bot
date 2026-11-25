@@ -2495,5 +2495,670 @@
    "missing_fields": [],
    "complete": false
   }
+ },
+ "87dcbef0b74d": {
+  "name": "Shibu",
+  "look": "42-year-old weathered Indian truck driver, sunken sleepless eyes, rough grey stubble, dark complexion, wearing a grease-stained khaki work shirt over a faded undershirt, Dark rings shadowed his eyes, his skin still bearing the frozen chill of an Agrahayan night from years ago.",
+  "design": {
+   "skin": [
+    64,
+    94,
+    132
+   ],
+   "skin_dark": [
+    49,
+    73,
+    102
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": [
+    102,
+    121,
+    144
+   ],
+   "moustache": null,
+   "shirt": [
+    100,
+    150,
+    170
+   ],
+   "shirt_dark": [
+    78,
+    117,
+    132
+   ],
+   "lower": [
+    60,
+    70,
+    82
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "beard_len": "short",
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "skin: 'dark complexion'",
+   "beard: 'grey stubble'",
+   "shirt",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "sunken sleepless eyes",
+    "rough grey stubble",
+    "dark complexion",
+    "wearing a grease-stained khaki work shirt over a faded undershirt",
+    "his skin still bearing the frozen chill of an Agrahayan night from years ago"
+   ],
+   "not_drawn": [
+    "42-year-old weathered Indian truck driver"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "7951ce02e4b9": {
+  "name": "Biltu",
+  "look": "19-year-old lean Bengali youth, unruly greasy black hair, youthful restless face, wearing an oversized faded denim jacket over an old striped t-shirt.",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    70,
+    60,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.86,
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "hair colour: black",
+   "shirt",
+   "build: thin",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "19-year-old lean Bengali youth",
+    "unruly greasy black hair",
+    "youthful restless face",
+    "wearing an oversized faded denim jacket over an old striped t-shirt"
+   ],
+   "not_drawn": [],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": true
+  }
+ },
+ "cc22e719e1f5": {
+  "name": "Gobinda",
+  "look": "60-year-old roadside tea vendor, wrinkled dark skin, grey receding hair, a prominent burn scar on his right thumb, wrapped in a coarse brown woolen shawl, In the trembling light of the lantern, an old, puckered burn scar was visible on the thumb of his right hand.",
+  "design": {
+   "skin": [
+    64,
+    94,
+    132
+   ],
+   "skin_dark": [
+    49,
+    73,
+    102
+   ],
+   "hair": [
+    150,
+    154,
+    160
+   ],
+   "hair_style": "short",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    40,
+    70,
+    110
+   ],
+   "shirt_dark": [
+    31,
+    54,
+    85
+   ],
+   "lower": [
+    40,
+    70,
+    110
+   ],
+   "shawl": [
+    40,
+    70,
+    110
+   ],
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "carry": "lantern"
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "skin: 'dark skin'",
+   "hair: short",
+   "hair colour: grey",
+   "shawl",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "wrinkled dark skin",
+    "grey receding hair",
+    "wrapped in a coarse brown woolen shawl"
+   ],
+   "not_drawn": [
+    "60-year-old roadside tea vendor",
+    "a prominent burn scar on his right thumb",
+    "an old",
+    "puckered burn scar was visible on the thumb of his right hand"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "d3874f95434a": {
+  "name": "Toyman",
+  "look": "Charred spectral vendor, peeling ash-black skin, glowing hollow eye sockets, fragments of singed cloth clinging to flesh, hands trailing grey burnt flakes.",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    156,
+    164,
+    171
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    34,
+    32,
+    36
+   ],
+   "shirt_dark": [
+    26,
+    24,
+    28
+   ],
+   "lower": [
+    34,
+    32,
+    36
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "pale": true,
+   "mist": true
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "ghost: see-through, floating, glowing eyes",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "peeling ash-black skin",
+    "glowing hollow eye sockets",
+    "fragments of singed cloth clinging to flesh"
+   ],
+   "not_drawn": [
+    "hands trailing grey burnt flakes"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "207eb7f027da": {
+  "name": "Subhashish Bandyopadhyay",
+  "look": "ENGLISH: A young hospital night-shift worker in his late 20s, wearing a tired expression, messy black hair, crumpled white shirt, and dark trousers, nervously clutching a rusted metal trolley in the dim corridor.",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "messy",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    228,
+    230,
+    232
+   ],
+   "shirt_dark": [
+    177,
+    179,
+    180
+   ],
+   "lower": [
+    90,
+    90,
+    96
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.92,
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "hair: messy",
+   "hair colour: black",
+   "shirt",
+   "trousers",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "messy black hair",
+    "crumpled white shirt",
+    "dark trousers"
+   ],
+   "not_drawn": [
+    "wearing a tired expression"
+   ],
+   "not_appearance": [
+    "nervously clutching a rusted metal trolley in the dim corridor"
+   ],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "3a02f37a4474": {
+  "name": "Dipankar Dutta",
+  "look": "ENGLISH: An aging senior hospital staff member with graying hair, wearing a worn-out woolen sweater over a uniform shirt, carrying a heavy iron key ring, with an eerie, vacant smile.",
+  "design": {
+   "skin": [
+    98,
+    136,
+    182
+   ],
+   "skin_dark": [
+    70,
+    100,
+    138
+   ],
+   "hair": [
+    150,
+    154,
+    160
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    150,
+    96,
+    52
+   ],
+   "shirt_dark": [
+    112,
+    70,
+    38
+   ],
+   "lower": [
+    60,
+    70,
+    82
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 1.0,
+   "build": 1.0,
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "পুরুষ, প্রাপ্তবয়স্ক",
+   "hair colour: gray",
+   "shirt"
+  ],
+  "source": "offline-rules",
+  "audit": {
+   "drawn": [
+    "graying hair",
+    "wearing a worn-out woolen sweater over a uniform shirt"
+   ],
+   "not_drawn": [
+    "carrying a heavy iron key ring",
+    "an eerie",
+    "vacant smile"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "19a4dd1abe4b": {
+  "name": "Naran Chandra Das",
+  "look": "ENGLISH: An old, hunched hospital gatekeeper wearing a faded shawl and dhoti, leaning on a wooden walking stick, warning people with sunken, fearful eyes in the dense fog.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": [
+    60,
+    70,
+    90
+   ],
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "dhoti": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "dhoti",
+   "shawl",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "hunched hospital gatekeeper wearing a faded shawl",
+    "dhoti",
+    "leaning on a wooden walking stick",
+    "fearful eyes in the dense fog"
+   ],
+   "not_drawn": [
+    "warning people",
+    "sunken"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "34fa05590421": {
+  "name": "Riya",
+  "look": "ENGLISH: A young investigative paranormal vlogger holding a digital recorder and microphone, wearing a dark jacket, with long tied-up hair and wide, anxious eyes in the dark.",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    18,
+    18,
+    22
+   ],
+   "hair_style": "bun",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    50,
+    160
+   ],
+   "shirt_dark": [
+    40,
+    34,
+    120
+   ],
+   "lower": [
+    60,
+    50,
+    160
+   ],
+   "shawl": [
+    70,
+    120,
+    190
+   ],
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.94,
+   "build": 0.9,
+   "sari": true,
+   "hem": 22,
+   "sleeve": "elbow"
+  },
+  "evidence": [
+   "মহিলা, তরুণ",
+   "upper",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "wearing a dark jacket",
+    "long tied-up hair",
+    "anxious eyes in the dark"
+   ],
+   "not_drawn": [
+    "microphone",
+    "wide"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "6158b9dffd28": {
+  "name": "Tanmoy",
+  "look": "ENGLISH: A young male camera operator wearing a heavy winter jacket, anxiously holding a professional digital camera with a dead battery, shivering in the freezing corridor.",
+  "design": {
+   "skin": [
+    104,
+    142,
+    186
+   ],
+   "skin_dark": [
+    74,
+    104,
+    142
+   ],
+   "hair": [
+    20,
+    20,
+    24
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    70,
+    60,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.92
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [],
+   "not_drawn": [
+    "anxiously holding a professional digital camera",
+    "a dead battery",
+    "shivering in the freezing corridor"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
  }
 }
