@@ -737,7 +737,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   }
  },
  {
@@ -774,7 +774,7 @@
    "yt_views": 4,
    "yt_avg_s": 71,
    "yt_avg_pct": 8.8,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   }
  },
  {
@@ -959,7 +959,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   }
  },
  {
@@ -996,7 +996,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   }
  },
  {
@@ -1032,7 +1032,7 @@
    "yt_views": 1,
    "yt_avg_s": 1040,
    "yt_avg_pct": 100.0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   }
  },
  {
@@ -1183,7 +1183,7 @@
    "yt_views": 5,
    "yt_avg_s": 21,
    "yt_avg_pct": 1.3,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1227,7 +1227,7 @@
    "yt_views": 9,
    "yt_avg_s": 6,
    "yt_avg_pct": 0.6,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1269,11 +1269,11 @@
    "comments": 3,
    "views": 21,
    "length_s": 1912,
-   "yt_views": 17,
-   "yt_avg_s": 513,
-   "yt_avg_pct": 26.8,
+   "yt_views": 21,
+   "yt_avg_s": 414,
+   "yt_avg_pct": 21.7,
    "yt_drop_at": 3,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1504,7 +1504,7 @@
    "yt_views": 4,
    "yt_avg_s": 330,
    "yt_avg_pct": 27.7,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1546,7 +1546,7 @@
    "comments": 2,
    "views": 0,
    "length_s": 802,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   }
  },
  {
@@ -2017,7 +2017,7 @@
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2155,7 +2155,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2289,12 +2289,12 @@
   "stats": {
    "likes": 1,
    "comments": 1,
-   "views": 2,
+   "views": 3,
    "length_s": 873,
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2818,7 +2818,7 @@
    "yt_views": 10,
    "yt_avg_s": 14,
    "yt_avg_pct": 61.3,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   }
  },
  {
@@ -3125,7 +3125,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3333,7 +3333,7 @@
    "yt_views": 4,
    "yt_avg_s": 2,
    "yt_avg_pct": 0.2,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4101,7 +4101,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -5188,12 +5188,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 2,
+   "views": 0,
    "length_s": 972,
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-21T13:43+00:00"
+   "checked": "2026-11-25T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -6145,7 +6145,21 @@
   "hook_style": "sound",
   "tagline": "ঝড়ের রাতে নদী থেকে কে ডেকেছিল কনের নাম?",
   "district": "kolkata",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-23-20.mp4",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 3,
+   "length_s": 1752,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-25T04:33+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 3
+  }
  },
  {
   "date": "2026-11-24T08:31+00:00",
@@ -6393,7 +6407,17 @@
   "hook_style": "voice",
   "district_week": "n24",
   "district": "n24",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-24-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-24-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 1,
+   "length_s": 1310,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-25T04:33+00:00"
+  }
  },
  {
   "date": "2026-11-24T14:31+00:00",
@@ -6549,5 +6573,150 @@
   "title": "বেলগাছের ব্রহ্মদৈত্য 🪔 😱 #shorts",
   "youtube": "Iz2UQIkqwNw",
   "facebook": null
+ },
+ {
+  "date": "2026-11-25T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-25@14",
+  "pending_comments": [
+   {
+    "id": "1612454297318996",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1977696770280654"
+   },
+   {
+    "id": "1237102688827921",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1977696770280654",
+    "after": 1795667700.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A delivery boy is tasked with dropping a food parcel at an abandoned mansion, only to find the recipient is a hungry spirit from the 1940s.",
+  "len_arm": null,
+  "listener_score": 6.0,
+  "fresh": {
+   "opening": "a power cut in the middle of something",
+   "telling": "two friends taking turns to tell what each saw",
+   "ghost": "a vengeful spirit of an old injustice",
+   "twist": "a quiet twist in the last line that changes everything before it",
+   "setting": "a coal-belt mining town",
+   "fear": "a puzzle the hero must solve",
+   "details": [
+    "A shard of blue glass from a shattered kerosene lantern that glows warm to the touch only ",
+    "The rhythmic, metallic ticking of a pocket-sized surveyor's chain being stretched by invis",
+    "The lingering, pungent scent of freshly pressed eucalyptus leaves mixed with the sulfurous",
+    "The local tradition of pressing a damp coal-pressed thumbprint onto the forehead of a newb",
+    "The everyday practice of lining up discarded, jagged iron rail-spikes on the windowsill to"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_2.mp3",
+   "why": "first, mansion, person, spirit, story",
+   "also": null
+  },
+  "discovery_id": "202611250101-x",
+  "story_class": "fiction",
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "sotti",
+  "question_post": null,
+  "title_b": "নিংঘা কয়লাখাদের ভুতুড়ে রহস্য 💀",
+  "theme": "A delivery boy is tasked with dropping a food parcel at an abandoned mansion, only to find the recipient is a hungry spirit from the 1940s.",
+  "format": "two friends taking turns to tell what each saw",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "নিংঘার অভিশপ্ত রেশন ঘর | Bengali Horror Story",
+  "festival": null,
+  "summary": "অগ্রহায়ণের স্যাঁতসেঁতে রাতে আসানসোল শহরের আলো নিভে যেতেই মনে পড়ে গেল নিংঘা কয়লাখাদের সেই ভয়াবহ স্মৃতির কথা। আশি বছর ধরে কোন ক্ষুধার্ত আত্মা কুপনের অন্ন বরাদ্দের জন্য অপেক্ষা করছে? জানতে এখনই পুরো গল্পটি দেখুন!",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1977696770280654",
+  "youtube": "bXOFGINP0qc",
+  "fb_reel": "1612454297318996",
+  "fb_story": "4704623796350285",
+  "fb_reel2": "1237102688827921",
+  "yt_short": "KGrTo70Hf8I",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 903,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     7,
+     "শুরু"
+    ],
+    [
+     13,
+     "অন্ধকারের আহ্বান"
+    ],
+    [
+     119,
+     "ভয়ার্ত স্মৃতি"
+    ],
+    [
+     178,
+     "কুয়াশার গেট"
+    ],
+    [
+     245,
+     "বারান্দার অভিশাপ"
+    ],
+    [
+     298,
+     "রহস্যময় বৃদ্ধ"
+    ],
+    [
+     379,
+     "আটকে পড়া"
+    ],
+    [
+     441,
+     "অভিশপ্ত করিডোর"
+    ],
+    [
+     490,
+     "আশি বছরের খাতা"
+    ],
+    [
+     550,
+     "রুমের দরজা বন্ধ"
+    ],
+    [
+     601,
+     "কাঁচ ভাঙার চেষ্টা"
+    ],
+    [
+     645,
+     "হারাধনের প্রেতাত্মা"
+    ],
+    [
+     698,
+     "কয়লার ছাই ও চক্রান্ত"
+    ],
+    [
+     765,
+     "প্রাণপণে পলায়ন"
+    ],
+    [
+     807,
+     "অভিশপ্ত দাগ"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "bardhaman_w",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-14.mp4"
  }
 ]
