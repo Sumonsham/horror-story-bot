@@ -6589,6 +6589,9 @@ def pilot_run():
 def render_clips(jobs):
     """All scene pictures moved into film clips - several at once (GitHub's machine has several processor cores):
     about 3x faster than one after the other. If the video is running late, the simpler (faster) motion is used."""
+    jobs = [j for j in jobs if not (os.path.exists(j[2]) and os.path.getsize(j[2]) >= 1000)]
+    if not jobs:
+        return
     at = extras.PUBLISH.get("at")
     left = (at - dt.datetime.now(extras.IST)).total_seconds() / 60 if at else 999
     ran = (time.time() - JOB_START) / 60
@@ -6696,6 +6699,7 @@ def build_video(scene_parts, lang, out):
                        (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx) for k, (st, du, nar, tx) in enumerate(subs)]
             comp_ = {"engine": {"scene": {"place": sp.get("place", "")}, "beats": beats_, "chars": sp["engine"]["chars"],
                                 "designs": sp["engine"].get("designs") or {}}}
+        tv_done = False
         if sp.get("tvtoon") is not None and not comp_:   # 23 Nov 2026: the TV cartoon, on the bot's own lines
             try:
                 from tvtoon import bot as tvbot
@@ -6703,6 +6707,7 @@ def build_video(scene_parts, lang, out):
                 lw_ = [os.path.join(WORK, f"v_{i:02d}_{j:02d}.wav") for j in j_ok]
                 spec_ = tvbot.part_spec(tvbot._STATE["ep"], sp["tvtoon"], spoken, subs, lw_, duration(a), W, H, FPS)
                 tvbot.render_part(spec_, a, c, W, H, FPS, SR, WORK, log)
+                tv_done = os.path.exists(c) and os.path.getsize(c) >= 1000
                 log(f"  cartoon scene {i + 1}: {spec_['location']}, {len(spec_['cast'])} people")
                 qc_ = STATE.setdefault("tvtoon_qc", {"scenes": [], "failed": []})
                 qc_["scenes"].append({"part": i + 1, "location": spec_["location"], "people": [c_["id"] for c_ in spec_["cast"]],
@@ -6713,7 +6718,8 @@ def build_video(scene_parts, lang, out):
                 STATE.setdefault("tvtoon_qc", {"scenes": [], "failed": []})["failed"].append({"part": i + 1, "error": str(e)[:200]})
                 if os.path.exists(c):
                     os.remove(c)
-        jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk, comp_))
+        if not tv_done:
+            jobs.append((segments, a, c, i, sp.get("mood", "creepy"), talk, comp_))
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
         t += duration(a)
