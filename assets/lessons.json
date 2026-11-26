@@ -1,25 +1,24 @@
 {
  "horror_bn": {
-  "made": "2026-11-24T01:01+00:00",
+  "made": "2026-11-27T01:00+00:00",
   "lessons": [
-   "High-performing videos (e.g., 'শেষ ট্রামের যাত্রী') show that short, punchy titles focusing on a specific, relatable urban legend perform better than long, descriptive ones.",
-   "Data is currently too sparse to draw definitive conclusions, but initial trends suggest that 'first-person' narratives or 'listener letters' create higher engagement than third-person radio dramas.",
-   "Avoid slow, expository openings; the 'most_leave_in_chapter' data for the top-viewed video indicates that viewers drop off during slow world-building phases.",
-   "Focus on 'high-stakes' scenarios (e.g., night shifts, abandoned transport, mysterious objects) rather than generic ghost stories to keep retention above 50%.",
-   "Maintain a consistent, tight narrative structure; videos that meander without a clear 'mystery' or 'threat' early on suffer from near-zero retention."
+   "Keep narratives focused and concise, as abrupt drop-offs around specific timestamps like 0:57 indicate viewers lose patience during slow setup chapters.",
+   "Prioritize first-person narrative formats ('that happened to me') or dramatic local mysteries, which correlate with higher retention rates compared to standard third-person letter readings.",
+   "Maintain gripping pacing right from the opening chapter, ensuring the initial hook immediately transitions into the core supernatural event to prevent early audience abandonment.",
+   "Utilize rural and semi-urban Bengali settings (such as village cremation grounds and abandoned factories) as they naturally evoke higher engagement and curiosity among the target audience.",
+   "Avoid overly long multi-part structures unless each part maintains high narrative tension, as subsequent episodes often suffer from near-zero watch percentages."
   ],
   "titles": [
-   "Use curiosity-driven questions in the title (e.g., 'কেন দুধ ঢালতে হয়?') to trigger a 'need to know' response.",
-   "Include specific, evocative locations (e.g., 'ডানকুনি টোল প্লাজা') instead of vague terms like 'অভিশপ্ত বাড়ি'.",
-   "Keep titles under 60 characters to ensure they are fully readable on mobile devices, which is where most Bengali horror content is consumed."
+   "Titles that incorporate specific local landmarks, distinct sound/visual sensory words (like blood, footfalls, or night shadows), and clear stakes consistently drive higher initial clicks.",
+   "Shorter, punchy titles ending with relevant emojis perform better than cluttered subtitles containing multiple alternative tags or redundant series labels.",
+   "A/B testing titles is effective for underperforming videos, though titles need an immediate emotional hook related to fear or suspense to genuinely capture attention."
   ],
   "requests": [
-   "More stories featuring haunted public transport (trains/trams/buses).",
-   "Interactive scenarios where the protagonist faces a moral dilemma (e.g., 'Would you touch the object?').",
-   "Stories involving mysterious objects found in old, abandoned houses.",
-   "Narratives exploring the 'Karna-pishachini' or 'Tantrik' lore with specific, localized settings.",
-   "More 'what would you do' prompts to encourage active comment section participation.",
-   "Real-life urban legends set in specific, identifiable West Bengal districts."
+   "cremation ground or shashan experiences",
+   "isolated night-time delivery jobs",
+   "abandoned village areas and local coal mines",
+   "fairs and deserted festival grounds",
+   "abandoned hospitals and medical facilities"
   ]
  }
 }

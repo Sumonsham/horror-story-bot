@@ -3160,5 +3160,350 @@
    "missing_fields": [],
    "complete": false
   }
+ },
+ "ede77bae7972": {
+  "name": "Bapi",
+  "look": "ENGLISH, young man with short black hair, pale anxious face, wearing a dark jacket over a casual shirt, carrying a torch with trembling hands in deep terror, squinting eyes and aging eyes of Hari-kaka contrasted with Bapi's youth, lungs choking and head spinning inside the guardroom",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    152,
+    160,
+    166
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "short",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    60,
+    120,
+    160
+   ],
+   "shirt_dark": [
+    44,
+    90,
+    120
+   ],
+   "lower": [
+    70,
+    60,
+    52
+   ],
+   "shawl": null,
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.97,
+   "build": 0.92,
+   "hem": 22,
+   "sleeve": "elbow",
+   "carry": "torch"
+  },
+  "evidence": [
+   "পুরুষ, তরুণ",
+   "skin: 'pale'",
+   "hair colour: black",
+   "shirt",
+   "carries a torch",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "young man",
+    "short black hair",
+    "pale anxious face",
+    "wearing a dark jacket over a casual shirt",
+    "carrying a torch",
+    "squinting eyes",
+    "aging eyes of Hari-kaka contrasted"
+   ],
+   "not_drawn": [
+    "trembling hands in deep terror",
+    "lungs choking"
+   ],
+   "not_appearance": [
+    "head spinning inside the guardroom"
+   ],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "fa30e329ebe8": {
+  "name": "Nilkantha",
+  "look": "ENGLISH, elderly man with grey messy hair, sunken eyes, deep wrinkles, wearing a worn-out shawl over traditional kurta, carrying the weight of a fifty-year-old curse, Fifty-year-old burden of the ghost blowing ice-cold breath on his left shoulder, Feels very lonely on the deserted river char and regards Bapi as his long-awaited vessel",
+  "design": {
+   "skin": [
+    196,
+    206,
+    214
+   ],
+   "skin_dark": [
+    156,
+    164,
+    171
+   ],
+   "hair": [
+    150,
+    154,
+    160
+   ],
+   "hair_style": "messy",
+   "beard": [
+    215,
+    218,
+    222
+   ],
+   "moustache": null,
+   "shirt": [
+    210,
+    214,
+    218
+   ],
+   "shirt_dark": [
+    170,
+    175,
+    180
+   ],
+   "lower": [
+    196,
+    200,
+    204
+   ],
+   "shawl": [
+    60,
+    70,
+    90
+   ],
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "hem": 52,
+   "sleeve": "long",
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "pale": true,
+   "mist": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "hair: messy",
+   "hair colour: grey",
+   "kurta",
+   "shawl",
+   "ghost: see-through, floating, glowing eyes",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "elderly man",
+    "grey messy hair",
+    "sunken eyes",
+    "wearing a worn-out shawl over traditional kurta"
+   ],
+   "not_drawn": [
+    "deep wrinkles",
+    "carrying the weight of a fifty-year-old curse",
+    "regards Bapi as his long-awaited vessel"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "21e7b2a5d103": {
+  "name": "Hari-kaka",
+  "look": "ENGLISH, elderly local caretaker with a weathered face, white stubble, turban wrapped around his head, wearing a dirty dhoti and cotton vest, constantly warning others, Warns Bapi not to look at the dry river char where unnatural deaths happen",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    225,
+    228,
+    230
+   ],
+   "hair_style": "bald",
+   "beard": [
+    161,
+    185,
+    211
+   ],
+   "moustache": null,
+   "shirt": [
+    228,
+    230,
+    232
+   ],
+   "shirt_dark": [
+    177,
+    179,
+    180
+   ],
+   "lower": [
+    228,
+    230,
+    232
+   ],
+   "shawl": null,
+   "feet": [
+    40,
+    48,
+    60
+   ],
+   "height": 1.0,
+   "build": 1.05,
+   "beard_len": "short",
+   "hem": 22,
+   "sleeve": "elbow",
+   "dhoti": true
+  },
+  "evidence": [
+   "পুরুষ, বৃদ্ধ",
+   "beard: 'white stubble'",
+   "upper",
+   "dhoti",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "a weathered face",
+    "white stubble",
+    "wearing a dirty dhoti",
+    "cotton vest"
+   ],
+   "not_drawn": [
+    "elderly local caretaker",
+    "turban wrapped around his head",
+    "constantly warning others"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
+ },
+ "1b217c9c9698": {
+  "name": "Pishachini",
+  "look": "ENGLISH, a spectral woman draped in a blood-stained black saree, dishevelled long black hair, hollow dark eyes, six-fingered skeletal hands, and an aura of icy dread, A grey blood-stained saree hanging from a nail, dripping fresh red blood onto the dusty floor",
+  "design": {
+   "skin": [
+    110,
+    150,
+    196
+   ],
+   "skin_dark": [
+    80,
+    112,
+    150
+   ],
+   "hair": [
+    22,
+    22,
+    26
+   ],
+   "hair_style": "bun",
+   "beard": null,
+   "moustache": null,
+   "shirt": [
+    34,
+    32,
+    36
+   ],
+   "shirt_dark": [
+    26,
+    24,
+    28
+   ],
+   "lower": [
+    34,
+    32,
+    36
+   ],
+   "shawl": [
+    70,
+    120,
+    190
+   ],
+   "feet": [
+    30,
+    36,
+    46
+   ],
+   "height": 0.94,
+   "build": 0.9,
+   "sari": true,
+   "ghost": true,
+   "alpha": 0.78,
+   "float": 16.0,
+   "ink": [
+    60,
+    40,
+    50
+   ],
+   "glow_eyes": [
+    210,
+    240,
+    250
+   ],
+   "mist": true
+  },
+  "evidence": [
+   "মহিলা, প্রাপ্তবয়স্ক",
+   "hair colour: black",
+   "saree (রং লেখা আছে)",
+   "ghost: see-through, floating, glowing eyes",
+   "Gemini: রং / জিনিস মিলিয়ে দেখেছে (শুধু লেখায় থাকা শব্দ নেওয়া হয়েছে)"
+  ],
+  "source": "gemini+rules",
+  "audit": {
+   "drawn": [
+    "a spectral woman draped in a blood-stained black saree",
+    "dishevelled long black hair",
+    "hollow dark eyes"
+   ],
+   "not_drawn": [
+    "six-fingered skeletal hands",
+    "an aura of icy dread",
+    "dripping fresh red blood onto the dusty floor"
+   ],
+   "not_appearance": [],
+   "missing_fields": [],
+   "complete": false
+  }
  }
 }
