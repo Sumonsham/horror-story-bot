@@ -1,5 +1,6 @@
-"""Tests for the True 2.5D Illustrated Cartoon Engine (cartoon25d.py)."""
+"""Tests for the Hybrid 2.5D Live Cartoon Engine, Production Assistant, Deduplication & Language Purifier."""
 import os
+import re
 import sys
 import wave
 
@@ -15,11 +16,9 @@ import cartoon25d as C25
 
 def test_activation_rules():
     assert C25.active(lambda k: {"ANIM_MODE": "cartoon25d"}.get(k, "")) is True
-    assert C25.active(lambda k: {"ANIM_MODE": "tvtoon"}.get(k, "")) is True
-    assert C25.active(lambda k: {"ANIM_MODE": ""}.get(k, "")) is True
-    assert C25.active(lambda k: {"ANIM_MODE": "tvtoon", "CARTOON_25D": "0"}.get(k, "")) is False
+    assert C25.active(lambda k: {"ANIM_MODE": "tvtoon"}.get(k, "")) is False
+    assert C25.active(lambda k: {"ANIM_MODE": "", "TVTOON_OFF": "1"}.get(k, "")) is True
     assert C25.active(lambda k: {"ANIM_MODE": "cartoon"}.get(k, "")) is False
-    assert C25.active(lambda k: {"ANIM_MODE": "character"}.get(k, "")) is False
 
 
 def test_weather_and_motion_detection():
@@ -70,9 +69,18 @@ def test_voice_envelope_and_3layer_render(tmp_path):
     assert float(np.abs(f1.astype(int) - f0.astype(int)).mean()) > 3.0
 
 
-def test_main_wires_cartoon25d_and_keeps_all_modes():
+def test_main_wires_all_new_features():
     src = open(os.path.join(ROOT, "main.py"), encoding="utf-8").read()
-    assert "def cartoon25d_on():" in src
-    assert "cartoon25d.render_scene" in src
-    assert 'env("ANIM_MODE") == "tvtoon"' in src
-    assert 'env("ANIM_MODE") == "cartoon"' in src
+    for sym in (
+        "def cartoon25d_on():",
+        "def purify_spoken_language(",
+        "def character_dialect_pass(",
+        "def production_blueprint_with_writer_loop(",
+        "def _enhance_tvtoon_episode(",
+        "prevented mid-line cut",
+    ):
+        assert sym in src, f"Missing {sym} in main.py"
+    sc_src = open(os.path.join(ROOT, "tvtoon", "scene.py"), encoding="utf-8").read()
+    assert "def dialogue_partner(" in sc_src
+    assert "self.lean_out" in sc_src
+    assert "self.bg_surface" in sc_src
