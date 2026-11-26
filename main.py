@@ -213,6 +213,26 @@ ART_STYLE = ("cinematic photorealistic film still, horror movie atmosphere, dark
              "no text, no letters, no watermark")
 
 
+def cartoon25d_on():
+    """True 2.5D Illustrated Cartoon Engine (zero-cost, story-matched 2.5D scenes).
+    Active by default for normal runs (unless CARTOON_25D=0 or ANIM_MODE is cartoon/character)."""
+    try:
+        import cartoon25d
+        return cartoon25d.active(env)
+    except Exception:
+        return False
+
+
+def active_art_style():
+    if cartoon25d_on():
+        try:
+            import cartoon25d
+            return cartoon25d.CARTOON25D_STYLE
+        except Exception:
+            pass
+    return ART_STYLE
+
+
 def log(*a):
     print(f"[{dt.datetime.now().strftime('%H:%M:%S')}]", *a, flush=True)
     msg = " ".join(str(x) for x in a)
@@ -3492,7 +3512,7 @@ class Cast:
         who = (f"Characters in the picture (ONLY these, each exactly as described): {self.describe(chosen)} "
                if chosen else "No people in this picture, only the place and the objects described. ")
         p = (f"{ascii_text(action)}. {who}"
-             f"Location: {ascii_text(place)}. {self.setting}. Style: {ART_STYLE}.")
+             f"Location: {ascii_text(place)}. {self.setting}. Style: {active_art_style()}.")
         if use_ref and chosen:
             p = ("Use image 0 ONLY for how the characters look (same faces, hair, body, clothes). Do NOT copy their "
                  "poses or positions from image 0. Draw this NEW scene with a full background, each character in the "
@@ -3595,14 +3615,16 @@ def make_cast_sheet(cast, path, seed):
     if MOCK:
         return mock_image(path, seed)
     humans = [c for c in cast.chars.values()]
-    prompt = (f"{ART_STYLE}. Cast reference photo: all these people standing side by side, full body, "
+    _st = active_art_style()
+    _ref_kind = "Character model reference sheet" if cartoon25d_on() else "Cast reference photo"
+    prompt = (f"{_st}. {_ref_kind}: all these people standing side by side, full body, "
               f"facing the camera, neutral grey studio background, even soft light. {cast.describe(humans)}")
     plain = [c for c in humans if not str(c.get("kind", "")).startswith("ghost")] or humans
     for attempt in range(3):
         if attempt == 1:          # the safety filter said no: gentler words, a new seed
             prompt = soften(prompt)
         elif attempt == 2:        # still no: only the living people (ghosts are drawn later, scene by scene)
-            prompt = soften(f"{ART_STYLE}. Cast reference photo: all these people standing side by side, full body, "
+            prompt = soften(f"{_st}. {_ref_kind}: all these people standing side by side, full body, "
                             f"facing the camera, neutral grey studio background, even soft light. {cast.describe(plain)}")
         try:
             data = cf_request(CF_MODEL, prompt, w=1024, h=576, seed=seed + attempt * 101)
@@ -5863,6 +5885,19 @@ def scene_clip(segments, audio, out, idx, mood, talk=None, comp=None):
             log(f"  character scene {idx} failed ({str(e)[:150]}) - classic motion on its background")
     if env("SIMPLE_MOTION") == "1" or (MOCK and env("TEST_ANIM") != "1"):
         return scene_clip_simple(segments, audio, out, idx, mood)
+    if comp and comp.get("cartoon25d"):
+        try:
+            import cartoon25d
+            def _cut25(pic, w_, h_):
+                from rembg import remove
+                return np.array(remove(pic, session=cutout_session(), only_mask=True).convert("L").resize((w_, h_)))
+            return cartoon25d.render_scene(
+                segments, audio, out, idx, mood, talk=talk, meta=comp["cartoon25d"],
+                W=W, H=H, FPS=FPS, SR=SR, scene_fx=SCENE_FX.get(idx), ghost_face=GHOST_FACE,
+                vhs=VHS, vhs_fn=_vhs, cutout_fn=_cut25, log=log,
+            )
+        except Exception as e:
+            log(f"  2.5D cartoon scene {idx + 1} failed ({str(e)[:150]}) - falling back to animated layers")
     try:
         return scene_clip_animated(segments, audio, out, idx, mood, talk)
     except Exception as e:
@@ -6699,6 +6734,11 @@ def build_video(scene_parts, lang, out):
                        (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx) for k, (st, du, nar, tx) in enumerate(subs)]
             comp_ = {"engine": {"scene": {"place": sp.get("place", "")}, "beats": beats_, "chars": sp["engine"]["chars"],
                                 "designs": sp["engine"].get("designs") or {}}}
+        if sp.get("cartoon25d") and not comp_:
+            _c25 = dict(sp["cartoon25d"])
+            _c25["actions"] = [str(ln.get("action") or ln.get("en") or "") for ln in spoken]
+            _c25["speakers"] = [str(ln.get("speaker") or "") for ln in spoken]
+            comp_ = {"cartoon25d": _c25}
         tv_done = False
         if sp.get("tvtoon") is not None and not comp_:   # 23 Nov 2026: the TV cartoon, on the bot's own lines
             try:
@@ -10090,6 +10130,12 @@ def thumb_plan(story, cast, special, cat):
             subj = f"the face of {subj}"
         t_prompt = extras.user_thumb_prompt(tkind, subj, ti.get("place") or cast.setting,
                                             ti.get("moment") or ti.get("action") or "")
+    if cartoon25d_on():
+        try:
+            import cartoon25d
+            t_prompt = f"{cartoon25d.CARTOON25D_THUMB_STYLE}. {t_prompt}"
+        except Exception:
+            pass
     return t_prompt, tkind, hero, gname, ti
 
 
@@ -13541,8 +13587,11 @@ def main():
         except Exception as e:
             log("  character mode failed - the classic pictures are made instead:", str(e)[:200])
             char_mode = None
+    use_25d = cartoon25d_on() and not char_mode
+    if use_25d:
+        log("True 2.5D Illustrated Cartoon Engine active (story-matched 2.5D scenes, 3-layer parallax, weather & acting)")
     tv_ep = None
-    if env("ANIM_MODE") == "tvtoon":                 # 23 Nov 2026: the horror story as a TV cartoon (tvtoon/bot.py)
+    if env("ANIM_MODE") == "tvtoon" and not use_25d:  # 23 Nov 2026: vector TV cartoon (set CARTOON_25D=0 to use)
         try:
             from tvtoon import bot as tvbot
             tv_ep = tvbot.plan(story)
@@ -13774,7 +13823,13 @@ def main():
         parts.append({"image": img, "shots": sh, "lines": s.get("lines", []), "sounds": s.get("sounds", []),
                       "ambience": s.get("ambience", []), "mood": s.get("mood", "creepy"), "voices": voices,
                       "place": f"{s.get('place', '')} {story.get('setting', '')}"})
-        if tv_ep:
+        if use_25d:
+            parts[-1]["cartoon25d"] = {
+                "place": f"{s.get('place', '')} {story.get('setting', '')}",
+                "ambience": s.get("ambience", []),
+                "ghost_names": [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")],
+            }
+        elif tv_ep:
             parts[-1]["tvtoon"] = k_
         elif char_mode:
             parts[-1]["comp"] = {"scene": s, "index": k_, "bg": char_mode["bgs"][k_], "records": char_mode["records"],
@@ -13791,7 +13846,13 @@ def main():
         himg = (shots_per_scene[hi][0] if shots_per_scene[hi] else imgs[hi])
         parts.insert(0, {"image": himg, "lines": hlines, "sounds": [], "mood": "scary", "voices": voices,
                          "hook_part": True})
-        if tv_ep:                                    # the gripping moment as a cartoon too
+        if use_25d:
+            parts[0]["cartoon25d"] = {
+                "place": f"{scenes[hi].get('place', '')} {story.get('setting', '')}",
+                "ambience": scenes[hi].get("ambience", []),
+                "ghost_names": [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")],
+            }
+        elif tv_ep:                                    # the gripping moment as a cartoon too
             parts[0]["tvtoon"] = hi
         cold = True
         log(f"Hook at the start (from scene {hi + 1}): {str(hlines[0].get('text', ''))[:80]}")
