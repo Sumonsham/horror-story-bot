@@ -811,7 +811,7 @@
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   }
  },
  {
@@ -1066,10 +1066,10 @@
    "comments": 2,
    "views": 4,
    "length_s": 2215,
-   "yt_views": 4,
+   "yt_views": 5,
    "yt_avg_s": 517,
    "yt_avg_pct": 23.4,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   }
  },
  {
@@ -1106,7 +1106,7 @@
    "yt_views": 7,
    "yt_avg_s": 36,
    "yt_avg_pct": 1.5,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   }
  },
  {
@@ -1318,7 +1318,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1364,7 +1364,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1582,12 +1582,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 5,
+   "views": 6,
    "length_s": 993,
-   "yt_views": 4,
+   "yt_views": 5,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1631,7 +1631,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1678,7 +1678,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -3354,7 +3354,7 @@
    "yt_views": 1,
    "yt_avg_s": 30,
    "yt_avg_pct": 0.3,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   }
  },
  {
@@ -3372,7 +3372,7 @@
    "yt_views": 17,
    "yt_avg_s": 25,
    "yt_avg_pct": 106.1,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   }
  },
  {
@@ -4399,13 +4399,13 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 152,
+   "views": 153,
    "length_s": 1901,
-   "yt_views": 147,
-   "yt_avg_s": 188,
-   "yt_avg_pct": 9.9,
+   "yt_views": 153,
+   "yt_avg_s": 181,
+   "yt_avg_pct": 9.6,
    "yt_drop_at": 3,
-   "checked": "2026-11-22T13:32+00:00"
+   "checked": "2026-11-26T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -5473,10 +5473,10 @@
    "comments": 2,
    "views": 1,
    "length_s": 1066,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-22T13:32+00:00"
+   "yt_views": 1,
+   "yt_avg_s": 117,
+   "yt_avg_pct": 11.1,
+   "checked": "2026-11-26T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -6567,6 +6567,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-25T10:34+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 4
   }
  },
  {
@@ -6726,7 +6730,17 @@
   },
   "hook_style": "voice",
   "district": "bardhaman_w",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 0,
+   "length_s": 903,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-26T04:33+00:00"
+  }
  },
  {
   "date": "2026-11-25T14:31+00:00",
@@ -6869,5 +6883,146 @@
   "tagline": "চার নম্বর খাদের গভীরে আজ রাতে কার পাওনা শোধ হবে?",
   "district": "kolkata",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-20.mp4"
+ },
+ {
+  "date": "2026-11-26T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-26@14",
+  "pending_comments": [
+   {
+    "id": "1643506550592960",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1825242245469686"
+   },
+   {
+    "id": "1698754125248478",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1825242245469686",
+    "after": 1795754100.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A night-shift highway bus driver in rural Bengal picks up a mysterious silent passenger with no reflection in the rearview mirror.",
+  "len_arm": null,
+  "listener_score": 7.0,
+  "fresh": {
+   "opening": "a telegram / letter / old diary page read aloud",
+   "telling": "a confession told to a priest or a stranger",
+   "ghost": "a ghost who does not know it is dead",
+   "twist": "the place, not the ghost, is the trap",
+   "setting": "a mela / fair ground after closing",
+   "fear": "a journey that cannot be turned back",
+   "details": [
+    "A discarded, hand-painted wooden ferris wheel miniature containing a singular, unblinking ",
+    "The dry, rhythmic scratching of a frayed jute kite-string being pulled taut against a holl",
+    "The heavy, saccharine scent of overripe hog-plums (amra) decaying inside a heap of trample",
+    "The local custom of pinning a dried cluster of 'shiali' seeds to the back of one's collar ",
+    "An everyday habit of tying discarded metal circus-tent pegs into a tight cluster to keep t"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_3.mp3",
+   "why": "ghost, highway, night",
+   "also": null
+  },
+  "discovery_id": "202611260100-x",
+  "story_class": "fiction",
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "jayga",
+  "question_post": null,
+  "title_b": "মেলাতলার পোড়ো চত্বরে সেদিন কী ঘটেছিল? 🎡",
+  "theme": "A night-shift highway bus driver in rural Bengal picks up a mysterious silent passenger with no reflection in the rearview mirror.",
+  "format": "a confession told to a priest or a stranger",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "কৃষ্ণনগরের মেলাতলার শেষ বাঁক | অভিশপ্ত নাগরদোলার রাত",
+  "festival": null,
+  "summary": "অগ্রহায়ণের কুয়াশাচ্ছন্ন রাতে কৃষ্ণনগরের পোড়ো মেলাতলার শর্টকাট নিয়েছিল চালক শিবু আর খালাসি বিল্টু। কিন্তু মেলা ভাঙার পর যে অতৃপ্ত আত্মা সেখানে ঘুরে বেড়ায়, তার চোখে ধুলো দিয়ে কি কেউ পালাতে পারে? কী লুকিয়ে ছিল বিল্টুর পকেটে?",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1825242245469686",
+  "youtube": "fwuCuAanADQ",
+  "fb_reel": "1643506550592960",
+  "fb_story": "4493620500888226",
+  "fb_reel2": "1698754125248478",
+  "yt_short": "wSg6A_sIyp4",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 1046,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     12,
+     "শুরু"
+    ],
+    [
+     22,
+     "ডাকবাংলোর ডায়েরি"
+    ],
+    [
+     85,
+     "অগ্রহায়ণের সেই রাত"
+    ],
+    [
+     139,
+     "গোবিন্দদার চায়ের দোকান"
+    ],
+    [
+     198,
+     "অশুভ সংকেত"
+    ],
+    [
+     274,
+     "পোড়া নাগরদোলা"
+    ],
+    [
+     339,
+     "মেলাতলার নিস্তব্ধতা"
+    ],
+    [
+     418,
+     "অভিশপ্ত খেলনা"
+    ],
+    [
+     510,
+     "ঘূর্ণিপাক"
+    ],
+    [
+     586,
+     "অন্ধকারের খেলনা"
+    ],
+    [
+     669,
+     "কাচের ওপারে"
+    ],
+    [
+     730,
+     "ঝলসানো হাত"
+    ],
+    [
+     805,
+     "ঘূর্ণি ফাঁদ"
+    ],
+    [
+     885,
+     "স্মৃতির কুয়াশা"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "district": "nadia",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-26-14.mp4"
  }
 ]
