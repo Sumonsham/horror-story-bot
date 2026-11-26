@@ -2199,9 +2199,9 @@ def purify_spoken_language(story, lang):
             f"Rewrite each line so that EVERY SINGLE WORD is in {LANGS[lang]['name']} script "
             + ("(Bengali script, pure natural Kolkata cholit; transliterate loanwords like ওয়ার্ড, ডাক্তার, টর্চ into Bengali script)"
                if lang == "bn" else "(Devanagari script; transliterate loanwords into Hindi script)")
-            + ". Leave ZERO English/Latin letters (A-Z) anywhere in the text. Keep the exact meaning and emotion. "
-            "Answer ONLY JSON: [{"k": number, "text": "cleaned line"}]
-" + json.dumps(rows, ensure_ascii=False)
+            + '. Leave ZERO English/Latin letters (A-Z) anywhere in the text. Keep the exact meaning and emotion. '
+            + 'Answer ONLY JSON: [{"k": number, "text": "cleaned line"}]\n'
+            + json.dumps(rows, ensure_ascii=False)
         )
         for model in gemini_models(key)[:3]:
             try:
@@ -2316,8 +2316,8 @@ def character_dialect_pass(story, lang):
         "in BENGALI SCRIPT the exact way a non-Bengali speaks Bengali mixed with Hindi in real life (natural Hindi-mixed "
         "Bengali like 'আরে বাবুজি, হামি তো আগেই বলেছিলাম ওদিকে যাবেন না, বহুত খতরনাক জায়গা হ্যায় ওটা!'). "
         "Keep the exact plot meaning, emotion, and length; use ONLY Bengali script (NO English/Devanagari letters). "
-        "Answer ONLY JSON: [{"k": number, "text": "adapted line"}]
-" + json.dumps(rows, ensure_ascii=False)
+        + 'Answer ONLY JSON: [{"k": number, "text": "adapted line"}]\n'
+        + json.dumps(rows, ensure_ascii=False)
     )
     changed = 0
     for model in gemini_models(key)[:3]:
@@ -2388,33 +2388,24 @@ def production_blueprint_with_writer_loop(story, lang):
 
     assistant_prompt = (
         "You are the Lead Cartoon Production Assistant for a 2.5D Bengali horror animated series. Read the entire story "
-        "scene by scene and extract EVERYTHING needed to build and animate each scene accurately.
-"
+        "scene by scene and extract EVERYTHING needed to build and animate each scene accurately.\n"
         "Valid locations: ['ghar','village_courtyard','shmashan','bansh_bon','pukur_ghat','station','village_road',"
-        "'city_street','boat','market','temple','mountain','seaside','school','train_inside','bus_inside','tram_inside'].
-"
-        "Valid vehicles: ['cycle','bike','toto','auto','bus','tram','train','boat','palki','none'].
-"
+        "'city_street','boat','market','temple','mountain','seaside','school','train_inside','bus_inside','tram_inside'].\n"
+        "Valid vehicles: ['cycle','bike','toto','auto','bus','tram','train','boat','palki','none'].\n"
         "Valid movements: ['walk','run','sit','stand','ride','lean_out','jump','dance','fall','bow','look_back',"
-        "'recoil','tremble','ghost_float','idle'].
-"
-        "Valid gestures: ['point','namaste','wave','think','shrug','scared','arms_crossed','none'].
-"
-        "IMPORTANT: If ANY scene or line is vague or missing concrete visual/action/spatial detail so an animator "
-        "would not know what props, vehicle, posture, or movement to draw, set `"is_clear": false` and write in "
-        "`"ask_writer"` what exact physical detail the Writer must add.
-"
-        "Return ONLY JSON:
-"
-        "{"scenes": [{"scene": 0, "location_id": "...", "room_kind": "", "hour": 22.0, "
-        ""weather": ["fog"], "vehicle": "none", "lean_out_window": false, "
-        ""props": ["brass lantern", "rusted lock"], "hair_wind": 1.0, "is_clear": true, "
-        ""ask_writer": "", "line_specs": [{"line": 0, "listener": "name or ''", "
-        ""movement": "idle", "gesture": "none", "emotion": "normal", "camera": "two_shot", "
-        ""visual_detail": "exact English frame description"}]}]}
-"
-        f"CAST: {json.dumps(chars_summary, ensure_ascii=False)}
-"
+        "'recoil','tremble','ghost_float','idle'].\n"
+        "Valid gestures: ['point','namaste','wave','think','shrug','scared','arms_crossed','none'].\n"
+        'IMPORTANT: If ANY scene or line is vague or missing concrete visual/action/spatial detail so an animator '
+        'would not know what props, vehicle, posture, or movement to draw, set "is_clear": false and write in '
+        '"ask_writer" what exact physical detail the Writer must add.\n'
+        'Return ONLY JSON:\n'
+        '{"scenes": [{"scene": 0, "location_id": "...", "room_kind": "", "hour": 22.0, '
+        '"weather": ["fog"], "vehicle": "none", "lean_out_window": false, '
+        '"props": ["brass lantern", "rusted lock"], "hair_wind": 1.0, "is_clear": true, '
+        '"ask_writer": "", "line_specs": [{"line": 0, "listener": "name or \'\'", '
+        '"movement": "idle", "gesture": "none", "emotion": "normal", "camera": "two_shot", '
+        '"visual_detail": "exact English frame description"}]}]}\n'
+        f"CAST: {json.dumps(chars_summary, ensure_ascii=False)}\n"
         f"STORY: {json.dumps(digest, ensure_ascii=False)}"
     )
 
@@ -2447,14 +2438,11 @@ def production_blueprint_with_writer_loop(story, lang):
             "You are the Story Writer. The Cartoon Production Assistant reviewed your script and needs concrete "
             "visual, prop, and character-movement details for these scenes so the 2.5D cartoon animator knows "
             "exactly what to build and animate (do NOT change spoken dialogue text; enrich `place`, `action`, and "
-            "each line's `action` and `image` prompt/people in ENGLISH).
-"
-            "Return ONLY JSON: {"updates": [{"scene": 0, "place": "...", "action": "...", "
-            ""lines": [{"line": 0, "action": "walks toward the door holding lantern", "
-            ""image_prompt": "35-word concrete visual frame description"}]}]}
-"
-            f"QUESTIONS FROM PRODUCTION ASSISTANT: {json.dumps(q_list, ensure_ascii=False)}
-"
+            "each line's `action` and `image` prompt/people in ENGLISH).\n"
+            'Return ONLY JSON: {"updates": [{"scene": 0, "place": "...", "action": "...", '
+            '"lines": [{"line": 0, "action": "walks toward the door holding lantern", '
+            '"image_prompt": "35-word concrete visual frame description"}]}]}\n'
+            f"QUESTIONS FROM PRODUCTION ASSISTANT: {json.dumps(q_list, ensure_ascii=False)}\n"
             f"SCENES: {json.dumps([digest[int(q['scene'])] for q in q_list if isinstance(q.get('scene'), int) and 0 <= q['scene'] < len(digest)], ensure_ascii=False)}"
         )
         for model in gemini_models(key)[:3]:
@@ -2500,7 +2488,6 @@ def production_blueprint_with_writer_loop(story, lang):
         if isinstance(si, int) and 0 <= si < len(scenes):
             scenes[si]["production_spec"] = s_spec
     log(f"  production blueprint ready for {len(scenes)} scene(s) (props, vehicles, staging & movements mapped)")
-
 
 def continuity_bridges(story, lang):
     """The whole joined story read once more as ONE film: a scene that seems to come from nowhere ('where did this
