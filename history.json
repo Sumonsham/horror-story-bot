@@ -848,7 +848,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   }
  },
  {
@@ -885,7 +885,7 @@
    "yt_views": 1,
    "yt_avg_s": 17,
    "yt_avg_pct": 1.7,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   }
  },
  {
@@ -922,7 +922,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   }
  },
  {
@@ -1142,7 +1142,7 @@
    "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   }
  },
  {
@@ -1410,7 +1410,7 @@
    "yt_views": 2,
    "yt_avg_s": 904,
    "yt_avg_pct": 50.5,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1457,7 +1457,7 @@
    "yt_views": 3,
    "yt_avg_s": 29,
    "yt_avg_pct": 1.2,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -1724,7 +1724,7 @@
    "yt_views": 7,
    "yt_avg_s": 99,
    "yt_avg_pct": 8.8,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1868,7 +1868,7 @@
    "yt_views": 13,
    "yt_avg_s": 57,
    "yt_avg_pct": 6.2,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2451,7 +2451,7 @@
    "yt_views": 2,
    "yt_avg_s": 34,
    "yt_avg_pct": 2.1,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2637,7 +2637,7 @@
    "yt_views": 4,
    "yt_avg_s": 13,
    "yt_avg_pct": 0.7,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2796,7 +2796,7 @@
    "yt_views": 1,
    "yt_avg_s": 418,
    "yt_avg_pct": 39.7,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3556,7 +3556,7 @@
    "yt_views": 3,
    "yt_avg_s": 23,
    "yt_avg_pct": 1.8,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3725,10 +3725,7 @@
    "comments": 1,
    "views": 1,
    "length_s": 1232,
-   "yt_views": 1,
-   "yt_avg_s": 190,
-   "yt_avg_pct": 15.4,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -3752,7 +3749,7 @@
    "yt_views": 5,
    "yt_avg_s": 4,
    "yt_avg_pct": 22.5,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   }
  },
  {
@@ -3916,7 +3913,7 @@
    "yt_views": 2,
    "yt_avg_s": 318,
    "yt_avg_pct": 29.8,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4607,12 +4604,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 10,
+   "views": 11,
    "length_s": 1083,
    "yt_views": 10,
    "yt_avg_s": 50,
    "yt_avg_pct": 4.6,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4761,7 +4758,7 @@
    "yt_views": 1,
    "yt_avg_s": 29,
    "yt_avg_pct": 3.4,
-   "checked": "2026-11-23T06:34+00:00"
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -5626,12 +5623,12 @@
   "stats": {
    "likes": 0,
    "comments": 2,
-   "views": 0,
+   "views": 1,
    "length_s": 1267,
    "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-23T06:34+00:00"
+   "yt_avg_s": 426,
+   "yt_avg_pct": 33.6,
+   "checked": "2026-11-26T09:28+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -6595,13 +6592,7 @@
   "date": "2026-11-25T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-25@14",
-  "pending_comments": [
-   {
-    "id": "1237102688827921",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1977696770280654",
-    "after": 1795667700.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A delivery boy is tasked with dropping a food parcel at an abandoned mansion, only to find the recipient is a hungry spirit from the 1940s.",
@@ -6740,6 +6731,12 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-26T04:33+00:00"
+  },
+  "title_test": {
+   "result": "swapped",
+   "views_before": 0,
+   "at": "2026-11-26T09:30+00:00",
+   "thumb": true
   }
  },
  {
@@ -6890,10 +6887,6 @@
   "slot": "2026-11-26@14",
   "pending_comments": [
    {
-    "id": "1643506550592960",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1825242245469686"
-   },
-   {
     "id": "1698754125248478",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1825242245469686",
     "after": 1795754100.0
@@ -7024,5 +7017,168 @@
   "hook_style": "voice",
   "district": "nadia",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-26-14.mp4"
+ },
+ {
+  "date": "2026-11-26T10:18+00:00",
+  "lang": "bn",
+  "slot": "2026-11-26@20",
+  "pending_comments": [
+   {
+    "id": "1672879450905688",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1777592863354221"
+   },
+   {
+    "id": "1852828569180739",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1777592863354221",
+    "after": 1795775700.0
+   },
+   {
+    "id": "1777592863354221",
+    "text": "আপনি কি কখনো রাতে কোনো পরিত্যক্ত হাসপাতালে গেছেন? 🏥\n\n📢 নতুন গল্পের খবর সবার আগে পেতে আমাদের Telegram চ্যানেলে যোগ দিন: https://t.me/dailyhorrorstory\n💬 গল্প নিয়ে রাতের আড্ডা: https://t.me/dailyhorroradda\n\n🗺️ বাংলার ভূতের মানচিত্র - আপনার জেলার গল্প খুঁজুন: https://sumonsham.github.io/horror-story-bot/map/"
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A night-shift toll collector on a newly opened bridge in rural West Bengal encounters a pedestrian who has no reflection in the rearview mirror.",
+  "len_arm": null,
+  "listener_score": 8.0,
+  "fresh": {
+   "opening": "a telegram / letter / old diary page read aloud",
+   "telling": "a confession told to a priest or a stranger",
+   "ghost": "a ghost who does not know it is dead",
+   "twist": "the place, not the ghost, is the trap",
+   "setting": "a small-town hospital night shift",
+   "fear": "a journey that cannot be turned back",
+   "details": [
+    "a heavy vulcanized rubber hot-water bag featuring an embossed monogram of the sub-division",
+    "the damp, fluttering sound of medical prescription slips being sucked backward through an ",
+    "the sharp, chemical scent of institutional pink phenyl mixed with the deep, earthy reek of",
+    "the local belief that leaving an unlit copper oxygen valve open on the porch overnight inv",
+    "the town's peculiar habit of nailing empty aluminum glucose saline vials inverted along th"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_3.mp3",
+   "why": "horror, night",
+   "also": null
+  },
+  "discovery_id": null,
+  "story_class": null,
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "notun",
+  "question_post": null,
+  "title_b": "রানাঘাট হাসপাতালের সাত নম্বর ওয়ার্ডে রাতের রহস্য 🏥",
+  "theme": "A night-shift toll collector on a newly opened bridge in rural West Bengal encounters a pedestrian who has no reflection in the rearview mirror.",
+  "format": "Riya and Tanmoy's team spends one night in a haunted place with their camera and recorder",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "রাত-তদন্ত #1: কেন বন্ধ রাখা হলো রানাঘাট বাইপাস হাসপাতালের সাত নম্বর ওয়ার্ড? 👻",
+  "festival": null,
+  "summary": "রানাঘাট বাইপাস হাসপাতালের পরিত্যক্ত সাত নম্বর ওয়ার্ডে তিন বছর আগের এক মৃত রোগীর ছায়া আজও ঘুরে বেড়ায়। নাইট ডিউটিতে এসে সুভাশিষ আর দীপু মুখোমুখি হলো কিসের? জানতে পুরো ভিডিওটি দেখুন।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "tadanta",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1777592863354221",
+  "youtube": "hb7EmFFwTP8",
+  "fb_reel": "1672879450905688",
+  "fb_story": "1888288599164943",
+  "fb_reel2": "1852828569180739",
+  "yt_short": "p2J6beHBVdk",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 1099,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     8,
+     "শুরু"
+    ],
+    [
+     18,
+     "রহস্যময় আইসোলেশন ওয়ার্ড"
+    ],
+    [
+     138,
+     "ডায়েরির রহস্যময় পাতা"
+    ],
+    [
+     227,
+     "অভিশপ্ত নাইট ডিউটি"
+    ],
+    [
+     309,
+     "নিস্তব্ধ বারান্দা"
+    ],
+    [
+     373,
+     "অস্বাভাবিক বাতাস"
+    ],
+    [
+     434,
+     "নারায়ন কাকার সাবধানবাণী"
+    ],
+    [
+     492,
+     "আয়নার ছায়া"
+    ],
+    [
+     554,
+     "তিন বছর আগের স্লিপ"
+    ],
+    [
+     618,
+     "9"
+    ],
+    [
+     669,
+     "10"
+    ],
+    [
+     721,
+     "11"
+    ],
+    [
+     781,
+     "12"
+    ],
+    [
+     839,
+     "13"
+    ],
+    [
+     896,
+     "14"
+    ],
+    [
+     972,
+     "15"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "tagline": "সেই রাতে শয্যা নম্বর সাতে কে শুয়েছিল?",
+  "district": "nadia",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-26-20.mp4"
+ },
+ {
+  "date": "2026-11-26T10:19+00:00",
+  "lang": "bn",
+  "kind": "old_short",
+  "from_video": "IV06wmEGEHc",
+  "title": "ছুটির পরের ফাঁকা ক্লাসরুম 🔔 😱 #shorts",
+  "youtube": "JuIjtJhbw1Q",
+  "facebook": null
  }
 ]
