@@ -650,7 +650,9 @@ class Scene:
                 arr[:, : self.W] = cv2.GaussianBlur(arr[:, : self.W], (0, 0), k)
                 surf.mark_dirty()
             ctx.set_matrix(m)
-            ctx.set_source_rgb(*G.rgb("#c9a172"))               # ground below the world picture (portrait)
+            _hr = self.world.hour(t) if self.world is not None else 12.0
+            _gcol = "#121218" if (_hr >= 19.0 or _hr < 5.5 or self.look() == "horror" or self.spec.get("location") in ("ghar", "boat", "train_inside", "bus_inside", "tram_inside")) else "#c9a172"
+            ctx.set_source_rgb(*G.rgb(_gcol))               # ground below the world picture (portrait)
             ctx.rectangle(-5000, BG.WORLD_H + 190, 15000, 5000)
             ctx.fill()
         else:
