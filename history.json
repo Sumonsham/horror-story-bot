@@ -6743,13 +6743,7 @@
   "date": "2026-11-25T14:31+00:00",
   "lang": "bn",
   "slot": "2026-11-25@20",
-  "pending_comments": [
-   {
-    "id": "29295023163496231",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1117134314697766",
-    "after": 1795689300.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A remote tantrik's secluded hermitage near a burning cremation ground where a desperate zamindar seeks a blood ritual to reverse his family's sudden ruin.",
@@ -6879,7 +6873,17 @@
   "hook_style": "sound",
   "tagline": "চার নম্বর খাদের গভীরে আজ রাতে কার পাওনা শোধ হবে?",
   "district": "kolkata",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-25-20.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 2,
+   "length_s": 1045,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-26T12:01+00:00"
+  }
  },
  {
   "date": "2026-11-26T08:31+00:00",
@@ -7172,5 +7176,137 @@
   "title": "ছুটির পরের ফাঁকা ক্লাসরুম 🔔 😱 #shorts",
   "youtube": "JuIjtJhbw1Q",
   "facebook": null
+ },
+ {
+  "date": "2026-11-26T12:38+00:00",
+  "lang": "bn",
+  "slot": "2026-11-26@20",
+  "pending_comments": [],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A night-shift toll collector on a newly opened bridge in rural West Bengal encounters a pedestrian who has no reflection in the rearview mirror.",
+  "len_arm": null,
+  "listener_score": 8.0,
+  "fresh": {
+   "opening": "a telegram / letter / old diary page read aloud",
+   "telling": "a confession told to a priest or a stranger",
+   "ghost": "a ghost who does not know it is dead",
+   "twist": "the place, not the ghost, is the trap",
+   "setting": "a small-town hospital night shift",
+   "fear": "a journey that cannot be turned back",
+   "details": [
+    "a heavy vulcanized rubber hot-water bag featuring an embossed monogram of the sub-division",
+    "the damp, fluttering sound of medical prescription slips being sucked backward through an ",
+    "the sharp, chemical scent of institutional pink phenyl mixed with the deep, earthy reek of",
+    "the local belief that leaving an unlit copper oxygen valve open on the porch overnight inv",
+    "the town's peculiar habit of nailing empty aluminum glucose saline vials inverted along th"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_3.mp3",
+   "why": "horror, night",
+   "also": null
+  },
+  "discovery_id": null,
+  "story_class": null,
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "notun",
+  "question_post": null,
+  "title_b": "রানাঘাট হাসপাতালের সাত নম্বর ওয়ার্ডে রাতের রহস্য 🏥",
+  "theme": "A night-shift toll collector on a newly opened bridge in rural West Bengal encounters a pedestrian who has no reflection in the rearview mirror.",
+  "format": "Riya and Tanmoy's team spends one night in a haunted place with their camera and recorder",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "রাত-তদন্ত #2: কেন বন্ধ রাখা হলো রানাঘাট বাইপাস হাসপাতালের সাত নম্বর ওয়ার্ড? 👻",
+  "festival": null,
+  "summary": "রানাঘাট বাইপাস হাসপাতালের পরিত্যক্ত সাত নম্বর ওয়ার্ডে তিন বছর আগের এক মৃত রোগীর ছায়া আজও ঘুরে বেড়ায়। নাইট ডিউটিতে এসে সুভাশিষ আর দীপু মুখোমুখি হলো কিসের? জানতে পুরো ভিডিওটি দেখুন।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "tadanta",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 561,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     18,
+     "শুরু"
+    ],
+    [
+     30,
+     "রহস্যময় আইসোলেশন ওয়ার্ড"
+    ],
+    [
+     63,
+     "ডায়েরির রহস্যময় পাতা"
+    ],
+    [
+     109,
+     "অভিশপ্ত নাইট ডিউটি"
+    ],
+    [
+     149,
+     "নিস্তব্ধ বারান্দা"
+    ],
+    [
+     178,
+     "অস্বাভাবিক বাতাস"
+    ],
+    [
+     210,
+     "নারায়ন কাকার সাবধানবাণী"
+    ],
+    [
+     245,
+     "আয়নার ছায়া"
+    ],
+    [
+     267,
+     "তিন বছর আগের স্লিপ"
+    ],
+    [
+     297,
+     "9"
+    ],
+    [
+     347,
+     "10"
+    ],
+    [
+     389,
+     "11"
+    ],
+    [
+     416,
+     "12"
+    ],
+    [
+     446,
+     "13"
+    ],
+    [
+     476,
+     "14"
+    ],
+    [
+     501,
+     "15"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "tagline": "সেই রাতে শয্যা নম্বর সাতে কে শুয়েছিল?"
  }
 ]
