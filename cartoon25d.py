@@ -53,11 +53,11 @@ _FX_CACHE = {}
 
 
 def active(env_fn):
-    """True when True 2.5D Illustrated Cartoon mode should run (default for normal horror runs unless disabled)."""
+    """True when pure 2.5D illustrated cutout mode should run (ANIM_MODE=cartoon25d, or when TVTOON_OFF=1)."""
     am = (env_fn("ANIM_MODE") or "").strip().lower()
     if am == "cartoon25d":
         return True
-    if am in ("", "tvtoon") and (env_fn("CARTOON_25D") or "").strip() != "0":
+    if am == "" and (env_fn("TVTOON_OFF") or "").strip() == "1" and (env_fn("CARTOON_25D") or "").strip() != "0":
         return True
     return False
 
@@ -510,6 +510,36 @@ def render_frame_25d(
                 src = cv2.cvtColor(np.clip(pic, 0, 255).astype(np.float32), cv2.COLOR_RGB2BGR)
             except Exception:
                 src = L["fg"]
+        elif L.get("bbox") and (speaking or blink > 0.15):
+            # Built-in stylized cartoon face animation (mouth lip-sync + eye blink) when photo detector finds 0 faces
+            bx0, by0, bx1, by1 = L["bbox"]
+            bw, bh = max(1, bx1 - bx0), max(1, by1 - by0)
+            if bw >= 36 and bh >= 60:
+                src = src.copy()
+                hcx = int(0.5 * (bx0 + bx1))
+                # Mouth position on cartoon head (~19% down from top of head bbox)
+                my = int(by0 + 0.19 * bh)
+                mw = max(7, int(0.11 * min(bw, bh * 0.55)))
+                if speaking and mouth > 0.08:
+                    mh = max(2, int(mw * 0.65 * min(1.0, mouth)))
+                    if shape in ("o", "u"):
+                        cv2.ellipse(src, (hcx, my), (max(4, mw // 2), max(4, mh)), 0, 0, 360, (24.0, 16.0, 28.0), -1, cv2.LINE_AA)
+                        cv2.ellipse(src, (hcx, my), (max(4, mw // 2), max(4, mh)), 0, 0, 360, (55.0, 42.0, 72.0), 1, cv2.LINE_AA)
+                    elif shape == "m":
+                        cv2.line(src, (hcx - mw, my), (hcx + mw, my), (30.0, 20.0, 26.0), 2, cv2.LINE_AA)
+                    else:
+                        cv2.ellipse(src, (hcx, my), (mw, mh), 0, 0, 360, (24.0, 14.0, 26.0), -1, cv2.LINE_AA)
+                        if mh >= 4:
+                            cv2.ellipse(src, (hcx, my + mh // 3), (max(3, mw // 2), max(2, mh // 3)), 0, 0, 180, (70.0, 65.0, 145.0), -1, cv2.LINE_AA)
+                if blink > 0.25:
+                    ey = int(by0 + 0.115 * bh)
+                    edx = max(8, int(0.14 * min(bw, bh * 0.55)))
+                    er = max(3, int(edx * 0.45 * min(1.0, blink)))
+                    for ex in (hcx - edx, hcx + edx):
+                        if 0 <= ex < W and 0 <= ey < H:
+                            skin = src[max(0, ey - er - 3), ex].tolist()
+                            cv2.ellipse(src, (ex, ey), (edx // 2 + 2, er), 0, 0, 360, skin, -1, cv2.LINE_AA)
+                            cv2.line(src, (ex - edx // 2, ey), (ex + edx // 2, ey), (28.0, 22.0, 26.0), 2, cv2.LINE_AA)
 
         # Story motion verbs + foot-anchored breathing & vocal emphasis
         char_dx = 0.0
@@ -558,6 +588,17 @@ def render_frame_25d(
 
         fgw = cv2.warpAffine(src, Mf, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
         aw = cv2.warpAffine(L["fg_a"], Mf, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+        if L.get("bbox"):
+            # Subtle sinusoidal hair breeze ripple on upper head region (`chul norbe`)
+            _, by0, _, by1 = L["bbox"]
+            hair_end = min(H, max(10, int(by0 + 0.24 * (by1 - by0))))
+            ys_h = np.arange(hair_end, dtype=np.float32)
+            taper = np.clip(1.0 - ys_h / float(hair_end), 0.0, 1.0) ** 1.3
+            shifts = (2.6 * taper * np.sin(sec * 3.4 + ys_h * 0.06)).astype(np.int32)
+            for row_i, sh_px in enumerate(shifts):
+                if sh_px != 0:
+                    fgw[row_i] = np.roll(fgw[row_i], int(sh_px), axis=0)
+                    aw[row_i] = np.roll(aw[row_i], int(sh_px), axis=0)
         aw = np.clip(aw * char_alpha, 0.0, 1.0)[..., None]
 
         # Subtle warm rim glow on character edge when lantern/indoor is active

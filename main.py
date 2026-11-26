@@ -233,6 +233,152 @@ def active_art_style():
     return ART_STYLE
 
 
+def _enhance_tvtoon_episode(tv_ep, story):
+    """Upgrade every tvtoon scene using the Production Assistant blueprint + full story text:
+      * builds whatever location, room, vehicle (cycle, bike, toto with driver, auto, bus with window lean-out,
+        tram, train, boat, palki), and props the story mentions
+      * schedules every story movement & gesture (walk, run, sit, stand, jump, dance, fall, bow, look_back,
+        point, namaste, wave, think, shrug, scared) on the exact speaker at the exact beat
+      * turns characters face-to-face during dialogue (`talk_view = side`) with natural hair wind (`chul norbe`)."""
+    if not isinstance(tv_ep, dict):
+        return
+    try:
+        from tvtoon import characters as CH
+        lib = CH.library()
+    except Exception:
+        lib = []
+    story_scenes = story.get("scenes") or []
+    valid_locs = {
+        "ghar", "village_courtyard", "shmashan", "bansh_bon", "pukur_ghat", "station", "village_road",
+        "city_street", "boat", "market", "temple", "mountain", "seaside", "school", "train_inside",
+        "bus_inside", "tram_inside",
+    }
+    valid_acts = {"jump", "dance", "fall", "bow", "nod", "shake"}
+    valid_gest = {"point", "namaste", "wave", "think", "shrug", "scared", "hips", "arms_crossed", "clap"}
+
+    for i, sc in enumerate(tv_ep.get("scenes") or []):
+        w = sc.setdefault("world", {})
+        w["_talk_view"] = "side"
+        s_raw = story_scenes[i] if i < len(story_scenes) else {}
+        pspec = s_raw.get("production_spec") if isinstance(s_raw.get("production_spec"), dict) else {}
+        w["_wind"] = max(0.95, float(pspec.get("hair_wind") or w.get("_wind", 0.4)))
+        if pspec.get("location_id") in valid_locs:
+            sc["location"] = pspec["location_id"]
+        if pspec.get("room_kind") and sc.get("location") == "ghar":
+            w["kind"] = pspec["room_kind"]
+        if isinstance(pspec.get("hour"), (int, float)):
+            w["hours"] = [[0, float(pspec["hour"])]]
+        if pspec.get("props"):
+            w["_story_props"] = [str(p_)[:60] for p_ in pspec["props"][:8]]
+
+        hay = " ".join(
+            [str(s_raw.get("place", "")), str(s_raw.get("action", "")), str(pspec.get("vehicle", ""))]
+            + [str(p_) for p_ in (pspec.get("props") or [])]
+            + [f"{ln.get('text', '')} {ln.get('en', '')} {ln.get('action', '')}" for ln in (s_raw.get("lines") or [])]
+        ).lower()
+
+        cast_list = [c for c in (sc.get("cast") or []) if not c.get("extra")]
+        beats = sc.setdefault("beats", [])
+        already_riding = any("ride" in b or "sit" in b for b in beats)
+
+        # Position standing characters on left/right facing each other for natural face-to-face dialogue
+        if len(cast_list) >= 2 and not already_riding and not sc.get("vehicles"):
+            cast_list[0]["x"] = 1360
+            cast_list[0]["facing"] = "right"
+            cast_list[1]["x"] = 1860
+            cast_list[1]["facing"] = "left"
+
+        # Inject line-by-line movements & gestures extracted by the Production Assistant
+        line_specs = pspec.get("line_specs") if isinstance(pspec.get("line_specs"), list) else []
+        if line_specs and not already_riding:
+            say_indices = [bi for bi, b in enumerate(beats) if "say" in b]
+            extra_beats = []
+            for ls_item in line_specs:
+                li = ls_item.get("line")
+                if not isinstance(li, int) or not (0 <= li < len(say_indices)):
+                    continue
+                b_say = beats[say_indices[li]]
+                who_id = b_say.get("who")
+                if not who_id:
+                    continue
+                t_at = float(b_say.get("at", 0.5))
+                mv = str(ls_item.get("movement") or "").lower()
+                gs = str(ls_item.get("gesture") or "").lower()
+                if mv in ("walk", "run"):
+                    cur_x = next((float(c.get("x", 1500)) for c in cast_list if c["id"] == who_id), 1500.0)
+                    tgt_x = cur_x + (220.0 if cur_x < 1600 else -220.0)
+                    extra_beats.append({"who": who_id, "walk_to": tgt_x, "gait": mv, "at": t_at, "with_prev": True})
+                elif mv == "look_back":
+                    extra_beats.append({"who": who_id, "look_back": 1.6, "at": t_at, "with_prev": True})
+                elif mv in valid_acts:
+                    extra_beats.append({"who": who_id, "act": mv, "at": t_at, "with_prev": True})
+                if gs in valid_gest:
+                    b_say["gesture"] = gs
+            if extra_beats:
+                beats.extend(extra_beats)
+
+        if sc.get("vehicles") or sc.get("location") == "boat" or not cast_list:
+            continue
+
+        veh_pref = str(pspec.get("vehicle") or "").lower()
+        veh_kind = None
+        if veh_pref in ("cycle", "bike", "toto", "auto", "bus", "tram", "train"):
+            veh_kind = veh_pref
+        elif any(k in hay for k in ("সাইকেল", "cycle", "bicycle", "साइकिल")):
+            veh_kind = "cycle"
+        elif any(k in hay for k in ("বাইক", "মোটরসাইকেল", "bike", "motorcycle", "बाइक")):
+            veh_kind = "bike"
+        elif any(k in hay for k in ("টোটো", "toto", "टोटो")):
+            veh_kind = "toto"
+        elif any(k in hay for k in ("অটো", "auto", "rickshaw", "ऑटो")):
+            veh_kind = "auto"
+        elif any(k in hay for k in ("বাস", "bus", "बस")) and not any(k in hay for k in ("ট্রেন", "train", "metro", "মেট্রো")):
+            veh_kind = "bus"
+
+        if not veh_kind:
+            continue
+
+        sc["location"] = "city_street" if any(k in hay for k in ("kolkata", "city", "street", "কলকাতা", "শহর")) else "village_road"
+        vid = f"veh_{i}"
+        sc["vehicles"] = [{"id": vid, "kind": veh_kind, "x": 880, "facing": 1.0}]
+        clean_beats = [b for b in beats if not any(k in b for k in ("sit", "walk_to", "ride", "drive_to"))]
+        ride_beats = []
+        if veh_kind == "cycle":
+            ride_beats.append({"who": cast_list[0]["id"], "ride": vid, "seat": 0, "at": 0.0})
+            w["_wind"] = 1.65
+        elif veh_kind == "bike":
+            ride_beats.append({"who": cast_list[0]["id"], "ride": vid, "seat": 0, "at": 0.0})
+            if len(cast_list) >= 2:
+                ride_beats.append({"who": cast_list[1]["id"], "ride": vid, "seat": 1, "at": 0.0})
+            w["_wind"] = 1.75
+        elif veh_kind in ("toto", "auto"):
+            used_ids = {c["id"].split("__")[0] for c in cast_list}
+            drv = next((x for x in ("haripada", "gopal_kaku", "shibu_dadu") if x in lib and x not in used_ids), None)
+            if drv:
+                sc["cast"].append({"id": drv, "x": 880, "name_bn": "টোটো চালক" if veh_kind == "toto" else "অটো চালক"})
+                ride_beats.append({"who": drv, "ride": vid, "seat": 0, "at": 0.0})
+                for si_seat, c_p in enumerate(cast_list[:2], start=1):
+                    ride_beats.append({"who": c_p["id"], "ride": vid, "seat": si_seat, "at": 0.0})
+            else:
+                for si_seat, c_p in enumerate(cast_list[:3]):
+                    ride_beats.append({"who": c_p["id"], "ride": vid, "seat": si_seat, "at": 0.0})
+            w["_wind"] = 1.55
+        elif veh_kind in ("bus", "tram"):
+            lean = bool(pspec.get("lean_out_window")) or any(
+                k in hay for k in ("জানলা", "জানালা", "window", "মুখ বাড়িয়ে", "বাইরে তাকিয়ে", "खिड़की")
+            )
+            for si_seat, c_p in enumerate(cast_list[:3]):
+                rb = {"who": c_p["id"], "ride": vid, "seat": si_seat, "at": 0.0}
+                if si_seat == 0 and lean:
+                    c_p["lean_out"] = True
+                    rb["lean_out"] = True
+                ride_beats.append(rb)
+            w["_wind"] = 1.65 if lean else 1.25
+
+        drive_beat = {"vehicle": vid, "drive_to": 2380, "sec": "end", "at": 0.0, "background": True}
+        sc["beats"] = ride_beats + [drive_beat] + clean_beats
+
+
 def log(*a):
     print(f"[{dt.datetime.now().strftime('%H:%M:%S')}]", *a, flush=True)
     msg = " ".join(str(x) for x in a)
@@ -1193,40 +1339,49 @@ def sync_sounds(story):
         log(f"  sounds in sync with the words: {added} added, {tied} tied to their word")
 
 
-def dedupe_story(story, window=10):
-    """THE SAME THING NEVER SAID TWICE (8 Nov 2026): a sentence that repeats (or almost repeats) one of the last few
-    sentences is taken out - also when the storyteller just repeats what a character has said ('she said she would
-    not go' + 'I will not go'). Only that sentence goes; the rest of the line stays."""
+def dedupe_story(story, window=None):
+    """THE SAME THING NEVER SAID TWICE: scans the entire story (plus intra-line clauses and narrator-character
+    echoes) so no sentence or line is ever doubled."""
     from difflib import SequenceMatcher
     key = lambda s: re.sub(r"[^\wঀ-৿ऀ-ॿ]", "", extras.strip_tags(s))
-    recent, removed = [], 0                           # (key, speaker) of the last sentences, scenes included
-    calls = {}                                        # short calls ('ঠাকুরমশাই!') and how often they came already
+    recent, removed = [], 0
+    calls = {}
     laugh = re.compile(r"^(?:[হহিহোখি]+|[हहिहोखि]+|ha|hi)+$", re.I)
     lines = [(sc, ln) for sc in story.get("scenes") or [] for ln in sc.get("lines") or []]
     for idx, (sc, ln) in enumerate(lines):
         spk = str(ln.get("speaker", "narrator")).lower()
         nar = spk.startswith("narrat")
-        neigh = [key(lines[q][1].get("text", "")) for q in (idx - 1, idx + 1)
-                 if 0 <= q < len(lines) and not str(lines[q][1].get("speaker", "narrator")).lower().startswith("narrat")]
+        neigh = [key(lines[q][1].get("text", "")) for q in (idx - 2, idx - 1, idx + 1, idx + 2)
+                 if 0 <= q < len(lines) and q != idx
+                 and not str(lines[q][1].get("speaker", "narrator")).lower().startswith("narrat")]
         sents = split_sentences(str(ln.get("text", "")))
         keep = []
+        pool = recent if window is None else recent[-window:]
         for s in sents:
             k = key(s)
-            # the same short call over and over (9 Nov 2026: Paltu began 7 lines with 'ঠাকুরমশাই!') - after twice it
-            # goes, when the line has more to say (a laugh of the ghost is meant to come back)
+            if not k:
+                continue
             if 0 < len(k) < 14 and len(sents) > 1 and not laugh.match(k):
                 calls[k] = calls.get(k, 0) + 1
                 if calls[k] > 2:
                     removed += 1
                     continue
-            dup = len(k) >= 14 and any(SequenceMatcher(None, k, r).ratio() >= 0.8 for r, _sp in recent[-window:])
-            echo = nar and len(k) >= 14 and any(len(nk) >= 10 and (nk in k or SequenceMatcher(None, k, nk).ratio() >= 0.75)
-                                                 for nk in neigh)
-            if dup or echo:
+            # Check against entire story history AND already-kept sentences in this same line
+            in_line_dup = len(k) >= 10 and any(
+                k == key(prev_s) or SequenceMatcher(None, k, key(prev_s)).ratio() >= 0.72 for prev_s in keep
+            )
+            dup = len(k) >= 12 and any(
+                k == r or SequenceMatcher(None, k, r).ratio() >= 0.74 for r, _sp in pool
+            )
+            echo = nar and len(k) >= 12 and any(
+                len(nk) >= 10 and (nk in k or SequenceMatcher(None, k, nk).ratio() >= 0.72) for nk in neigh
+            )
+            if in_line_dup or dup or echo:
                 removed += 1
                 continue
             keep.append(s)
             recent.append((k, spk))
+            pool = recent if window is None else recent[-window:]
         if len(keep) != len(sents):
             ln["text"] = " ".join(keep)
             ln.pop("voice_text", None)
@@ -1967,6 +2122,384 @@ def fix_language(story, lang):
     for i, j, _t in sorted(bad, reverse=True):
         del story["scenes"][i]["lines"][j]
     log(f"  language check: {len(bad)} English line(s) left out")
+
+
+_EN_TO_BN_WORDS = {
+    "hospital": "হাসপাতাল", "ward": "ওয়ার্ড", "doctor": "ডাক্তার", "nurse": "নার্স", "police": "পুলিশ",
+    "station": "স্টেশন", "platform": "প্ল্যাটফর্ম", "train": "ট্রেন", "local": "লোকাল", "bus": "বাস",
+    "tram": "ট্রাম", "auto": "অটো", "toto": "টোটো", "bike": "বাইক", "motorcycle": "মোটরসাইকেল",
+    "cycle": "সাইকেল", "bicycle": "সাইকেল", "car": "গাড়ি", "taxi": "ট্যাক্সি", "driver": "ড্রাইভার",
+    "phone": "ফোন", "mobile": "মোবাইল", "call": "কল", "torch": "টর্চ", "flashlight": "টর্চলাইট",
+    "lantern": "হারিকেন", "room": "ঘর", "door": "দরজা", "window": "জানলা", "gate": "গেট",
+    "office": "অফিস", "file": "ফাইল", "diary": "ডায়েরি", "register": "রেজিস্টার", "morgue": "মর্গ",
+    "drawer": "ড্রয়ার", "hostel": "হোস্টেল", "flat": "ফ্ল্যাট", "lift": "লিফট", "floor": "তলা",
+    "emergency": "ইমার্জেন্সি", "duty": "ডিউটি", "night": "রাত", "shift": "শিফট", "guard": "গার্ড",
+    "darwan": "দারোয়ান", "sir": "স্যার", "madam": "ম্যাডাম", "sorry": "সরি", "hello": "হ্যালো",
+    "please": "প্লিজ", "ok": "ঠিক আছে", "okay": "ঠিক আছে", "yes": "হ্যাঁ", "no": "না",
+    "number": "নম্বর", "bypass": "বাইপাস", "junction": "জংশন", "bridge": "ব্রিজ", "road": "রোড",
+    "forest": "জঙ্গল", "bungalow": "বাংলো", "hotel": "হোটেল", "school": "স্কুল", "college": "কলেজ",
+    "market": "বাজার", "temple": "মন্দির", "ghost": "ভূত", "shadow": "ছায়া", "blood": "রক্ত",
+    "mirror": "আয়না", "clock": "ঘড়ি", "radio": "রেডিও", "camera": "ক্যামেরা", "photo": "ছবি",
+}
+
+_EN_TO_HI_WORDS = {
+    "hospital": "अस्पताल", "ward": "वार्ड", "doctor": "डॉक्टर", "nurse": "नर्स", "police": "पुलिस",
+    "station": "स्टेशन", "platform": "प्लेटफ़ॉर्म", "train": "ट्रेन", "bus": "बस", "auto": "ऑटो",
+    "toto": "टोटो", "bike": "बाइक", "cycle": "साइकिल", "driver": "ड्राइवर", "phone": "फ़ोन",
+    "torch": "टॉर्च", "room": "कमरा", "door": "दरवाज़ा", "window": "खिड़की", "office": "दफ़्तर",
+    "diary": "डायरी", "morgue": "मुर्दाघर", "emergency": "इमरजेंसी", "duty": "ड्यूटी",
+    "guard": "गार्ड", "sir": "सर", "hello": "हैलो", "number": "नंबर", "hotel": "होटल",
+}
+
+
+def _transliterate_en_token(word, lang):
+    """Fallback converter so ZERO English/Latin words are ever spoken aloud by TTS."""
+    low = word.lower()
+    mp = _EN_TO_BN_WORDS if lang == "bn" else _EN_TO_HI_WORDS
+    if low in mp:
+        return mp[low]
+    if lang != "bn":
+        return ""
+    # Simple phonetic Latin -> Bengali script fallback for proper nouns / loanwords
+    s = low
+    digraphs = [
+        ("sh", "শ"), ("ch", "চ"), ("th", "থ"), ("ph", "ফ"), ("bh", "ভ"), ("gh", "ঘ"),
+        ("kh", "খ"), ("dh", "ধ"), ("jh", "ঝ"), ("ng", "ং"), ("oo", "উ"), ("ee", "ই"),
+    ]
+    for a, b in digraphs:
+        s = s.replace(a, b)
+    chars = {
+        "a": "আ", "b": "ব", "c": "ক", "d": "ড", "e": "এ", "f": "ফ", "g": "গ", "h": "হ",
+        "i": "ই", "j": "জ", "k": "ক", "l": "ল", "m": "ম", "n": "ন", "o": "ও", "p": "প",
+        "q": "ক", "r": "র", "s": "স", "t": "ট", "u": "উ", "v": "ভ", "w": "ও", "x": "ক্স",
+        "y": "য়", "z": "জ",
+    }
+    out = "".join(chars.get(ch, "") for ch in s)
+    return out or "সেটা"
+
+
+def purify_spoken_language(story, lang):
+    """Ensure ZERO English words remain inside spoken `text` or `voice_text` (even single English loanwords
+    like 'ward', 'doctor', 'flashlight' are converted into natural Bengali/Hindi script before TTS)."""
+    script = r"[\u0980-\u09FF]" if lang == "bn" else r"[\u0900-\u097F]"
+    dirty = []
+    for i, sc in enumerate(story.get("scenes") or []):
+        for j, ln in enumerate(sc.get("lines") or []):
+            t = str(ln.get("text", "")).strip()
+            vt = str(ln.get("voice_text", "")).strip()
+            vt_no_tags = re.sub(r"<[^>]{1,30}>", " ", vt)
+            if re.search(r"[A-Za-z]{2,}", t) or re.search(r"[A-Za-z]{2,}", vt_no_tags):
+                dirty.append((i, j, t))
+    if not dirty:
+        return 0
+    key = env("GEMINI_API_KEY")
+    if not MOCK and key:
+        rows = [{"k": k, "text": t[:400]} for k, (_i, _j, t) in enumerate(dirty[:90])]
+        prompt = (
+            f"Rewrite each line so that EVERY SINGLE WORD is in {LANGS[lang]['name']} script "
+            + ("(Bengali script, pure natural Kolkata cholit; transliterate loanwords like ওয়ার্ড, ডাক্তার, টর্চ into Bengali script)"
+               if lang == "bn" else "(Devanagari script; transliterate loanwords into Hindi script)")
+            + ". Leave ZERO English/Latin letters (A-Z) anywhere in the text. Keep the exact meaning and emotion. "
+            "Answer ONLY JSON: [{"k": number, "text": "cleaned line"}]
+" + json.dumps(rows, ensure_ascii=False)
+        )
+        for model in gemini_models(key)[:3]:
+            try:
+                r = requests.post(
+                    f"{GEMINI_BASE}/models/{model}:generateContent",
+                    headers={"x-goog-api-key": key},
+                    json={"contents": [{"parts": [{"text": prompt}]}],
+                          "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}},
+                    timeout=180,
+                )
+                if not r.ok:
+                    continue
+                out = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                for o in out if isinstance(out, list) else []:
+                    try:
+                        i, j, old = dirty[int(o["k"])]
+                    except Exception:
+                        continue
+                    nt = str(o.get("text", "")).strip()
+                    if nt and re.search(script, nt) and not re.search(r"[A-Za-z]{2,}", nt):
+                        ln = story["scenes"][i]["lines"][j]
+                        ln.setdefault("en", old)
+                        ln["text"] = nt
+                        ln.pop("voice_text", None)
+                break
+            except Exception:
+                continue
+
+    # Deterministic cleanup pass: replace any remaining [A-Za-z]+ tokens in text & voice_text (outside <tags>)
+    fixed = 0
+    for sc in story.get("scenes") or []:
+        for ln in sc.get("lines") or []:
+            t = str(ln.get("text", ""))
+            if re.search(r"[A-Za-z]{2,}", t):
+                t2 = re.sub(r"[A-Za-z]+(?:-[A-Za-z]+)*", lambda m: _transliterate_en_token(m.group(0), lang), t)
+                t2 = re.sub(r"\s{2,}", " ", t2).strip()
+                if t2 and t2 != t:
+                    ln.setdefault("en", t)
+                    ln["text"] = t2
+                    fixed += 1
+            if ln.get("voice_text"):
+                vt = str(ln["voice_text"])
+                parts_vt = re.split(r"(<[^>]{1,30}>)", vt)
+                for pi in range(0, len(parts_vt), 2):
+                    if re.search(r"[A-Za-z]{2,}", parts_vt[pi]):
+                        parts_vt[pi] = re.sub(
+                            r"[A-Za-z]+(?:-[A-Za-z]+)*",
+                            lambda m: _transliterate_en_token(m.group(0), lang),
+                            parts_vt[pi],
+                        )
+                ln["voice_text"] = re.sub(r"\s{2,}", " ", "".join(parts_vt)).strip()
+    if fixed:
+        log(f"  language purifier: {fixed} line(s) cleaned so ZERO English words are spoken aloud")
+    return fixed
+
+
+NON_BENGALI_HINTS = (
+    "non-bengali", "non bengali", "hindi", "marwari", "bihari", "up ", "uttar pradesh", "rajasthani",
+    "nepali", "gujarati", "punjabi", "darwan", "watchman", "guard", "seth", "lala", "singh", "tiwari",
+    "pandey", "sharma", "verma", "agarwal", "maheshwari", "jaiswal", "yadav", "thapa", "bahadur",
+    "মাড়োয়ারি", "বিহারি", "হিন্দিভাষী", "অবাঙালি", "দারোয়ান", "শেঠজি", "লালাজি",
+)
+
+
+def character_dialect_pass(story, lang):
+    """Character-wise language & speech adaptation:
+      * Identifies each character's natural speech register (`speech_style`: `kolkata_cholit`, `rural_bengali`,
+        `elderly_formal`, `child_innocent`, or `non_bengali_hindi_mixed`).
+      * For non-Bengali characters in a Bengali story (e.g. Marwari merchant, Bihari darwan/driver, Hindi-speaking
+        officer/visitor), adapts their lines into authentic Hindi-mixed Bengali written in Bengali script
+        (e.g. 'আরে বাবুজি, হামি তো আগেই বলেছিলাম ওদিকে যাবেন না, বহুত খতরনাক জায়গা হ্যায় ওটা!')."""
+    chars = [c for c in (story.get("characters") or []) if isinstance(c, dict) and c.get("name")]
+    if not chars:
+        return 0
+    non_bn = {}
+    for c in chars:
+        about = f"{c.get('name', '')} {c.get('name_local', '')} {c.get('look', '')} {c.get('intro', '')} {c.get('intro_en', '')}".lower()
+        st = str(c.get("speech_style") or "").lower()
+        if "non_bengali" in st or any(h in about for h in NON_BENGALI_HINTS):
+            c["speech_style"] = "non_bengali_hindi_mixed"
+            non_bn[str(c["name"]).lower()] = c
+        elif not st:
+            ag = age_group(c.get("age", "adult"))
+            if ag == "old":
+                c["speech_style"] = "elderly_formal"
+            elif ag == "child":
+                c["speech_style"] = "child_innocent"
+            elif any(w in about for w in ("village", "farmer", "fisherman", "boatman", "গ্রাম", "চাষি", "মাঝি")):
+                c["speech_style"] = "rural_bengali"
+            else:
+                c["speech_style"] = "kolkata_cholit"
+
+    if lang != "bn" or not non_bn:
+        return 0
+
+    targets = []
+    for i, sc in enumerate(story.get("scenes") or []):
+        for j, ln in enumerate(sc.get("lines") or []):
+            spk = str(ln.get("speaker", "")).strip().lower()
+            if spk in non_bn and str(ln.get("text", "")).strip():
+                targets.append((i, j, non_bn[spk]["name"], str(ln["text"]).strip()))
+    if not targets:
+        return 0
+
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key:
+        return 0
+    rows = [{"k": k, "speaker": spk, "text": tx[:320]} for k, (_i, _j, spk, tx) in enumerate(targets[:50])]
+    prompt = (
+        "In this Bengali horror audio drama, the speakers below are NON-BENGALI characters living/working in Bengal "
+        "(such as a Marwari businessman, Bihari/UP darwan or driver, or Hindi-speaking officer). Rewrite their lines "
+        "in BENGALI SCRIPT the exact way a non-Bengali speaks Bengali mixed with Hindi in real life (natural Hindi-mixed "
+        "Bengali like 'আরে বাবুজি, হামি তো আগেই বলেছিলাম ওদিকে যাবেন না, বহুত খতরনাক জায়গা হ্যায় ওটা!'). "
+        "Keep the exact plot meaning, emotion, and length; use ONLY Bengali script (NO English/Devanagari letters). "
+        "Answer ONLY JSON: [{"k": number, "text": "adapted line"}]
+" + json.dumps(rows, ensure_ascii=False)
+    )
+    changed = 0
+    for model in gemini_models(key)[:3]:
+        try:
+            r = requests.post(
+                f"{GEMINI_BASE}/models/{model}:generateContent",
+                headers={"x-goog-api-key": key},
+                json={"contents": [{"parts": [{"text": prompt}]}],
+                      "generationConfig": {"temperature": 0.45, "responseMimeType": "application/json"}},
+                timeout=180,
+            )
+            if not r.ok:
+                continue
+            out = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+            for o in out if isinstance(out, list) else []:
+                try:
+                    i, j, _spk, _old = targets[int(o["k"])]
+                except Exception:
+                    continue
+                nt = str(o.get("text", "")).strip()
+                if nt and re.search(r"[\u0980-\u09FF]", nt) and not re.search(r"[A-Za-z]{2,}", nt):
+                    ln = story["scenes"][i]["lines"][j]
+                    ln["text"] = nt
+                    ln.pop("voice_text", None)
+                    changed += 1
+            break
+        except Exception:
+            continue
+    if changed:
+        log(f"  character dialect: {changed} line(s) adapted for non-Bengali speaker(s) (Hindi-mixed Bengali)")
+    return changed
+
+
+def production_blueprint_with_writer_loop(story, lang):
+    """Story-to-Production Assistant + Writer Feedback Loop:
+      1. The Production Assistant reads the whole story scene by scene and line by line to extract every visual
+         element, prop, vehicle, location, weather, character position/posture, facing/gaze, and body/hand movement.
+      2. Wherever any scene or line lacks clear visual/movement detail (`is_clear == false`), the Assistant sends
+         explicit questions back to the Writer, who enriches those scenes/lines with concrete physical action and
+         prop details so the 2.5D animation engine knows exactly what to build and animate."""
+    scenes = story.get("scenes") or []
+    if not scenes:
+        return
+    key = env("GEMINI_API_KEY")
+    if MOCK or not key or env("PRODUCTION_ASSISTANT") == "0":
+        return
+
+    chars_summary = [
+        {"name": c.get("name"), "gender": c.get("gender"), "age": c.get("age"), "kind": c.get("kind"),
+         "speech_style": c.get("speech_style", ""), "look": str(c.get("look", ""))[:140]}
+        for c in (story.get("characters") or []) if isinstance(c, dict) and c.get("name")
+    ]
+    digest = []
+    for i, sc in enumerate(scenes):
+        digest.append({
+            "scene": i,
+            "place": str(sc.get("place", ""))[:140],
+            "action": str(sc.get("action", ""))[:220],
+            "mood": str(sc.get("mood", "creepy")),
+            "lines": [
+                {"line": j, "speaker": ln.get("speaker", "narrator"),
+                 "text": str(ln.get("en") or ln.get("text", ""))[:180],
+                 "action": str(ln.get("action", ""))[:100],
+                 "img": str((ln.get("image") or {}).get("prompt", ""))[:140]}
+                for j, ln in enumerate(sc.get("lines") or [])
+            ],
+        })
+
+    assistant_prompt = (
+        "You are the Lead Cartoon Production Assistant for a 2.5D Bengali horror animated series. Read the entire story "
+        "scene by scene and extract EVERYTHING needed to build and animate each scene accurately.
+"
+        "Valid locations: ['ghar','village_courtyard','shmashan','bansh_bon','pukur_ghat','station','village_road',"
+        "'city_street','boat','market','temple','mountain','seaside','school','train_inside','bus_inside','tram_inside'].
+"
+        "Valid vehicles: ['cycle','bike','toto','auto','bus','tram','train','boat','palki','none'].
+"
+        "Valid movements: ['walk','run','sit','stand','ride','lean_out','jump','dance','fall','bow','look_back',"
+        "'recoil','tremble','ghost_float','idle'].
+"
+        "Valid gestures: ['point','namaste','wave','think','shrug','scared','arms_crossed','none'].
+"
+        "IMPORTANT: If ANY scene or line is vague or missing concrete visual/action/spatial detail so an animator "
+        "would not know what props, vehicle, posture, or movement to draw, set `"is_clear": false` and write in "
+        "`"ask_writer"` what exact physical detail the Writer must add.
+"
+        "Return ONLY JSON:
+"
+        "{"scenes": [{"scene": 0, "location_id": "...", "room_kind": "", "hour": 22.0, "
+        ""weather": ["fog"], "vehicle": "none", "lean_out_window": false, "
+        ""props": ["brass lantern", "rusted lock"], "hair_wind": 1.0, "is_clear": true, "
+        ""ask_writer": "", "line_specs": [{"line": 0, "listener": "name or ''", "
+        ""movement": "idle", "gesture": "none", "emotion": "normal", "camera": "two_shot", "
+        ""visual_detail": "exact English frame description"}]}]}
+"
+        f"CAST: {json.dumps(chars_summary, ensure_ascii=False)}
+"
+        f"STORY: {json.dumps(digest, ensure_ascii=False)}"
+    )
+
+    spec_data = None
+    for model in gemini_models(key)[:3]:
+        try:
+            r = requests.post(
+                f"{GEMINI_BASE}/models/{model}:generateContent",
+                headers={"x-goog-api-key": key},
+                json={"contents": [{"parts": [{"text": assistant_prompt}]}],
+                      "generationConfig": {"temperature": 0.25, "responseMimeType": "application/json", "maxOutputTokens": 32000}},
+                timeout=240,
+            )
+            if r.ok:
+                spec_data = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                if isinstance(spec_data, dict) and spec_data.get("scenes"):
+                    break
+        except Exception as e:
+            log("  production assistant pass 1:", str(e)[:120])
+
+    if not isinstance(spec_data, dict) or not spec_data.get("scenes"):
+        return
+
+    unclear = [s for s in spec_data["scenes"] if isinstance(s, dict) and (not s.get("is_clear", True) or s.get("ask_writer"))]
+    if unclear:
+        log(f"  production assistant asked the Writer to clarify {len(unclear)} scene(s) with concrete visual/action details")
+        q_list = [{"scene": s.get("scene"), "question": s.get("ask_writer") or "Add concrete physical actions, props, and character positions"}
+                  for s in unclear[:15]]
+        writer_prompt = (
+            "You are the Story Writer. The Cartoon Production Assistant reviewed your script and needs concrete "
+            "visual, prop, and character-movement details for these scenes so the 2.5D cartoon animator knows "
+            "exactly what to build and animate (do NOT change spoken dialogue text; enrich `place`, `action`, and "
+            "each line's `action` and `image` prompt/people in ENGLISH).
+"
+            "Return ONLY JSON: {"updates": [{"scene": 0, "place": "...", "action": "...", "
+            ""lines": [{"line": 0, "action": "walks toward the door holding lantern", "
+            ""image_prompt": "35-word concrete visual frame description"}]}]}
+"
+            f"QUESTIONS FROM PRODUCTION ASSISTANT: {json.dumps(q_list, ensure_ascii=False)}
+"
+            f"SCENES: {json.dumps([digest[int(q['scene'])] for q in q_list if isinstance(q.get('scene'), int) and 0 <= q['scene'] < len(digest)], ensure_ascii=False)}"
+        )
+        for model in gemini_models(key)[:3]:
+            try:
+                r = requests.post(
+                    f"{GEMINI_BASE}/models/{model}:generateContent",
+                    headers={"x-goog-api-key": key},
+                    json={"contents": [{"parts": [{"text": writer_prompt}]}],
+                          "generationConfig": {"temperature": 0.4, "responseMimeType": "application/json", "maxOutputTokens": 24000}},
+                    timeout=240,
+                )
+                if not r.ok:
+                    continue
+                upd = extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                applied = 0
+                for u in (upd.get("updates") or []) if isinstance(upd, dict) else []:
+                    si = u.get("scene")
+                    if not isinstance(si, int) or not (0 <= si < len(scenes)):
+                        continue
+                    if u.get("place"):
+                        scenes[si]["place"] = str(u["place"])[:220]
+                    if u.get("action"):
+                        scenes[si]["action"] = str(u["action"])[:350]
+                    for lu in u.get("lines") or []:
+                        li = lu.get("line")
+                        if isinstance(li, int) and 0 <= li < len(scenes[si].get("lines") or []):
+                            ln_obj = scenes[si]["lines"][li]
+                            if lu.get("action"):
+                                ln_obj["action"] = str(lu["action"])[:140]
+                            if lu.get("image_prompt"):
+                                img_d = ln_obj.setdefault("image", {}) if isinstance(ln_obj.get("image"), dict) else {}
+                                img_d["prompt"] = str(lu["image_prompt"])[:320]
+                                ln_obj["image"] = img_d
+                    applied += 1
+                if applied:
+                    log(f"  writer enriched {applied} scene(s) with exact visual & movement details")
+                break
+            except Exception as e:
+                log("  writer detail enrichment skipped:", str(e)[:120])
+
+    for s_spec in spec_data["scenes"]:
+        si = s_spec.get("scene")
+        if isinstance(si, int) and 0 <= si < len(scenes):
+            scenes[si]["production_spec"] = s_spec
+    log(f"  production blueprint ready for {len(scenes)} scene(s) (props, vehicles, staging & movements mapped)")
 
 
 def continuity_bridges(story, lang):
@@ -3317,6 +3850,7 @@ Return ONLY JSON with exactly these keys:
  "setting": "ENGLISH: the ONE main place of the story (architecture, objects, era, weather, time of night, colors). Reused in every picture",
  "characters": [{{"name": "name in English letters", "gender": "male or female",
                   "age": "child, young, adult or old", "kind": "human or ghost",
+                  "speech_style": "one of kolkata_cholit, rural_bengali, elderly_formal, child_innocent, non_bengali_hindi_mixed (if the character is non-Bengali, write their Bengali dialogue mixed naturally with Hindi in Bengali script, e.g. 'আরে বাবুজি, হামি তো আগেই বলেছিলাম ওদিকে যাবেন না!')",
                   "look": "ENGLISH, very specific never-changing look: age, face, hair, skin, clothes with exact colors, one special detail. 20-35 words",
                   "name_local": "the name exactly as spoken in the {L['name']} story",
                   "intro": "{L['name']}: ONE short narrator sentence that introduces this person when they first enter the story - name, who they are (relation / job / age) and one telling detail, e.g. 'পাশের বাড়ির সরলা পিসি - বিধবা, একা থাকেন, পাড়ার সব খবর তাঁর কাছে।' For a ghost: only how people first meet it (e.g. 'a woman in a white saree at the ghat'), never revealing early that it is a ghost",
@@ -3929,7 +4463,13 @@ def _gemini_persona(voices, speaker, revealed=True):
     g = "female" if c["gender"].startswith("f") else "male"
     ag = age_group(c["age"])
     voice = voices.gemini_map.get(c["name"].lower(), GEMINI_VOICES[(g, ag)])
-    return voice, f"{AGE_WORDS[ag]} ({'woman' if g == 'female' else 'man'} named {c['name']}), a real person, natural and believable"
+    st_ = str(c.get("speech_style") or "").lower()
+    dialect_note = ""
+    if "non_bengali" in st_ or any(h in f"{c.get('name', '')} {c.get('look', '')}".lower() for h in NON_BENGALI_HINTS):
+        dialect_note = ", speaking Bengali with a natural Hindi-speaker accent and Hindi-mixed phrasing"
+    elif "rural" in st_:
+        dialect_note = ", speaking authentic rural Bengal village dialect"
+    return voice, f"{AGE_WORDS[ag]} ({'woman' if g == 'female' else 'man'} named {c['name']}){dialect_note}, a real person, natural and believable"
 
 
 def gemini_keys():
@@ -5307,12 +5847,19 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             except Exception as e_:
                 log("    narrator speed not changed:", str(e_)[:80])
         a = read_wav(p)
-        try:                                          # 23 Nov 2026: a voice that says its line twice / thrice is cut back
+        try:                                          # 23 Nov 2026: cut only true repeats, never mid-sentence!
             from tvtoon import voicecheck as _VC
-            a, rep_ = _VC.fix_repeats(a, SR, extras.strip_tags(text))
-            if rep_:
+            plain_clean = extras.strip_tags(text)
+            a_trim, rep_ = _VC.fix_repeats(a, SR, plain_clean)
+            min_expected = max(0.75, len(plain_clean.split()) * 0.22)
+            if rep_ and (len(a_trim) / float(SR)) >= min_expected * 0.78:
+                # Add a 0.14s soft tail pad so the final syllable never cuts off abruptly
+                pad = np.zeros(int(SR * 0.14), dtype=a_trim.dtype)
+                a = np.concatenate([a_trim, pad])
                 write_wav(p, a)
-                log(f"    the voice repeated itself in scene {idx + 1} line {j + 1} ({rep_}) - the repeat was cut")
+                log(f"    the voice repeated itself in scene {idx + 1} line {j + 1} ({rep_}) - the repeat was cut cleanly")
+            elif rep_:
+                log(f"    kept full line in scene {idx + 1} line {j + 1} (prevented mid-line cut)")
         except Exception as e_:
             log("    repeat check skipped:", str(e_)[:80])
         pk = np.abs(a).max()
@@ -5522,15 +6069,24 @@ _REMBG = None
 _LOOK = {}
 
 
+_REMBG_LOCK = None
+
+
 def cutout_session():
-    global _REMBG
-    if _REMBG is None:
-        from rembg import new_session
-        try:
-            _REMBG = new_session("isnet-general-use")
-        except Exception as e:
-            log("  cut-out model unavailable, using small model:", str(e)[:120])
-            _REMBG = new_session("u2netp")
+    global _REMBG, _REMBG_LOCK
+    if _REMBG is not None:
+        return _REMBG
+    import threading
+    if _REMBG_LOCK is None:
+        _REMBG_LOCK = threading.Lock()
+    with _REMBG_LOCK:
+        if _REMBG is None:
+            from rembg import new_session
+            try:
+                _REMBG = new_session("isnet-general-use")
+            except Exception as e:
+                log("  cut-out model unavailable, using small model:", str(e)[:120])
+                _REMBG = new_session("u2netp")
     return _REMBG
 
 
@@ -6763,6 +7319,11 @@ def build_video(scene_parts, lang, out):
         segs += [(t + s, du, nar, tx) for s, du, nar, tx in subs]
         clips.append(c)
         t += duration(a)
+    if any(len(jb) >= 7 and isinstance(jb[6], dict) and jb[6].get("cartoon25d") for jb in jobs):
+        try:
+            cutout_session()
+        except Exception:
+            pass
     render_clips(jobs)
     try:                                             # V1.1: what the three assistants did, for the team report
         import story_engine
@@ -13483,11 +14044,30 @@ def main():
     FONT = find_font(lang)
     STATE["special"] = special
     clean_story_text(story)
+    if env("REPEAT_CHECK") != "0":
+        try:
+            repeat_idea_check(story, lang)
+        except Exception as e:
+            log("  repeat idea check skipped:", str(e)[:120])
+    try:
+        fix_language(story, lang)
+        purify_spoken_language(story, lang)
+    except Exception as e:
+        log("  language purifier skipped:", str(e)[:120])
+    try:
+        character_dialect_pass(story, lang)
+    except Exception as e:
+        log("  character dialect pass skipped:", str(e)[:120])
     honest_meta(story, lang)                          # v112 (also for stories written before this rule)
     sync_sounds(story)
     fix_speakers(story)
     NAME_LOCAL.update({str(c["name"]).lower(): str(c.get("name_local") or c["name"]) for c in story["characters"]})
     ensure_intros(story, cold=env("COLD_OPEN") == "1")
+    dedupe_story(story)                               # second full-story pass after intros so nothing ever doubles
+    try:
+        production_blueprint_with_writer_loop(story, lang)
+    except Exception as e:
+        log("  production assistant blueprint skipped:", str(e)[:120])
     if not MOCK and not DRY_RUN:
         try:                                         # v82: Sunday night - the week's best viewer comment, read aloud
             add_best_comment(story, history, lang, slot_hour)
@@ -13566,20 +14146,6 @@ def main():
     seed = random.randint(1, 1_000_000)
     scenes = story["scenes"][:120]         # never cut the story short
 
-    log("Cast reference picture")
-    if not make_cast_sheet(cast, os.path.join(WORK, "cast.jpg"), seed):
-        log("  no cast picture - using text descriptions only")
-
-    # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
-    budget = int(env("MAX_IMAGES") or (50 if LONG_MIN > 16 else 36))   # 2 videos + teasers fit the free picture limit
-    scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
-    total_lines = sum(len(x) for x in scene_lines) or 1
-    imgs, shots_per_scene, last_ok, count = [], [], None, 0
-    try:
-        recap_pics = recap_frames(history, series_id, part, lang)
-    except Exception as e:
-        recap_pics = []
-        log("  recap pictures skipped:", str(e)[:120])
     char_mode = None
     if env("ANIM_MODE") == "character":              # V8: automatic characters + Scene Manifest (see characters.py)
         try:
@@ -13591,18 +14157,56 @@ def main():
     if use_25d:
         log("True 2.5D Illustrated Cartoon Engine active (story-matched 2.5D scenes, 3-layer parallax, weather & acting)")
     tv_ep = None
-    if env("ANIM_MODE") == "tvtoon" and not use_25d:  # 23 Nov 2026: vector TV cartoon (set CARTOON_25D=0 to use)
+    if (env("ANIM_MODE") == "tvtoon" or env("ANIM_MODE") == "") and not use_25d and not char_mode:
         try:
             from tvtoon import bot as tvbot
             tv_ep = tvbot.plan(story)
-            log(f"Cartoon (tvtoon): {len(tv_ep['scenes'])} scenes, cast " +
+            _enhance_tvtoon_episode(tv_ep, story)
+            log(f"Cartoon (tvtoon Hybrid 2.5D): {len(tv_ep['scenes'])} scenes, cast " +
                 ", ".join(f"{k}={v['actor']}" for k, v in tv_ep.get("cast", {}).items()))
         except Exception as e:
             log("  cartoon plan failed - the classic pictures are made instead:", str(e)[:200])
             tv_ep = None
+
+    if not tv_ep and not char_mode:
+        log("Cast reference picture")
+        if not make_cast_sheet(cast, os.path.join(WORK, "cast.jpg"), seed):
+            log("  no cast picture - using text descriptions only")
+
+    # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
+    budget = int(env("MAX_IMAGES") or (50 if LONG_MIN > 16 else 36))   # 2 videos + teasers fit the free picture limit
+    scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
+    total_lines = sum(len(x) for x in scene_lines) or 1
+    imgs, shots_per_scene, last_ok, count = [], [], None, 0
+    try:
+        recap_pics = recap_frames(history, series_id, part, lang)
+    except Exception as e:
+        recap_pics = []
+        log("  recap pictures skipped:", str(e)[:120])
     for i, (s, lines) in enumerate(zip(scenes, scene_lines)):
-        if tv_ep:                                    # the cartoon's own picture of the scene (no picture service)
+        if tv_ep:                                    # Hybrid 2.5D: 2.5D illustrated story BG + live animated cast
             try:
+                sc_tv = tv_ep["scenes"][min(i, len(tv_ep["scenes"]) - 1)]
+                if (
+                    env("HYBRID_25D_BG") != "0"
+                    and not sc_tv.get("vehicles")
+                    and sc_tv.get("location") not in ("boat", "train_inside", "bus_inside", "tram_inside")
+                    and not CF_QUOTA_OUT
+                ):
+                    bg_25 = os.path.join(WORK, f"tv_bg25_{i:02d}.jpg")
+                    try:
+                        import cartoon25d as _c25bg
+                        bg_style = _c25bg.CARTOON25D_STYLE
+                    except Exception:
+                        bg_style = ART_STYLE
+                    _ps_props = ", ".join((s.get("production_spec") or {}).get("props") or [])
+                    _props_txt = f" Key objects and details present: {_ps_props}." if _ps_props else ""
+                    bg_prompt = (
+                        f"Empty background environment illustration only, NO people, NO characters, NO faces, NO figures. "
+                        f"{s.get('place', '')}. {story.get('setting', '')}.{_props_txt} {s.get('action', '')[:160]}. Style: {bg_style}."
+                    )
+                    if make_image(cast, bg_prompt, s.get("place", ""), [], bg_25, seed + 700 + i):
+                        sc_tv.setdefault("world", {})["_bg_image"] = bg_25
                 p_ = tvbot.still(tv_ep, i, os.path.join(WORK, f"tv_still_{i:02d}.jpg"), W, H)
                 shots_per_scene.append([p_] * max(1, len(lines)))
                 imgs.append(p_)
