@@ -1,0 +1,556 @@
+{
+ "chars": {
+  "anirban-2026-11-28": {
+   "id": "anirban-2026-11-28",
+   "version": 1,
+   "bible": {
+    "id": "anirban-2026-11-28",
+    "name": "Anirban",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "30-year-old auditor, pale tired face, dark circles, messy black hair, wearing a navy blue formal shirt with rolled-up sleeves and grey trousers, holding a small metal flashlight.",
+    "prompt": "ONE adult Bengali man from West Bengal, India: 30-year-old auditor, pale tired face, dark circles, messy black hair, wearing a navy blue formal shirt with rolled-up sleeves and grey trousers, holding a small metal flashlight.. Painted 2D animated series character design."
+   },
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "anirban-2026-11-28_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/anirban-2026-11-28_v1_reference.png",
+     "face": [
+      195,
+      56,
+      194,
+      210
+     ]
+    },
+    "neutral": {
+     "file": "anirban-2026-11-28_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/anirban-2026-11-28_v1_neutral.png",
+     "face": [
+      194,
+      54,
+      198,
+      211
+     ],
+     "similarity": 0.284
+    },
+    "talking": {
+     "file": "anirban-2026-11-28_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/anirban-2026-11-28_v1_talking.png",
+     "face": [
+      194,
+      53,
+      200,
+      212
+     ],
+     "similarity": 0.288
+    },
+    "blink": {
+     "file": "anirban-2026-11-28_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/anirban-2026-11-28_v1_blink.png",
+     "face": [
+      194,
+      54,
+      198,
+      211
+     ],
+     "similarity": 0.285
+    },
+    "shock": {
+     "file": "anirban-2026-11-28_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/anirban-2026-11-28_v1_shock.png",
+     "face": [
+      194,
+      54,
+      199,
+      211
+     ],
+     "similarity": 0.287
+    }
+   },
+   "created": "2026-11-27",
+   "seed": 666076,
+   "last_used": "2026-11-27",
+   "provider": "cloudflare"
+  },
+  "shambhu-2026-11-28": {
+   "id": "shambhu-2026-11-28",
+   "version": 1,
+   "bible": {
+    "id": "shambhu-2026-11-28",
+    "name": "Shambhu",
+    "gender": "male",
+    "age": "old",
+    "kind": "ghost",
+    "look": "60-year-old station master, dark withered skin, thin white hair, wearing a faded khaki railway uniform, cold unblinking eyes, holding an old brass kerosene lantern.",
+    "prompt": "ONE eerie ghostly pale old Bengali man from West Bengal, India: 60-year-old station master, dark withered skin, thin white hair, wearing a faded khaki railway uniform, cold unblinking eyes, holding an old brass kerosene lantern.. Painted 2D animated series character design."
+   },
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "shambhu-2026-11-28_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/shambhu-2026-11-28_v1_reference.png",
+     "face": [
+      0,
+      702,
+      574,
+      71
+     ]
+    },
+    "neutral": {
+     "file": "shambhu-2026-11-28_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/shambhu-2026-11-28_v1_neutral.png",
+     "face": [
+      0,
+      10,
+      574,
+      111
+     ],
+     "similarity": 0.771
+    },
+    "talking": {
+     "file": "shambhu-2026-11-28_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/shambhu-2026-11-28_v1_talking.png",
+     "face": [
+      113,
+      124,
+      370,
+      201
+     ],
+     "similarity": 0.415
+    },
+    "blink": {
+     "file": "shambhu-2026-11-28_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/shambhu-2026-11-28_v1_blink.png",
+     "face": [
+      0,
+      19,
+      574,
+      212
+     ],
+     "similarity": 0.636
+    },
+    "fear": {
+     "file": "shambhu-2026-11-28_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/shambhu-2026-11-28_v1_fear.png",
+     "face": [
+      85,
+      119,
+      402,
+      202
+     ],
+     "similarity": 0.474
+    },
+    "shock": {
+     "file": "shambhu-2026-11-28_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/shambhu-2026-11-28_v1_shock.png",
+     "face": [
+      84,
+      132,
+      402,
+      199
+     ],
+     "similarity": 0.431
+    }
+   },
+   "created": "2026-11-27",
+   "seed": 666113,
+   "last_used": "2026-11-27",
+   "provider": "cloudflare"
+  },
+  "benu-2026-11-28": {
+   "id": "benu-2026-11-28",
+   "version": 1,
+   "bible": {
+    "id": "benu-2026-11-28",
+    "name": "Benu",
+    "gender": "male",
+    "age": "adult",
+    "kind": "ghost",
+    "look": "45-year-old tea vendor, dry leathery skin, hollow eyes, wearing a dirty brown vest and cotton dhoti, carrying an aluminum tea kettle with a creepy sinister grin.",
+    "prompt": "ONE eerie ghostly pale adult Bengali man from West Bengal, India: 45-year-old tea vendor, dry leathery skin, hollow eyes, wearing a dirty brown vest and cotton dhoti, carrying an aluminum tea kettle with a creepy sinister grin.. Painted 2D animated series character design."
+   },
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "benu-2026-11-28_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/benu-2026-11-28_v1_reference.png",
+     "face": [
+      188,
+      60,
+      205,
+      208
+     ]
+    },
+    "talking": {
+     "file": "benu-2026-11-28_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/benu-2026-11-28_v1_talking.png",
+     "face": [
+      186,
+      57,
+      207,
+      209
+     ],
+     "similarity": 0.427
+    },
+    "blink": {
+     "file": "benu-2026-11-28_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/benu-2026-11-28_v1_blink.png",
+     "face": [
+      189,
+      54,
+      208,
+      210
+     ],
+     "similarity": 0.264
+    },
+    "fear": {
+     "file": "benu-2026-11-28_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/benu-2026-11-28_v1_fear.png",
+     "face": [
+      188,
+      57,
+      204,
+      209
+     ],
+     "similarity": 0.352
+    }
+   },
+   "created": "2026-11-27",
+   "seed": 666150,
+   "last_used": "2026-11-27",
+   "provider": "cloudflare"
+  },
+  "mahadeb": {
+   "id": "mahadeb",
+   "version": 1,
+   "bible": {
+    "id": "mahadeb",
+    "name": "Mahadeb",
+    "gender": "male",
+    "age": "old",
+    "kind": "human",
+    "look": "Mahadeb Mahato, the chowkidar of an old forest dak bungalow, a dark thin Bengali man of about sixty-five, white stubble, a checked gamchha on his shoulder, a brown shawl, a hurricane lantern, an old cloth-bound visitors' book under his arm",
+    "prompt": "ONE old Bengali man from West Bengal, India: Mahadeb Mahato, the chowkidar of an old forest dak bungalow, a dark thin Bengali man of about sixty-five, white stubble, a checked gamchha on his shoulder, a brown shawl, a hurricane lantern, an old cloth-bound visitors' book under his arm. Painted 2D animated series character design."
+   },
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "mahadeb_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/mahadeb_v1_reference.png",
+     "face": [
+      217,
+      65,
+      190,
+      206
+     ]
+    },
+    "neutral": {
+     "file": "mahadeb_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/mahadeb_v1_neutral.png",
+     "face": [
+      218,
+      59,
+      188,
+      208
+     ],
+     "similarity": 0.31
+    },
+    "talking": {
+     "file": "mahadeb_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/mahadeb_v1_talking.png",
+     "face": [
+      218,
+      60,
+      187,
+      207
+     ],
+     "similarity": 0.31
+    },
+    "blink": {
+     "file": "mahadeb_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/mahadeb_v1_blink.png",
+     "face": [
+      218,
+      59,
+      189,
+      208
+     ],
+     "similarity": 0.292
+    }
+   },
+   "created": "2026-11-27",
+   "seed": 303097,
+   "last_used": "2026-11-27",
+   "provider": "cloudflare"
+  },
+  "subhash-2026-11-28": {
+   "id": "subhash-2026-11-28",
+   "version": 1,
+   "bible": {
+    "id": "subhash-2026-11-28",
+    "name": "Subhash",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "ENGLISH: A sharp city auditor in his late 30s with slicked-back hair, wearing a formal office shirt and carrying a heavy leather jhola bag filled with official land files, strict auditor in Kolkata whose every move is calculated",
+    "prompt": "ONE adult Bengali man from West Bengal, India: ENGLISH: A sharp city auditor in his late 30s with slicked-back hair, wearing a formal office shirt and carrying a heavy leather jhola bag filled with official land files, strict auditor in Kolkata whose every move is calculated. Painted 2D animated series character design."
+   },
+   "mode": "silhouette",
+   "expr": {},
+   "created": "2026-11-27",
+   "seed": 303134,
+   "last_used": "2026-11-27",
+   "rig": {
+    "female": false,
+    "child": false,
+    "old": false,
+    "ghost": false,
+    "height": 1.0350588235294118,
+    "width": 1.110313725490196,
+    "stoop": 0.0,
+    "sari": false,
+    "dhoti": false,
+    "shawl": false,
+    "bun": false,
+    "long_hair": false,
+    "beard": false,
+    "matted": false,
+    "stick": false,
+    "lantern": false
+   }
+  },
+  "biren-mahato-2026-11-28": {
+   "id": "biren-mahato-2026-11-28",
+   "version": 1,
+   "bible": {
+    "id": "biren-mahato-2026-11-28",
+    "name": "Biren Mahato",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "ENGLISH: A rugged local bus conductor in a faded uniform, wearing a woolen muffler, holding a heavy iron padlock and key ring with a practical, tense rural expression, bus conductor who opened the iron chain and led them into the rusted room",
+    "prompt": "ONE adult Bengali man from West Bengal, India: ENGLISH: A rugged local bus conductor in a faded uniform, wearing a woolen muffler, holding a heavy iron padlock and key ring with a practical, tense rural expression, bus conductor who opened the iron chain and led them into the rusted room. Painted 2D animated series character design."
+   },
+   "mode": "silhouette",
+   "expr": {},
+   "created": "2026-11-27",
+   "seed": 303171,
+   "last_used": "2026-11-27",
+   "rig": {
+    "female": false,
+    "child": false,
+    "old": true,
+    "ghost": false,
+    "height": 0.94,
+    "width": 1.0589019607843135,
+    "stoop": 9.0,
+    "sari": false,
+    "dhoti": false,
+    "shawl": false,
+    "bun": false,
+    "long_hair": false,
+    "beard": true,
+    "matted": false,
+    "stick": true,
+    "lantern": false
+   }
+  },
+  "animesh-dutta-2026-11-28": {
+   "id": "animesh-dutta-2026-11-28",
+   "version": 1,
+   "bible": {
+    "id": "animesh-dutta-2026-11-28",
+    "name": "Animesh Dutta",
+    "gender": "male",
+    "age": "adult",
+    "kind": "human",
+    "look": "ENGLISH: A stranded bus passenger with a panicked expression, wearing a thick winter jacket, shivering in the cold fog and pointing nervously toward the dark railway tracks, passenger whose face shriveled up in the dark while laughing strangely",
+    "prompt": "ONE adult Bengali man from West Bengal, India: ENGLISH: A stranded bus passenger with a panicked expression, wearing a thick winter jacket, shivering in the cold fog and pointing nervously toward the dark railway tracks, passenger whose face shriveled up in the dark while laughing strangely. Painted 2D animated series character design."
+   },
+   "mode": "silhouette",
+   "expr": {},
+   "created": "2026-11-27",
+   "seed": 303208,
+   "last_used": "2026-11-27",
+   "rig": {
+    "female": false,
+    "child": false,
+    "old": true,
+    "ghost": false,
+    "height": 0.94,
+    "width": 1.0650980392156864,
+    "stoop": 9.0,
+    "sari": false,
+    "dhoti": false,
+    "shawl": false,
+    "bun": false,
+    "long_hair": false,
+    "beard": true,
+    "matted": false,
+    "stick": true,
+    "lantern": false
+   }
+  },
+  "apparition-2026-11-28": {
+   "id": "apparition-2026-11-28",
+   "version": 1,
+   "bible": {
+    "id": "apparition-2026-11-28",
+    "name": "Apparition",
+    "gender": "female",
+    "age": "old",
+    "kind": "ghost",
+    "look": "ENGLISH: A terrifying, soot-covered apparition with a tilted neck, deep hollow eye sockets, ash-stained skin, and long ice-cold fingers dripping with black water, soot-covered apparition with a neck bent to one side and head touching the ceiling",
+    "prompt": "ONE eerie ghostly pale old Bengali woman from West Bengal, India: ENGLISH: A terrifying, soot-covered apparition with a tilted neck, deep hollow eye sockets, ash-stained skin, and long ice-cold fingers dripping with black water, soot-covered apparition with a neck bent to one side and head touching the ceiling. Painted 2D animated series character design."
+   },
+   "mode": "silhouette",
+   "expr": {},
+   "created": "2026-11-27",
+   "seed": 303245,
+   "last_used": "2026-11-27",
+   "rig": {
+    "female": true,
+    "child": false,
+    "old": true,
+    "ghost": true,
+    "height": 0.94,
+    "width": 0.9458823529411765,
+    "stoop": 9.0,
+    "sari": true,
+    "dhoti": false,
+    "shawl": false,
+    "bun": true,
+    "long_hair": false,
+    "beard": false,
+    "matted": false,
+    "stick": false,
+    "lantern": false
+   }
+  }
+ },
+ "backgrounds": {
+  "malandighi-railway-junction-platform-lat": {
+   "file": "bg_malandighi-railway-junction-platform-lat.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_malandighi-railway-junction-platform-lat.jpg",
+   "place": "Malandighi Railway Junction platform, late night, flickering yellow light",
+   "created": "2026-11-27"
+  },
+  "anirban-s-dim-office-cubicle-in-kolkata-": {
+   "file": "bg_anirban-s-dim-office-cubicle-in-kolkata-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_anirban-s-dim-office-cubicle-in-kolkata-.jpg",
+   "place": "Anirban's dim office cubicle in Kolkata, late evening",
+   "created": "2026-11-27"
+  },
+  "malandighi-station-platform-1-30-am-dens": {
+   "file": "bg_malandighi-station-platform-1-30-am-dens.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_malandighi-station-platform-1-30-am-dens.jpg",
+   "place": "Malandighi station platform, 1:30 AM, dense fog, pale yellow station lamps",
+   "created": "2026-11-27"
+  },
+  "station-waiting-room-damp-peeled-walls-h": {
+   "file": "bg_station-waiting-room-damp-peeled-walls-h.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_station-waiting-room-damp-peeled-walls-h.jpg",
+   "place": "Station waiting room, damp peeled walls, hanging flickering bulb, wooden bench",
+   "created": "2026-11-27"
+  },
+  "platform-edge-near-tracks-cold-winter-wi": {
+   "file": "bg_platform-edge-near-tracks-cold-winter-wi.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_platform-edge-near-tracks-cold-winter-wi.jpg",
+   "place": "Platform edge near tracks, cold winter wind, thick fog",
+   "created": "2026-11-27"
+  },
+  "dark-end-of-platform-near-signal-post-de": {
+   "file": "bg_dark-end-of-platform-near-signal-post-de.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_dark-end-of-platform-near-signal-post-de.jpg",
+   "place": "Dark end of platform near signal post, dense fog, absolute night silence",
+   "created": "2026-11-27"
+  },
+  "station-master-s-office-room-flickering-": {
+   "file": "bg_station-master-s-office-room-flickering-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_station-master-s-office-room-flickering-.jpg",
+   "place": "Station Master's office room, flickering kerosene lantern, yellowed decaying papers",
+   "created": "2026-11-27"
+  },
+  "station-office-room-coal-tar-damp-smell-": {
+   "file": "bg_station-office-room-coal-tar-damp-smell-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_station-office-room-coal-tar-damp-smell-.jpg",
+   "place": "Station office room, coal-tar damp smell, sudden temperature plummet",
+   "created": "2026-11-27"
+  },
+  "station-master-s-office-in-complete-dark": {
+   "file": "bg_station-master-s-office-in-complete-dark.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_station-master-s-office-in-complete-dark.jpg",
+   "place": "Station master's office in complete dark, flickering light dying out",
+   "created": "2026-11-27"
+  },
+  "waiting-room-door-dark-hallway-in-wet-da": {
+   "file": "bg_waiting-room-door-dark-hallway-in-wet-da.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_waiting-room-door-dark-hallway-in-wet-da.jpg",
+   "place": "Waiting room door, dark hallway in wet damp atmosphere",
+   "created": "2026-11-27"
+  },
+  "inside-pitch-black-locked-room-abandoned": {
+   "file": "bg_inside-pitch-black-locked-room-abandoned.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-pitch-black-locked-room-abandoned.jpg",
+   "place": "Inside pitch-black locked room",
+   "created": "2026-11-27"
+  },
+  "inside-room-facing-glowing-glass-window-": {
+   "file": "bg_inside-room-facing-glowing-glass-window-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-room-facing-glowing-glass-window-.jpg",
+   "place": "Inside room facing glowing glass window in dark mist",
+   "created": "2026-11-27"
+  },
+  "modern-apartment-living-room-at-night-di": {
+   "file": "bg_modern-apartment-living-room-at-night-di.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_modern-apartment-living-room-at-night-di.jpg",
+   "place": "Modern apartment living room at night, dim lamp light",
+   "created": "2026-11-27"
+  },
+  "anirban-s-bedroom-midnight-pitch-darknes": {
+   "file": "bg_anirban-s-bedroom-midnight-pitch-darknes.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_anirban-s-bedroom-midnight-pitch-darknes.jpg",
+   "place": "Anirban's bedroom, midnight pitch darkness",
+   "created": "2026-11-27"
+  }
+ },
+ "props": {
+  "heavy-rusted-iron-padlock": {
+   "file": "prop_heavy-rusted-iron-padlock.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_heavy-rusted-iron-padlock.png",
+   "name": "heavy rusted iron padlock",
+   "desc": "heavy antique rusted iron padlock and key, painted 2D horror prop",
+   "created": "2026-11-27"
+  },
+  "old-brass-hurricane-lantern": {
+   "file": "prop_old-brass-hurricane-lantern.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_old-brass-hurricane-lantern.png",
+   "name": "old brass hurricane lantern",
+   "desc": "antique rusty brass hurricane oil lantern with glowing warm amber flame, painted 2D horror prop",
+   "created": "2026-11-27"
+  },
+  "flickering-earthen-oil-lamp": {
+   "file": "prop_flickering-earthen-oil-lamp.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_flickering-earthen-oil-lamp.png",
+   "name": "flickering earthen oil lamp",
+   "desc": "small earthen clay oil lamp with flickering flame, painted 2D horror prop",
+   "created": "2026-11-27"
+  },
+  "old-iron-bound-wooden-trunk": {
+   "file": "prop_old-iron-bound-wooden-trunk.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_old-iron-bound-wooden-trunk.png",
+   "name": "old iron-bound wooden trunk",
+   "desc": "heavy antique weathered wooden storage trunk with rusted iron bands, painted 2D horror prop",
+   "created": "2026-11-27"
+  },
+  "old-leather-bound-handwritten-diary": {
+   "file": "prop_old-leather-bound-handwritten-diary.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_old-leather-bound-handwritten-diary.png",
+   "name": "old leather-bound handwritten diary",
+   "desc": "worn dusty leather-bound old diary with yellowed pages, painted 2D horror prop",
+   "created": "2026-11-27"
+  }
+ }
+}

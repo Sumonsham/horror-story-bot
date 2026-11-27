@@ -1,0 +1,44 @@
+{
+ "slot": "2026-11-28@20",
+ "title": "বুনোবাতাস ও বেগুনকোদর স্টেশন | The Haunted Platform of Begunkodar 🚂",
+ "built_at": "2026-11-27T23:58+05:30",
+ "characters": {
+  "mahadeb": {
+   "mode": "photo",
+   "expr": [
+    "blink",
+    "neutral",
+    "reference",
+    "talking"
+   ]
+  },
+  "subhash-2026-11-28": {
+   "mode": "silhouette",
+   "expr": []
+  },
+  "biren-mahato-2026-11-28": {
+   "mode": "silhouette",
+   "expr": []
+  },
+  "animesh-dutta-2026-11-28": {
+   "mode": "silhouette",
+   "expr": []
+  },
+  "apparition-2026-11-28": {
+   "mode": "silhouette",
+   "expr": []
+  }
+ },
+ "backgrounds_count": 14,
+ "props_count": 11,
+ "stats": {
+  "images_made": 5,
+  "image_fail": 6,
+  "cache_hits": 0,
+  "silhouettes": 4,
+  "bg_made": 0,
+  "bg_hits": 0,
+  "props_made": 0,
+  "props_hits": 11
+ }
+}
