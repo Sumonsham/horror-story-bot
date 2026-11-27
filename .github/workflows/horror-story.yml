@@ -22,6 +22,7 @@ on:
   # 2-hour rule in main.py), so this never makes a second video. Switch off: repo Settings > Variables >
   # BACKUP_CLOCK = 0.
   schedule:
+    - cron: "0 22 * * *"    # 3:30 AM IST backup: completes stories/assets ONLY if 2:00 AM run did not finish
     - cron: "45 5 * * *"
     - cron: "15 11 * * *"
   # v98: the Saturday YouTube Live is started by cron-job.org at 21:50 India time (mode=live) - GitHub's own clock
@@ -37,12 +38,12 @@ permissions:
   contents: write
 
 concurrency:                # (a website update never waits for or cancels a video run)
-  group: ${{ github.event_name == 'push' && 'horror-website' || (github.event.inputs.mode == 'live' && 'horror-live' || ((github.event.inputs.mode == 'assets' || github.event.inputs.mode == 'cartoon_prep') && 'horror-prep' || 'horror-story')) }}
+  group: ${{ github.event_name == 'push' && 'horror-website' || (github.event.inputs.mode == 'live' && 'horror-live' || ((github.event.inputs.mode == 'assets' || github.event.inputs.mode == 'cartoon_prep' || github.event.schedule == '0 22 * * *') && 'horror-prep' || 'horror-story')) }}
   cancel-in-progress: false
 
 jobs:
   post:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.BACKUP_CLOCK != '0')
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && (github.event.schedule == '0 22 * * *' || vars.BACKUP_CLOCK != '0'))
     runs-on: ubuntu-latest
     timeout-minutes: 360    # 6 hours (the most GitHub allows)
     env:
@@ -88,7 +89,7 @@ jobs:
           #    are only an extra - if the mirror hangs we simply go on without them
           ( sudo timeout 120 apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=15 update -qq && \
             sudo timeout 180 apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=15 install -y -qq \
-              fonts-noto-core libraqm0 libfribidi0 ) > /dev/null 2>&1 || echo "Ubuntu mirror slow - using the repo's fonts"
+              fonts-noto-core libraqm0 libfribidi0 espeak-ng ) > /dev/null 2>&1 || echo "Ubuntu mirror slow - using the repo's fonts"
           # 3) only if the GitHub download failed: Ubuntu's own ffmpeg
           if [ ! -x "$HOME/ffbin/ffmpeg" ]; then
             sudo timeout 300 apt-get -o Acquire::Retries=3 install -y -qq ffmpeg > /dev/null 2>&1 || true
@@ -102,7 +103,7 @@ jobs:
 
       - name: Install Python packages
         run: |
-          pip install -q ephem fonttools requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]"
+          pip install -q ephem fonttools requests pillow edge-tts gTTS numpy scipy opencv-python-headless "rembg[cpu]" espeakng-loader
           # the TV cartoon (tvtoon) draws with cairo; if it cannot be installed, the classic pictures are used
           ( sudo timeout 180 apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=15 install -y -qq libcairo2-dev pkg-config > /dev/null 2>&1 || true )
           pip install -q pycairo || echo "pycairo not installed - the cartoon falls back to the classic pictures"
@@ -138,9 +139,14 @@ jobs:
       - name: Make the horror video and post it
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           FREEMODEL_API_KEY: ${{ secrets.FREEMODEL_API_KEY }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID_2: ${{ secrets.CF_ACCOUNT_ID_2 }}
+          CF_API_TOKEN_2: ${{ secrets.CF_API_TOKEN_2 }}
           AGNES_API_KEY: ${{ secrets.AGNES_API_KEY }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
@@ -152,6 +158,11 @@ jobs:
           YT_EXTRA: ${{ secrets.YT_EXTRA }}
           FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
           GEMINI_TTS_KEY: ${{ secrets.GEMINI_TTS_KEY }}
+          GEMINI_TTS_KEY_2: ${{ secrets.GEMINI_TTS_KEY_2 }}
+          GEMINI_TTS_KEY_3: ${{ secrets.GEMINI_TTS_KEY_3 }}
+          GEMINI_TTS_KEY_4: ${{ secrets.GEMINI_TTS_KEY_4 }}
+          GEMINI_TTS_KEY_5: ${{ secrets.GEMINI_TTS_KEY_5 }}
+          GEMINI_TTS_KEY_6: ${{ secrets.GEMINI_TTS_KEY_6 }}
           GOOGLE_TTS_KEY: ${{ secrets.GOOGLE_TTS_KEY }}
           MAX_IMAGES: ${{ secrets.MAX_IMAGES }}
           TTS_DAY_BUDGET: ${{ secrets.TTS_DAY_BUDGET }}
@@ -162,7 +173,7 @@ jobs:
           RIG_CHARACTER: ${{ github.event.inputs.character }}          # (rig_test: empty = Hari)
           CHANNEL_LANG: ${{ secrets.CHANNEL_LANG }}
           EVENT: ${{ github.event_name }}
-          MODE: ${{ github.event.inputs.mode || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || (github.event.schedule == '0 15 * * 6' && 'live') || '' }}
+          MODE: ${{ github.event.inputs.mode || (github.event.schedule == '0 22 * * *' && 'assets') || (github.event.schedule == '30 5 * * 0' && 'compilation') || (github.event.schedule == '25 18 * * *' && 'amavasya') || (github.event.schedule == '0 15 * * 6' && 'live') || '' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        # (GitHub gives this by itself - for the podcast audio)
@@ -309,7 +320,7 @@ jobs:
   # (GitHub never rebuilds a "Deploy from a branch" site for the bot's own commits - so the map is published here.)
   site:
     needs: post
-    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'pose_art' && github.event.inputs.mode != 'rig_test' && github.event.inputs.mode != 'hybrid_test' && github.event.inputs.mode != 'library_sync' && github.event.inputs.mode != 'engine_audit' && github.event.inputs.mode != 'asset_qa' && github.event.inputs.mode != 'render_test' && github.event.inputs.mode != 'assets' && github.event.inputs.mode != 'cartoon_prep' && github.event.inputs.mode != 'write'   # (test modes and the night runs never touch the website)
+    if: always() && github.event.inputs.mode != 'voice_demo' && github.event.inputs.mode != 'full_test' && github.event.inputs.mode != 'pose_art' && github.event.inputs.mode != 'rig_test' && github.event.inputs.mode != 'hybrid_test' && github.event.inputs.mode != 'library_sync' && github.event.inputs.mode != 'engine_audit' && github.event.inputs.mode != 'asset_qa' && github.event.inputs.mode != 'render_test' && github.event.inputs.mode != 'assets' && github.event.inputs.mode != 'cartoon_prep' && github.event.inputs.mode != 'write' && github.event.schedule != '0 22 * * *'   # (test modes and the night runs never touch the website)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     continue-on-error: true
