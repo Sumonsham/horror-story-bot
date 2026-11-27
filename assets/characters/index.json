@@ -920,6 +920,30 @@
    "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_pitch-dark-foggy-platform-tracks-of-begu.jpg",
    "place": "Pitch dark foggy platform tracks of Begunkodor station at midnight",
    "created": "2026-11-27"
+  },
+  "dimly-lit-concrete-stairwell-of-kolkata-": {
+   "file": "bg_dimly-lit-concrete-stairwell-of-kolkata-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_dimly-lit-concrete-stairwell-of-kolkata-.jpg",
+   "place": "Dimly lit concrete stairwell of Kolkata office building, late night. Shadowy stair flights with single flickering wall sconce casting long dramatic shadows.",
+   "created": "2026-11-27"
+  },
+  "sealdah-railway-station-platform-kolkata": {
+   "file": "bg_sealdah-railway-station-platform-kolkata.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_sealdah-railway-station-platform-kolkata.jpg",
+   "place": "Sealdah Railway Station platform, Kolkata, late night. Shadowy mist-filled platform under pale yellow sodium lamps, dark train tracks stretching into pitch blackness.",
+   "created": "2026-11-27"
+  },
+  "interior-of-vintage-local-train-compartm": {
+   "file": "bg_interior-of-vintage-local-train-compartm.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_interior-of-vintage-local-train-compartm.jpg",
+   "place": "Interior of vintage local train compartment, late night. Flickering yellow overhead lights, rusted green wooden bench seats, eerie shadows, silent motionless passengers.",
+   "created": "2026-11-27"
+  },
+  "anirban-s-modern-bedroom-midnight-pitch-": {
+   "file": "bg_anirban-s-modern-bedroom-midnight-pitch-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_anirban-s-modern-bedroom-midnight-pitch-.jpg",
+   "place": "Anirban's modern bedroom, midnight pitch darkness. Pale moonlight filtered through window blinds, eerie shadows crawling across walls, spectral fog swirling near bed.",
+   "created": "2026-11-27"
   }
  },
  "props": {
@@ -1264,6 +1288,132 @@
    "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_ticket-counter-bell.png",
    "name": "ticket counter bell",
    "desc": "ticket counter bell, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "weathered-platform-sign": {
+   "file": "prop_weathered-platform-sign.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_weathered-platform-sign.png",
+   "name": "weathered platform sign",
+   "desc": "weathered platform sign, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "empty-audit-folders": {
+   "file": "prop_empty-audit-folders.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_empty-audit-folders.png",
+   "name": "empty audit folders",
+   "desc": "empty audit folders, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "creaky-wooden-door": {
+   "file": "prop_creaky-wooden-door.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_creaky-wooden-door.png",
+   "name": "creaky wooden door",
+   "desc": "creaky wooden door, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "wooden-fish-crate": {
+   "file": "prop_wooden-fish-crate.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_wooden-fish-crate.png",
+   "name": "wooden fish crate",
+   "desc": "wooden fish crate, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "melting-ice-chunks": {
+   "file": "prop_melting-ice-chunks.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_melting-ice-chunks.png",
+   "name": "melting ice chunks",
+   "desc": "melting ice chunks, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "thick-hemp-rope": {
+   "file": "prop_thick-hemp-rope.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_thick-hemp-rope.png",
+   "name": "thick hemp rope",
+   "desc": "thick hemp rope, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "ballast-gravel": {
+   "file": "prop_ballast-gravel.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_ballast-gravel.png",
+   "name": "ballast gravel",
+   "desc": "ballast gravel, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "station-master-desk": {
+   "file": "prop_station-master-desk.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_station-master-desk.png",
+   "name": "station master desk",
+   "desc": "station master desk, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "brass-tea-glass": {
+   "file": "prop_brass-tea-glass.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_brass-tea-glass.png",
+   "name": "brass tea glass",
+   "desc": "brass tea glass, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "cracked-window-pane": {
+   "file": "prop_cracked-window-pane.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_cracked-window-pane.png",
+   "name": "cracked window pane",
+   "desc": "cracked window pane, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "rusted-iron-door-latch": {
+   "file": "prop_rusted-iron-door-latch.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_rusted-iron-door-latch.png",
+   "name": "rusted iron door latch",
+   "desc": "rusted iron door latch, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "muddy-liquid-seeping-under-door": {
+   "file": "prop_muddy-liquid-seeping-under-door.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_muddy-liquid-seeping-under-door.png",
+   "name": "muddy liquid seeping under door",
+   "desc": "muddy liquid seeping under door, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "decayed-phantom-hand": {
+   "file": "prop_decayed-phantom-hand.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_decayed-phantom-hand.png",
+   "name": "decayed phantom hand",
+   "desc": "decayed phantom hand, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "cold-dripping-ice-water": {
+   "file": "prop_cold-dripping-ice-water.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_cold-dripping-ice-water.png",
+   "name": "cold dripping ice water",
+   "desc": "cold dripping ice water, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "modern-armchair": {
+   "file": "prop_modern-armchair.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_modern-armchair.png",
+   "name": "modern armchair",
+   "desc": "modern armchair, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "teacup": {
+   "file": "prop_teacup.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_teacup.png",
+   "name": "teacup",
+   "desc": "teacup, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "yellowed-railway-record-paper": {
+   "file": "prop_yellowed-railway-record-paper.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_yellowed-railway-record-paper.png",
+   "name": "yellowed railway record paper",
+   "desc": "yellowed railway record paper, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "decayed-phantom-hands": {
+   "file": "prop_decayed-phantom-hands.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_decayed-phantom-hands.png",
+   "name": "decayed phantom hands",
+   "desc": "decayed phantom hands, painted 2D horror story prop",
    "created": "2026-11-27"
   }
  }

@@ -1,7 +1,7 @@
 {
  "slot": "2026-11-28@14",
  "title": "মালানদিঘি জংশনের শেষ ট্রেন | The Last Train from Malandighi Junction 🚂",
- "built_at": "2026-11-28T00:30+05:30",
+ "built_at": "2026-11-28T02:07+05:30",
  "characters": {
   "anirban-2026-11-28": {
    "mode": "photo",
@@ -38,15 +38,15 @@
   }
  },
  "backgrounds_count": 14,
- "props_count": 42,
+ "props_count": 41,
  "stats": {
-  "images_made": 3,
-  "image_fail": 1,
+  "images_made": 0,
+  "image_fail": 0,
   "cache_hits": 3,
   "silhouettes": 0,
-  "bg_made": 1,
-  "bg_hits": 13,
-  "props_made": 38,
-  "props_hits": 4
+  "bg_made": 4,
+  "bg_hits": 10,
+  "props_made": 18,
+  "props_hits": 23
  }
 }
