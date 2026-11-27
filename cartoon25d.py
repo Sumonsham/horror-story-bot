@@ -53,14 +53,9 @@ _FX_CACHE = {}
 
 
 def active(env_fn):
-    """True when Pure Story-Matched 2.5D Illustrated Horror mode should run (default for all normal runs,
-    including ANIM_MODE='' or 'tvtoon' or 'cartoon25d', unless CARTOON_25D=0 is explicitly set)."""
+    """True only when ANIM_MODE=cartoon25d is explicitly requested."""
     am = (env_fn("ANIM_MODE") or "").strip().lower()
-    if am == "cartoon25d":
-        return True
-    if am in ("", "tvtoon") and (env_fn("CARTOON_25D") or "").strip() != "0":
-        return True
-    return False
+    return am == "cartoon25d"
 
 
 # ------------------------------------------------------------------ story environment & motion analysis

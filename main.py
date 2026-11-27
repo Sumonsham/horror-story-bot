@@ -6556,44 +6556,90 @@ def _char_upload(path, name):
                                     "image/jpeg", title="Character and background library")
 
 
-def prepare_character_mode(story, scenes, cast, seed):
-    """characters (made once, reused for ever) + one EMPTY background per place (reused too)"""
-    import characters
+def prepare_character_mode(story, scenes, cast, seed, slot_key=None, max_new=None):
+    """Painted 2D Cartoon Studio: loads pre-built painted 2D characters, empty backgrounds, and transparent
+    story props from assets/characters/ (and builds any missing ones if quota allows)."""
+    import painted2d_studio as P2D
     os.makedirs(CHAR_CACHE, exist_ok=True)
-    try:                                              # finished scenes older than 2 days are not needed any more
+    try:
         for f_ in glob.glob(os.path.join(CLIP_CACHE, "*.mp4")):
             if time.time() - os.path.getmtime(f_) > 2 * 86400:
                 os.remove(f_)
     except Exception:
         pass
-    lib = characters.Library(ASSETS, CHAR_CACHE, image_fn=None if MOCK else _char_image, upload_fn=_char_upload,
-                             log=log, style=ART_STYLE)
     special = STATE.get("special") or ""
-    fixed = {str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)}
-    key = str(SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H")).split("@")[0]
-    records, by_name = {}, {}
-    for c in story.get("characters") or []:
-        if not isinstance(c, dict) or not c.get("name"):
-            continue
-        nm = str(c["name"]).lower()
-        cid = characters.char_id(c, series=nm in fixed, story_key=key)
-        need = characters.BASE_SET + (("blink",) if nm in fixed else ())
-        rec = lib.ensure(c, cid, need=need, seed=seed + len(records) * 31)
-        records[cid] = rec
-        by_name[ascii_text(c["name"]).lower()] = rec
-        by_name[nm] = rec
-    bgs = []
-    for i, s in enumerate(scenes):
-        bgs.append(lib.background(s.get("place", ""), story.get("setting", ""), s.get("mood", ""), seed=seed + 500 + i))
-    lib.save()
+    fixed = [str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)]
+    key = str(slot_key or SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H"))
+    img_fn = None if (MOCK or CF_QUOTA_OUT) else _char_image
+    budget_imgs = int(max_new if max_new is not None else (env("PAINTED_2D_MAX_IMAGES") or 45))
+    records, by_name, bgs, scene_props, stats = P2D.build_story_assets(
+        story,
+        ASSETS,
+        CHAR_CACHE,
+        image_fn=img_fn,
+        upload_fn=_char_upload,
+        slot_key=key,
+        series_names=fixed,
+        seed=seed,
+        max_new_images=budget_imgs,
+        log=log,
+    )
     try:
-        push_now([lib.index_path], "character library")
+        push_now([os.path.join(ASSETS, "characters")], "painted 2D character library")
     except Exception:
         pass
-    log(f"  character mode: {len(records)} characters ({', '.join(f'{r['id']}={r['mode']}' for r in records.values())}), "
-        f"{len(set(b[1] for b in bgs))} backgrounds - library: {lib.stats}")
-    STATE["char_stats"] = lib.stats
-    return {"records": records, "by_name": by_name, "bgs": bgs}
+    mode_list = ", ".join(f"{r['id']}={r['mode']}" for r in records.values())
+    n_props = sum(len(v) for v in scene_props.values())
+    log(f"  Painted 2D Studio: {len(records)} characters ({mode_list}), "
+        f"{len(set(b[1] for b in bgs))} backgrounds, {n_props} props - stats: {stats}")
+    STATE["char_stats"] = stats
+    return {"records": records, "by_name": by_name, "bgs": bgs, "props": scene_props, "stats": stats}
+
+
+def _build_plan_painted2d_assets(plan, slot_key, max_new=45):
+    """Build and save all missing painted 2D characters, empty backgrounds, and transparent props for a saved plan."""
+    if not isinstance(plan, dict) or not isinstance(plan.get("story"), dict):
+        return None
+    import painted2d_studio as P2D
+    story = _story_cast(plan)
+    try:
+        clean_story_text(story)
+        fix_speakers(story)
+        production_blueprint_with_writer_loop(story, plan.get("lang") or "bn")
+    except Exception as e:
+        log("  asset pre-scan note:", str(e)[:120])
+    special = plan.get("special") or ""
+    fixed = [str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)]
+    seed = abs(hash(f"{slot_key}:{story.get('title', '')}")) % 900000 + 17
+    img_fn = None if (MOCK or CF_QUOTA_OUT) else _char_image
+    records, _by_name, bgs, scene_props, stats = P2D.build_story_assets(
+        story,
+        ASSETS,
+        CHAR_CACHE,
+        image_fn=img_fn,
+        upload_fn=_char_upload,
+        slot_key=slot_key,
+        series_names=fixed,
+        seed=seed,
+        max_new_images=max_new,
+        log=log,
+    )
+    prep_dir = os.path.join(ASSETS, "painted2d_prep")
+    os.makedirs(prep_dir, exist_ok=True)
+    rep = {
+        "slot": slot_key,
+        "title": story.get("title", ""),
+        "built_at": dt.datetime.now(extras.IST).isoformat(timespec="minutes"),
+        "characters": {cid: {"mode": r.get("mode"), "expr": sorted((r.get("expr") or {}).keys())}
+                       for cid, r in records.items()},
+        "backgrounds_count": len(set(b[1] for b in bgs)),
+        "props_count": sum(len(v) for v in scene_props.values()),
+        "stats": stats,
+    }
+    rep_path = os.path.join(prep_dir, f"{slot_key.replace('@', '_')}.json")
+    with open(rep_path, "w", encoding="utf-8") as f:
+        json.dump(rep, f, ensure_ascii=False, indent=1)
+    return rep
 
 
 def character_clip(comp, audio, out):
@@ -7254,7 +7300,7 @@ def build_video(scene_parts, lang, out):
                            (spoken[k].get("emotion", "") if k < len(spoken) else ""), tx)
                           for k, (st, du, nar, tx) in enumerate(subs)]
                 m_ = _mf.build_scene(i, sp["comp"]["scene"], beats_, duration(a), sp["comp"]["by_name"],
-                                     sp["comp"]["bg"], sp.get("mood"))
+                                     sp["comp"]["bg"], sp.get("mood"), props=sp["comp"].get("props"))
                 MANIFESTS.append(m_)
                 comp_ = {"manifest": m_, "records": sp["comp"]["records"]}
             except Exception as e:
@@ -8189,7 +8235,14 @@ def morning_teasers(history):
                 plan = choose_and_write(h, hist2)
                 plan = json.loads(json.dumps(plan, ensure_ascii=False, default=list))
                 save_plan(key, plan)
-                push_now([PLANS_FILE, MY_STORIES], f"story written for {key}")
+                try:
+                    rep_2d = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 40))
+                    if rep_2d:
+                        log(f"  2 AM Painted 2D assets ready for {key}: {rep_2d['stats']}")
+                except Exception as e_2d:
+                    log(f"  2 AM Painted 2D asset build note ({key}):", str(e_2d)[:140])
+                push_now([PLANS_FILE, MY_STORIES, os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
+                         f"story and painted 2D assets written for {key}")
             except Exception as e:
                 log(f"  the story for {key} could not be written now ({str(e)[:200]}) - its own run will write it")
                 continue
@@ -8199,6 +8252,12 @@ def morning_teasers(history):
                 log(f"  the 2 PM story will need about {NOON_NEED[0]} voice requests - kept for it")
             except Exception:
                 NOON_NEED[0] = 0
+        try:
+            _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 35))
+            push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
+                     f"morning painted 2D assets for {key}")
+        except Exception as e_mp:
+            log(f"  morning painted 2D assets note ({key}):", str(e_mp)[:120])
         hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
                       "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
                       "viewer_names": [p[0] for p in ((plan.get("state") or {}).get("viewer_names") or [])]})
@@ -10776,20 +10835,12 @@ def write_day_stories(history):
 
 
 def cartoon_prep_run():
-    """YOUR WISH (23 Nov 2026): a run of its own at 4 AM (cron-job.org, Request body
-    {"ref":"main","inputs":{"mode":"assets"}}) does ONLY this for the day's two stories that the 2 AM run wrote:
-    the STORY SCOUT (tvtoon/prep.py) reads each story and finds every character (and element) the asset library
-    does not have yet, with its details; the CHARACTER ASSET BUILDER makes each of them as a permanent character
-    (its own face, clothes and colours from the story's words), draws and checks it, and saves it in
-    assets/tvtoon_library.json. The 2 PM / 8 PM runs take the characters from there. At most PREP_HOURS (default
-    5) hours. No voice, no animation, nothing posted, no picture service."""
-    import time as _t
-    from tvtoon import prep as PRP
+    """Night/Morning Painted 2D Asset Builder (mode=assets): reads the day's written 2 PM and 8 PM stories,
+    builds all missing painted 2D characters (reference + expressions), empty painted 2D backgrounds, and
+    transparent PNG story props, and saves them into assets/characters/ for zero-delay video runs."""
     now = dt.datetime.now(extras.IST)
     day = (now + dt.timedelta(days=1)).date() if now.hour >= 18 else now.date()
-    hours = float(env("PREP_HOURS") or 5)
-    start = _t.time()
-    log(f"=== CHARACTER ASSET RUN: the stories of {day.isoformat()} (at most {hours:g} hours) - nothing is posted ===")
+    log(f"=== PAINTED 2D ASSET RUN: the stories of {day.isoformat()} - nothing is posted ===")
     saved, notes = [], []
     for h in (NOON, EVENING):
         key = f"{day.isoformat()}@{h}"
@@ -10798,26 +10849,24 @@ def cartoon_prep_run():
             log(f"  {SLOT_BN[h]}: no story written yet - nothing to make")
             notes.append(f"{SLOT_BN[h]}: গল্প এখনও লেখা হয়নি")
             continue
-        left = hours - (_t.time() - start) / 3600.0
-        if left < 0.05:
-            log("  the time is over")
-            break
         try:
-            path, rep = PRP.make_assets(_story_cast(plan), key, bot="horror", hours=left, log=log)
-            saved.append(path)
-            notes.append(f"{SLOT_BN[h]}: '{rep['title']}' - নতুন চরিত্র {len(rep['built'])}টা"
-                         + (f" ({', '.join(b['name'] for b in rep['new'])})" if rep["new"] else "")
-                         + (f", আঁকা যায়নি {len(rep['failed'])}টা" if rep["failed"] else "")
-                         + (f"; নিজস্ব ছবি নেই এমন জায়গা: {', '.join(rep['missing_elements'][:3])}" if rep["missing_elements"] else ""))
+            rep = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 45))
+            if rep:
+                saved.append(key)
+                st = rep.get("stats") or {}
+                notes.append(
+                    f"{SLOT_BN[h]}: '{rep['title']}' - চরিত্র {len(rep['characters'])}টা "
+                    f"(নতুন ছবি {st.get('images_made', 0)}, ব্যাকগ্রাউন্ড {st.get('bg_made', 0)}, "
+                    f"প্রপস {st.get('props_made', 0)}, ক্যাশ {st.get('cache_hits', 0) + st.get('bg_hits', 0)})"
+                )
         except Exception as e:
-            log(f"  {key}: character assets failed ({str(e)[:200]}) - the story run casts as before")
-            notes.append(f"{SLOT_BN[h]}: চরিত্র তৈরি হয়নি - গল্পের run আগের মতো করবে")
-    for fn in PRP.cleanup():
-        log("  old report removed:", fn)
+            log(f"  {key}: painted 2D assets failed ({str(e)[:200]})")
+            notes.append(f"{SLOT_BN[h]}: অ্যাসেট তৈরিতে সমস্যা ({str(e)[:80]})")
     if saved:
-        push_now(saved + [PRP.LIB_FILE, PRP.REPORT_DIR], f"character assets for {day.isoformat()}")
+        push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
+                 f"painted 2D assets for {day.isoformat()}")
     if not MOCK and notes:
-        _tg_text("🎭 রাতের চরিত্র-তৈরি:\n" + "\n".join(notes))
+        _tg_text("🎨 রাতের পেইন্টেড ২ডি অ্যাসেট তৈরি:\n" + "\n".join(notes))
     return saved
 
 
@@ -14122,17 +14171,19 @@ def main():
     scenes = story["scenes"][:120]         # never cut the story short
 
     char_mode = None
-    if env("ANIM_MODE") == "character":              # V8: automatic characters + Scene Manifest (see characters.py)
+    _am = env("ANIM_MODE").strip().lower()
+    if (_am in ("", "character") and env("PAINTED_2D") != "0"):
         try:
+            log("Painted 2D Cartoon Studio active (story-matched painted 2D characters, props, empty backgrounds & lip-sync)")
             char_mode = prepare_character_mode(story, scenes, cast, seed)
         except Exception as e:
-            log("  character mode failed - the classic pictures are made instead:", str(e)[:200])
+            log("  painted 2D character mode failed - falling back:", str(e)[:200])
             char_mode = None
     use_25d = cartoon25d_on() and not char_mode
     if use_25d:
-        log("Pure Story-Matched 2.5D Illustrated Horror active (1-2 character framing, 3-layer parallax, zero vector puppets)")
+        log("Pure Story-Matched 2.5D Illustrated Horror active")
     tv_ep = None
-    if (env("ANIM_MODE") == "tvtoon" or env("ANIM_MODE") == "") and not use_25d and not char_mode:
+    if _am == "tvtoon" and not use_25d and not char_mode:
         try:
             from tvtoon import bot as tvbot
             tv_ep = tvbot.plan(story)
@@ -14447,8 +14498,14 @@ def main():
         elif tv_ep:
             parts[-1]["tvtoon"] = k_
         elif char_mode:
-            parts[-1]["comp"] = {"scene": s, "index": k_, "bg": char_mode["bgs"][k_], "records": char_mode["records"],
-                                 "by_name": char_mode["by_name"]}
+            parts[-1]["comp"] = {
+                "scene": s,
+                "index": k_,
+                "bg": char_mode["bgs"][k_],
+                "records": char_mode["records"],
+                "by_name": char_mode["by_name"],
+                "props": (char_mode.get("props") or {}).get(k_, []),
+            }
         elif env("ANIM_MODE") == "cartoon":          # V1.1: the cartoon engine + the three story assistants
             if not story.get("cartoon_cast"):        # (a story written now, not at 2 AM: designed here)
                 design_story_cast(story)
@@ -14466,6 +14523,15 @@ def main():
                 "place": f"{scenes[hi].get('place', '')} {story.get('setting', '')}",
                 "ambience": scenes[hi].get("ambience", []),
                 "ghost_names": [c["name"] for c in cast.chars.values() if c["kind"].startswith("ghost")],
+            }
+        elif char_mode:
+            parts[0]["comp"] = {
+                "scene": scenes[hi],
+                "index": hi,
+                "bg": char_mode["bgs"][hi],
+                "records": char_mode["records"],
+                "by_name": char_mode["by_name"],
+                "props": (char_mode.get("props") or {}).get(hi, []),
             }
         elif tv_ep:                                    # the gripping moment as a cartoon too
             parts[0]["tvtoon"] = hi
