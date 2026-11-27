@@ -615,6 +615,17 @@
       199
      ],
      "similarity": 0.308
+    },
+    "shock": {
+     "file": "animesh-dutta-2026-11-28_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/animesh-dutta-2026-11-28_v1_shock.png",
+     "face": [
+      148,
+      87,
+      199,
+      199
+     ],
+     "similarity": 0.311
     }
    },
    "created": "2026-11-27",
@@ -943,6 +954,60 @@
    "file": "bg_anirban-s-modern-bedroom-midnight-pitch-.jpg",
    "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_anirban-s-modern-bedroom-midnight-pitch-.jpg",
    "place": "Anirban's modern bedroom, midnight pitch darkness. Pale moonlight filtered through window blinds, eerie shadows crawling across walls, spectral fog swirling near bed.",
+   "created": "2026-11-27"
+  },
+  "sealed-inside-the-dark-waiting-room-as-a": {
+   "file": "bg_sealed-inside-the-dark-waiting-room-as-a.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_sealed-inside-the-dark-waiting-room-as-a.jpg",
+   "place": "Sealed inside the dark waiting room as a heavy scraping sound approaches the door",
+   "created": "2026-11-27"
+  },
+  "inside-the-dark-waiting-room-near-the-ti": {
+   "file": "bg_inside-the-dark-waiting-room-near-the-ti.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-the-dark-waiting-room-near-the-ti.jpg",
+   "place": "Inside the dark waiting room near the ticket counter window",
+   "created": "2026-11-27"
+  },
+  "inside-the-dusty-waiting-room-under-the-": {
+   "file": "bg_inside-the-dusty-waiting-room-under-the-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-the-dusty-waiting-room-under-the-.jpg",
+   "place": "Inside the dusty waiting room under the flickering torchlight",
+   "created": "2026-11-27"
+  },
+  "in-the-chilling-darkness-of-the-waiting-": {
+   "file": "bg_in-the-chilling-darkness-of-the-waiting-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_in-the-chilling-darkness-of-the-waiting-.jpg",
+   "place": "In the chilling darkness of the waiting room as Animesh starts laughing strangely",
+   "created": "2026-11-27"
+  },
+  "subhash-sitting-paralyzed-on-the-wooden-": {
+   "file": "bg_subhash-sitting-paralyzed-on-the-wooden-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_subhash-sitting-paralyzed-on-the-wooden-.jpg",
+   "place": "Subhash sitting paralyzed on the wooden bench as cold soot touches his neck",
+   "created": "2026-11-27"
+  },
+  "face-to-face-with-the-soot-covered-appar": {
+   "file": "bg_face-to-face-with-the-soot-covered-appar.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_face-to-face-with-the-soot-covered-appar.jpg",
+   "place": "Face to face with the soot-covered apparition in the dark waiting room",
+   "created": "2026-11-27"
+  },
+  "the-climax-as-the-room-plunges-into-abso": {
+   "file": "bg_the-climax-as-the-room-plunges-into-abso.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_the-climax-as-the-room-plunges-into-abso.jpg",
+   "place": "The climax as the room plunges into absolute blackness and phantom train roars",
+   "created": "2026-11-27"
+  },
+  "back-in-the-present-day-inside-the-old-d": {
+   "file": "bg_back-in-the-present-day-inside-the-old-d.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_back-in-the-present-day-inside-the-old-d.jpg",
+   "place": "Back in the present day inside the old dak bungalow as Mahadeb closes the register",
+   "created": "2026-11-27"
+  },
+  "final-frame-looking-out-into-the-pitch-d": {
+   "file": "bg_final-frame-looking-out-into-the-pitch-d.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_final-frame-looking-out-into-the-pitch-d.jpg",
+   "place": "Final frame looking out into the pitch-dark, foggy Purulia railway tracks",
    "created": "2026-11-27"
   }
  },
@@ -1414,6 +1479,62 @@
    "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_decayed-phantom-hands.png",
    "name": "decayed phantom hands",
    "desc": "decayed phantom hands, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "glass-tea-tumbler": {
+   "file": "prop_glass-tea-tumbler.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_glass-tea-tumbler.png",
+   "name": "glass tea tumbler",
+   "desc": "glass tea tumbler, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "window-glass": {
+   "file": "prop_window-glass.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_window-glass.png",
+   "name": "window glass",
+   "desc": "window glass, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "bus": {
+   "file": "prop_bus.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_bus.png",
+   "name": "bus",
+   "desc": "bus, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "telegraph-insulator": {
+   "file": "prop_telegraph-insulator.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_telegraph-insulator.png",
+   "name": "telegraph insulator",
+   "desc": "telegraph insulator, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "iron-barred-door": {
+   "file": "prop_iron-barred-door.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_iron-barred-door.png",
+   "name": "iron barred door",
+   "desc": "iron barred door, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "brass-ticket-counter-bell": {
+   "file": "prop_brass-ticket-counter-bell.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_brass-ticket-counter-bell.png",
+   "name": "brass ticket counter bell",
+   "desc": "brass ticket counter bell, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "ticket-counter-window": {
+   "file": "prop_ticket-counter-window.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_ticket-counter-window.png",
+   "name": "ticket counter window",
+   "desc": "ticket counter window, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "red-cloth-cover": {
+   "file": "prop_red-cloth-cover.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_red-cloth-cover.png",
+   "name": "red cloth cover",
+   "desc": "red cloth cover, painted 2D horror story prop",
    "created": "2026-11-27"
   }
  }
