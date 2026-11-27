@@ -4885,7 +4885,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-23T13:34+00:00"
+   "checked": "2026-11-27T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4904,10 +4904,10 @@
    "likes": 0,
    "comments": 0,
    "views": 2,
-   "yt_views": 1,
+   "yt_views": 2,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-23T13:34+00:00"
+   "checked": "2026-11-27T04:33+00:00"
   }
  },
  {
@@ -5769,7 +5769,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-23T13:34+00:00"
+   "checked": "2026-11-27T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -5938,10 +5938,10 @@
    "comments": 2,
    "views": 3,
    "length_s": 1739,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-24T04:33+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 3,
+   "yt_avg_pct": 0.2,
+   "checked": "2026-11-27T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -6886,6 +6886,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-26T12:01+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 4
   }
  },
  {
@@ -7023,7 +7027,17 @@
   },
   "hook_style": "voice",
   "district": "nadia",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-26-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-26-14.mp4",
+  "stats": {
+   "likes": 0,
+   "comments": 2,
+   "views": 2,
+   "length_s": 1046,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-27T04:33+00:00"
+  }
  },
  {
   "date": "2026-11-26T10:18+00:00",
@@ -7311,5 +7325,150 @@
   },
   "hook_style": "voice",
   "tagline": "সেই রাতে শয্যা নম্বর সাতে কে শুয়েছিল?"
+ },
+ {
+  "date": "2026-11-27T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-27@14",
+  "pending_comments": [
+   {
+    "id": "1723958775992837",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1603718001560415"
+   },
+   {
+    "id": "1805188437370289",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1603718001560415",
+    "after": 1795840500.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A group of friends vlogging inside a locked, dilapidated zamindar mansion in rural Bengal captures a tall, faceless figure standing right behind them in the cam",
+  "len_arm": null,
+  "listener_score": 7.0,
+  "fresh": {
+   "opening": "a police constable writing his report",
+   "telling": "third-person radio drama",
+   "ghost": "a presence never seen, only its effects",
+   "twist": "the real danger was a living person",
+   "setting": "a river island (char) or ferry ghat",
+   "fear": "a race against time",
+   "details": [
+    "a heavy, square-linked bicycle chain used as a door-latch that always leaves a smudge of g",
+    "the dry, rattling sound of dried corn husks being methodically stripped away inside an unl",
+    "the sharp, vinegary smell of fermented rice-water left standing in a chipped enamel basin ",
+    "the local custom of pressing a damp, mud-caked ferry ticket flat against the wooden doorpo",
+    "an everyday habit of balancing heavy brass kerosene funnels upside down on every fence pos"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_1.mp3",
+   "why": "familiar, mansion, shifts, vlogging",
+   "also": "style_sample_3.mp3"
+  },
+  "discovery_id": "202611270100-x",
+  "story_class": "fiction",
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "shohor",
+  "question_post": null,
+  "title_b": "মুড়িগঙ্গার চরে মুখহীন ছায়ামূর্তির পৈশাচিক খাঁদ ⚓",
+  "theme": "A group of friends vlogging inside a locked, dilapidated zamindar mansion in rural Bengal captures a tall, faceless figure standing right behind them in the cam",
+  "format": "third-person radio drama",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "চরের অভিশপ্ত জমিদার বাড়ি | Bengali Horror Story 🕯️",
+  "festival": null,
+  "summary": "মুড়িগঙ্গা নদীর জনমানবহীন চরের পৌনে একশো বছরের পুরোনো জমিদার বাড়িতে ভ্লগ করতে গিয়ে গায়েব হয়ে যায় দুই তরুণ। পুলিশ আউটপোস্টে উদ্ধার হওয়া একটা কাদা মাখা এসডি কার্ড থেকে বের হয়ে এলো কোন হাড়হিম করা সত্য? জানতে শুনুন এই নতুন পর্ব।",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1603718001560415",
+  "youtube": "HvlUcb3jghw",
+  "fb_reel": "1723958775992837",
+  "fb_story": "1465117058328669",
+  "fb_reel2": "1805188437370289",
+  "yt_short": "yMj-8eFMGLs",
+  "thumb_src": "bot",
+  "timeline": {
+   "len": 1013,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     11,
+     "শুরু"
+    ],
+    [
+     17,
+     "রহস্যময় রেকর্ড অডিও"
+    ],
+    [
+     108,
+     "হারানো ভ্লগারদের প্রমাণ"
+    ],
+    [
+     174,
+     "চরের বাঁশের ঘাট"
+    ],
+    [
+     249,
+     "চৌধুরী বাড়ির বারান্দা"
+    ],
+    [
+     331,
+     "বুড়ো মাঝির হুঁশিয়ারি"
+    ],
+    [
+     419,
+     "ক্যামেরার স্ক্রিনে ছায়া"
+    ],
+    [
+     488,
+     "পুরোনো স্মৃতির সংকেত"
+    ],
+    [
+     512,
+     "ষড়যন্ত্রের পর্দাফাঁস"
+    ],
+    [
+     577,
+     "বন্ধ গোলাঘরের গোপন রহস্য"
+    ],
+    [
+     660,
+     "বিষাক্ত ধোঁয়ার ফাঁদ"
+    ],
+    [
+     728,
+     "লোহার চেনের বন্দিশালা"
+    ],
+    [
+     795,
+     "হরান মাঝির আসল রূপ"
+    ],
+    [
+     880,
+     "শেষ মেমোরি কার্ড"
+    ],
+    [
+     936,
+     "সত্যের মুখোমুখি পরেশ"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "district": "s24",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-27-14.mp4"
  }
 ]
