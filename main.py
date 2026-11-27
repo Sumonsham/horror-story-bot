@@ -321,19 +321,7 @@ def _enhance_tvtoon_episode(tv_ep, story):
             continue
 
         veh_pref = str(pspec.get("vehicle") or "").lower()
-        veh_kind = None
-        if veh_pref in ("cycle", "bike", "toto", "auto", "bus", "tram", "train"):
-            veh_kind = veh_pref
-        elif any(k in hay for k in ("সাইকেল", "cycle", "bicycle", "साइकिल")):
-            veh_kind = "cycle"
-        elif any(k in hay for k in ("বাইক", "মোটরসাইকেল", "bike", "motorcycle", "बाइक")):
-            veh_kind = "bike"
-        elif any(k in hay for k in ("টোটো", "toto", "टोटो")):
-            veh_kind = "toto"
-        elif any(k in hay for k in ("অটো", "auto", "rickshaw", "ऑटो")):
-            veh_kind = "auto"
-        elif any(k in hay for k in ("বাস", "bus", "बस")) and not any(k in hay for k in ("ট্রেন", "train", "metro", "মেট্রো")):
-            veh_kind = "bus"
+        veh_kind = veh_pref if veh_pref in ("cycle", "bike", "toto", "auto", "bus", "tram", "train") else None
 
         if not veh_kind:
             continue
@@ -14142,7 +14130,7 @@ def main():
             char_mode = None
     use_25d = cartoon25d_on() and not char_mode
     if use_25d:
-        log("True 2.5D Illustrated Cartoon Engine active (story-matched 2.5D scenes, 3-layer parallax, weather & acting)")
+        log("Pure Story-Matched 2.5D Illustrated Horror active (1-2 character framing, 3-layer parallax, zero vector puppets)")
     tv_ep = None
     if (env("ANIM_MODE") == "tvtoon" or env("ANIM_MODE") == "") and not use_25d and not char_mode:
         try:
@@ -14207,18 +14195,44 @@ def main():
         want = max(1, min(len(lines), round(len(lines) * budget / total_lines))) if lines else 1
         groups = [lines[round(g * len(lines) / want):round((g + 1) * len(lines) / want)] for g in range(want)] or [[]]
         scene_shots = []
+        _pspec = s.get("production_spec") if isinstance(s.get("production_spec"), dict) else {}
+        _ps_props = ", ".join(str(x) for x in (_pspec.get("props") or [])[:6] if x)
+        _ps_lines = {int(ls_["line"]): ls_ for ls_ in (_pspec.get("line_specs") or [])
+                     if isinstance(ls_, dict) and isinstance(ls_.get("line"), int)}
         for g, grp in enumerate(groups):
             count += 1
             p = os.path.join(WORK, f"shot_{i:02d}_{g:02d}.jpg")
             first = key_line(grp) if grp else {}           # the line this picture must show
             pic = first.get("image") if isinstance(first.get("image"), dict) else {}
-            action = pic.get("prompt") or first.get("shot") or s.get("action", "")
+            first_idx = lines.index(first) if first in lines else -1
+            ls_meta = _ps_lines.get(first_idx) or {}
+            action = pic.get("prompt") or ls_meta.get("visual_detail") or first.get("shot") or s.get("action", "")
+            if _ps_props and _ps_props.lower() not in action.lower():
+                action = f"{action}. Key story objects visible: {_ps_props}"
             said = " ".join(str(x.get("en", "")).strip() for x in grp if x.get("en"))[:420]
             if said:                                     # the picture shows exactly what these words tell
                 action = (f"{action}. It must show exactly what is being told: \"{said}\". Same place, time of "
                           f"day and light as the story ({s.get('place', '')})")
             names = pic.get("characters") if isinstance(pic.get("characters"), list) else s.get("characters")
             people = [x for x in (pic.get("people") or []) if isinstance(x, dict) and x.get("name")]
+            if use_25d:
+                # Focus each 2.5D shot on at most 2 characters (active speaker + listener) so 3-layer parallax works cleanly
+                spk_name = str(first.get("speaker") or "").strip()
+                spk_valid = spk_name if spk_name and not spk_name.lower().startswith("narrat") else ""
+                if people and len(people) > 2:
+                    if spk_valid:
+                        pri = [x for x in people if str(x["name"]).lower() == spk_valid.lower()]
+                        rest = [x for x in people if str(x["name"]).lower() != spk_valid.lower()]
+                        people = (pri + rest)[:2]
+                    else:
+                        people = people[:2]
+                elif not people and isinstance(names, list) and len(names) > 2:
+                    if spk_valid:
+                        pri = [n_ for n_ in names if str(n_).lower() == spk_valid.lower()]
+                        rest = [n_ for n_ in names if str(n_).lower() != spk_valid.lower()]
+                        names = (pri + rest)[:2]
+                    else:
+                        names = names[:2]
             if people:                                   # exact poses first: the picture model follows them best
                 side_ = lambda x: (0 if "left" in str(x.get("where", "")).lower() else
                                    2 if "right" in str(x.get("where", "")).lower() else 1)
@@ -14227,9 +14241,19 @@ def main():
                 desc = "; ".join(
                     f"{x['name']} is {x.get('pose', '')} {x.get('where', '')}, {x.get('doing', '')}, face: {x.get('feeling', '')}"
                     for x in people[:4])
+                framing_25d = (
+                    " Medium close-up framing, clear foreground character separated from deep dark layered background."
+                    if (use_25d and n_ == 1) else
+                    " Cinematic medium two-shot, characters naturally facing each other, clear foreground separation from dark layered background."
+                    if (use_25d and n_ == 2) else ""
+                )
                 action = (f"EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture, no one else, nobody "
-                          f"appears twice. {desc}. {action}")
+                          f"appears twice. {desc}.{framing_25d} {action}")
                 names = [x["name"] for x in people]
+            elif use_25d and isinstance(names, list) and 1 <= len(names) <= 2:
+                n_ = len(names)
+                action = (f"EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture ({', '.join(names)}), "
+                          f"medium shot with clear foreground separation from layered dark background. {action}")
             log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)})")
             if i == 0 and g < len(recap_pics) and len(groups) > len(recap_pics):   # v70: the last part's own pictures
                 p = recap_pics[g]
