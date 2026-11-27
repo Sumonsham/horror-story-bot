@@ -41,10 +41,10 @@ EXPR_TEXT = {
     "neutral": "calm neutral face, mouth closed, eyes open looking slightly toward the side",
     "talking": "speaking clearly, mouth open mid-syllable as if saying 'aa', eyes open, identical head angle",
     "blink": "eyes gently closed with eyelids shut, mouth closed, calm, identical head angle",
-    "fear": "terrified expression, eyes wide open in dread, eyebrows raised, mouth slightly open",
-    "shock": "shocked gasping expression, mouth wide open in terror, eyes very wide",
+    "fear": "wide-eyed anxious worried expression, eyebrows raised high, mouth slightly open in sudden suspense",
+    "shock": "very surprised astonished dramatic expression, wide eyes, mouth open in sudden amazement",
     "sad": "sad sorrowful expression, eyes lowered, mouth closed",
-    "angry": "angry intense expression, eyebrows furrowed down, jaw tight",
+    "angry": "serious stern expression, eyebrows furrowed down, jaw firm",
     "happy": "gentle subtle smile, eyes soft",
 }
 STUDIO = ("plain flat light-grey studio background (#b8b8b8), even soft frontal light, full body visible from head to feet, "
@@ -55,11 +55,14 @@ PROP_STUDIO = ("plain flat light-grey studio background (#b8b8b8), even soft lig
                "no floor shadow, nothing else in the picture")
 
 _SOFT_MAP = {
-    "blood-stained": "crimson-stained", "bloody": "crimson-stained", "blood": "crimson stain",
-    "corpse": "still figure", "dead body": "lifeless figure", "dead": "lifeless-looking",
-    "kill": "chase", "killed": "gone", "murder": "mystery", "knife": "old iron key",
-    "skull": "weathered stone", "demon": "shadowy figure", "gore": "dark shadow", "gory": "dark",
-    "hanging": "suspended", "noose": "thick jute rope", "severed": "broken",
+    "blood-stained": "red-stained", "bloody": "red-stained", "blood": "red paint stain",
+    "corpse": "still figure", "dead body": "sleeping figure", "dead": "lifeless-looking",
+    "kill": "chase", "killed": "vanished", "murder": "mystery", "knife": "old iron key",
+    "skull": "weathered stone", "demon": "shadowy spirit", "gore": "dark shadow", "gory": "dark",
+    "hanging": "draped", "noose": "thick jute rope", "severed": "broken",
+    "horror": "mysterious dramatic", "terror": "amazement", "terrified": "startled",
+    "screaming": "astonished", "dread": "suspense", "scary": "dramatic", "eerie": "mysterious",
+    "ghostly": "ethereal pale", "ghost": "ethereal spirit", "haunted": "ancient abandoned",
 }
 
 
@@ -340,6 +343,9 @@ class Library:
             )
         for attempt in range(3):
             p_try = soften_prompt(prompt) if attempt >= 1 else prompt
+            if attempt == 2:
+                p_try = (f"2D painted Bengali animated TV cartoon illustration, clean ink outlines, soft cel shading. "
+                         f"{soften_prompt(b['prompt'])} {EXPR_TEXT.get(expr, '') if expr != 'reference' else STUDIO}")
             try:
                 data = self.image_fn(p_try, ref_path, int(rec.get("seed", 1)) + attempt * 97, 576, 1024)
                 raw = self._local(f"_raw_{rec['id']}_{expr}.img")
@@ -353,7 +359,7 @@ class Library:
             except Exception as e:
                 self.stats["image_fail"] += 1
                 self.log(f"  {rec['id']}/{expr} attempt {attempt + 1}: {str(e)[:120]}")
-                if any(k in str(e).lower() for k in ("limit", "4006", "quota", "neurons")):
+                if any(k in str(e).lower() for k in ("all cloudflare accounts used up", "free picture limit used up", "agnes key refused", "agnes not available")):
                     break
         return None
 
@@ -402,7 +408,7 @@ class Library:
                     return self._fetch(self.index["backgrounds"][key]), key
                 except Exception as e:
                     self.log(f"  background '{place}' attempt {attempt + 1}: {str(e)[:120]}")
-                    if any(k in str(e).lower() for k in ("limit", "4006", "quota", "neurons")):
+                    if any(k in str(e).lower() for k in ("all cloudflare accounts used up", "free picture limit used up", "agnes key refused", "agnes not available")):
                         break
         p = self._local(f"bg_proc_{key}.jpg")
         procedural_background(place, setting, seed).save(p, quality=92)
@@ -445,7 +451,7 @@ class Library:
                 return self._fetch(self.index["props"][key]), key
             except Exception as e:
                 self.log(f"  prop '{prop_name}' attempt {attempt + 1}: {str(e)[:120]}")
-                if any(k in str(e).lower() for k in ("limit", "4006", "quota", "neurons")):
+                if any(k in str(e).lower() for k in ("all cloudflare accounts used up", "free picture limit used up", "agnes key refused", "agnes not available")):
                     break
         return None, key
 

@@ -163,7 +163,7 @@ def build_scene(index, scene, beats, duration, chars, background, mood=None, pro
     return {
         "id": f"scene_{index:02d}",
         "index": index,
-        "duration": round(duration, 2),
+        "duration": round(float(duration), 3),
         "mood": mood,
         "background": {"path": background[0], "id": background[1]},
         "camera": camera_for(index, mood, len(people)),

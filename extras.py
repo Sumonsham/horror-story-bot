@@ -1600,9 +1600,13 @@ def helper_models(key):
 
 
 def tts_keys():
-    # ONE free key only (Google's free limit is meant per person / project - using extra keys to get round it
-    # breaks Google's rules and can get the accounts blocked)
-    keys = [k for k in (env("GEMINI_TTS_KEY"),) if k]
+    """Configured Gemini TTS keys (GEMINI_TTS_KEY + optional GEMINI_TTS_KEY_2..6, deduplicated)."""
+    keys = list(dict.fromkeys(
+        k for k in (
+            env("GEMINI_TTS_KEY"), env("GEMINI_TTS_KEY_2"), env("GEMINI_TTS_KEY_3"),
+            env("GEMINI_TTS_KEY_4"), env("GEMINI_TTS_KEY_5"), env("GEMINI_TTS_KEY_6"),
+        ) if k
+    ))
     if env("TTS_PAID") == "1" and env("GEMINI_API_KEY"):
         if env("ZERO_COST_MODE") != "0":            # V8 ZERO_COST: the paid key is never used for voices
             log("  TTS_PAID ignored - ZERO_COST_MODE is on (only the free Gemini voice key, then Chirp)")
@@ -1706,9 +1710,10 @@ def tts_gemini(voice_text, voice, style, lang_label, out_wav, sr=44100, max_trie
                         f.write(data)
                     inp = ["-i", raw] if data[:4] == b"RIFF" else ["-f", "s16le", "-ar", "24000", "-ac", "1", "-i", raw]
                     _run(["ffmpeg", "-y"] + inp + [
-                        "-af", "silenceremove=start_periods=1:start_threshold=-50dB:"
-                               "stop_periods=-1:stop_duration=1.2:stop_silence=0.6:stop_threshold=-50dB,"
-                               "areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse",
+                        "-af", "silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.10:"
+                               "stop_periods=-1:stop_duration=1.4:stop_silence=0.7:stop_threshold=-55dB,"
+                               "areverse,silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.18,areverse,"
+                               "apad=pad_dur=0.06",
                         "-ac", "1", "-ar", str(sr), out_wav])
                     d = float(_run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                     "-of", "default=nw=1:nk=1", out_wav]).strip() or 0)
@@ -2071,8 +2076,9 @@ def _audio_file(data, out_wav, sr, trim=True):
     with open(raw, "wb") as f:
         f.write(data)
     inp = ["-i", raw] if data[:4] == b"RIFF" else ["-f", "s16le", "-ar", "24000", "-ac", "1", "-i", raw]
-    af = (["-af", "silenceremove=start_periods=1:start_threshold=-50dB,areverse,"
-                  "silenceremove=start_periods=1:start_threshold=-50dB,areverse"] if trim else [])
+    af = (["-af", "silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.10,areverse,"
+                  "silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.18,areverse,"
+                  "apad=pad_dur=0.06"] if trim else [])
     _run(["ffmpeg", "-y", "-loglevel", "error"] + inp + af + ["-ac", "1", "-ar", str(sr), out_wav])
     os.remove(raw)
     try:
@@ -3341,7 +3347,7 @@ def _cut_plan(a, sr, plains, lang="bn", use_ref=True):
             RA, rt, ends = refs[1]
             for k in range(n):
                 need = letters[k] * rate_
-                if not (sp[k] > need * 1.75 and sp[k] - need >= 2.5):
+                if not (sp[k] > need * 2.15 and sp[k] - need >= 3.2):
                     continue
                 f0, f1 = int(edges[k] / 0.02), int(edges[k + 1] / 0.02)
                 inner = [(max(f0, s), min(f1, e)) for s, e in pauses if e > f0 and s < f1]
@@ -3549,7 +3555,8 @@ def tts_gemini_batch(items, lang_label, sr=44100, minutes=45, max_requests=None)
             segs = []
             for ln in lines:                          # a line = from its first sentence's start to its last one's end,
                 idx = [k for k, kk in enumerate(keys) if kk == ln]     # without the stretches that were left out
-                s_, e_ = starts[idx[0]], ends[idx[-1]]
+                s_ = max(0, starts[idx[0]] - int(0.03 * rate))
+                e_ = min(len(allv), ends[idx[-1]] + int(0.04 * rate))
                 parts_, pos_ = [], s_
                 for ds, de in sorted(plan["drop"]):
                     ds, de = int(ds * rate), int(de * rate)
@@ -3821,9 +3828,14 @@ def fix_heard_twice(lines, sr_out=None, loose=False, inside=True):
                     post = _pause_near(a, rate, e1, 1, 1.0) - e1
                     piece = (min(_pause_near(a, rate, s2, -1, 0.6), s2 - pre),
                              min(len(a) / rate, max(_pause_near(a, rate, e2, 1, 1.0), e2 + post)))
+                min_keep = max(0.95, len(key) * (0.058 if loose else 0.072))
+                orig_dur = len(a) / float(rate)
+                if not loose and orig_dur < max(2.4, len(key) * 0.115):
+                    continue                          # line length fits its words: do not risk cutting real speech
                 new = cut(a, rate, *piece)
-                if new is not None:
-                    save(x["out"], rate, new)
+                if new is not None and (len(new) / float(rate)) >= min_keep:
+                    pad_tail = np.zeros(int(rate * 0.08), dtype=new.dtype)
+                    save(x["out"], rate, np.concatenate([new, pad_tail]))
                     cuts += 1
                     log(f"  twice-check: {piece[1] - piece[0]:.1f} s said twice cut out of a line "
                         f"({str(x.get('plain', ''))[:40]}...)")
@@ -3851,12 +3863,17 @@ def fix_heard_twice(lines, sr_out=None, loose=False, inside=True):
                 legit = _longest_shared(kx, ky)
                 if not loose and legit >= 6 and (e1 - s1) * rate_of(b, kx) <= legit * 2.2 + 6:
                     continue
+                orig_dur = len(a) / float(rate)
+                min_keep_x = max(0.95, len(kx) * (0.062 if loose else 0.075))
+                if not loose and orig_dur < max(2.2, len(kx) * 0.11):
+                    continue                          # line x is not bloated: never chop its ending!
                 off = len(b) / an - len(tail) / an
                 ends_ = e1 >= len(tail) / an - 1.2
                 st_ = _pause_near(a, rate, off + s1, -1, 0.6)
                 new = cut(a, rate, st_, len(a) / rate if ends_ else _pause_near(a, rate, off + e1, 1, 1.0))
-                if new is not None:
-                    save(x["out"], rate, new)
+                if new is not None and (len(new) / float(rate)) >= min_keep_x and len(new) >= len(a) * 0.55:
+                    pad_tail = np.zeros(int(rate * 0.10), dtype=new.dtype)
+                    save(x["out"], rate, np.concatenate([new, pad_tail]))
                     cuts += 1
                     log(f"  twice-check: {e1 - s1:.1f} s of the next line was also at the end of a line - cut out "
                         f"({str(x.get('plain', ''))[:40]}...)")
@@ -4156,7 +4173,8 @@ def tts_budget_left(path):
     India time): how many requests are still free today, from what this bot used (assets/tts_usage.json)."""
     d = _jl(path, {})
     used = int(d.get("used", 0)) if d.get("day") == _pacific_day() else 0
-    return max(0, int(env("TTS_DAY_BUDGET") or 36) - used)
+    default_cap = 36 * max(1, len(tts_keys()))
+    return max(0, int(env("TTS_DAY_BUDGET") or default_cap) - used)
 
 
 def tts_budget_use(path):
@@ -5246,14 +5264,17 @@ def _crop_16x9(data):
     return out.getvalue()
 
 
-def agnes_image(prompt):
-    """One 16:9 picture from Agnes AI (free API, own key). Returns JPEG bytes; raises when it can't."""
+def agnes_image(prompt, crop_16x9=True):
+    """One picture from Agnes AI (free API, own key). Keeps full uncropped frame for portraits/props when crop_16x9=False."""
     import base64 as _b64
     if not agnes_ok():
         raise RuntimeError("Agnes not available")
     hdr = {"Authorization": f"Bearer {env('AGNES_API_KEY')}", "Content-Type": "application/json"}
     models = [AGNES["model"]] if AGNES["model"] else list(AGNES_MODELS)
-    sizes = [AGNES["size"]] if AGNES["size"] else list(AGNES_SIZES)
+    if crop_16x9:
+        sizes = [AGNES["size"]] if AGNES["size"] else list(AGNES_SIZES)
+    else:
+        sizes = ["1024x1024", "1024x768", "1280x720"]
     last = ""
     for model in models:
         for size in sizes:
@@ -5284,11 +5305,14 @@ def agnes_image(prompt):
                     else:
                         last = "no picture in reply: " + r.text[:150]
                         continue
-                    data = _crop_16x9(data)
+                    if crop_16x9:
+                        data = _crop_16x9(data)
                 except Exception as e:
                     last = str(e)[:150]
                     continue
-                AGNES["model"], AGNES["size"], AGNES["fails"] = model, size, 0
+                AGNES["model"], AGNES["fails"] = model, 0
+                if crop_16x9:
+                    AGNES["size"] = size
                 return data
     AGNES["fails"] += 1
     if AGNES["fails"] >= 4:

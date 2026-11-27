@@ -183,7 +183,7 @@ def render_scene(m, records, lib, audio, out, W=1280, H=720, FPS=25, SR=44100, q
     dur = float(m["duration"])
     fast = str(quality).upper() == "FAST"
     fps_r = FPS // 2 if fast else FPS
-    n = max(1, int(math.ceil(dur * fps_r)))
+    n = max(1, int(math.ceil((dur + 0.08) * fps_r)))
     rng = np.random.default_rng(abs(hash(m["id"])) % (2 ** 32))
     WB, HB = int(W * 1.3), int(H * 1.3)
 
@@ -238,7 +238,7 @@ def render_scene(m, records, lib, audio, out, W=1280, H=720, FPS=25, SR=44100, q
     ff = subprocess.Popen(
         [
             "ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24",
-            "-s", f"{W}x{H}", "-r", str(fps_r), "-i", "-", "-i", audio, "-t", f"{dur:.2f}",
+            "-s", f"{W}x{H}", "-r", str(fps_r), "-i", "-", "-i", audio, "-t", f"{dur + 0.06:.3f}",
             "-vf", (f"fps={FPS}," if fast else "") + f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, dur - 0.4):.2f}:d=0.4,format=yuv420p",
             "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
             "-maxrate", "3500k", "-bufsize", "7000k", "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-ac", "2", out,

@@ -2882,31 +2882,42 @@ def ensure_ending(story, lang, cut_short=False):
         return
 
 
+def _gem_text_keys():
+    """All configured Gemini text keys (GEMINI_API_KEY + GEMINI_API_KEY_2..4)."""
+    return list(dict.fromkeys(
+        k for k in (
+            env("GEMINI_API_KEY"), env("GEMINI_API_KEY_2"),
+            env("GEMINI_API_KEY_3"), env("GEMINI_API_KEY_4"),
+        ) if k
+    ))
+
+
 def _gem_call(prompt, json_mode=False, temp=0.9, max_tokens=60000, rounds=2):
-    """one request to the strong Gemini writing models (the next model when one is busy / used up); text or None"""
-    key = env("GEMINI_API_KEY")
-    if MOCK or not key:
+    """one request to the strong Gemini writing models, rotating keys & models when busy / 429; text or None"""
+    keys = _gem_text_keys()
+    if MOCK or not keys:
         return None
     gen = {"temperature": temp, "maxOutputTokens": max_tokens}
     if json_mode:
         gen["responseMimeType"] = "application/json"
     for rnd in range(rounds):
-        for model in gemini_models(key)[:4]:
-            if model in TEXT_DAY_OUT:
-                continue
-            try:
-                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                                  json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": gen},
-                                  timeout=420)
-                if not r.ok:
-                    log(f"  writer: {model} {r.status_code}")
+        for key in keys:
+            for model in gemini_models(key)[:4]:
+                if model in TEXT_DAY_OUT:
                     continue
-                parts_ = r.json()["candidates"][0]["content"]["parts"]
-                txt = "".join(p_.get("text", "") for p_ in parts_ if not p_.get("thought"))
-                if txt.strip():
-                    return txt
-            except Exception as e:
-                log(f"  writer: {model} {str(e)[:100]}")
+                try:
+                    r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                      json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": gen},
+                                      timeout=420)
+                    if not r.ok:
+                        log(f"  writer: {model} {r.status_code}")
+                        continue
+                    parts_ = r.json()["candidates"][0]["content"]["parts"]
+                    txt = "".join(p_.get("text", "") for p_ in parts_ if not p_.get("thought"))
+                    if txt.strip():
+                        return txt
+                except Exception as e:
+                    log(f"  writer: {model} {str(e)[:100]}")
         if rnd + 1 < rounds:
             time.sleep(60)
     return None
@@ -4034,9 +4045,9 @@ PIC_W, PIC_H = 1024, 576        # 16:9; scaled up to 1280x720 for the video
 
 
 def cf_accounts():
-    """The one Cloudflare account (CF_ACCOUNT_ID / CF_API_TOKEN) - one free account, no extra accounts."""
+    """Cloudflare accounts: primary (CF_ACCOUNT_ID / CF_API_TOKEN) + backup (CF_ACCOUNT_ID_2 / CF_API_TOKEN_2)."""
     out = []
-    for suf in ("",):
+    for suf in ("", "_2"):
         a, t = env("CF_ACCOUNT_ID" + suf), env("CF_API_TOKEN" + suf)
         if a and t:
             out.append((a, t))
@@ -4068,7 +4079,7 @@ def cf_request(model, prompt, ref_path=None, w=PIC_W, h=PIC_H, seed=None):
             AGNES_SAID = True
         if "exact pose and action written here: " in prompt:          # no reference picture on Agnes
             prompt = prompt.split("exact pose and action written here: ", 1)[1]
-        return extras.agnes_image(prompt)
+        return extras.agnes_image(prompt, crop_16x9=(w > h))
     raise RuntimeError("all Cloudflare accounts used up their daily free allocation (4006)")
 
 
@@ -4448,8 +4459,13 @@ def _gemini_persona(voices, speaker, revealed=True):
 
 
 def gemini_keys():
-    """The one free voice key (GEMINI_TTS_KEY)."""
-    return [k for k in (env("GEMINI_TTS_KEY"),) if k]
+    """All configured Gemini TTS keys (GEMINI_TTS_KEY + GEMINI_TTS_KEY_2..6)."""
+    return list(dict.fromkeys(
+        k for k in (
+            env("GEMINI_TTS_KEY"), env("GEMINI_TTS_KEY_2"), env("GEMINI_TTS_KEY_3"),
+            env("GEMINI_TTS_KEY_4"), env("GEMINI_TTS_KEY_5"), env("GEMINI_TTS_KEY_6"),
+        ) if k
+    ))
 
 
 GEMINI_KEY_NOW = 0
@@ -4736,7 +4752,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         need_of = lambda: {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
         # (v91b: back to the full range - you want EVERY story fully in the Gemini voice; a sentence that Gemini reads
         # twice is caught by its length and made again alone, see below)
-        sizes_ = ((6, 700), (8, 900), (10, 1100), (12, 1300), (16, 1500), (20, 1700), (26, 1900))
+        sizes_ = ((5, 600), (7, 800), (9, 1000), (11, 1200), (14, 1450), (18, 1700))
         if env("TTS_MAX_PIECES"):
             sizes_ = tuple(x for x in sizes_ if x[0] <= int(env("TTS_MAX_PIECES"))) or sizes_[:1]
         # v105: ONE STORY TAKES AT MOST ~14 REQUESTS (before, a story took every request that was free - 24 on
@@ -4939,7 +4955,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                 tmp_ = it["out"] + ".again.wav"
                 ok_ = False
                 try:
-                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again[0] < int(env("TWICE_GEM_MAX") or 6)
+                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again[0] < int(env("TWICE_GEM_MAX") or 10)
                             and extras.tts_budget_left(TTS_USAGE) - extras.TTS_USED[0] > 0):
                         gem_again[0] += 1
                         off_ = extras.TTS_STATE["off"]
@@ -5749,7 +5765,7 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
     Returns (seconds, [(start, dur, speaker_is_narrator, text)])."""
     np = _np()
     rnd = np.random.default_rng(1000 + idx)
-    gap, lead, tail = 0.35, 0.5, 1.0
+    gap, lead, tail = 0.38, 0.5, 1.15
     if _VSP and env("VOICE_STYLE") != "0":           # the reference presenter's own pause between sentences
         gap = float(_VSP.get("pauses_for_the_sound_track", {}).get("between_lines_s", gap))
     pieces, subs, cues, silences, t = [], [], [], [], lead
@@ -5822,19 +5838,26 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             except Exception as e_:
                 log("    narrator speed not changed:", str(e_)[:80])
         a = read_wav(p)
-        try:                                          # 23 Nov 2026: cut only true repeats, never mid-sentence!
+        try:                                          # Strict repeat guard: NEVER cut mid-sentence!
             from tvtoon import voicecheck as _VC
             plain_clean = extras.strip_tags(text)
-            a_trim, rep_ = _VC.fix_repeats(a, SR, plain_clean)
-            min_expected = max(0.75, len(plain_clean.split()) * 0.22)
-            if rep_ and (len(a_trim) / float(SR)) >= min_expected * 0.78:
-                # Add a 0.14s soft tail pad so the final syllable never cuts off abruptly
-                pad = np.zeros(int(SR * 0.14), dtype=a_trim.dtype)
-                a = np.concatenate([a_trim, pad])
-                write_wav(p, a)
-                log(f"    the voice repeated itself in scene {idx + 1} line {j + 1} ({rep_}) - the repeat was cut cleanly")
-            elif rep_:
-                log(f"    kept full line in scene {idx + 1} line {j + 1} (prevented mid-line cut)")
+            exp_sec = _VC.expected_seconds(plain_clean)
+            cur_sec = len(a) / float(SR)
+            # Only invoke acoustic repeat-cutting if audio is clearly bloated (> 1.55x expected and > 3.5s)
+            if cur_sec > max(3.5, exp_sec * 1.55):
+                a_trim, rep_ = _VC.fix_repeats(a, SR, plain_clean)
+                trim_sec = len(a_trim) / float(SR)
+                if rep_ and "said again" in rep_ and trim_sec >= max(1.0, exp_sec * 0.92):
+                    pad = np.zeros(int(SR * 0.16), dtype=a_trim.dtype)
+                    a = np.concatenate([a_trim, pad])
+                    write_wav(p, a)
+                    log(f"    the voice repeated itself in scene {idx + 1} line {j + 1} ({rep_}) - the repeat was cut cleanly")
+                elif rep_ and "said again" in rep_:
+                    log(f"    kept full line in scene {idx + 1} line {j + 1} (prevented mid-line cut: {trim_sec:.1f}s < {exp_sec:.1f}s)")
+            # Ensure every line ends with a small clean silence cushion so the final syllable never clips
+            tail_chk = a[-int(SR * 0.08):] if len(a) > int(SR * 0.08) else a
+            if len(tail_chk) and float(np.abs(tail_chk).max()) > 0.01:
+                a = np.concatenate([a, np.zeros(int(SR * 0.10), dtype=a.dtype)])
         except Exception as e_:
             log("    repeat check skipped:", str(e_)[:80])
         pk = np.abs(a).max()
@@ -6536,8 +6559,8 @@ CLIP_CACHE = os.path.join(HERE, "clip_cache")       # finished character scenes 
 
 
 def _char_image(prompt, ref_path, seed, w, h):
-    """the library's picture maker = the bot's own free Cloudflare call (never a paid one - zerocost.py)"""
-    if CF_QUOTA_OUT:
+    """the library's picture maker = Cloudflare (acct 1 -> acct 2) -> Agnes AI backup (never paid - zerocost.py)"""
+    if CF_QUOTA_OUT and not extras.agnes_ok():
         raise RuntimeError("free picture limit used up (4006)")
     ref = None
     if ref_path and os.path.exists(ref_path):
@@ -6570,7 +6593,7 @@ def prepare_character_mode(story, scenes, cast, seed, slot_key=None, max_new=Non
     special = STATE.get("special") or ""
     fixed = [str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)]
     key = str(slot_key or SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H"))
-    img_fn = None if (MOCK or CF_QUOTA_OUT) else _char_image
+    img_fn = None if (MOCK or (CF_QUOTA_OUT and not extras.agnes_ok())) else _char_image
     budget_imgs = int(max_new if max_new is not None else (env("PAINTED_2D_MAX_IMAGES") or 45))
     records, by_name, bgs, scene_props, stats = P2D.build_story_assets(
         story,
@@ -6611,7 +6634,7 @@ def _build_plan_painted2d_assets(plan, slot_key, max_new=45):
     special = plan.get("special") or ""
     fixed = [str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)]
     seed = abs(hash(f"{slot_key}:{story.get('title', '')}")) % 900000 + 17
-    img_fn = None if (MOCK or CF_QUOTA_OUT) else _char_image
+    img_fn = None if (MOCK or (CF_QUOTA_OUT and not extras.agnes_ok())) else _char_image
     records, _by_name, bgs, scene_props, stats = P2D.build_story_assets(
         story,
         ASSETS,
@@ -8235,14 +8258,7 @@ def morning_teasers(history):
                 plan = choose_and_write(h, hist2)
                 plan = json.loads(json.dumps(plan, ensure_ascii=False, default=list))
                 save_plan(key, plan)
-                try:
-                    rep_2d = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 40))
-                    if rep_2d:
-                        log(f"  2 AM Painted 2D assets ready for {key}: {rep_2d['stats']}")
-                except Exception as e_2d:
-                    log(f"  2 AM Painted 2D asset build note ({key}):", str(e_2d)[:140])
-                push_now([PLANS_FILE, MY_STORIES, os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
-                         f"story and painted 2D assets written for {key}")
+                push_now([PLANS_FILE, MY_STORIES], f"story written for {key}")
             except Exception as e:
                 log(f"  the story for {key} could not be written now ({str(e)[:200]}) - its own run will write it")
                 continue
@@ -10806,6 +10822,19 @@ def write_tomorrow(history, day=None):
             except Exception as e:
                 log(f"  tomorrow's story for {key} not written now ({str(e)[:200]}) - the morning run writes it")
                 continue
+        # Build & commit Painted 2D assets (characters, empty backgrounds, transparent props) right in the 2 AM write run
+        if plan and env("WRITE_BUILD_ASSETS") != "0":
+            try:
+                log(f"=== 2 AM Painted 2D Asset Builder for {SLOT_BN[h]} ({key}) ===")
+                rep_2d = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 45))
+                if rep_2d:
+                    st_2d = rep_2d.get("stats") or {}
+                    log(f"  2 AM Painted 2D assets ready for {key}: {len(rep_2d.get('characters', {}))} chars, "
+                        f"{rep_2d.get('backgrounds_count', 0)} bgs, {rep_2d.get('props_count', 0)} props - stats: {st_2d}")
+                    push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
+                             f"painted 2D assets written for {key}")
+            except Exception as e_2d:
+                log(f"  2 AM Painted 2D asset build note ({key}):", str(e_2d)[:160])
         done.append(key)
         hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
                       "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
@@ -10835,13 +10864,29 @@ def write_day_stories(history):
 
 
 def cartoon_prep_run():
-    """Night/Morning Painted 2D Asset Builder (mode=assets): reads the day's written 2 PM and 8 PM stories,
-    builds all missing painted 2D characters (reference + expressions), empty painted 2D backgrounds, and
-    transparent PNG story props, and saves them into assets/characters/ for zero-delay video runs."""
+    """Night/3:30 AM Backup Painted 2D Asset Builder (mode=assets):
+    1) If the 2:00 AM write run missed a story, writes the missing story first.
+    2) Checks whether all Painted 2D characters, empty backgrounds, and transparent props for both
+       2 PM & 8 PM stories are already complete — if already complete, skips cleanly in seconds!
+    3) Otherwise builds ONLY the missing assets using CF Account 1 -> CF Account 2 -> Agnes AI."""
+    import painted2d_studio as P2D
     now = dt.datetime.now(extras.IST)
     day = (now + dt.timedelta(days=1)).date() if now.hour >= 18 else now.date()
-    log(f"=== PAINTED 2D ASSET RUN: the stories of {day.isoformat()} - nothing is posted ===")
-    saved, notes = [], []
+    is_backup = env("EVENT") == "schedule"
+    log(f"=== PAINTED 2D ASSET RUN{' (3:30 AM backup check)' if is_backup else ''}: "
+        f"the stories of {day.isoformat()} - nothing is posted ===")
+
+    # Step 1: If 2 AM didn't finish writing today's stories, write the missing ones now!
+    missing_plans = [h for h in (NOON, EVENING) if not load_plan(f"{day.isoformat()}@{h}")]
+    if missing_plans and env("ASSETS_WRITE_MISSING") != "0":
+        log(f"  {len(missing_plans)} story plan(s) missing from 2 AM run - writing missing story + assets now...")
+        try:
+            write_tomorrow(load_history(), day=day)
+        except Exception as e_w:
+            log("  missing-story fallback write note:", str(e_w)[:160])
+
+    # Step 2: Build ONLY missing Painted 2D assets for each slot
+    saved, notes, skipped = [], [], 0
     for h in (NOON, EVENING):
         key = f"{day.isoformat()}@{h}"
         plan = load_plan(key)
@@ -10849,8 +10894,17 @@ def cartoon_prep_run():
             log(f"  {SLOT_BN[h]}: no story written yet - nothing to make")
             notes.append(f"{SLOT_BN[h]}: গল্প এখনও লেখা হয়নি")
             continue
+        special = plan.get("special") or ""
+        fixed = [str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)]
+        chk = P2D.story_assets_missing(_story_cast(plan), ASSETS, CHAR_CACHE, slot_key=key, series_names=fixed)
+        if chk["complete"]:
+            skipped += 1
+            log(f"  {SLOT_BN[h]} ({key}): already 100% complete from 2 AM run - skipping!")
+            continue
+        log(f"  {SLOT_BN[h]} ({key}): missing {len(chk['missing_chars'])} char sprite(s), "
+            f"{len(chk['missing_bgs'])} bg(s), {len(chk['missing_props'])} prop(s) - building now...")
         try:
-            rep = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 45))
+            rep = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 60))
             if rep:
                 saved.append(key)
                 st = rep.get("stats") or {}
@@ -10865,6 +10919,8 @@ def cartoon_prep_run():
     if saved:
         push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
                  f"painted 2D assets for {day.isoformat()}")
+    if skipped == 2 and not saved:
+        log("  2 AM run already completed both stories and all Painted 2D assets - 3:30 AM backup had nothing to do.")
     if not MOCK and notes:
         _tg_text("🎨 রাতের পেইন্টেড ২ডি অ্যাসেট তৈরি:\n" + "\n".join(notes))
     return saved
@@ -13105,21 +13161,22 @@ def growth_links(lang):
 
 # ===================================================================================================== v95
 def _gem_json(prompt, temp=0.4, strong=False):
-    """one small Gemini request that answers JSON (light models first, unless strong) - or None"""
-    key = env("GEMINI_API_KEY")
-    if MOCK or not key:
+    """one small Gemini request that answers JSON (rotates configured keys & models) - or None"""
+    keys = _gem_text_keys()
+    if MOCK or not keys:
         return None
-    models = (gemini_models(key)[:3] + extras.helper_models(key)[:3]) if strong else extras.helper_models(key)[:4]
-    for model in models:
-        try:
-            r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
-                              json={"contents": [{"parts": [{"text": prompt}]}],
-                                    "generationConfig": {"temperature": temp, "responseMimeType": "application/json"}},
-                              timeout=120)
-            if r.ok:
-                return extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
-        except Exception:
-            continue
+    for key in keys:
+        models = (gemini_models(key)[:3] + extras.helper_models(key)[:3]) if strong else extras.helper_models(key)[:4]
+        for model in models:
+            try:
+                r = requests.post(f"{GEMINI_BASE}/models/{model}:generateContent", headers={"x-goog-api-key": key},
+                                  json={"contents": [{"parts": [{"text": prompt}]}],
+                                        "generationConfig": {"temperature": temp, "responseMimeType": "application/json"}},
+                                  timeout=120)
+                if r.ok:
+                    return extras.load_json_loose(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+            except Exception:
+                continue
     return None
 
 

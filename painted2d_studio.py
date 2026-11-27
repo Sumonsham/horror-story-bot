@@ -162,3 +162,54 @@ def build_story_assets(
 
     lib.save()
     return records, by_name, bgs_per_scene, props_per_scene, dict(lib.stats)
+
+
+def story_assets_missing(story, assets_dir, cache_dir, slot_key="", series_names=()):
+    """Check whether all Painted 2D characters (with base expressions), empty backgrounds, and props
+    for `story` are already built and saved locally. Returns a summary dict with `complete: bool`."""
+    lib = characters.Library(assets_dir, cache_dir, image_fn=None, log=lambda *a: None, style=characters.PAINTED_2D_STYLE)
+    scout = scout_story_assets(story)
+    fixed = {str(x).lower() for x in (series_names or ())}
+    day_key = str(slot_key or dt.date.today().isoformat()).split("@")[0]
+
+    missing_chars = []
+    for c in scout["characters"]:
+        nm_low = str(c["name"]).strip().lower()
+        cid = characters.char_id(c, series=nm_low in fixed, story_key=day_key)
+        rec = lib.get(cid)
+        if not rec or rec.get("mode") != "photo":
+            missing_chars.append(cid)
+            continue
+        exprs = rec.get("expr") or {}
+        if not lib._fetch(exprs.get("reference")):
+            missing_chars.append(f"{cid}:reference")
+            continue
+        for e in characters.BASE_SET:
+            if not lib._fetch(exprs.get(e)):
+                missing_chars.append(f"{cid}:{e}")
+
+    missing_bgs = []
+    for bg in scout["backgrounds"]:
+        rec_bg = lib.index.get("backgrounds", {}).get(bg["key"])
+        if not rec_bg or not lib._fetch(rec_bg):
+            missing_bgs.append(bg["key"])
+
+    missing_props = []
+    seen_p = set()
+    for plist in scout["scene_props"].values():
+        for pr in plist:
+            pid = pr["id"]
+            if pid in seen_p:
+                continue
+            seen_p.add(pid)
+            rec_p = lib.index.get("props", {}).get(pid)
+            if not rec_p or not lib._fetch(rec_p):
+                missing_props.append(pid)
+
+    complete = not (missing_chars or missing_bgs or missing_props)
+    return {
+        "complete": complete,
+        "missing_chars": missing_chars,
+        "missing_bgs": missing_bgs,
+        "missing_props": missing_props,
+    }
