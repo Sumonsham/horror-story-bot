@@ -1,44 +1,73 @@
 {
  "slot": "2026-11-28@20",
  "title": "বুনোবাতাস ও বেগুনকোদর স্টেশন | The Haunted Platform of Begunkodar 🚂",
- "built_at": "2026-11-27T23:58+05:30",
+ "built_at": "2026-11-28T00:39+05:30",
  "characters": {
   "mahadeb": {
    "mode": "photo",
    "expr": [
     "blink",
+    "fear",
+    "neutral",
+    "reference",
+    "shock",
+    "talking"
+   ]
+  },
+  "subhash-2026-11-28": {
+   "mode": "photo",
+   "expr": [
+    "blink",
+    "fear",
+    "neutral",
+    "reference",
+    "shock",
+    "talking"
+   ]
+  },
+  "biren-mahato-2026-11-28": {
+   "mode": "photo",
+   "expr": [
+    "blink",
+    "fear",
+    "neutral",
+    "reference",
+    "shock",
+    "talking"
+   ]
+  },
+  "animesh-dutta-2026-11-28": {
+   "mode": "photo",
+   "expr": [
+    "blink",
+    "fear",
     "neutral",
     "reference",
     "talking"
    ]
   },
-  "subhash-2026-11-28": {
-   "mode": "silhouette",
-   "expr": []
-  },
-  "biren-mahato-2026-11-28": {
-   "mode": "silhouette",
-   "expr": []
-  },
-  "animesh-dutta-2026-11-28": {
-   "mode": "silhouette",
-   "expr": []
-  },
   "apparition-2026-11-28": {
-   "mode": "silhouette",
-   "expr": []
+   "mode": "photo",
+   "expr": [
+    "blink",
+    "fear",
+    "neutral",
+    "reference",
+    "shock",
+    "talking"
+   ]
   }
  },
  "backgrounds_count": 14,
- "props_count": 11,
+ "props_count": 23,
  "stats": {
-  "images_made": 5,
-  "image_fail": 6,
-  "cache_hits": 0,
-  "silhouettes": 4,
-  "bg_made": 0,
+  "images_made": 26,
+  "image_fail": 1,
+  "cache_hits": 5,
+  "silhouettes": 0,
+  "bg_made": 14,
   "bg_hits": 0,
-  "props_made": 0,
-  "props_hits": 11
+  "props_made": 6,
+  "props_hits": 17
  }
 }

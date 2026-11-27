@@ -67,6 +67,17 @@
       211
      ],
      "similarity": 0.287
+    },
+    "fear": {
+     "file": "anirban-2026-11-28_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/anirban-2026-11-28_v1_fear.png",
+     "face": [
+      194,
+      53,
+      200,
+      214
+     ],
+     "similarity": 0.272
     }
    },
    "created": "2026-11-27",
@@ -215,6 +226,28 @@
       209
      ],
      "similarity": 0.352
+    },
+    "neutral": {
+     "file": "benu-2026-11-28_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/benu-2026-11-28_v1_neutral.png",
+     "face": [
+      188,
+      57,
+      204,
+      209
+     ],
+     "similarity": 0.953
+    },
+    "shock": {
+     "file": "benu-2026-11-28_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/benu-2026-11-28_v1_shock.png",
+     "face": [
+      204,
+      48,
+      134,
+      44
+     ],
+     "similarity": 0.334
     }
    },
    "created": "2026-11-27",
@@ -278,6 +311,28 @@
       208
      ],
      "similarity": 0.292
+    },
+    "fear": {
+     "file": "mahadeb_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/mahadeb_v1_fear.png",
+     "face": [
+      218,
+      61,
+      188,
+      207
+     ],
+     "similarity": 0.31
+    },
+    "shock": {
+     "file": "mahadeb_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/mahadeb_v1_shock.png",
+     "face": [
+      218,
+      61,
+      187,
+      207
+     ],
+     "similarity": 0.313
     }
    },
    "created": "2026-11-27",
@@ -297,8 +352,74 @@
     "look": "ENGLISH: A sharp city auditor in his late 30s with slicked-back hair, wearing a formal office shirt and carrying a heavy leather jhola bag filled with official land files, strict auditor in Kolkata whose every move is calculated",
     "prompt": "ONE adult Bengali man from West Bengal, India: ENGLISH: A sharp city auditor in his late 30s with slicked-back hair, wearing a formal office shirt and carrying a heavy leather jhola bag filled with official land files, strict auditor in Kolkata whose every move is calculated. Painted 2D animated series character design."
    },
-   "mode": "silhouette",
-   "expr": {},
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "subhash-2026-11-28_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/subhash-2026-11-28_v1_reference.png",
+     "face": [
+      202,
+      57,
+      192,
+      216
+     ]
+    },
+    "neutral": {
+     "file": "subhash-2026-11-28_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/subhash-2026-11-28_v1_neutral.png",
+     "face": [
+      201,
+      55,
+      195,
+      217
+     ],
+     "similarity": 0.317
+    },
+    "talking": {
+     "file": "subhash-2026-11-28_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/subhash-2026-11-28_v1_talking.png",
+     "face": [
+      201,
+      55,
+      195,
+      217
+     ],
+     "similarity": 0.33
+    },
+    "blink": {
+     "file": "subhash-2026-11-28_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/subhash-2026-11-28_v1_blink.png",
+     "face": [
+      201,
+      54,
+      194,
+      217
+     ],
+     "similarity": 0.331
+    },
+    "fear": {
+     "file": "subhash-2026-11-28_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/subhash-2026-11-28_v1_fear.png",
+     "face": [
+      201,
+      55,
+      195,
+      217
+     ],
+     "similarity": 0.3
+    },
+    "shock": {
+     "file": "subhash-2026-11-28_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/subhash-2026-11-28_v1_shock.png",
+     "face": [
+      201,
+      55,
+      195,
+      217
+     ],
+     "similarity": 0.312
+    }
+   },
    "created": "2026-11-27",
    "seed": 303134,
    "last_used": "2026-11-27",
@@ -319,7 +440,9 @@
     "matted": false,
     "stick": false,
     "lantern": false
-   }
+   },
+   "retry_photo": false,
+   "provider": "cloudflare"
   },
   "biren-mahato-2026-11-28": {
    "id": "biren-mahato-2026-11-28",
@@ -333,8 +456,74 @@
     "look": "ENGLISH: A rugged local bus conductor in a faded uniform, wearing a woolen muffler, holding a heavy iron padlock and key ring with a practical, tense rural expression, bus conductor who opened the iron chain and led them into the rusted room",
     "prompt": "ONE adult Bengali man from West Bengal, India: ENGLISH: A rugged local bus conductor in a faded uniform, wearing a woolen muffler, holding a heavy iron padlock and key ring with a practical, tense rural expression, bus conductor who opened the iron chain and led them into the rusted room. Painted 2D animated series character design."
    },
-   "mode": "silhouette",
-   "expr": {},
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "biren-mahato-2026-11-28_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/biren-mahato-2026-11-28_v1_reference.png",
+     "face": [
+      194,
+      62,
+      224,
+      211
+     ]
+    },
+    "neutral": {
+     "file": "biren-mahato-2026-11-28_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/biren-mahato-2026-11-28_v1_neutral.png",
+     "face": [
+      195,
+      58,
+      222,
+      213
+     ],
+     "similarity": 0.345
+    },
+    "talking": {
+     "file": "biren-mahato-2026-11-28_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/biren-mahato-2026-11-28_v1_talking.png",
+     "face": [
+      195,
+      58,
+      223,
+      213
+     ],
+     "similarity": 0.351
+    },
+    "blink": {
+     "file": "biren-mahato-2026-11-28_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/biren-mahato-2026-11-28_v1_blink.png",
+     "face": [
+      193,
+      59,
+      227,
+      213
+     ],
+     "similarity": 0.353
+    },
+    "fear": {
+     "file": "biren-mahato-2026-11-28_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/biren-mahato-2026-11-28_v1_fear.png",
+     "face": [
+      194,
+      59,
+      226,
+      213
+     ],
+     "similarity": 0.354
+    },
+    "shock": {
+     "file": "biren-mahato-2026-11-28_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/biren-mahato-2026-11-28_v1_shock.png",
+     "face": [
+      195,
+      58,
+      223,
+      213
+     ],
+     "similarity": 0.353
+    }
+   },
    "created": "2026-11-27",
    "seed": 303171,
    "last_used": "2026-11-27",
@@ -355,7 +544,9 @@
     "matted": false,
     "stick": true,
     "lantern": false
-   }
+   },
+   "retry_photo": false,
+   "provider": "cloudflare"
   },
   "animesh-dutta-2026-11-28": {
    "id": "animesh-dutta-2026-11-28",
@@ -369,8 +560,63 @@
     "look": "ENGLISH: A stranded bus passenger with a panicked expression, wearing a thick winter jacket, shivering in the cold fog and pointing nervously toward the dark railway tracks, passenger whose face shriveled up in the dark while laughing strangely",
     "prompt": "ONE adult Bengali man from West Bengal, India: ENGLISH: A stranded bus passenger with a panicked expression, wearing a thick winter jacket, shivering in the cold fog and pointing nervously toward the dark railway tracks, passenger whose face shriveled up in the dark while laughing strangely. Painted 2D animated series character design."
    },
-   "mode": "silhouette",
-   "expr": {},
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "animesh-dutta-2026-11-28_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/animesh-dutta-2026-11-28_v1_reference.png",
+     "face": [
+      149,
+      91,
+      194,
+      198
+     ]
+    },
+    "neutral": {
+     "file": "animesh-dutta-2026-11-28_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/animesh-dutta-2026-11-28_v1_neutral.png",
+     "face": [
+      149,
+      85,
+      199,
+      200
+     ],
+     "similarity": 0.319
+    },
+    "talking": {
+     "file": "animesh-dutta-2026-11-28_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/animesh-dutta-2026-11-28_v1_talking.png",
+     "face": [
+      148,
+      88,
+      199,
+      199
+     ],
+     "similarity": 0.311
+    },
+    "blink": {
+     "file": "animesh-dutta-2026-11-28_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/animesh-dutta-2026-11-28_v1_blink.png",
+     "face": [
+      148,
+      87,
+      200,
+      199
+     ],
+     "similarity": 0.306
+    },
+    "fear": {
+     "file": "animesh-dutta-2026-11-28_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/animesh-dutta-2026-11-28_v1_fear.png",
+     "face": [
+      148,
+      88,
+      199,
+      199
+     ],
+     "similarity": 0.308
+    }
+   },
    "created": "2026-11-27",
    "seed": 303208,
    "last_used": "2026-11-27",
@@ -391,7 +637,9 @@
     "matted": false,
     "stick": true,
     "lantern": false
-   }
+   },
+   "retry_photo": false,
+   "provider": "cloudflare"
   },
   "apparition-2026-11-28": {
    "id": "apparition-2026-11-28",
@@ -405,8 +653,74 @@
     "look": "ENGLISH: A terrifying, soot-covered apparition with a tilted neck, deep hollow eye sockets, ash-stained skin, and long ice-cold fingers dripping with black water, soot-covered apparition with a neck bent to one side and head touching the ceiling",
     "prompt": "ONE eerie ghostly pale old Bengali woman from West Bengal, India: ENGLISH: A terrifying, soot-covered apparition with a tilted neck, deep hollow eye sockets, ash-stained skin, and long ice-cold fingers dripping with black water, soot-covered apparition with a neck bent to one side and head touching the ceiling. Painted 2D animated series character design."
    },
-   "mode": "silhouette",
-   "expr": {},
+   "mode": "photo",
+   "expr": {
+    "reference": {
+     "file": "apparition-2026-11-28_v1_reference.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/apparition-2026-11-28_v1_reference.png",
+     "face": [
+      171,
+      77,
+      177,
+      205
+     ]
+    },
+    "neutral": {
+     "file": "apparition-2026-11-28_v1_neutral.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/apparition-2026-11-28_v1_neutral.png",
+     "face": [
+      169,
+      73,
+      179,
+      207
+     ],
+     "similarity": 0.277
+    },
+    "talking": {
+     "file": "apparition-2026-11-28_v1_talking.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/apparition-2026-11-28_v1_talking.png",
+     "face": [
+      169,
+      74,
+      178,
+      206
+     ],
+     "similarity": 0.27
+    },
+    "blink": {
+     "file": "apparition-2026-11-28_v1_blink.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/apparition-2026-11-28_v1_blink.png",
+     "face": [
+      170,
+      74,
+      178,
+      206
+     ],
+     "similarity": 0.257
+    },
+    "fear": {
+     "file": "apparition-2026-11-28_v1_fear.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/apparition-2026-11-28_v1_fear.png",
+     "face": [
+      169,
+      75,
+      179,
+      206
+     ],
+     "similarity": 0.269
+    },
+    "shock": {
+     "file": "apparition-2026-11-28_v1_shock.png",
+     "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/apparition-2026-11-28_v1_shock.png",
+     "face": [
+      170,
+      74,
+      177,
+      206
+     ],
+     "similarity": 0.262
+    }
+   },
    "created": "2026-11-27",
    "seed": 303245,
    "last_used": "2026-11-27",
@@ -427,7 +741,9 @@
     "matted": false,
     "stick": false,
     "lantern": false
-   }
+   },
+   "retry_photo": false,
+   "provider": "cloudflare"
   }
  },
  "backgrounds": {
@@ -514,6 +830,96 @@
    "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_anirban-s-bedroom-midnight-pitch-darknes.jpg",
    "place": "Anirban's bedroom, midnight pitch darkness",
    "created": "2026-11-27"
+  },
+  "montage-transit-sequence-dim-kolkata-off": {
+   "file": "bg_montage-transit-sequence-dim-kolkata-off.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_montage-transit-sequence-dim-kolkata-off.jpg",
+   "place": "Montage transit sequence: Dim Kolkata office cubicle, damp concrete stairwell, foggy Sealdah platform, and eerie local train compartment",
+   "created": "2026-11-27"
+  },
+  "inside-the-old-purulia-dak-bungalow-at-m": {
+   "file": "bg_inside-the-old-purulia-dak-bungalow-at-m.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-the-old-purulia-dak-bungalow-at-m.jpg",
+   "place": "Inside the old Purulia dak bungalow at midnight, lit only by a hurricane lantern",
+   "created": "2026-11-27"
+  },
+  "inside-a-crowded-night-bus-speeding-alon": {
+   "file": "bg_inside-a-crowded-night-bus-speeding-alon.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-a-crowded-night-bus-speeding-alon.jpg",
+   "place": "Inside a crowded night bus speeding along a dark Purulia road under thick winter fog",
+   "created": "2026-11-27"
+  },
+  "on-the-pitch-dark-gravel-strewn-roadside": {
+   "file": "bg_on-the-pitch-dark-gravel-strewn-roadside.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_on-the-pitch-dark-gravel-strewn-roadside.jpg",
+   "place": "On the pitch-dark, gravel-strewn roadside near the abandoned Begunkodar railway station",
+   "created": "2026-11-27"
+  },
+  "standing-at-the-edge-of-the-abandoned-fo": {
+   "file": "bg_standing-at-the-edge-of-the-abandoned-fo.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_standing-at-the-edge-of-the-abandoned-fo.jpg",
+   "place": "Standing at the edge of the abandoned, fog-shrouded railway platform near the rusted tracks",
+   "created": "2026-11-27"
+  },
+  "just-inside-the-heavy-iron-barred-waitin": {
+   "file": "bg_just-inside-the-heavy-iron-barred-waitin.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_just-inside-the-heavy-iron-barred-waitin.jpg",
+   "place": "Just inside the heavy iron-barred waiting room door as Biren locks the padlock",
+   "created": "2026-11-27"
+  },
+  "sealed-inside-dark-waiting-room-as-heavy": {
+   "file": "bg_sealed-inside-dark-waiting-room-as-heavy.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_sealed-inside-dark-waiting-room-as-heavy.jpg",
+   "place": "Sealed inside dark waiting room as heavy scraping sound drags across platform",
+   "created": "2026-11-27"
+  },
+  "inside-dark-waiting-room-near-dusty-tick": {
+   "file": "bg_inside-dark-waiting-room-near-dusty-tick.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-dark-waiting-room-near-dusty-tick.jpg",
+   "place": "Inside dark waiting room near dusty ticket counter window grille",
+   "created": "2026-11-27"
+  },
+  "dusty-waiting-room-under-flickering-torc": {
+   "file": "bg_dusty-waiting-room-under-flickering-torc.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_dusty-waiting-room-under-flickering-torc.jpg",
+   "place": "Dusty waiting room under flickering torchlight near ticket counter",
+   "created": "2026-11-27"
+  },
+  "inside-waiting-room-as-oil-lamp-flame-fl": {
+   "file": "bg_inside-waiting-room-as-oil-lamp-flame-fl.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_inside-waiting-room-as-oil-lamp-flame-fl.jpg",
+   "place": "Inside waiting room as oil lamp flame flickers blue and dies",
+   "created": "2026-11-27"
+  },
+  "subhash-paralyzed-on-bench-as-soot-cover": {
+   "file": "bg_subhash-paralyzed-on-bench-as-soot-cover.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_subhash-paralyzed-on-bench-as-soot-cover.jpg",
+   "place": "Subhash paralyzed on bench as soot-covered ghostly hand touches leather bag",
+   "created": "2026-11-27"
+  },
+  "face-to-face-with-giant-soot-apparition-": {
+   "file": "bg_face-to-face-with-giant-soot-apparition-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_face-to-face-with-giant-soot-apparition-.jpg",
+   "place": "Face to face with giant soot apparition inside dark waiting room",
+   "created": "2026-11-27"
+  },
+  "waiting-room-room-collapsing-under-phant": {
+   "file": "bg_waiting-room-room-collapsing-under-phant.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_waiting-room-room-collapsing-under-phant.jpg",
+   "place": "Waiting room room collapsing under phantom train vibration",
+   "created": "2026-11-27"
+  },
+  "present-day-dak-bungalow-room-with-warm-": {
+   "file": "bg_present-day-dak-bungalow-room-with-warm-.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_present-day-dak-bungalow-room-with-warm-.jpg",
+   "place": "Present day dak bungalow room with warm lantern glow",
+   "created": "2026-11-27"
+  },
+  "pitch-dark-foggy-platform-tracks-of-begu": {
+   "file": "bg_pitch-dark-foggy-platform-tracks-of-begu.jpg",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/bg_pitch-dark-foggy-platform-tracks-of-begu.jpg",
+   "place": "Pitch dark foggy platform tracks of Begunkodor station at midnight",
+   "created": "2026-11-27"
   }
  },
  "props": {
@@ -550,6 +956,314 @@
    "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_old-leather-bound-handwritten-diary.png",
    "name": "old leather-bound handwritten diary",
    "desc": "worn dusty leather-bound old diary with yellowed pages, painted 2D horror prop",
+   "created": "2026-11-27"
+  },
+  "flickering-light-bulb": {
+   "file": "prop_flickering-light-bulb.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_flickering-light-bulb.png",
+   "name": "flickering light bulb",
+   "desc": "flickering light bulb, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "rusty-train-tracks": {
+   "file": "prop_rusty-train-tracks.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_rusty-train-tracks.png",
+   "name": "rusty train tracks",
+   "desc": "rusty train tracks, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "abandoned-station-nameboard": {
+   "file": "prop_abandoned-station-nameboard.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_abandoned-station-nameboard.png",
+   "name": "abandoned station nameboard",
+   "desc": "abandoned station nameboard, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "wooden-office-desk": {
+   "file": "prop_wooden-office-desk.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_wooden-office-desk.png",
+   "name": "wooden office desk",
+   "desc": "wooden office desk, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "empty-paper-folders": {
+   "file": "prop_empty-paper-folders.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_empty-paper-folders.png",
+   "name": "empty paper folders",
+   "desc": "empty paper folders, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "briefcase": {
+   "file": "prop_briefcase.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_briefcase.png",
+   "name": "briefcase",
+   "desc": "briefcase, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "cleaning-cloth": {
+   "file": "prop_cleaning-cloth.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_cleaning-cloth.png",
+   "name": "cleaning cloth",
+   "desc": "cleaning cloth, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "aluminum-tea-kettle": {
+   "file": "prop_aluminum-tea-kettle.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_aluminum-tea-kettle.png",
+   "name": "aluminum tea kettle",
+   "desc": "aluminum tea kettle, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "wooden-bench": {
+   "file": "prop_wooden-bench.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_wooden-bench.png",
+   "name": "wooden bench",
+   "desc": "wooden bench, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "fish-bucket-with-melting-ice": {
+   "file": "prop_fish-bucket-with-melting-ice.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_fish-bucket-with-melting-ice.png",
+   "name": "fish bucket with melting ice",
+   "desc": "fish bucket with melting ice, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "chalk-tally-marks-on-window": {
+   "file": "prop_chalk-tally-marks-on-window.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_chalk-tally-marks-on-window.png",
+   "name": "chalk tally marks on window",
+   "desc": "chalk tally marks on window, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "iron-signal-lever": {
+   "file": "prop_iron-signal-lever.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_iron-signal-lever.png",
+   "name": "iron signal lever",
+   "desc": "iron signal lever, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "hemp-rope": {
+   "file": "prop_hemp-rope.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_hemp-rope.png",
+   "name": "hemp rope",
+   "desc": "hemp rope, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "ballast-stones": {
+   "file": "prop_ballast-stones.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_ballast-stones.png",
+   "name": "ballast stones",
+   "desc": "ballast stones, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "pocket-flashlight": {
+   "file": "prop_pocket-flashlight.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_pocket-flashlight.png",
+   "name": "pocket flashlight",
+   "desc": "pocket flashlight, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "cast-iron-pillars": {
+   "file": "prop_cast-iron-pillars.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_cast-iron-pillars.png",
+   "name": "cast iron pillars",
+   "desc": "cast iron pillars, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "signal-post": {
+   "file": "prop_signal-post.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_signal-post.png",
+   "name": "signal post",
+   "desc": "signal post, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "wooden-desk": {
+   "file": "prop_wooden-desk.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_wooden-desk.png",
+   "name": "wooden desk",
+   "desc": "wooden desk, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "ink-pen": {
+   "file": "prop_ink-pen.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_ink-pen.png",
+   "name": "ink pen",
+   "desc": "ink pen, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "smoking-wick": {
+   "file": "prop_smoking-wick.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_smoking-wick.png",
+   "name": "smoking wick",
+   "desc": "smoking wick, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "brass-tea-cup": {
+   "file": "prop_brass-tea-cup.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_brass-tea-cup.png",
+   "name": "brass tea cup",
+   "desc": "brass tea cup, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "desk": {
+   "file": "prop_desk.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_desk.png",
+   "name": "desk",
+   "desc": "desk, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "window-pane": {
+   "file": "prop_window-pane.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_window-pane.png",
+   "name": "window pane",
+   "desc": "window pane, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "rusted-door-handle": {
+   "file": "prop_rusted-door-handle.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_rusted-door-handle.png",
+   "name": "rusted door handle",
+   "desc": "rusted door handle, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "swollen-wooden-door": {
+   "file": "prop_swollen-wooden-door.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_swollen-wooden-door.png",
+   "name": "swollen wooden door",
+   "desc": "swollen wooden door, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "leather-boots": {
+   "file": "prop_leather-boots.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_leather-boots.png",
+   "name": "leather boots",
+   "desc": "leather boots, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "corpse-hand": {
+   "file": "prop_corpse-hand.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_corpse-hand.png",
+   "name": "corpse hand",
+   "desc": "corpse hand, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "dripping-ice-water": {
+   "file": "prop_dripping-ice-water.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_dripping-ice-water.png",
+   "name": "dripping ice water",
+   "desc": "dripping ice water, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "peeling-door-frame": {
+   "file": "prop_peeling-door-frame.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_peeling-door-frame.png",
+   "name": "peeling door frame",
+   "desc": "peeling door frame, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "glowing-tally-marks-on-window": {
+   "file": "prop_glowing-tally-marks-on-window.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_glowing-tally-marks-on-window.png",
+   "name": "glowing tally marks on window",
+   "desc": "glowing tally marks on window, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "phantom-headlight": {
+   "file": "prop_phantom-headlight.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_phantom-headlight.png",
+   "name": "phantom headlight",
+   "desc": "phantom headlight, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "cracked-glass": {
+   "file": "prop_cracked-glass.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_cracked-glass.png",
+   "name": "cracked glass",
+   "desc": "cracked glass, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "armchair": {
+   "file": "prop_armchair.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_armchair.png",
+   "name": "armchair",
+   "desc": "armchair, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "tea-cup": {
+   "file": "prop_tea-cup.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_tea-cup.png",
+   "name": "tea cup",
+   "desc": "tea cup, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "apartment-window": {
+   "file": "prop_apartment-window.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_apartment-window.png",
+   "name": "apartment window",
+   "desc": "apartment window, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "bed": {
+   "file": "prop_bed.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_bed.png",
+   "name": "bed",
+   "desc": "bed, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "pillow": {
+   "file": "prop_pillow.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_pillow.png",
+   "name": "pillow",
+   "desc": "pillow, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "decayed-phantom-feet": {
+   "file": "prop_decayed-phantom-feet.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_decayed-phantom-feet.png",
+   "name": "decayed phantom feet",
+   "desc": "decayed phantom feet, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "leather-briefcase": {
+   "file": "prop_leather-briefcase.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_leather-briefcase.png",
+   "name": "leather briefcase",
+   "desc": "leather briefcase, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "cracked-glass-tumbler": {
+   "file": "prop_cracked-glass-tumbler.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_cracked-glass-tumbler.png",
+   "name": "cracked glass tumbler",
+   "desc": "cracked glass tumbler, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "flashlight": {
+   "file": "prop_flashlight.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_flashlight.png",
+   "name": "flashlight",
+   "desc": "flashlight, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "leather-bag": {
+   "file": "prop_leather-bag.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_leather-bag.png",
+   "name": "leather bag",
+   "desc": "leather bag, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "porcelain-telegraph-insulator": {
+   "file": "prop_porcelain-telegraph-insulator.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_porcelain-telegraph-insulator.png",
+   "name": "porcelain telegraph insulator",
+   "desc": "porcelain telegraph insulator, painted 2D horror story prop",
+   "created": "2026-11-27"
+  },
+  "ticket-counter-bell": {
+   "file": "prop_ticket-counter-bell.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_ticket-counter-bell.png",
+   "name": "ticket counter bell",
+   "desc": "ticket counter bell, painted 2D horror story prop",
    "created": "2026-11-27"
   }
  }
