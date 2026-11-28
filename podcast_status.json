@@ -1,0 +1,22 @@
+{
+ "guid": "2026-11-28-20",
+ "checked": "2026-11-28T19:58+00:00",
+ "rss": {
+  "status": "FEED_READY",
+  "url": "https://sumonsham.github.io/horror-story-bot/map/podcast.xml",
+  "episodes": 29,
+  "newest": "2026-11-28-20",
+  "note": "লাইভ ফিড ঠিক আছে, নতুন পর্বের অডিও খোলে",
+  "checked": "2026-11-28T19:58+00:00"
+ },
+ "apple": {
+  "status": "EPISODE_AVAILABLE",
+  "url": "https://podcasts.apple.com/us/podcast/daily-horror-story/id6834719714?uo=4",
+  "note": "নতুন পর্ব Apple Podcasts-এ এসে গেছে"
+ },
+ "spotify": {
+  "status": "LISTED",
+  "url": "https://open.spotify.com/show/722CFx97CZ71uNXztdBnJl?si=TE4pK_2ESW2Lerno0Tzhqw&utm_source=copy-link",
+  "note": "শো Spotify-তে আছে; Spotify নিজে RSS পড়ে - পর্ব-স্তরের যাচাই ফ্রি-তে সম্ভব নয় (UNKNOWN)"
+ }
+}

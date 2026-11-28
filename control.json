@@ -1,0 +1,19 @@
+{
+ "autodiscover": true,
+ "topic_mode": "AUTO_DISCOVER",
+ "autopublish": true,
+ "destinations": {
+  "youtube": true,
+  "facebook": true,
+  "podcast": true
+ },
+ "paused": null,
+ "user_topics": [],
+ "handled": [
+  390954470,
+  390954471,
+  390954480
+ ],
+ "updated": "2026-11-26T11:21+00:00",
+ "menu": "9422da2c55"
+}
