@@ -1,7 +1,7 @@
-"""Tests for Painted 2D Studio V3: 2 CF accounts + Agnes fallback + 3:30 AM backup + all secrets + line-cutoff guards."""
+"""Tests for V4 Realistic Cinematic Shot-by-Shot Painted 2.5D + Zero-Cut Single-Line Voice Pipeline."""
 import os
+import shutil
 import sys
-import tempfile
 
 import cv2
 import numpy as np
@@ -11,129 +11,99 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-import characters as CH
-import painted2d_studio as P2D
-import manifest as MF
-import compositor as COMP
 import cartoon25d as C25
 import extras as EX
 
 
-def _fake_image_fn(prompt, ref_path, seed, w, h):
-    img = np.full((h, w, 3), 184, dtype=np.uint8)
-    if "Empty painted 2D background" in prompt:
-        img[:, :] = (24, 30, 44)
-        cv2.rectangle(img, (0, int(h * 0.65)), (w, h), (34, 28, 26), -1)
-    elif "prop illustration" in prompt:
-        cv2.rectangle(img, (int(w * 0.35), int(h * 0.25)), (int(w * 0.65), int(h * 0.78)), (155, 32, 38), -1)
-    else:
-        cv2.circle(img, (w // 2, int(h * 0.14)), int(w * 0.09), (210, 175, 145), -1)
-        cv2.circle(img, (w // 2 - 14, int(h * 0.13)), 4, (20, 20, 20), -1)
-        cv2.circle(img, (w // 2 + 14, int(h * 0.13)), 4, (20, 20, 20), -1)
-        if "mouth open" in prompt or "amazement" in prompt:
-            cv2.ellipse(img, (w // 2, int(h * 0.17)), (10, 8), 0, 0, 360, (60, 20, 25), -1)
-        cv2.rectangle(img, (int(w * 0.34), int(h * 0.23)), (int(w * 0.66), int(h * 0.56)), (45, 70, 115), -1)
-        cv2.rectangle(img, (int(w * 0.37), int(h * 0.56)), (int(w * 0.48), int(h * 0.92)), (35, 35, 45), -1)
-        cv2.rectangle(img, (int(w * 0.52), int(h * 0.56)), (int(w * 0.63), int(h * 0.92)), (35, 35, 45), -1)
-    ok, buf = cv2.imencode(".png", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
-    assert ok
-    return buf.tobytes()
+def _make_painted_shot(path, w=640, h=360, bg_col=(22, 30, 48)):
+    img = np.full((h, w, 3), bg_col, dtype=np.uint8)
+    cv2.circle(img, (int(w * 0.2), int(h * 0.22)), 28, (205, 220, 235), -1)
+    cv2.rectangle(img, (0, int(h * 0.72)), (w, h), (18, 22, 28), -1)
+    cv2.circle(img, (w // 2, int(h * 0.34)), 36, (188, 152, 126), -1)
+    cv2.rectangle(img, (w // 2 - 48, int(h * 0.44)), (w // 2 + 48, int(h * 0.94)), (45, 58, 90), -1)
+    cv2.imwrite(path, img)
 
 
-def test_painted2d_scout_build_and_completeness(tmp_path):
-    story = {
-        "title": "রাত-তদন্ত: পেরেকে ঝোলানো শাড়ি",
-        "setting": "old abandoned zamindar house interior at night",
-        "characters": [
-            {"name": "Bapi", "gender": "male", "age": "young", "kind": "human", "look": "young Bengali man in blue shirt"},
-            {"name": "Nilkantha", "gender": "male", "age": "old", "kind": "human", "look": "old Bengali astrologer in shawl"},
-        ],
-        "scenes": [
-            {
-                "place": "dark dusty room inside old zamindar house",
-                "mood": "creepy",
-                "characters": ["Bapi", "Nilkantha"],
-                "lines": [
-                    {"speaker": "Bapi", "emotion": "scared", "text": "মামা, দেওয়ালের পেরেকে ওই রক্তমাখা শাড়িটা ঝুলছে কেন?"},
-                    {"speaker": "Nilkantha", "emotion": "normal", "text": "সাবধান বাপি, হারিকেনটা উঁচু করে ধর।"},
-                ],
-            }
-        ],
-    }
-    assets_dir = str(tmp_path / "assets")
-    cache_dir = str(tmp_path / "cache")
+def _make_wav(path, secs=2.2, sr=44100):
+    t = np.linspace(0, secs, int(sr * secs), endpoint=False)
+    sig = (0.35 * np.sin(2 * np.pi * 210 * t) * (0.6 + 0.4 * np.sin(2 * np.pi * 3.0 * t))).astype(np.float32)
+    wavfile.write(path, sr, np.clip(sig * 32767, -32768, 32767).astype(np.int16))
 
-    # Before build: incomplete
-    chk0 = P2D.story_assets_missing(story, assets_dir, cache_dir, slot_key="2026-11-28@20", series_names=["bapi", "nilkantha"])
-    assert chk0["complete"] is False
-    assert len(chk0["missing_chars"]) == 2
-    assert len(chk0["missing_bgs"]) == 1
-    assert len(chk0["missing_props"]) >= 2
 
-    records, by_name, bgs, scene_props, stats = P2D.build_story_assets(
-        story, assets_dir, cache_dir, image_fn=_fake_image_fn, slot_key="2026-11-28@20", series_names=["bapi", "nilkantha"]
+def _fake_fg_mask(pic, w_, h_):
+    m = np.zeros((h_, w_), dtype=np.uint8)
+    cv2.circle(m, (w_ // 2, int(h_ * 0.34)), int(w_ * 0.06), 255, -1)
+    cv2.rectangle(m, (w_ // 2 - int(w_ * 0.08), int(h_ * 0.42)), (w_ // 2 + int(w_ * 0.08), int(h_ * 0.95)), 255, -1)
+    return m
+
+
+def test_cinematic_25d_defaults_and_render(tmp_path):
+    assert C25.active(lambda k: {"ANIM_MODE": ""}.get(k, "")) is True
+    assert C25.active(lambda k: {"ANIM_MODE": "cartoon25d"}.get(k, "")) is True
+    assert C25.active(lambda k: {"ANIM_MODE": "character"}.get(k, "")) is True
+    assert C25.active(lambda k: {"ANIM_MODE": "cutout"}.get(k, "")) is False
+    assert C25.active(lambda k: {"CARTOON_25D": "0"}.get(k, "")) is False
+
+    # Unrevealed ghost character MUST NEVER float!
+    assert C25.detect_motion("শম্ভুদা লণ্ঠন মুছছেন", "", "normal", "Shambhu", ["Shambhu"], revealed=False) == "idle"
+    assert C25.detect_motion("ছায়াটা শূন্যে ভাসছে", "", "eerie", "Shambhu", ["Shambhu"], revealed=False) == "loom"
+    assert C25.detect_motion("ছায়াটা শূন্যে ভাসছে", "", "eerie", "Shambhu", ["Shambhu"], revealed=True) == "ghost_float"
+
+    s1 = str(tmp_path / "shot_00_00.jpg")
+    s2 = str(tmp_path / "shot_00_01.jpg")
+    wav = str(tmp_path / "scene_00.wav")
+    _make_painted_shot(s1, bg_col=(20, 28, 45))
+    _make_painted_shot(s2, bg_col=(28, 22, 38))
+    _make_wav(wav, secs=2.2)
+
+    L = C25.split_25d_layers(s1, 640, 360, cutout_fn=_fake_fg_mask)
+    assert L["has_fg"] is True
+    wx = C25.detect_weather("foggy Bengal railway station at night", ["rain"], "creepy", ["কে ওখানে?"])
+    tex = C25._textures(640, 360)
+    frame = C25.render_frame_25d(
+        L, 640, 360, 5, 0.5, 0.25, "dramatic_closeup", "creepy", wx, tex,
+        mouth=0.5, blink=0.2, speaking=True, emo="scared", motion_verb="idle",
     )
-    assert "bapi" in records and records["bapi"]["mode"] == "photo"
-    assert "shock" in records["bapi"]["expr"] and "fear" in records["bapi"]["expr"]
+    assert frame.shape == (360, 640, 3) and frame.dtype == np.uint8 and frame.mean() > 5
 
-    # After build: 100% complete so 3:30 AM backup skips cleanly!
-    chk1 = P2D.story_assets_missing(story, assets_dir, str(tmp_path / "cache2"), slot_key="2026-11-28@20", series_names=["bapi", "nilkantha"])
-    assert chk1["complete"] is True, chk1
+    if shutil.which("ffmpeg"):
+        mp4 = str(tmp_path / "scene_00.mp4")
+        dur = C25.render_scene(
+            [(s1, 0.0), (s2, 1.1)], wav, mp4, idx=0, mood="creepy",
+            talk=[(0.1, 1.0, False, "scared", "কে ওখানে?"), (1.1, 2.0, False, "normal", "আমি শম্ভু।")],
+            meta={"place": "foggy Bengal railway station at night", "ambience": ["rain"],
+                  "ghost_names": ["Shambhu"], "speakers": ["Bapi", "Shambhu"], "revealed": [False, False]},
+            W=640, H=360, FPS=12, SR=44100, cutout_fn=_fake_fg_mask,
+        )
+        assert dur >= 2.15 and os.path.exists(mp4) and os.path.getsize(mp4) > 5000
 
-    beats = [(0.5, 3.0, "Bapi", "scared", "মামা, শাড়িটা দেখো!"), (3.3, 6.0, "Nilkantha", "normal", "সাবধান বাপি।")]
-    m = MF.build_scene(0, story["scenes"][0], beats, 6.537, by_name, bgs[0], "creepy", props=scene_props[0])
-    assert m["duration"] == 6.537 and len(m["characters"]) == 2 and len(m["props"]) >= 2
 
-
-def test_v3_secrets_agnes_330am_and_safety_prompts(tmp_path):
-    # Softened fear/shock prompts avoid Cloudflare Error 3030 triggers
-    for bad in ("terrified", "screaming", "terror", "dread"):
-        assert bad not in CH.EXPR_TEXT["fear"].lower()
-        assert bad not in CH.EXPR_TEXT["shock"].lower()
-
+def test_v4_workflow_zero_cut_voice_and_cinematic_prebuild(tmp_path):
     yml = open(os.path.join(ROOT, ".github/workflows/horror-story.yml"), encoding="utf-8").read()
-    assert "ANIM_MODE: ${{ vars.ANIM_MODE || 'character' }}" in yml
+    assert "ANIM_MODE: ${{ vars.ANIM_MODE || 'cartoon25d' }}" in yml
+    assert "assets/cinematic_shots" in yml
     assert 'cron: "0 22 * * *"' in yml
-    assert "(github.event.schedule == '0 22 * * *' && 'assets')" in yml
-    assert "github.event.schedule != '0 22 * * *'" in yml
+    assert "espeakng-loader" in yml and "espeak-ng" in yml
     for sec in ("CF_ACCOUNT_ID_2", "CF_API_TOKEN_2", "AGNES_API_KEY",
-                "GEMINI_API_KEY_2", "GEMINI_API_KEY_3", "GEMINI_API_KEY_4",
-                "GEMINI_TTS_KEY_2", "GEMINI_TTS_KEY_3", "GEMINI_TTS_KEY_4",
-                "GEMINI_TTS_KEY_5", "GEMINI_TTS_KEY_6"):
-        assert f"secrets.{sec}" in yml, f"missing secret {sec} in workflow"
+                "GEMINI_API_KEY_2", "GEMINI_API_KEY_4", "GEMINI_TTS_KEY_2", "GEMINI_TTS_KEY_6"):
+        assert f"secrets.{sec}" in yml
 
     msrc = open(os.path.join(ROOT, "main.py"), encoding="utf-8").read()
-    assert 'for suf in ("", "_2"):' in msrc
-    assert "if CF_QUOTA_OUT and not extras.agnes_ok():" in msrc
-    assert "extras.agnes_image(prompt, crop_16x9=(w > h))" in msrc
-    assert "def _gem_text_keys():" in msrc
-    assert "P2D.story_assets_missing(" in msrc
+    assert "1 whole line per request - ZERO slicing!" in msrc
+    assert "def _build_plan_cinematic_shots(" in msrc
+    assert "def _cinematic_shots_missing(" in msrc
+    assert 'if (_am == "cutout" and env("PAINTED_2D") != "0"):' in msrc
+    assert '_c25["revealed"] = [bool(ln.get("_revealed", False)) for ln in spoken]' in msrc
+    assert "extras.slot_done(hist_now, key)" in msrc
 
-    # Verify extras.tts_keys() supports 1..6 keys AND still blocks paid GEMINI_API_KEY when ZERO_COST_MODE is on
-    old_env = {k: os.environ.get(k) for k in ("GEMINI_TTS_KEY", "GEMINI_TTS_KEY_2", "GEMINI_TTS_KEY_6", "GEMINI_API_KEY", "TTS_PAID", "ZERO_COST_MODE")}
-    try:
-        for k in old_env:
-            os.environ.pop(k, None)
-        os.environ["GEMINI_TTS_KEY"] = "k1"
-        os.environ["GEMINI_API_KEY"] = "paid"
-        os.environ["TTS_PAID"] = "1"
-        assert EX.tts_keys() == ["k1"]
-        os.environ["GEMINI_TTS_KEY_2"] = "k2"
-        os.environ["GEMINI_TTS_KEY_6"] = "k6"
-        assert EX.tts_keys() == ["k1", "k2", "k6"]
-    finally:
-        for k, v in old_env.items():
-            if v is None:
-                os.environ.pop(k, None)
-            else:
-                os.environ[k] = v
+    esrc = open(os.path.join(ROOT, "extras.py"), encoding="utf-8").read()
+    assert "DAY_OUT.add((key, model))\n                    HITS[model] = 0\n                    continue" in esrc
+    assert "max(0.45, plain_len / 24) <= d <= plain_len / 2.2 + 10" in esrc
 
-    # Line cutoff protection test
     sr = 16000
     t = np.linspace(0, 3.2, int(sr * 3.2), endpoint=False)
     sig = (0.3 * np.sin(2 * np.pi * 220 * t) * (0.5 + 0.5 * np.sin(2 * np.pi * 2.5 * t))).astype(np.float32)
     sig[int(sr * 1.5):int(sr * 2.8)] = sig[int(sr * 0.1):int(sr * 1.4)]
     p1 = str(tmp_path / "line1.wav")
     wavfile.write(p1, sr, np.clip(sig * 32767, -32768, 32767).astype(np.int16))
-    text_bn = "রাত তখন অনেক, হঠাৎ ঘরের ভেতর থেকে অদ্ভুত একটা শব্দ শোনা গেল।"
-    assert EX.fix_heard_twice([{"out": p1, "plain": text_bn, "voice": "Charon"}]) == 0
+    assert EX.fix_heard_twice([{"out": p1, "plain": "কুয়াশার পেটের ভেতর মিলিয়ে গেল, আর মুহূর্তের মধ্যে অন্ধকার নামল।", "voice": "Charon"}]) == 0
