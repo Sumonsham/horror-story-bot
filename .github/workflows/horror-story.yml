@@ -190,7 +190,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           # 23 Nov 2026, the owner: "from now on the horror story comes out as a cartoon" -> tvtoon is the default.
           # (to go back: repo Settings > Variables, TVTOON_OFF = 1; then ANIM_MODE works as before)
-          ANIM_MODE: ${{ vars.ANIM_MODE || 'character' }}
+          ANIM_MODE: ${{ vars.ANIM_MODE || 'cartoon25d' }}
           PREP_HOURS: ${{ vars.PREP_HOURS }}               # the 4 AM character-asset run: at most this many hours (empty = 5)
           TVTOON_LOOK: ${{ vars.TVTOON_LOOK }}             # empty = the cinematic film look; flat = the plain TV cartoon
           ANIM_QUALITY: ${{ vars.ANIM_QUALITY }}           # BALANCED (default) or FAST
@@ -237,7 +237,7 @@ jobs:
             fi
           fi
           # one by one: before, ONE missing file made git skip the whole list (lessons, series memory... never saved)
-          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json assets/true_web.json assets/discovery_ledger.json assets/topic_queue.json assets/publish_state.json assets/podcast_status.json assets/style_model.json assets/owner_voice/state.json assets/characters assets/cartoon_cast.json assets/cartoon_parts assets/character_library assets/character_art assets/painted2d_prep; do
+          for p in history.json next_part.json docs assets/next_up.json assets/lore assets/trends.json assets/lessons.json assets/today_scripts.json assets/teasers.json assets/my_stories.json assets/tts_usage.json assets/series_bible.json assets/ghost_dict.json assets/thumb_b assets/user_thumbs assets/thumb_base assets/title_list.json assets/weekly_report.json assets/podcast.json assets/milestones.json assets/tg_channel.json assets/viewer_voice.json assets/coach.json assets/promos.json assets/messenger.json assets/tg_requests.json assets/true_web.json assets/discovery_ledger.json assets/topic_queue.json assets/publish_state.json assets/podcast_status.json assets/style_model.json assets/owner_voice/state.json assets/characters assets/cartoon_cast.json assets/cartoon_parts assets/character_library assets/character_art assets/painted2d_prep assets/cinematic_shots; do
             if [ -e "$p" ]; then git add -A -f -- "$p" || true; fi
           done
           git commit -q -m "story posted $(date -u +%F_%H%M)" || echo "nothing new to remember"
