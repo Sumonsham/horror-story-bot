@@ -6828,8 +6828,11 @@ def _build_plan_cinematic_shots(plan, slot_key, max_new=68):
     cast_p = os.path.join(sdir, "cast.jpg")
     if os.path.exists(cast_p) and os.path.getsize(cast_p) > 2000:
         cast.ref = cast_p
+        log(f"  cast sheet loaded from cache ({slot_key})")
     else:
-        make_cast_sheet(cast, cast_p, seed)
+        log(f"  making cast reference sheet for {slot_key} ...")
+        ok_cast = make_cast_sheet(cast, cast_p, seed)
+        log(f"  cast reference sheet {'ready' if ok_cast else 'skipped (using text descriptions)'}")
     planned = _plan_cinematic_shots(story)
     made, hits, failed = 0, 0, 0
     for idx_p, item in enumerate(planned):
@@ -6840,11 +6843,21 @@ def _build_plan_cinematic_shots(plan, slot_key, max_new=68):
         if made >= max_new:
             break
         if CF_QUOTA_OUT and not extras.agnes_ok():
+            log("  all free picture providers (CF1, CF2, Agnes) used up/stopped - saving progress so far")
             break
+        log(f"  cinematic shot {idx_p + 1}/{len(planned)} ({item['fname']}) ...")
         if make_image(cast, item["action"], item["place"], item["names"], out_p, seed + idx_p * 13):
             made += 1
+            if made % 12 == 0:
+                try:
+                    push_now([CINEMATIC_SHOTS_DIR], f"cinematic 2D shots checkpoint ({slot_key}: {made} new)")
+                except Exception:
+                    pass
         else:
             failed += 1
+            if failed >= 5 and made == 0:
+                log("  5 shots failed in a row - stopping early so the run does not hang")
+                break
     rep = {
         "slot": slot_key,
         "title": story.get("title", ""),
@@ -11100,7 +11113,7 @@ def cartoon_prep_run():
     use_cine = cartoon25d_on()
     for h in (NOON, EVENING):
         key = f"{day.isoformat()}@{h}"
-        if extras.slot_done(hist_now, key) or (day == now.date() and h == NOON and now.hour >= 13):
+        if extras.slot_done(hist_now, key) or (day == now.date() and h == NOON and now.hour >= 11):
             skipped += 1
             log(f"  {SLOT_BN[h]} ({key}): already posted / past - skipping to save quota for upcoming story!")
             continue

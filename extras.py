@@ -5266,43 +5266,51 @@ def _crop_16x9(data):
 
 
 def agnes_image(prompt, crop_16x9=True):
-    """One picture from Agnes AI (free API, own key). Keeps full uncropped frame for portraits/props when crop_16x9=False."""
+    """One picture from Agnes AI (free API, own key). Fast 55s timeout & clean error logging so runs NEVER hang."""
     import base64 as _b64
     if not agnes_ok():
         raise RuntimeError("Agnes not available")
     hdr = {"Authorization": f"Bearer {env('AGNES_API_KEY')}", "Content-Type": "application/json"}
     models = [AGNES["model"]] if AGNES["model"] else list(AGNES_MODELS)
     if crop_16x9:
-        sizes = [AGNES["size"]] if AGNES["size"] else list(AGNES_SIZES)
+        sizes = [AGNES["size"]] if AGNES["size"] else list(AGNES_SIZES[:3])
     else:
-        sizes = ["1024x1024", "1024x768", "1280x720"]
+        sizes = ["1024x1024", "1024x768"]
     last = ""
+    tries = 0
     for model in models:
         for size in sizes:
             for fmt in ("b64_json", "url"):
+                tries += 1
+                if tries > 6:
+                    break
                 try:
-                    r = requests.post(AGNES_URL, headers=hdr, timeout=240,
+                    r = requests.post(AGNES_URL, headers=hdr, timeout=55,
                                       json={"model": model, "prompt": prompt[:3000], "size": size, "n": 1,
                                             "response_format": fmt})
                 except Exception as e:
                     last = str(e)[:150]
-                    continue
-                if r.status_code in (401, 403):
+                    log(f"    Agnes timeout/error ({model}, {size}): {last}")
+                    break
+                if r.status_code in (401, 402, 403):
                     AGNES["off"] = True
+                    log(f"    Agnes stopped ({r.status_code}): {r.text[:150]}")
                     raise RuntimeError(f"Agnes key refused ({r.status_code}): {r.text[:150]}")
                 if r.status_code == 429:
-                    time.sleep(20)
                     last = f"429 {r.text[:150]}"
-                    continue
+                    log(f"    Agnes rate limit ({model}): {last}")
+                    time.sleep(10)
+                    break
                 if not r.ok:
-                    last = f"{r.status_code} {r.text[:200]}"
+                    last = f"{r.status_code} {r.text[:180]}"
+                    log(f"    Agnes {model}/{size}/{fmt}: {last}")
                     continue
                 try:
                     d = (r.json().get("data") or [{}])[0]
                     if d.get("b64_json"):
                         data = _b64.b64decode(d["b64_json"])
                     elif d.get("url"):
-                        data = requests.get(d["url"], timeout=120).content
+                        data = requests.get(d["url"], timeout=45).content
                     else:
                         last = "no picture in reply: " + r.text[:150]
                         continue
@@ -5315,10 +5323,14 @@ def agnes_image(prompt, crop_16x9=True):
                 if crop_16x9:
                     AGNES["size"] = size
                 return data
+            if tries > 6:
+                break
+        if tries > 6:
+            break
     AGNES["fails"] += 1
-    if AGNES["fails"] >= 4:
+    if AGNES["fails"] >= 3:
         AGNES["off"] = True
-        log("  Agnes pictures: stopped for this run (kept failing)")
+        log("  Agnes pictures: stopped for this run (kept failing / rate-limited)")
     raise RuntimeError(f"Agnes picture failed: {last}")
 
 
