@@ -959,7 +959,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   }
  },
  {
@@ -996,7 +996,7 @@
    "yt_views": 1,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   }
  },
  {
@@ -1032,7 +1032,7 @@
    "yt_views": 1,
    "yt_avg_s": 1040,
    "yt_avg_pct": 100.0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   }
  },
  {
@@ -1183,7 +1183,7 @@
    "yt_views": 5,
    "yt_avg_s": 21,
    "yt_avg_pct": 1.3,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1227,7 +1227,7 @@
    "yt_views": 9,
    "yt_avg_s": 6,
    "yt_avg_pct": 0.6,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1273,7 +1273,7 @@
    "yt_avg_s": 414,
    "yt_avg_pct": 21.7,
    "yt_drop_at": 3,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1504,7 +1504,7 @@
    "yt_views": 4,
    "yt_avg_s": 330,
    "yt_avg_pct": 27.7,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -1546,7 +1546,7 @@
    "comments": 2,
    "views": 0,
    "length_s": 802,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   }
  },
  {
@@ -2017,7 +2017,7 @@
    "yt_views": 3,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2155,7 +2155,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -2291,10 +2291,10 @@
    "comments": 1,
    "views": 3,
    "length_s": 873,
-   "yt_views": 2,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 7,
+   "yt_avg_pct": 0.9,
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -2818,7 +2818,7 @@
    "yt_views": 10,
    "yt_avg_s": 14,
    "yt_avg_pct": 61.3,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   }
  },
  {
@@ -3125,7 +3125,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -3333,7 +3333,7 @@
    "yt_views": 4,
    "yt_avg_s": 2,
    "yt_avg_pct": 0.2,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -4098,7 +4098,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -5190,7 +5190,7 @@
    "yt_views": 0,
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -6146,12 +6146,12 @@
   "stats": {
    "likes": 2,
    "comments": 2,
-   "views": 3,
+   "views": 7,
    "length_s": 1752,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "yt_views": 6,
+   "yt_avg_s": 594,
+   "yt_avg_pct": 33.9,
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -6405,10 +6405,10 @@
    "comments": 2,
    "views": 1,
    "length_s": 1310,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-25T04:33+00:00"
+   "yt_views": 2,
+   "yt_avg_s": 31,
+   "yt_avg_pct": 2.4,
+   "checked": "2026-11-28T04:33+00:00"
   },
   "title_test": {
    "result": "swapped",
@@ -7351,7 +7351,13 @@
   "date": "2026-11-27T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-27@14",
-  "pending_comments": [],
+  "pending_comments": [
+   {
+    "id": "1805188437370289",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1603718001560415",
+    "after": 1795840500.0
+   }
+  ],
   "source": null,
   "idea_used": null,
   "trend_used": "A group of friends vlogging inside a locked, dilapidated zamindar mansion in rural Bengal captures a tall, faceless figure standing right behind them in the cam",
@@ -7480,7 +7486,17 @@
   },
   "hook_style": "sound",
   "district": "s24",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-27-14.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-27-14.mp4",
+  "stats": {
+   "likes": 1,
+   "comments": 2,
+   "views": 3,
+   "length_s": 1013,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-28T04:33+00:00"
+  }
  },
  {
   "date": "2026-11-27T14:31+00:00",
@@ -7599,5 +7615,150 @@
   "tagline": "সেই রাতে দরজা খুলেছিল কে?",
   "district": "nadia",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-27-20.mp4"
+ },
+ {
+  "date": "2026-11-28T08:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-28@14",
+  "pending_comments": [
+   {
+    "id": "1183834840879972",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1880866199598059"
+   },
+   {
+    "id": "1004267018869996",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1880866199598059",
+    "after": 1795926900.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A late-night train commuter gets off at a forgotten station where village elders whisper dark tales about a local witch who protects the lost.",
+  "len_arm": null,
+  "listener_score": 4.0,
+  "fresh": {
+   "opening": "an ordinary morning that goes subtly wrong",
+   "telling": "first person, the one who lived it, years later",
+   "ghost": "a folk spirit of Bengal true to its lore (nishi, shakchunni, brahmadaitya, petni, mechho bhoot, gechho bhoot, ...)",
+   "twist": "the narrator himself is part of it",
+   "setting": "a railway junction at night",
+   "fear": "a family secret coming out",
+   "details": [
+    "a heavy iron railway signal lever wrapped tightly in multiple layers of used jute twine th",
+    "the distinct wet rhythmic dripping sound of melted block ice leaking from a wooden fish ba",
+    "the sharp penetrating smell of burning coal-tar mixed with the faint rancid sweetness of s",
+    "the local belief that speaking your own full name aloud while crossing the overhead iron f",
+    "the everyday station practice of chalking small tally marks on the station master's glass "
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_3.mp3",
+   "why": "ghost, ghosts, night, train",
+   "also": "style_sample_2.mp3"
+  },
+  "discovery_id": "202611280100-x",
+  "story_class": "fiction",
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "gram",
+  "question_post": null,
+  "title_b": "রাত দেড়টার মালানদিঘি জংশন 🚂",
+  "theme": "A late-night train commuter gets off at a forgotten station where village elders whisper dark tales about a local witch who protects the lost.",
+  "format": "first person, the one who lived it, years later",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "মালানদিঘি জংশনের শেষ ট্রেন | The Last Train from Malandighi Junction 🚂",
+  "festival": null,
+  "summary": "রাত দেড়টায় নির্জন মালানদিঘি স্টেশনে নামল অনির্বাণ। কুয়াশায় ঘেরা পরিত্যক্ত প্ল্যাটফর্মে তার জন্য অপেক্ষা করছিল এক বীভৎস অতীত। সেই রাতে ঠিক কী ঘটেছিল সেখানে?",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 0,
+  "mystery_answer": 0,
+  "facebook": "1880866199598059",
+  "youtube": "kFnzqzG4xnY",
+  "fb_reel": "1183834840879972",
+  "fb_story": "1762284038182298",
+  "fb_reel2": "1004267018869996",
+  "yt_short": "kXVQP3eN6to",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1054,
+   "parts": [
+    [
+     0,
+     "⚡ ঝলক"
+    ],
+    [
+     18,
+     "শুরু"
+    ],
+    [
+     24,
+     "মালানদিঘির কুয়াশা"
+    ],
+    [
+     115,
+     "কলকাতার অফিস"
+    ],
+    [
+     214,
+     "অচেনা স্টেশনের প্ল্যাটফর্ম"
+    ],
+    [
+     298,
+     "রহস্যময় ওয়েটিং রুম"
+    ],
+    [
+     347,
+     "অভিশপ্ত ওভারব্রিজ"
+    ],
+    [
+     432,
+     "পিছন থেকে ডাক"
+    ],
+    [
+     457,
+     "স্টেশন মাস্টারের রেজিস্টার"
+    ],
+    [
+     489,
+     "কুড়ি বছর আগের অভিশাপ"
+    ],
+    [
+     550,
+     "অভিশপ্ত অতীত"
+    ],
+    [
+     617,
+     "বন্ধ ঘর"
+    ],
+    [
+     652,
+     "হিমশীতল স্পর্শ"
+    ],
+    [
+     701,
+     "হিসেব মেলানো"
+    ],
+    [
+     756,
+     "ছায়াজাল"
+    ],
+    [
+     878,
+     "শেষ ট্রেন"
+    ]
+   ]
+  },
+  "hook_style": "sound",
+  "district": "kolkata",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-28-14.mp4"
  }
 ]
