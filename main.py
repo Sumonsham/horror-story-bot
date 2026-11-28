@@ -6686,7 +6686,7 @@ def _build_plan_painted2d_assets(plan, slot_key, max_new=45):
         json.dump(rep, f, ensure_ascii=False, indent=1)
     return rep
 
-CINEMATIC_SHOTS_DIR = os.path.join(ASSETS, "cinematic_shots")
+CINEMATIC_SHOTS_DIR = os.path.join(HERE, "assets", "cinematic_shots")
 
 
 def _cinematic_slot_dir(slot_key):
