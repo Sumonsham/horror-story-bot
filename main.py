@@ -2049,7 +2049,15 @@ MASTER_STYLE = (
     "dramatic. If the storyteller opens with a frame ('I am...', 'this letter...'), the frame closes at the end.\n")
 
 
-LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 20)     # two ~22-minute stories a day (2 PM, 8 PM)
+LONG_MIN = float(os.environ.get("HORROR_MINUTES") or 20)     # (28 Nov 2026: the MAXIMUM - a story is as long as it needs)
+
+
+def story_floor_min():
+    """the shortest a story may be (minutes): 8 by default - YouTube places mid-roll ads only in videos of 8+ minutes"""
+    try:
+        return max(5.0, min(LONG_MIN, float(os.environ.get("MIN_STORY_MINUTES") or 8)))
+    except ValueError:
+        return 8.0
 SLOT_MINUTES = {10: 15.0, 14: 20.0, 20: 20.0}       # v113: both stories about 20 minutes      # every character in the Gemini voice fits the free limit
 os.environ.setdefault("VOICE_MAX", "240")        # Gemini may take its time for a long story (it is the best voice)
 os.environ.setdefault("VOICE_RESERVE", "60")     # ... but leaves an hour for making and posting the video
@@ -2646,6 +2654,22 @@ def team_report(story, slot_hour):
     STATE["team"] = {}
 
 
+TITLE_GENERIC = {"bengali", "horror", "story", "stories", "real", "bangla", "golpo", "shorts", "the", "and", "of", "from",
+                 "পর্ব", "গল্প", "ভূতের", "রাতের", "সেই"}
+
+
+def overused_title_words(history, last=10, times=3):
+    """the words the last titles keep repeating ('অভিশপ্ত' was in 9 of 16 titles by 28 Nov 2026) - YouTube treats a
+    channel whose uploads all look alike as repetitive / mass-produced, and viewers stop clicking"""
+    titles = [str(h.get("title", "")) for h in history[-last:] if h.get("title")]
+    cnt = {}
+    for t in titles:
+        for w in set(re.findall(r"[ঀ-৿]{3,}|[A-Za-z]{4,}", t.lower())):
+            if w not in TITLE_GENERIC and not re.fullmatch(r"[০-৯]+", w):
+                cnt[w] = cnt.get(w, 0) + 1
+    return [w for w, c in sorted(cnt.items(), key=lambda r: -r[1]) if c >= times][:8]
+
+
 def fresh_brief(history, lang):
     """the devices of THIS story (least used recently) + fresh details (invented by Gemini, checked against the last
     stories) -> STATE['fresh_rule'] for the writer, STATE['fresh'] kept in the history"""
@@ -2677,6 +2701,15 @@ def fresh_brief(history, lang):
         + " Do NOT reuse the openings, places, ghosts, clues, sounds or sentences of our earlier stories"
         + (f" ({'; '.join(old[:10])})" if old else "") + ". Every story needs at least one thing the listener has "
         "never heard in a ghost story before.\n")
+    try:                                              # 28 Nov 2026: the TITLES must not all sound alike either
+        over_ = overused_title_words(history)
+        if over_:
+            STATE["fresh_rule"] += ("TITLE VARIETY: our last titles keep using the same words - in this story's title "
+                                    f"(and its YouTube title) do NOT use: {', '.join(over_)}. Name what is NEW in this "
+                                    "story instead (its own place, person, object or question).\n")
+            log("  title words used too often lately (not in this title): " + ", ".join(over_))
+    except Exception:
+        pass
     log(f"  fresh brief: opens with '{pick['opening']}', {pick['telling']}, {pick['ghost']}, twist: {pick['twist']}")
     return pick
 
@@ -3096,10 +3129,11 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
     wpm = 120 * sc
     target = int(LONG_MIN * wpm)
     base = make_story(lang, theme, history, fmt=fmt, part=0, prev=None, extra_rules=extra_rules, prompt_only=True,
-                      length=(f"- LENGTH: ONE long, slow-burning story of about {int(LONG_MIN)} minutes: about {target} "
-                              f"spoken words ({max(14, target // 110)} to {max(18, target // 80)} scenes). The length "
-                              "comes from living each moment fully - real talk, doubt, small real details - never from "
-                              "extra events or repeated scares."))
+                      length=(f"- LENGTH (owner, 28 Nov 2026): exactly as long as THIS story needs to be told well - "
+                              f"and NO longer than about {int(LONG_MIN)} minutes ({target} spoken words at the most; "
+                              f"never under about {int(story_floor_min())} minutes). NO padding: no filler talk, no "
+                              "repeated scares, no retelling what the listener already knows, no scene that does not "
+                              "move the story. A tight 12-minute story is better than a stretched 20-minute one."))
     rules = base.split("Return ONLY JSON with exactly these keys:")[0]
     if opening == "recap":
         rules += ("\nThis is a NEW PART of a series: the narrator opens with a short recap (3-4 lines) of where the last "
@@ -3120,7 +3154,8 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
     # v113 (17-18 Nov: 'the story ends, then ANOTHER story is pushed on to make it long'): the author goes on ONLY
     # when the story has really not reached its end. A finished story that is too short is made fuller INSIDE its
     # own scenes - never with new events after the ending.
-    while _words(scenes) < target * 0.8 and tries < 2:
+    floor_w = int(story_floor_min() * wpm)
+    while _words(scenes) < floor_w and tries < 2:   # (28 Nov 2026: only an UNFINISHED story goes on - no padding)
         tries += 1
         if story_has_ended(title, scenes, lang):
             break
@@ -3136,7 +3171,7 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
             break
         scenes += add
         log(f"  the story went on to its end: now {len(scenes)} scenes, {_words(scenes)} words")
-    if _words(scenes) < target * 0.8 and env("DEEPEN") != "0":
+    if _words(scenes) < target * 0.8 and env("DEEPEN") == "1":   # (28 Nov 2026: OFF - the owner wants no stretching)
         deep = _gem_call(
             f"Here is a complete {L['name']} horror script that is too SHORT for a {int(LONG_MIN)}-minute audio story "
             f"(about {target} spoken words are needed, it has {_words(scenes)}). Make it about {target} words by living "
@@ -3149,8 +3184,10 @@ def write_whole_story(lang, theme, history, fmt, extra_rules, classic=False, end
         if sc3 and _words(sc3) > _words(scenes) * 1.1 and same_ending(scenes, sc3):
             log(f"  the story made fuller inside its own scenes: {_words(scenes)} -> {_words(sc3)} words")
             title, scenes = (t3 or title), sc3
-    if _words(scenes) < target * 0.55:
+    if _words(scenes) < floor_w * 0.85:
         raise RuntimeError(f"whole story too short ({_words(scenes)} words)")
+    if _words(scenes) > target * 1.15:
+        log(f"  NOTE: the story is longer than the {int(LONG_MIN)}-minute maximum ({_words(scenes)} words for {target})")
     # ONE editor reads the WHOLE script once (plain text: the editor works on the story, not on JSON fields)
     if env("EDITOR") != "0":
         ed = _gem_call(
@@ -3282,7 +3319,7 @@ def write_long_story(lang, theme, history, fmt, extra_rules, classic=False, endi
     STATE.pop("short_plan", None)
     wpm = 120 * sc                                    # script words that make one minute of the finished video
     words_per = int(LONG_MIN * wpm / n_ch)
-    need = int(float(env("MIN_LONG_MINUTES") or max(12.0, LONG_MIN - 2)) * wpm)
+    need = int(float(env("MIN_LONG_MINUTES") or story_floor_min()) * wpm)   # (28 Nov 2026: a floor, not a target)
     sc_lo, sc_hi = max(6, round(words_per / 70)), max(8, round(words_per / 48))   # scenes per chapter
     max_ch = n_ch + 3
     # THE PLAN DECIDES THE ORDER: the outline's beats are shared out between the chapters in advance - chapter 1
