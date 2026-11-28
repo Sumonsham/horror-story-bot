@@ -5332,10 +5332,10 @@
    "comments": 2,
    "views": 3,
    "length_s": 1349,
-   "yt_views": 4,
-   "yt_avg_s": 1330,
-   "yt_avg_pct": 98.6,
-   "checked": "2026-11-25T10:34+00:00"
+   "yt_views": 3,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-28T10:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -6560,12 +6560,12 @@
   "stats": {
    "likes": 1,
    "comments": 2,
-   "views": 6,
+   "views": 8,
    "length_s": 1023,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-25T10:34+00:00"
+   "yt_views": 6,
+   "yt_avg_s": 23,
+   "yt_avg_pct": 2.3,
+   "checked": "2026-11-28T10:34+00:00"
   },
   "title_test": {
    "result": "kept",
@@ -6584,11 +6584,11 @@
   "stats": {
    "likes": 0,
    "comments": 0,
-   "views": 2,
-   "yt_views": 0,
-   "yt_avg_s": 0,
-   "yt_avg_pct": 0,
-   "checked": "2026-11-25T10:34+00:00"
+   "views": 3,
+   "yt_views": 3,
+   "yt_avg_s": 16,
+   "yt_avg_pct": 36.1,
+   "checked": "2026-11-28T10:34+00:00"
   }
  },
  {
@@ -7351,13 +7351,7 @@
   "date": "2026-11-27T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-27@14",
-  "pending_comments": [
-   {
-    "id": "1805188437370289",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1603718001560415",
-    "after": 1795840500.0
-   }
-  ],
+  "pending_comments": [],
   "source": null,
   "idea_used": null,
   "trend_used": "A group of friends vlogging inside a locked, dilapidated zamindar mansion in rural Bengal captures a tall, faceless figure standing right behind them in the cam",
@@ -7496,6 +7490,10 @@
    "yt_avg_s": 0,
    "yt_avg_pct": 0,
    "checked": "2026-11-28T04:33+00:00"
+  },
+  "title_test": {
+   "result": "kept",
+   "views": 3
   }
  },
  {
@@ -7614,17 +7612,23 @@
   "hook_style": "voice",
   "tagline": "সেই রাতে দরজা খুলেছিল কে?",
   "district": "nadia",
-  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-27-20.mp4"
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-27-20.mp4",
+  "stats": {
+   "likes": 2,
+   "comments": 2,
+   "views": 5,
+   "length_s": 1190,
+   "yt_views": 0,
+   "yt_avg_s": 0,
+   "yt_avg_pct": 0,
+   "checked": "2026-11-28T10:34+00:00"
+  }
  },
  {
   "date": "2026-11-28T08:31+00:00",
   "lang": "bn",
   "slot": "2026-11-28@14",
   "pending_comments": [
-   {
-    "id": "1183834840879972",
-    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1880866199598059"
-   },
    {
     "id": "1004267018869996",
     "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1880866199598059",
@@ -7760,5 +7764,147 @@
   "hook_style": "sound",
   "district": "kolkata",
   "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-28-14.mp4"
+ },
+ {
+  "date": "2026-11-28T14:31+00:00",
+  "lang": "bn",
+  "slot": "2026-11-28@20",
+  "pending_comments": [
+   {
+    "id": "1142637698519888",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1001902459637398"
+   },
+   {
+    "id": "1792101068539299",
+    "text": "👉 পুরো গল্প শুনতে ক্লিক করুন এই লিংকে: https://www.facebook.com/watch/?v=1001902459637398",
+    "after": 1795948500.0
+   }
+  ],
+  "source": null,
+  "idea_used": null,
+  "trend_used": "A stranded night bus breaks down near the haunted railway platform of Begunkodar where passengers hear a phantom ticket counter bell.",
+  "len_arm": null,
+  "listener_score": 9.0,
+  "fresh": {
+   "opening": "an ordinary morning that goes subtly wrong",
+   "telling": "first person, the one who lived it, years later",
+   "ghost": "a folk spirit of Bengal true to its lore (nishi, shakchunni, brahmadaitya, petni, mechho bhoot, gechho bhoot, ...)",
+   "twist": "the narrator himself is part of it",
+   "setting": "a railway junction at night",
+   "fear": "a family secret coming out",
+   "details": [
+    "a heavy porcelain railway telegraph insulator containing a small pool of stagnant rainwate",
+    "the wet, rhythmic slapping sound of a banana leaf being dragged across the concrete platfo",
+    "the distinct, pungent smell of burnt mustard-cake fertilizer mixed with the cold coal-smok",
+    "the local belief that leaving a iron railway fishplate unbolted on the sleeper calls out t",
+    "the station master's everyday habit of polishing brass signal padlocks with ash and cold p"
+   ]
+  },
+  "style_pick": {
+   "sample": "style_sample_3.mp3",
+   "why": "horror, night, railway",
+   "also": null
+  },
+  "discovery_id": null,
+  "story_class": null,
+  "true_sources": null,
+  "crossover": null,
+  "opening": "flash",
+  "category": "notun",
+  "question_post": null,
+  "title_b": "অভিশপ্ত বেগুনকোদর প্ল্যাটফর্ম আর এক অডিটর 👻",
+  "theme": "A stranded night bus breaks down near the haunted railway platform of Begunkodar where passengers hear a phantom ticket counter bell.",
+  "format": "old chowkidar Mahadeb reads one old entry from the visitors' book and that guest's night is told",
+  "part": 0,
+  "continues": false,
+  "series_id": null,
+  "title": "ডাকবাংলোর খাতা #1: বুনোবাতাস ও বেগুনকোদর স্টেশন | The Haunted Platform of Begunkodar 🚂",
+  "festival": null,
+  "summary": "পুরুলিয়ার জঙ্গলে এক অভিশপ্ত রেল স্টেশনে আটকে পড়েন অডিটর সুভদ্রবাবু। অন্ধকার কাউন্টারে বেজে ওঠে রহস্যময় ঘণ্টা, আর এক মৃত স্টেশনমাস্টার ডেকে নেয় তাকে। মৃত্যুর এই ভয়াল জালের শেষ কোথায়?",
+  "sequel_of": null,
+  "best_comment_id": null,
+  "special": "bungalow",
+  "viewer_story_id": null,
+  "classic_id": null,
+  "episode_summary": null,
+  "karna_origin": null,
+  "hidden": 4,
+  "mystery_answer": 0,
+  "facebook": "1001902459637398",
+  "youtube": "IOCESgmETwQ",
+  "fb_reel": "1142637698519888",
+  "fb_story": "1764497587986918",
+  "fb_reel2": "1792101068539299",
+  "yt_short": "cFvYDptdT1Q",
+  "thumb_src": "user",
+  "timeline": {
+   "len": 1231,
+   "parts": [
+    [
+     0,
+     "শুরু"
+    ],
+    [
+     10,
+     "ডাকবাংলোর রেজিস্টার খাতা"
+    ],
+    [
+     137,
+     "কুয়াশায় ঘেরা বাস"
+    ],
+    [
+     268,
+     "অভিশপ্ত বেগুনকোদর"
+    ],
+    [
+     367,
+     "জংধরা প্ল্যাটফর্ম"
+    ],
+    [
+     485,
+     "5"
+    ],
+    [
+     551,
+     "6"
+    ],
+    [
+     633,
+     "7"
+    ],
+    [
+     712,
+     "8"
+    ],
+    [
+     774,
+     "9"
+    ],
+    [
+     846,
+     "10"
+    ],
+    [
+     901,
+     "11"
+    ],
+    [
+     974,
+     "12"
+    ],
+    [
+     1049,
+     "13"
+    ],
+    [
+     1140,
+     "14"
+    ]
+   ]
+  },
+  "hook_style": "voice",
+  "tagline": "প্রতি রাতে সেখানে কেউ টিকিট কাটে!",
+  "district": "purulia",
+  "backup": "https://github.com/Sumonsham/horror-story-bot/releases/download/videos/2026-11-28-20.mp4"
  }
 ]
