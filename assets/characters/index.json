@@ -82,7 +82,7 @@
    },
    "created": "2026-11-27",
    "seed": 666076,
-   "last_used": "2026-11-27",
+   "last_used": "2026-11-28",
    "provider": "cloudflare"
   },
   "shambhu-2026-11-28": {
@@ -167,7 +167,7 @@
    },
    "created": "2026-11-27",
    "seed": 666113,
-   "last_used": "2026-11-27",
+   "last_used": "2026-11-28",
    "provider": "cloudflare"
   },
   "benu-2026-11-28": {
@@ -252,7 +252,7 @@
    },
    "created": "2026-11-27",
    "seed": 666150,
-   "last_used": "2026-11-27",
+   "last_used": "2026-11-28",
    "provider": "cloudflare"
   },
   "mahadeb": {
@@ -1536,6 +1536,55 @@
    "name": "red cloth cover",
    "desc": "red cloth cover, painted 2D horror story prop",
    "created": "2026-11-27"
+  },
+  "incandescent-bulb": {
+   "file": "prop_incandescent-bulb.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_incandescent-bulb.png",
+   "name": "incandescent bulb",
+   "desc": "incandescent bulb, painted 2D horror story prop",
+   "created": "2026-11-28"
+  },
+  "audit-files": {
+   "file": "prop_audit-files.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_audit-files.png",
+   "name": "audit files",
+   "desc": "audit files, painted 2D horror story prop",
+   "created": "2026-11-28"
+  },
+  "tea-kettle": {
+   "file": "prop_tea-kettle.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_tea-kettle.png",
+   "name": "tea kettle",
+   "desc": "tea kettle, painted 2D horror story prop",
+   "created": "2026-11-28"
+  },
+  "white-chalk": {
+   "file": "prop_white-chalk.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_white-chalk.png",
+   "name": "white chalk",
+   "desc": "white chalk, painted 2D horror story prop",
+   "created": "2026-11-28"
+  },
+  "glass-window": {
+   "file": "prop_glass-window.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_glass-window.png",
+   "name": "glass window",
+   "desc": "glass window, painted 2D horror story prop",
+   "created": "2026-11-28"
+  },
+  "signal-lever": {
+   "file": "prop_signal-lever.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_signal-lever.png",
+   "name": "signal lever",
+   "desc": "signal lever, painted 2D horror story prop",
+   "created": "2026-11-28"
+  },
+  "wooden-door": {
+   "file": "prop_wooden-door.png",
+   "url": "https://github.com/Sumonsham/horror-story-bot/releases/download/characters/prop_wooden-door.png",
+   "name": "wooden door",
+   "desc": "wooden door, painted 2D horror story prop",
+   "created": "2026-11-28"
   }
  }
 }
