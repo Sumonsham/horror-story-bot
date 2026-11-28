@@ -33,18 +33,18 @@ import numpy as np
 from PIL import Image
 
 CARTOON25D_STYLE = (
-    "2.5D dark Bengali horror cartoon illustration, high-end animated TV series film still, "
-    "crisp hand-inked dark outlines, rich atmospheric cel-shading with painted depth, "
-    "dark moody low-key lighting, cold midnight blue and teal shadows with warm flickering amber lantern rim light, "
-    "expressive stylized Indian Bengali cartoon characters and authentic Bengal architecture, "
-    "clear separation between foreground character and layered background, eerie suspenseful horror atmosphere, "
-    "not gory, no blood, no gore, no text, no letters, no watermark"
+    "realistic cinematic 2D painted Bengali horror drama illustration, prestige graphic novel and animated film still, "
+    "natural realistic Indian Bengali facial proportions and authentic human expressions, rich painterly brushwork with refined dark ink contours, "
+    "dramatic chiaroscuro cinematic lighting, deep midnight blue shadows with warm glowing brass lantern and rim light, "
+    "authentic rural and vintage West Bengal architecture, clothing and props naturally integrated in the scene, "
+    "cinematic depth of field, atmospheric realism, NOT goofy cartoon, NOT chibi, NOT flat vector, "
+    "eerie suspenseful horror mood, not gory, no blood, no gore, no text, no letters, no watermark"
 )
 
 CARTOON25D_THUMB_STYLE = (
-    "2.5D dark Bengali horror cartoon poster illustration, vivid high-contrast animated TV series art, "
-    "crisp dark ink outlines, dramatic warm lantern light and cold blue moonlight, expressive terrified face, "
-    "no text, no letters, no watermark"
+    "realistic cinematic 2D painted Bengali horror drama poster illustration, prestige graphic novel film art, "
+    "natural realistic expressive Indian Bengali face, dramatic warm lantern light and cold midnight blue moonlight, "
+    "rich painterly shadows, NOT goofy cartoon, no text, no letters, no watermark"
 )
 
 _LAYER_CACHE = {}
@@ -53,9 +53,11 @@ _FX_CACHE = {}
 
 
 def active(env_fn):
-    """True only when ANIM_MODE=cartoon25d is explicitly requested."""
+    """Realistic Cinematic Painted 2.5D Engine: active by default unless CARTOON_25D=0 or ANIM_MODE is cutout/cartoon/tvtoon."""
+    if (env_fn("CARTOON_25D") or "").strip() == "0":
+        return False
     am = (env_fn("ANIM_MODE") or "").strip().lower()
-    return am == "cartoon25d"
+    return am in ("", "cartoon25d", "cinematic", "character")
 
 
 # ------------------------------------------------------------------ story environment & motion analysis
@@ -106,15 +108,17 @@ def detect_weather(place="", ambience=None, mood="creepy", texts=None):
     }
 
 
-def detect_motion(text="", action="", emotion="", speaker="", ghost_names=()):
-    """Map story action/text/emotion into a 2.5D foreground animation verb."""
+def detect_motion(text="", action="", emotion="", speaker="", ghost_names=(), revealed=True):
+    """Map story action/text/emotion into a restrained, realistic 2.5D foreground motion verb.
+    Unrevealed characters NEVER float or turn semi-transparent."""
     hay = f"{action or ''} {text or ''}".lower()
     emo = str(emotion or "").lower()
     spk = str(speaker or "").lower()
-    is_ghost = any(g and g.lower() in spk for g in (ghost_names or ())) or any(
-        w in hay for w in ("float", "hover", "ghost", "spirit", "shadowy figure", "ভাস", "শূন্যে", "আত্মা", "ছায়ামূর্তি")
+    is_ghost = bool(revealed) and (
+        any(g and g.lower() in spk for g in (ghost_names or ()))
+        or any(w in hay for w in ("float", "hover", "spirit", "shadowy figure", "ভাস", "শূন্যে", "আত্মা", "ছায়ামূর্তি"))
     )
-    if is_ghost and any(w in hay for w in ("float", "hover", "drift", "glide", "appear", "ভাস", "শূন্যে", "মিলিয়ে")):
+    if is_ghost and any(w in hay for w in ("float", "hover", "drift", "glide", "ভাস", "শূন্যে")):
         return "ghost_float"
     if any(w in hay for w in ("run", "flee", "rush", "sprint", "chase", "দৌড়", "ছুট", "পালা", "भाग", "दौड़")):
         return "run"
@@ -344,7 +348,7 @@ def plan_25d_shots(segments, total, talk=None, mood="creepy"):
     cycle = ("establish_dolly", "parallax_lr", "dramatic_closeup", "parallax_rl", "low_rise")
     for si, (img, st, en) in enumerate(segs):
         d = max(0.2, en - st)
-        parts = 1 if d < 6.5 else (2 if d < 13.5 else 3)
+        parts = 1 if d < 5.5 else (2 if d < 11.5 else 3)
         for p in range(parts):
             a = st + d * p / parts
             b = st + d * (p + 1) / parts
@@ -501,71 +505,62 @@ def render_frame_25d(
         src = L["fg"]
         if animate_mod is not None and L.get("faces"):
             try:
-                pic = animate_mod.draw_face(L["fg_rgb"], L["faces"], blink, 0.0, "a", gaze)
-                pic = animate_mod.draw_face(pic, L["faces"][:1], 0.0, mouth, shape)
-                src = cv2.cvtColor(np.clip(pic, 0, 255).astype(np.float32), cv2.COLOR_RGB2BGR)
+                clear_faces = [fc for fc in L["faces"] if fc.get("box", (0, 0, 0, 0))[2] >= 72]
+                if clear_faces:
+                    pic = animate_mod.draw_face(L["fg_rgb"], clear_faces, blink * 0.85, 0.0, "a", (gaze[0] * 0.5, gaze[1] * 0.5))
+                    if os.environ.get("FACE_ANIM", "").strip() == "1" and mouth > 0.08:
+                        pic = animate_mod.draw_face(pic, clear_faces[:1], 0.0, min(0.62, mouth * 0.65), shape)
+                    src = cv2.cvtColor(np.clip(pic, 0, 255).astype(np.float32), cv2.COLOR_RGB2BGR)
             except Exception:
                 src = L["fg"]
 
 
-        # Story motion verbs + foot-anchored breathing & vocal emphasis
+        # Restrained cinematic breathing & grounded posture (realistic drama feel, zero bouncy sticker)
         char_dx = 0.0
         char_dy = 0.0
-        char_rot = 0.45 * math.sin(sec * 1.05)
-        char_scale = 1.0 + 0.006 * math.sin(sec * 1.85)
+        char_rot = 0.18 * math.sin(sec * 0.90)
+        char_scale = 1.0 + 0.004 * math.sin(sec * 1.55)
         char_alpha = 1.0
 
         if motion_verb == "walk":
-            char_dx += direction * (ease - 0.5) * 32.0
-            char_dy -= abs(math.sin(sec * math.pi * 2.1)) * 7.5
-            char_rot += 1.4 * math.sin(sec * math.pi * 2.1)
+            char_dx += direction * (ease - 0.5) * 14.0
+            char_dy -= abs(math.sin(sec * math.pi * 1.8)) * 3.0
+            char_rot += 0.45 * math.sin(sec * math.pi * 1.8)
         elif motion_verb == "run":
-            char_dx += direction * (ease - 0.5) * 52.0
-            char_dy -= abs(math.sin(sec * math.pi * 3.6)) * 12.0
-            char_rot += 2.6 * math.sin(sec * math.pi * 3.6)
+            char_dx += direction * (ease - 0.5) * 20.0
+            char_dy -= abs(math.sin(sec * math.pi * 3.0)) * 5.0
+            char_rot += 0.9 * math.sin(sec * math.pi * 3.0)
         elif motion_verb == "recoil":
-            char_dx -= direction * 18.0 * ease
-            char_scale -= 0.025 * ease
-            char_rot -= direction * 1.6 * ease
+            char_dx -= direction * 10.0 * ease
+            char_scale -= 0.015 * ease
+            char_rot -= direction * 0.6 * ease
         elif motion_verb == "ghost_float":
-            char_dy -= 14.0 + 10.0 * math.sin(sec * 2.1)
-            char_rot = 1.1 * math.sin(sec * 1.4)
-            char_alpha = 0.84 + 0.12 * math.sin(sec * 2.8)
+            char_dy -= 6.0 + 5.0 * math.sin(sec * 1.6)
+            char_rot = 0.4 * math.sin(sec * 1.1)
+            char_alpha = 0.88 + 0.08 * math.sin(sec * 2.2)
         elif motion_verb == "tremble":
-            char_dx += 2.2 * math.sin(sec * 48.0)
-            char_dy += 1.2 * math.cos(sec * 41.0)
+            char_dx += 1.3 * math.sin(sec * 42.0)
+            char_dy += 0.7 * math.cos(sec * 36.0)
         elif motion_verb == "loom":
-            char_scale += 0.045 * ease
-            char_dy -= 4.0 * ease
+            char_scale += 0.028 * ease
+            char_dy -= 2.0 * ease
 
         if speaking:
-            char_dy -= 3.2 * mouth
-            char_scale += 0.008 * mouth
-            char_rot += 0.55 * math.sin(sec * 6.5) * mouth
+            char_dy -= 1.2 * mouth
+            char_scale += 0.0035 * mouth
+            char_rot += 0.18 * math.sin(sec * 4.8) * mouth
 
-        # Pivot character transform near feet so feet remain grounded while upper body breathes/sways
-        fz = bz * (1.032 + 0.028 * ease) * char_scale
+        # Pivot character transform near feet with refined 2.5D parallax (crisp depth, ZERO inpaint halo smudges)
+        fz = bz * (1.020 + 0.020 * ease) * char_scale
         pivot_x, pivot_y = cx, feet_y
         Mf = cv2.getRotationMatrix2D((pivot_x, pivot_y), char_rot, fz)
-        # Anchor foreground at the same camera-projected pivot, plus stronger 1.38x 2.5D parallax shift!
         cam_px = Mb[0, 0] * pivot_x + Mb[0, 1] * pivot_y + Mb[0, 2]
         cam_py = Mb[1, 0] * pivot_x + Mb[1, 1] * pivot_y + Mb[1, 2]
-        Mf[0, 2] += (cam_px - pivot_x) + pan_x * 0.76 + char_dx + shx * 0.25
-        Mf[1, 2] += (cam_py - pivot_y) + pan_y * 0.55 + char_dy + shy * 0.25
+        Mf[0, 2] += (cam_px - pivot_x) + pan_x * 0.28 + char_dx + shx * 0.18
+        Mf[1, 2] += (cam_py - pivot_y) + pan_y * 0.20 + char_dy + shy * 0.18
 
         fgw = cv2.warpAffine(src, Mf, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
         aw = cv2.warpAffine(L["fg_a"], Mf, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
-        if L.get("bbox") and not wx["indoor"]:
-            # Gentle outdoor hair breeze strictly on top crown (never distorts face/eyes)
-            _, by0, _, by1 = L["bbox"]
-            hair_end = min(H, max(8, int(by0 + 0.11 * (by1 - by0))))
-            ys_h = np.arange(hair_end, dtype=np.float32)
-            taper = np.clip(1.0 - ys_h / float(hair_end), 0.0, 1.0) ** 1.6
-            shifts = (1.6 * taper * np.sin(sec * 2.8 + ys_h * 0.05)).astype(np.int32)
-            for row_i, sh_px in enumerate(shifts):
-                if sh_px != 0:
-                    fgw[row_i] = np.roll(fgw[row_i], int(sh_px), axis=0)
-                    aw[row_i] = np.roll(aw[row_i], int(sh_px), axis=0)
         aw = np.clip(aw * char_alpha, 0.0, 1.0)[..., None]
 
         # Subtle warm rim glow on character edge when lantern/indoor is active
@@ -644,7 +639,7 @@ def render_scene(
     )
     tex = _textures(W, H)
     shots = plan_25d_shots(segments, dur, talk, mood)
-    n_frames = max(1, int(round(dur * FPS)))
+    n_frames = max(1, int(math.ceil((dur + 0.06) * FPS)))
 
     rnd = np.random.default_rng(idx + 250)
     flicker = (rnd.uniform(0, 1, 400) > 0.93).astype(np.float32) * rnd.uniform(0.35, 1.0, 400)
@@ -668,7 +663,7 @@ def render_scene(
         [
             "ffmpeg", "-y", "-loglevel", "error",
             "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-            "-i", audio, "-t", f"{dur:.2f}",
+            "-i", audio, "-t", f"{dur + 0.06:.3f}",
             "-vf", f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0.0, dur - 0.4):.2f}:d=0.4,format=yuv420p",
             "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-maxrate", "3800k", "-bufsize", "7600k",
             "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-ac", "2", out,
@@ -676,7 +671,7 @@ def render_scene(
         stdin=subprocess.PIPE, stderr=subprocess.PIPE,
     )
 
-    XF = 8
+    XF = 6
     prev_last, cur_k, frame_in_shot = None, -1, 0
     try:
         for f in range(n_frames):
@@ -695,7 +690,9 @@ def render_scene(
                     emo = str(em or "").lower()
                     act_txt = actions_list[ti] if ti < len(actions_list) else ""
                     spk_txt = meta.get("speakers", [""] * len(talk))[ti] if ti < len(meta.get("speakers", [])) else ""
-                    verb = detect_motion(tx, act_txt, emo, spk_txt, ghost_names)
+                    rev_list = meta.get("revealed") or []
+                    is_rev = bool(rev_list[ti]) if ti < len(rev_list) else False
+                    verb = detect_motion(tx, act_txt, emo, spk_txt, ghost_names, revealed=is_rev)
                     if not nar and f < len(env_track):
                         mouth = float(env_track[f])
                         speaking = mouth > 0.08

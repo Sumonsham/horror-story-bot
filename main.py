@@ -4157,7 +4157,7 @@ def make_cast_sheet(cast, path, seed):
             return True
         except Exception as e:
             log(f"  cast sheet attempt {attempt + 1} failed: {str(e)[:200]}")
-            if CF_QUOTA_OUT:
+            if CF_QUOTA_OUT and not extras.agnes_ok():
                 return False
             time.sleep(6 * (attempt + 1))
     return False
@@ -4618,10 +4618,11 @@ def voice_reserve():
         except Exception:
             night = False
         if night:
+            n_k = max(1, len(extras.tts_keys()))
             try:
-                return max(0, int(env("TTS_KEEP_FOR_NOON") or 18))   # (v113: 36 a day = 18 + 18, no teaser voices)
+                return max(0, int(env("TTS_KEEP_FOR_NOON") or (18 * n_k)))
             except ValueError:
-                return 18
+                return 18 * n_k
         return 0
     if env("TTS_RESERVE"):
         try:
@@ -4752,43 +4753,64 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
         need_of = lambda: {s: len(extras.tts_groups(sentence_items([it for _t, it in pairs_of({s})])[0])) for s in chars}
         # (v91b: back to the full range - you want EVERY story fully in the Gemini voice; a sentence that Gemini reads
         # twice is caught by its length and made again alone, see below)
-        sizes_ = ((5, 600), (7, 800), (9, 1000), (11, 1200), (14, 1450), (18, 1700))
+        # Scale per-story voice budget across all configured free GEMINI_TTS_KEY keys (1..6).
+        # With multiple keys, prefer 1 whole line per request (ZERO slicing -> ZERO mid-line voice cutoffs!).
+        n_tts_keys = max(1, len(extras.tts_keys()))
+        sizes_ = ((1, 420), (2, 620), (3, 820), (5, 1050), (8, 1300), (12, 1600))
         if env("TTS_MAX_PIECES"):
             sizes_ = tuple(x for x in sizes_ if x[0] <= int(env("TTS_MAX_PIECES"))) or sizes_[:1]
-        # v105: ONE STORY TAKES AT MOST ~14 REQUESTS (before, a story took every request that was free - 24 on
-        # 17 Nov - and the next video had none left). Bigger recordings, fewer requests; the twice-check after the
-        # voices (v104) catches what a bigger recording gets wrong. Never so few that a character loses Gemini.
         real_left = left
         if VOICE_CONTEXT[0] == "main":
-            left = min(left, int(env("STORY_MAX_REQ") or 14))
+            default_cap = 16 if n_tts_keys == 1 else min(115, 18 * n_tts_keys)
+            left = min(left, int(env("STORY_MAX_REQ") or default_cap))
         for n_, c_ in sizes_:
             extras.TTS_PLAN.update(pieces=n_, chars=c_)
-            need = need_of()
-            if sum(need.values()) <= int(left * 0.85):
+            if n_ == 1:
+                need = {s: len(pairs_of({s})) for s in chars}
+            else:
+                need = need_of()
+            if sum(need.values()) <= int(left * 0.88):
                 break
         total_need = sum(need.values())
-        if total_need + 1 > left:                      # (the biggest size still needs more: the whole cast first)
+        if total_need + 1 > left:
             left = min(real_left, total_need + 1)
-        log(f"  this story may use {left} of the {real_left} free voice requests")
+        log(f"  this story may use {left} of the {real_left} free voice requests ({n_tts_keys} TTS key(s))")
         extras.TTS_SPARE[0] = max(0, left - total_need)
         del extras.SUSPECT[:]
         extras.SUSPECT_NEIGH.clear()
-        if VOICE_CONTEXT[0] == "main" and env("VOICE_SAMPLES") != "0":   # a few raw recordings for tuning the cutting
+        if VOICE_CONTEXT[0] == "main" and env("VOICE_SAMPLES") != "0":
             extras.SAMPLE["dir"] = VOICE_SAMPLES
-        log(f"  today's free voice requests left: {left}; the whole cast needs {total_need} "
-            f"(up to {extras.TTS_PLAN['pieces']} sentences / {extras.TTS_PLAN['chars']} letters per request)")
+        single_mode = (extras.TTS_PLAN["pieces"] == 1)
+        _mode_lbl = ("1 whole line per request - ZERO slicing!" if single_mode
+                     else f"up to {extras.TTS_PLAN['pieces']} sentences / {extras.TTS_PLAN['chars']} letters per request")
+        log(f"  today's free voice requests left: {left}; the whole cast needs {total_need} ({_mode_lbl})")
         gem = []
         for s in [x for x in order if x in chars]:    # one character after the other (the storyteller first)
             if extras.TTS_USED[0] + need[s] > left:
                 continue                              # (a character is only begun when it can also be finished)
             gem.append(s)
             mine = [it for _t, it in pairs_of({s})]
-            turns, parts = sentence_items(mine)
-            try:
-                extras.tts_gemini_batch(turns, LANGS[lang]["name"], SR, max_requests=left)
-            except Exception as e:                    # never lose the video over the voices
-                log("  expressive voices stopped:", str(e)[:150])
-            join_sentences(parts)
+            if single_mode:
+                done_s = 0
+                for idx_m, it in enumerate(mine):
+                    if made(it):
+                        done_s += 1
+                        continue
+                    if extras.TTS_USED[0] >= left or not extras.gemini_quota_left() or extras.TTS_STATE["off"]:
+                        break
+                    extras.TTS_USED[0] += 1
+                    if extras.tts_gemini(it["text"], it["voice"], f"{it['who']}. {it['feel']}. "
+                                         + extras.PRONOUNCE.get(lang, ""), LANGS[lang]["name"], it["out"], SR):
+                        done_s += 1
+                    if (idx_m + 1) % 10 == 0:
+                        log(f"  {s}: {done_s}/{len(mine)} lines done ({extras.TTS_USED[0]} requests)")
+            else:
+                turns, parts = sentence_items(mine)
+                try:
+                    extras.tts_gemini_batch(turns, LANGS[lang]["name"], SR, max_requests=left)
+                except Exception as e:                # never lose the video over the voices
+                    log("  expressive voices stopped:", str(e)[:150])
+                join_sentences(parts)
             for it in [it for it in mine if not made(it)]:   # a line still open: alone, while the share lasts
                 if extras.TTS_USED[0] >= left or not extras.gemini_quota_left():
                     break
@@ -4955,7 +4977,7 @@ def prepare_gemini_voices(scenes, voices, lang, max_minutes=45):
                 tmp_ = it["out"] + ".again.wav"
                 ok_ = False
                 try:
-                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again[0] < int(env("TWICE_GEM_MAX") or 10)
+                    if (extras.tts_keys() and extras.gemini_quota_left() and gem_again[0] < int(env("TWICE_GEM_MAX") or 18)
                             and extras.tts_budget_left(TTS_USAGE) - extras.TTS_USED[0] > 0):
                         gem_again[0] += 1
                         off_ = extras.TTS_STATE["off"]
@@ -5843,8 +5865,8 @@ def make_scene_audio(lines, voices, lang, idx, sounds, mood, out_wav, ambience=N
             plain_clean = extras.strip_tags(text)
             exp_sec = _VC.expected_seconds(plain_clean)
             cur_sec = len(a) / float(SR)
-            # Only invoke acoustic repeat-cutting if audio is clearly bloated (> 1.55x expected and > 3.5s)
-            if cur_sec > max(3.5, exp_sec * 1.55):
+            # Only invoke acoustic repeat-cutting if audio is unmistakably bloated (> 1.75x expected and > 4.2s)
+            if cur_sec > max(4.2, exp_sec * 1.75):
                 a_trim, rep_ = _VC.fix_repeats(a, SR, plain_clean)
                 trim_sec = len(a_trim) / float(SR)
                 if rep_ and "said again" in rep_ and trim_sec >= max(1.0, exp_sec * 0.92):
@@ -6664,6 +6686,180 @@ def _build_plan_painted2d_assets(plan, slot_key, max_new=45):
         json.dump(rep, f, ensure_ascii=False, indent=1)
     return rep
 
+CINEMATIC_SHOTS_DIR = os.path.join(ASSETS, "cinematic_shots")
+
+
+def _cinematic_slot_dir(slot_key):
+    return os.path.join(CINEMATIC_SHOTS_DIR, str(slot_key or "latest").replace("@", "_").replace("/", "_"))
+
+
+def _prune_old_cinematic_shots(keep_days=2):
+    if not os.path.isdir(CINEMATIC_SHOTS_DIR):
+        return
+    cutoff = (dt.datetime.now(extras.IST).date() - dt.timedelta(days=keep_days)).isoformat()
+    for name in os.listdir(CINEMATIC_SHOTS_DIR):
+        full = os.path.join(CINEMATIC_SHOTS_DIR, name)
+        if os.path.isdir(full) and len(name) >= 10 and name[:10] < cutoff:
+            try:
+                shutil.rmtree(full)
+            except Exception:
+                pass
+
+
+def _cinematic_framing_directive(g, n_groups, first, people, mood):
+    """Film-director camera shot variety matching realistic Bengali painted horror dramas."""
+    emo = str((first or {}).get("emotion") or "").lower()
+    spk = str((first or {}).get("speaker") or "").lower()
+    is_dialogue = bool(spk) and not spk.startswith("narrat")
+    n_ppl = len(people or [])
+    if emo in ("scared", "shout", "crying", "angry") or (first or {}).get("jump_scare"):
+        return ("Intimate dramatic close-up portrait shot of the character's expressive face and eyes, "
+                "strong chiaroscuro lantern and moonlight rim lighting, deep shadows behind.")
+    if g == 0:
+        return ("Wide cinematic establishing shot showing the full moody environment, authentic Bengal architecture, "
+                "weather atmosphere, and the character naturally grounded inside the scene.")
+    if is_dialogue and n_ppl <= 1:
+        return ("Dramatic medium close-up portrait of the speaking character, natural realistic Bengali facial expression, "
+                "shallow depth of field with dark atmospheric background.")
+    if n_ppl == 2:
+        return ("Cinematic medium two-shot, both characters naturally framed facing each other in realistic conversation, "
+                "warm lantern key light and cool dark shadows.")
+    if mood in ("scare", "tense") and g % 2 == 1:
+        return ("Atmospheric low-angle cinematic suspense shot, dramatic looming shadows, mist and eerie rim lighting, "
+                "strong foreground-to-background depth.")
+    return ("Cinematic medium action shot capturing the character's hands, props and posture naturally integrated into "
+            "the moody dark painted environment.")
+
+
+def _plan_cinematic_shots(story, budget=None):
+    """Compute the exact shot list for every scene of a story (shared by 2 AM prep, 3:30 AM backup & video run)."""
+    scenes = (story.get("scenes") or [])[:120]
+    if budget is None:
+        budget = int(env("MAX_IMAGES") or (64 if LONG_MIN > 16 else 48))
+    scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
+    total_lines = sum(len(x) for x in scene_lines) or 1
+    planned = []
+    for i, (s, lines) in enumerate(zip(scenes, scene_lines)):
+        want = max(1, min(len(lines), round(len(lines) * budget / total_lines))) if lines else 1
+        groups = [lines[round(g * len(lines) / want):round((g + 1) * len(lines) / want)] for g in range(want)] or [[]]
+        _pspec = s.get("production_spec") if isinstance(s.get("production_spec"), dict) else {}
+        _ps_props = ", ".join(str(x) for x in (_pspec.get("props") or [])[:6] if x)
+        _ps_lines = {int(ls_["line"]): ls_ for ls_ in (_pspec.get("line_specs") or [])
+                     if isinstance(ls_, dict) and isinstance(ls_.get("line"), int)}
+        for g, grp in enumerate(groups):
+            first = key_line(grp) if grp else {}
+            pic = first.get("image") if isinstance(first.get("image"), dict) else {}
+            first_idx = lines.index(first) if first in lines else -1
+            ls_meta = _ps_lines.get(first_idx) or {}
+            action = pic.get("prompt") or ls_meta.get("visual_detail") or first.get("shot") or s.get("action", "")
+            if _ps_props and _ps_props.lower() not in action.lower():
+                action = f"{action}. Key story objects visible naturally in scene: {_ps_props}"
+            said = " ".join(str(x.get("en", "")).strip() for x in grp if x.get("en"))[:420]
+            if said:
+                action = (f"{action}. It must show exactly what is being told: \"{said}\". Same place, time of "
+                          f"day and light as the story ({s.get('place', '')})")
+            names = pic.get("characters") if isinstance(pic.get("characters"), list) else s.get("characters")
+            people = [x for x in (pic.get("people") or []) if isinstance(x, dict) and x.get("name")]
+            spk_name = str(first.get("speaker") or "").strip()
+            spk_valid = spk_name if spk_name and not spk_name.lower().startswith("narrat") else ""
+            if people and len(people) > 2:
+                pri = [x for x in people if spk_valid and str(x["name"]).lower() == spk_valid.lower()]
+                rest = [x for x in people if x not in pri]
+                people = (pri + rest)[:2]
+            elif not people and isinstance(names, list) and len(names) > 2:
+                pri = [n_ for n_ in names if spk_valid and str(n_).lower() == spk_valid.lower()]
+                rest = [n_ for n_ in names if n_ not in pri]
+                names = (pri + rest)[:2]
+            framing = _cinematic_framing_directive(g, len(groups), first, people, s.get("mood", "creepy"))
+            if people:
+                side_ = lambda x: (0 if "left" in str(x.get("where", "")).lower() else
+                                   2 if "right" in str(x.get("where", "")).lower() else 1)
+                people = sorted(people, key=side_)
+                n_ = len(people)
+                desc = "; ".join(
+                    f"{x['name']} is {x.get('pose', '')} {x.get('where', '')}, {x.get('doing', '')}, face: {x.get('feeling', '')}"
+                    for x in people[:2])
+                action = (f"{framing} EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture, no one else, "
+                          f"nobody appears twice. {desc}. {action}")
+                names = [x["name"] for x in people]
+            elif isinstance(names, list) and 1 <= len(names) <= 2:
+                n_ = len(names)
+                action = f"{framing} EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture ({', '.join(names)}). {action}"
+            else:
+                action = f"{framing} {action}"
+            planned.append({
+                "scene": i,
+                "group": g,
+                "fname": f"shot_{i:02d}_{g:02d}.jpg",
+                "action": action,
+                "place": s.get("place", ""),
+                "names": names,
+                "grp_len": max(1, len(grp)),
+            })
+    return planned
+
+
+def _cinematic_shots_missing(plan, slot_key):
+    """Check whether all planned cinematic shots already exist in assets/cinematic_shots/<slot_key>/."""
+    if not isinstance(plan, dict) or not isinstance(plan.get("story"), dict):
+        return {"complete": True, "missing": [], "total": 0}
+    sdir = _cinematic_slot_dir(slot_key)
+    planned = _plan_cinematic_shots(_story_cast(plan))
+    missing = [p["fname"] for p in planned if not (os.path.exists(os.path.join(sdir, p["fname"])) and os.path.getsize(os.path.join(sdir, p["fname"])) > 2000)]
+    return {"complete": len(missing) == 0, "missing": missing, "total": len(planned)}
+
+
+def _build_plan_cinematic_shots(plan, slot_key, max_new=68):
+    """Pre-build all realistic cinematic painted 2D shots for a story at 2:00 AM / 3:30 AM (CF1 -> CF2 -> Agnes AI)."""
+    if not isinstance(plan, dict) or not isinstance(plan.get("story"), dict):
+        return None
+    _prune_old_cinematic_shots(keep_days=2)
+    story = _story_cast(plan)
+    try:
+        clean_story_text(story)
+        fix_speakers(story)
+        production_blueprint_with_writer_loop(story, plan.get("lang") or "bn")
+    except Exception as e:
+        log("  cinematic shot pre-scan note:", str(e)[:120])
+    sdir = _cinematic_slot_dir(slot_key)
+    os.makedirs(sdir, exist_ok=True)
+    cast = Cast(story)
+    seed = abs(hash(f"{slot_key}:{story.get('title', '')}")) % 900000 + 23
+    cast_p = os.path.join(sdir, "cast.jpg")
+    if os.path.exists(cast_p) and os.path.getsize(cast_p) > 2000:
+        cast.ref = cast_p
+    else:
+        make_cast_sheet(cast, cast_p, seed)
+    planned = _plan_cinematic_shots(story)
+    made, hits, failed = 0, 0, 0
+    for idx_p, item in enumerate(planned):
+        out_p = os.path.join(sdir, item["fname"])
+        if os.path.exists(out_p) and os.path.getsize(out_p) > 2000:
+            hits += 1
+            continue
+        if made >= max_new:
+            break
+        if CF_QUOTA_OUT and not extras.agnes_ok():
+            break
+        if make_image(cast, item["action"], item["place"], item["names"], out_p, seed + idx_p * 13):
+            made += 1
+        else:
+            failed += 1
+    rep = {
+        "slot": slot_key,
+        "title": story.get("title", ""),
+        "built_at": dt.datetime.now(extras.IST).isoformat(timespec="minutes"),
+        "total_shots": len(planned),
+        "made": made,
+        "hits": hits,
+        "failed": failed,
+        "missing": sum(1 for it in planned if not (os.path.exists(os.path.join(sdir, it["fname"])) and os.path.getsize(os.path.join(sdir, it["fname"])) > 2000)),
+    }
+    with open(os.path.join(sdir, "manifest.json"), "w", encoding="utf-8") as f:
+        json.dump(rep, f, ensure_ascii=False, indent=1)
+    return rep
+
+
 
 def character_clip(comp, audio, out):
     """one character scene; a finished scene is kept in CLIP_CACHE so a stopped run does not render it again"""
@@ -7338,6 +7534,7 @@ def build_video(scene_parts, lang, out):
             _c25 = dict(sp["cartoon25d"])
             _c25["actions"] = [str(ln.get("action") or ln.get("en") or "") for ln in spoken]
             _c25["speakers"] = [str(ln.get("speaker") or "") for ln in spoken]
+            _c25["revealed"] = [bool(ln.get("_revealed", False)) for ln in spoken]
             comp_ = {"cartoon25d": _c25}
         tv_done = False
         if sp.get("tvtoon") is not None and not comp_:   # 23 Nov 2026: the TV cartoon, on the bot's own lines
@@ -8269,11 +8466,16 @@ def morning_teasers(history):
             except Exception:
                 NOON_NEED[0] = 0
         try:
-            _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 35))
-            push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
-                     f"morning painted 2D assets for {key}")
+            if cartoon25d_on():
+                if not _cinematic_shots_missing(plan, key)["complete"]:
+                    _build_plan_cinematic_shots(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 40))
+                    push_now([CINEMATIC_SHOTS_DIR], f"morning cinematic 2D shots for {key}")
+            else:
+                _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 35))
+                push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
+                         f"morning painted 2D assets for {key}")
         except Exception as e_mp:
-            log(f"  morning painted 2D assets note ({key}):", str(e_mp)[:120])
+            log(f"  morning visual assets note ({key}):", str(e_mp)[:120])
         hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
                       "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
                       "viewer_names": [p[0] for p in ((plan.get("state") or {}).get("viewer_names") or [])]})
@@ -10822,19 +11024,26 @@ def write_tomorrow(history, day=None):
             except Exception as e:
                 log(f"  tomorrow's story for {key} not written now ({str(e)[:200]}) - the morning run writes it")
                 continue
-        # Build & commit Painted 2D assets (characters, empty backgrounds, transparent props) right in the 2 AM write run
+        # Build & commit Realistic Cinematic Painted 2D shots right in the 2 AM write run (CF1 -> CF2 -> Agnes AI)
         if plan and env("WRITE_BUILD_ASSETS") != "0":
             try:
-                log(f"=== 2 AM Painted 2D Asset Builder for {SLOT_BN[h]} ({key}) ===")
-                rep_2d = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 45))
-                if rep_2d:
-                    st_2d = rep_2d.get("stats") or {}
-                    log(f"  2 AM Painted 2D assets ready for {key}: {len(rep_2d.get('characters', {}))} chars, "
-                        f"{rep_2d.get('backgrounds_count', 0)} bgs, {rep_2d.get('props_count', 0)} props - stats: {st_2d}")
-                    push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
-                             f"painted 2D assets written for {key}")
+                if cartoon25d_on():
+                    log(f"=== 2 AM Realistic Cinematic 2D Shot Builder for {SLOT_BN[h]} ({key}) ===")
+                    rep_cs = _build_plan_cinematic_shots(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 68))
+                    if rep_cs:
+                        log(f"  2 AM Cinematic shots ready for {key}: {rep_cs['made']} new, {rep_cs['hits']} cached, {rep_cs['missing']} remaining")
+                        push_now([CINEMATIC_SHOTS_DIR], f"cinematic 2D shots written for {key}")
+                else:
+                    log(f"=== 2 AM Painted 2D Asset Builder for {SLOT_BN[h]} ({key}) ===")
+                    rep_2d = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 45))
+                    if rep_2d:
+                        st_2d = rep_2d.get("stats") or {}
+                        log(f"  2 AM Painted 2D assets ready for {key}: {len(rep_2d.get('characters', {}))} chars, "
+                            f"{rep_2d.get('backgrounds_count', 0)} bgs, {rep_2d.get('props_count', 0)} props - stats: {st_2d}")
+                        push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
+                                 f"painted 2D assets written for {key}")
             except Exception as e_2d:
-                log(f"  2 AM Painted 2D asset build note ({key}):", str(e_2d)[:160])
+                log(f"  2 AM visual asset build note ({key}):", str(e_2d)[:160])
         done.append(key)
         hist2.append({"theme": plan.get("theme"), "title": plan["story"].get("title"), "lang": plan.get("lang"),
                       "category": plan.get("cat"), "date": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
@@ -10885,40 +11094,63 @@ def cartoon_prep_run():
         except Exception as e_w:
             log("  missing-story fallback write note:", str(e_w)[:160])
 
-    # Step 2: Build ONLY missing Painted 2D assets for each slot
+    # Step 2: Build ONLY missing realistic cinematic 2D shots (skipping any slot already posted today!)
+    hist_now = load_history()
     saved, notes, skipped = [], [], 0
+    use_cine = cartoon25d_on()
     for h in (NOON, EVENING):
         key = f"{day.isoformat()}@{h}"
+        if extras.slot_done(hist_now, key) or (day == now.date() and h == NOON and now.hour >= 13):
+            skipped += 1
+            log(f"  {SLOT_BN[h]} ({key}): already posted / past - skipping to save quota for upcoming story!")
+            continue
         plan = load_plan(key)
         if not plan:
             log(f"  {SLOT_BN[h]}: no story written yet - nothing to make")
             notes.append(f"{SLOT_BN[h]}: গল্প এখনও লেখা হয়নি")
             continue
-        special = plan.get("special") or ""
-        fixed = [str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)]
-        chk = P2D.story_assets_missing(_story_cast(plan), ASSETS, CHAR_CACHE, slot_key=key, series_names=fixed)
-        if chk["complete"]:
-            skipped += 1
-            log(f"  {SLOT_BN[h]} ({key}): already 100% complete from 2 AM run - skipping!")
-            continue
-        log(f"  {SLOT_BN[h]} ({key}): missing {len(chk['missing_chars'])} char sprite(s), "
-            f"{len(chk['missing_bgs'])} bg(s), {len(chk['missing_props'])} prop(s) - building now...")
-        try:
-            rep = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 60))
-            if rep:
-                saved.append(key)
-                st = rep.get("stats") or {}
-                notes.append(
-                    f"{SLOT_BN[h]}: '{rep['title']}' - চরিত্র {len(rep['characters'])}টা "
-                    f"(নতুন ছবি {st.get('images_made', 0)}, ব্যাকগ্রাউন্ড {st.get('bg_made', 0)}, "
-                    f"প্রপস {st.get('props_made', 0)}, ক্যাশ {st.get('cache_hits', 0) + st.get('bg_hits', 0)})"
-                )
-        except Exception as e:
-            log(f"  {key}: painted 2D assets failed ({str(e)[:200]})")
-            notes.append(f"{SLOT_BN[h]}: অ্যাসেট তৈরিতে সমস্যা ({str(e)[:80]})")
+        if use_cine:
+            chk = _cinematic_shots_missing(plan, key)
+            if chk["complete"]:
+                skipped += 1
+                log(f"  {SLOT_BN[h]} ({key}): all {chk['total']} cinematic 2D shots already complete - skipping!")
+                continue
+            log(f"  {SLOT_BN[h]} ({key}): {len(chk['missing'])}/{chk['total']} cinematic 2D shots missing - building now...")
+            try:
+                rep = _build_plan_cinematic_shots(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 68))
+                if rep:
+                    saved.append(key)
+                    notes.append(
+                        f"{SLOT_BN[h]}: '{rep['title']}' - মোট সিনেমাটিক শট {rep['total_shots']}টা "
+                        f"(নতুন {rep['made']}, ক্যাশ {rep['hits']}, বাকি {rep['missing']})"
+                    )
+            except Exception as e:
+                log(f"  {key}: cinematic shots failed ({str(e)[:200]})")
+                notes.append(f"{SLOT_BN[h]}: শট তৈরিতে সমস্যা ({str(e)[:80]})")
+        else:
+            special = plan.get("special") or ""
+            fixed = [str(c.get("name", "")).lower() for c in (series_cast(special, "") or []) if isinstance(c, dict)]
+            chk = P2D.story_assets_missing(_story_cast(plan), ASSETS, CHAR_CACHE, slot_key=key, series_names=fixed)
+            if chk["complete"]:
+                skipped += 1
+                log(f"  {SLOT_BN[h]} ({key}): already 100% complete from 2 AM run - skipping!")
+                continue
+            try:
+                rep = _build_plan_painted2d_assets(plan, key, max_new=int(env("PREP_MAX_IMAGES") or 60))
+                if rep:
+                    saved.append(key)
+                    st = rep.get("stats") or {}
+                    notes.append(
+                        f"{SLOT_BN[h]}: '{rep['title']}' - চরিত্র {len(rep['characters'])}টা "
+                        f"(নতুন ছবি {st.get('images_made', 0)}, ব্যাকগ্রাউন্ড {st.get('bg_made', 0)}, "
+                        f"প্রপস {st.get('props_made', 0)}, ক্যাশ {st.get('cache_hits', 0) + st.get('bg_hits', 0)})"
+                    )
+            except Exception as e:
+                log(f"  {key}: painted 2D assets failed ({str(e)[:200]})")
+                notes.append(f"{SLOT_BN[h]}: অ্যাসেট তৈরিতে সমস্যা ({str(e)[:80]})")
     if saved:
-        push_now([os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")],
-                 f"painted 2D assets for {day.isoformat()}")
+        push_paths = [CINEMATIC_SHOTS_DIR] if use_cine else [os.path.join(ASSETS, "characters"), os.path.join(ASSETS, "painted2d_prep")]
+        push_now(push_paths, f"{'cinematic 2D shots' if use_cine else 'painted 2D assets'} for {day.isoformat()}")
     if skipped == 2 and not saved:
         log("  2 AM run already completed both stories and all Painted 2D assets - 3:30 AM backup had nothing to do.")
     if not MOCK and notes:
@@ -14229,16 +14461,16 @@ def main():
 
     char_mode = None
     _am = env("ANIM_MODE").strip().lower()
-    if (_am in ("", "character") and env("PAINTED_2D") != "0"):
+    if (_am == "cutout" and env("PAINTED_2D") != "0"):
         try:
-            log("Painted 2D Cartoon Studio active (story-matched painted 2D characters, props, empty backgrounds & lip-sync)")
+            log("Legacy Cutout Character Studio active (ANIM_MODE=cutout)")
             char_mode = prepare_character_mode(story, scenes, cast, seed)
         except Exception as e:
-            log("  painted 2D character mode failed - falling back:", str(e)[:200])
+            log("  cutout character mode failed - falling back:", str(e)[:200])
             char_mode = None
     use_25d = cartoon25d_on() and not char_mode
     if use_25d:
-        log("Pure Story-Matched 2.5D Illustrated Horror active")
+        log("Realistic Cinematic Shot-by-Shot Painted 2.5D Engine active (full-frame painted shots + refined 3-plane parallax)")
     tv_ep = None
     if _am == "tvtoon" and not use_25d and not char_mode:
         try:
@@ -14251,13 +14483,20 @@ def main():
             log("  cartoon plan failed - the classic pictures are made instead:", str(e)[:200])
             tv_ep = None
 
+    _pre_dir = _cinematic_slot_dir(SLOT or dt.datetime.now(extras.IST).strftime("%Y-%m-%d@%H"))
     if not tv_ep and not char_mode:
-        log("Cast reference picture")
-        if not make_cast_sheet(cast, os.path.join(WORK, "cast.jpg"), seed):
-            log("  no cast picture - using text descriptions only")
+        _pre_cast = os.path.join(_pre_dir, "cast.jpg")
+        if use_25d and os.path.exists(_pre_cast) and os.path.getsize(_pre_cast) > 2000:
+            shutil.copy(_pre_cast, os.path.join(WORK, "cast.jpg"))
+            cast.ref = os.path.join(WORK, "cast.jpg")
+            log("Cast reference picture loaded from pre-built cinematic cache")
+        else:
+            log("Cast reference picture")
+            if not make_cast_sheet(cast, os.path.join(WORK, "cast.jpg"), seed):
+                log("  no cast picture - using text descriptions only")
 
-    # one picture per spoken line (a new "camera shot" every few seconds), within the free budget
-    budget = int(env("MAX_IMAGES") or (50 if LONG_MIN > 16 else 36))   # 2 videos + teasers fit the free picture limit
+    # Rich cinematic shot-by-shot budget (CF account 1 + CF account 2 + Agnes AI backup)
+    budget = int(env("MAX_IMAGES") or (64 if LONG_MIN > 16 else 48))
     scene_lines = [[ln for ln in (s.get("lines") or []) if str(ln.get("text", "")).strip()] for s in scenes]
     total_lines = sum(len(x) for x in scene_lines) or 1
     imgs, shots_per_scene, last_ok, count = [], [], None, 0
@@ -14349,23 +14588,25 @@ def main():
                 desc = "; ".join(
                     f"{x['name']} is {x.get('pose', '')} {x.get('where', '')}, {x.get('doing', '')}, face: {x.get('feeling', '')}"
                     for x in people[:4])
-                framing_25d = (
-                    " Medium close-up framing, clear foreground character separated from deep dark layered background."
-                    if (use_25d and n_ == 1) else
-                    " Cinematic medium two-shot, characters naturally facing each other, clear foreground separation from dark layered background."
-                    if (use_25d and n_ == 2) else ""
-                )
+                framing_25d = (" " + _cinematic_framing_directive(g, len(groups), first, people, s.get("mood", "creepy"))) if use_25d else ""
                 action = (f"EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture, no one else, nobody "
                           f"appears twice. {desc}.{framing_25d} {action}")
                 names = [x["name"] for x in people]
             elif use_25d and isinstance(names, list) and 1 <= len(names) <= 2:
                 n_ = len(names)
-                action = (f"EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture ({', '.join(names)}), "
-                          f"medium shot with clear foreground separation from layered dark background. {action}")
-            log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)})")
+                framing_25d = _cinematic_framing_directive(g, len(groups), first, names, s.get("mood", "creepy"))
+                action = f"{framing_25d} EXACTLY {n_} {'figure' if n_ == 1 else 'figures'} in the picture ({', '.join(names)}). {action}"
+            elif use_25d:
+                action = f"{_cinematic_framing_directive(g, len(groups), first, [], s.get('mood', 'creepy'))} {action}"
+            _pre_shot = os.path.join(_pre_dir, f"shot_{i:02d}_{g:02d}.jpg")
             if i == 0 and g < len(recap_pics) and len(groups) > len(recap_pics):   # v70: the last part's own pictures
+                log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)}) [recap]")
                 p = recap_pics[g]
-            elif make_image(cast, action, s.get("place", ""), names, p, seed):
+            elif use_25d and os.path.exists(_pre_shot) and os.path.getsize(_pre_shot) > 2000:
+                shutil.copy(_pre_shot, p)
+                last_ok = p
+                log(f"Picture {count} (scene {i + 1}, shot {g + 1}/{len(groups)}) [loaded from cache]")
+            elif make_image(cast, action, s.get("place", ""), names, p, seed + count * 13):
                 last_ok = p
             elif scene_shots:
                 p = scene_shots[-1]                      # reuse; the camera move makes it look different

@@ -2044,9 +2044,10 @@ def _tts_call(requests_to_try):
             if r.status_code == 429:
                 kind, wait = _429_kind(r)
                 HITS[model] = HITS.get(model, 0) + 1
-                if kind == "day" or HITS[model] >= 3:     # 3 refusals in a row: its limit is over for today
+                if kind == "day" or HITS[model] >= 3:     # key's limit is over for this model: try NEXT key immediately!
                     DAY_OUT.add((key, model))
-                    break
+                    HITS[model] = 0
+                    continue
                 KEY_COOL[key] = time.time() + min(wait, 65) + 1
                 continue
             HITS[model] = 0
@@ -2418,7 +2419,7 @@ def tts_gemini(voice_text, voice, style, lang_label, out_wav, sr=44100, max_trie
             log("  expressive voice: free limit used up on all keys")
             return False
         d = _audio_file(data, out_wav, sr)
-        if max(0.4, plain_len / 40) <= d <= plain_len / 3 + 6:
+        if max(0.45, plain_len / 24) <= d <= plain_len / 2.2 + 10:
             try:
                 twice = _said_twice(out_wav, [voice_text])
             except Exception:
