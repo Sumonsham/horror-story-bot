@@ -126,14 +126,18 @@ class Scene:
         if (
             self._bg_image_path
             and os.path.exists(str(self._bg_image_path))
-            and not self.vehicles
+            and not any(getattr(v_, "lane", None) == "tracks" for v_ in self.vehicles.values())
             and loc not in ("boat", "train_inside", "bus_inside", "tram_inside")
         ):
             try:
                 from PIL import Image as _PILImage
-                _im = _PILImage.open(str(self._bg_image_path)).convert("RGBA")
+                from tvtoon import paintbg as _PB
                 _bw, _bh = int(BG.WORLD_W + 1400), int(BG.WORLD_H + 620)
-                _im = _im.resize((_bw, _bh), _PILImage.LANCZOS)
+                _src = _PILImage.open(str(self._bg_image_path)).convert("RGB")
+                # (26 Nov 2026) the painting keeps its shape: scaled to the height, the width continued (mirrored)
+                # instead of squeezed to 2.7:1; the strip under it in the painting's own ground colour
+                _im = _PB.strip(_src, _bw, _bh).convert("RGBA")
+                self._bg_ground = _PB.ground_colour(_src)
                 _arr = np.array(_im)
                 # Convert RGBA to Cairo ARGB32 (BGRA on little-endian)
                 _bgra = np.empty((_bh, _bw, 4), dtype=np.uint8)
@@ -447,6 +451,9 @@ class Scene:
                         else:
                             continue
                     elif kind == "hold_breath":       # a frightened flinch: the scared face for a moment
+                        if any(l_["t0"] - 0.3 < t + 1.6 and t < l_["t1"] + 0.3 for l_ in self.lines
+                               if not l_.get("narrator")):
+                            continue                     # (not while someone speaks: an open mouth reads as talking)
                         pf.emotions.append((t, t + 1.6, "scared"))
                         sec = 1.6
                     elif kind == "bounce":
@@ -713,7 +720,7 @@ class Scene:
                 arr[:, : self.W] = cv2.GaussianBlur(arr[:, : self.W], (0, 0), k)
                 surf.mark_dirty()
             ctx.set_matrix(m)
-            ctx.set_source_rgb(*G.rgb("#121218"))
+            ctx.set_source_rgb(*getattr(self, "_bg_ground", G.rgb("#121218")))
             ctx.rectangle(-5000, BG.WORLD_H + 190, 15000, 5000)
             ctx.fill()
         elif self.world is not None:
@@ -874,7 +881,10 @@ class Scene:
             bk = float(os.environ.get("TVTOON_BRIGHT") or 1.0)
         except ValueError:
             bk = 1.0
-        gain = 1.0 + bk * ({"horror": 0.16, "film": 0.12, "kids": 0.12}.get(look, 0.1) + (0.22 if night else 0.0))
+        # (28 Nov 2026: a children's night scene - the sweet shop at midnight - was nearly black: the kids' look
+        # lifts the night much more; night stays blue, but the faces and the room are always clearly seen)
+        gain = 1.0 + bk * ({"horror": 0.16, "film": 0.12, "kids": 0.12}.get(look, 0.1)
+                           + ((0.75 if look == "kids" else 0.22) if night else (0.25 if look == "kids" and dusk else 0.0)))
         xe = 1.0 - (1.0 - x) ** gain                                         # lifts darks and mids, keeps whites
         curve = xe + s_amt * (xe - 0.5) * (1 - np.abs(2 * xe - 1)) * 1.6      # contrast around the middle
         sh = np.clip(1 - x * 2.2, 0, 1)                                    # how much a value is a shadow
